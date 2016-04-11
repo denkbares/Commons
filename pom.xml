@@ -4,12 +4,36 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
 	<modules>
-		<module>d3web-PluginManager</module>
-		<module>d3web-Utils</module>
+		<module>denkbares-PluginManager</module>
+		<module>denkbares-Utils</module>
+		<module>denkbares-Collections</module>
+		<module>denkbares-Progress</module>
+		<module>denkbares-Strings</module>
 	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.denkbares</groupId>
+				<artifactId>denkbares-PluginManager</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.denkbares</groupId>
+				<artifactId>denkbares-Utils</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 </project>

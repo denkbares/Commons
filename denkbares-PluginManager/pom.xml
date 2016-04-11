@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<artifactId>denkbares-Commons</artifactId>
+		<groupId>com.denkbares</groupId>
+		<version>0-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>d3web-PluginManager</artifactId>
+	<description>denkbares Plugin manager based on JPF</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.jpf</groupId>
+			<artifactId>jpf</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.denkbares</groupId>
+			<artifactId>denkbares-Utils</artifactId>
+		</dependency>
+	</dependencies>
+</project>
