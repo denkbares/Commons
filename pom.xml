@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.denkbares</groupId>
+	<artifactId>denkbares-Commons</artifactId>
+	<version>0.2-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<description>denkbares open source common utils</description>
+
+	<modules>
+		<module>d3web-PluginManager</module>
+		<module>d3web-Utils</module>
+	</modules>
+</project>
