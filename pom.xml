@@ -6,7 +6,7 @@
 	<artifactId>denkbares-Commons</artifactId>
 	<version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<description>denkbares open source common utils</description>
+	<description>denkbares open source common utilities</description>
 
 	<modules>
 		<module>d3web-PluginManager</module>
