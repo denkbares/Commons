@@ -10,26 +10,6 @@
 	<artifactId>denkbares-Utils</artifactId>
 	<description>General helpful code that is not related to KR and reasoning.</description>
 
-	<build>
-		<plugins>
-			<!-- Generate JPF dependency lists; configuration is done in parent pom -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-			</plugin>
-			<!-- Exclude ProgressDialogTest because jenkins does not support GUI tests -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>**/ProgressDialogTest.java</exclude>
-					</excludes>
-					<argLine>-Dfile.encoding=UTF-8</argLine>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 	<dependencies>
 		<dependency>

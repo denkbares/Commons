@@ -26,7 +26,6 @@ import java.util.TreeSet;
 import org.junit.Test;
 
 import de.d3web.collections.WeakValueHashMap;
-import de.d3web.strings.Strings;
 
 import static org.junit.Assert.*;
 
@@ -62,8 +61,8 @@ public class WeakValueHashMapTest {
 		assertEquals(value2, map.get(key2));
 
 		// check for the entries
-		assertEquals("value1, value2", Strings.concat(", ", new TreeSet<Value>(map.values())));
-		assertEquals("key1, key2", Strings.concat(", ", new TreeSet<Key>(map.keySet())));
+		assertEquals("[value1, value2]", new TreeSet<Value>(map.values()));
+		assertEquals("[key1, key2]", new TreeSet<Key>(map.keySet()));
 
 		map.remove(new Key("key3"));
 		assertEquals(2, map.size());

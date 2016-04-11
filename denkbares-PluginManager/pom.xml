@@ -8,7 +8,7 @@
 		<version>0-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>d3web-PluginManager</artifactId>
+	<artifactId>denkbares-PluginManager</artifactId>
 	<description>denkbares Plugin manager based on JPF</description>
 
 	<dependencies>
@@ -24,6 +24,12 @@
 		<dependency>
 			<groupId>com.denkbares</groupId>
 			<artifactId>denkbares-Utils</artifactId>
+			<version>0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.denkbares</groupId>
+			<artifactId>denkbares-Strings</artifactId>
+			<version>0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

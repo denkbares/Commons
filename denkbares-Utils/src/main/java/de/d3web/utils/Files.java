@@ -23,10 +23,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 
-import de.d3web.collections.Matrix;
-import de.d3web.strings.StringFragment;
-import de.d3web.strings.Strings;
-
 public class Files {
 
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
@@ -294,8 +290,17 @@ public class Files {
 
 		// and finally write the lines back to disc
 		try (FileOutputStream out = new FileOutputStream(file)) {
-			out.write(Strings.concat("\n", lines).getBytes());
+			out.write(concat("\n", lines).getBytes());
 		}
+	}
+
+	private static String concat(String separator, List<String> lines) {
+		StringBuilder builder = new StringBuilder();
+		for (String line : lines) {
+			builder.append(line).append(separator);
+		}
+		builder.deleteCharAt(builder.length() - 1);
+		return builder.toString();
 	}
 
 	/**
@@ -316,26 +321,6 @@ public class Files {
 		return result;
 	}
 
-	public static Matrix<String> getCSVCells(File file) throws IOException {
-		return getCSVCells(file, ",");
-	}
-
-	public static Matrix<String> getCSVCells(File file, String splitSymbol) throws IOException {
-		List<String> lines = getLines(file);
-		Matrix<String> matrix = new Matrix<String>();
-		int row = 0;
-		for (String line : lines) {
-			List<StringFragment> fragments = Strings.splitUnquoted(line, splitSymbol);
-			int col = 0;
-			for (StringFragment fragment : fragments) {
-				String raw = fragment.getContent().trim();
-				matrix.set(row, col, Strings.unquote(raw));
-				col++;
-			}
-			row++;
-		}
-		return matrix;
-	}
 
 	/**
 	 * Returns the file extension without the leading ".". If the file has no ".", the empty String
@@ -380,7 +365,7 @@ public class Files {
 		for (String extension : extensions) {
 			if (extension == null) continue;
 			if (fileName.length() <= extension.length()) continue;
-			if (Strings.endsWithIgnoreCase(fileName, extension)
+			if (fileName.toLowerCase().endsWith(extension.toLowerCase())
 					&& fileName.charAt(fileName.length() - extension.length() - 1) == '.') {
 				return true;
 			}

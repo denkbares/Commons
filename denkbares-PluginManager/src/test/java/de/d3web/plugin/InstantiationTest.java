@@ -17,14 +17,14 @@
  * site: http://www.fsf.org.
  */
 
-package de.d3web.utils.test;
+package de.d3web.plugin;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.d3web.utils.Instantiation;
+import de.d3web.plugin.util.Instantiation;
 
 /**
  * @author Volker Belli (denkbares GmbH)

@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import de.d3web.strings.QuoteSet;
 import de.d3web.strings.Strings;
+import de.d3web.utils.Streams;
 
 import static org.junit.Assert.*;
 

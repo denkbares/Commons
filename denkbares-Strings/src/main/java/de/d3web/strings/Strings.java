@@ -44,13 +44,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.d3web.collections.Pair;
 import de.d3web.utils.Log;
-import de.d3web.utils.Pair;
+import de.d3web.utils.Streams;
 
 public class Strings {
 
@@ -1653,6 +1653,10 @@ public class Strings {
 		return trim(result);
 	}
 
+	public static String readStream(InputStream inputStream) {
+		return Streams.readStream(inputStream);
+	}
+
 	public enum Encoding {
 		UTF8("UTF-8"), ISO_8859_1("ISO-8859-1");
 
@@ -1729,24 +1733,10 @@ public class Strings {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(File file) throws IOException {
-		return readStream(new FileInputStream(file));
+		return Streams.readStream(new FileInputStream(file));
 	}
 
-	/**
-	 * Reads the contents of a stream into a String and return the string. The InputStream is not
-	 * closed!
-	 *
-	 * @param inputStream the stream to load from
-	 * @return the contents of the file
-	 * @created 20.06.2015
-	 */
-	public static String readStream(InputStream inputStream) {
-		// The reason it works is because Scanner iterates over tokens in the stream,
-		// and in this case we separate tokens using "beginning of the input boundary"
-		// (\A) thus giving us only one token for the entire contents of the stream.
-		Scanner scanner = new Scanner(inputStream, "UTF-8").useDelimiter("\\A");
-		return scanner.hasNext() ? scanner.next() : "";
-	}
+
 
 	public static void writeFile(String path, String content) throws IOException {
 		FileWriter stream = new FileWriter(path);

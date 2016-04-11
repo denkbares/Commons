@@ -4,8 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import de.d3web.strings.Strings;
+import java.util.Scanner;
 
 /**
  * Utility class for stream handling
@@ -132,7 +131,23 @@ public class Streams {
 	 * @created 01.10.2013
 	 */
 	public static String getText(InputStream input) {
-		return Strings.readStream(input);
+		return readStream(input);
+	}
+
+	/**
+	 * Reads the contents of a stream into a String and return the string. The InputStream is not
+	 * closed!
+	 *
+	 * @param inputStream the stream to load from
+	 * @return the contents of the file
+	 * @created 20.06.2015
+	 */
+	public static String readStream(InputStream inputStream) {
+		// The reason it works is because Scanner iterates over tokens in the stream,
+		// and in this case we separate tokens using "beginning of the input boundary"
+		// (\A) thus giving us only one token for the entire contents of the stream.
+		Scanner scanner = new Scanner(inputStream, "UTF-8").useDelimiter("\\A");
+		return scanner.hasNext() ? scanner.next() : "";
 	}
 
 	/**
