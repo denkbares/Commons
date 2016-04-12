@@ -26,10 +26,5 @@
 			<artifactId>denkbares-Utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.denkbares</groupId>
-			<artifactId>denkbares-Strings</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 </project>

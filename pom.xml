@@ -11,10 +11,7 @@
 	<modules>
 		<module>denkbares-PluginManager</module>
 		<module>denkbares-Utils</module>
-		<module>denkbares-Collections</module>
 		<module>denkbares-Progress</module>
-		<module>denkbares-Strings</module>
-		<module>denkbares-Searchable-Collections</module>
 	</modules>
 
 	<build>
