@@ -17,18 +17,18 @@
  * site: http://www.fsf.org.
  */
 
-package de.d3web.collections;
+package de.d3web.utils;
 
 /**
- * This class implements a typed, null-save pair of two other objects.
+ * This class implements a typed, null-save triple of three other objects.
  * 
  * @author volker_belli
  * 
  */
-public class Pair<T1, T2> extends Tuple {
+public class Triple<T1, T2, T3> extends Tuple {
 
-	public Pair(T1 a, T2 b) {
-		super(a, b);
+	public Triple(T1 a, T2 b, T3 c) {
+		super(a, b, c);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -41,11 +41,16 @@ public class Pair<T1, T2> extends Tuple {
 		return (T2) get(1);
 	}
 
-	@Override
-	public String toString() {
-		return "#Pair["
-				+ String.valueOf(getA()) + "; "
-				+ String.valueOf(getB()) + "]";
+	@SuppressWarnings("unchecked")
+	public T3 getC() {
+		return (T3) get(2);
 	}
 
+	@Override
+	public String toString() {
+		return "#Triple["
+				+ String.valueOf(getA()) + "; "
+				+ String.valueOf(getB()) + "; "
+				+ String.valueOf(getC()) + "]";
+	}
 }

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.d3web.utils.Pair;
 
 /**
  * Utility collection class that provides a two-dimensional array that dynamically expands in both

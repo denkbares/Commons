@@ -48,8 +48,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.d3web.collections.Pair;
 import de.d3web.utils.Log;
+import de.d3web.utils.Pair;
 import de.d3web.utils.Streams;
 
 public class Strings {

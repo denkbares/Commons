@@ -17,51 +17,35 @@
  * site: http://www.fsf.org.
  */
 
-package de.d3web.collections;
-
-import java.util.Arrays;
-import java.util.Collection;
+package de.d3web.utils;
 
 /**
- * This class implements a typed, null-save tuple of a number of other objects.
+ * This class implements a typed, null-save pair of two other objects.
  * 
  * @author volker_belli
  * 
  */
-public class Tuple {
+public class Pair<T1, T2> extends Tuple {
 
-	private final Object[] items;
-
-	public Tuple(Object... items) {
-		this.items = items;
+	public Pair(T1 a, T2 b) {
+		super(a, b);
 	}
 
-	public Object get(int index) {
-		return items[index];
+	@SuppressWarnings("unchecked")
+	public T1 getA() {
+		return (T1) get(0);
 	}
 
-	public int getSize() {
-		return items.length;
-	}
-
-	public Collection<?> asList() {
-		return Arrays.asList(items);
+	@SuppressWarnings("unchecked")
+	public T2 getB() {
+		return (T2) get(1);
 	}
 
 	@Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof Tuple)) {
-			return false;
-		}
-		Tuple o = (Tuple) other;
-		return Arrays.equals(this.items, o.items);
+	public String toString() {
+		return "#Pair["
+				+ String.valueOf(getA()) + "; "
+				+ String.valueOf(getB()) + "]";
 	}
 
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(this.items);
-	}
 }
