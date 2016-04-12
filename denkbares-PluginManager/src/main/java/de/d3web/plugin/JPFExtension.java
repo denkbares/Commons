@@ -28,7 +28,7 @@ import org.java.plugin.registry.Extension;
 import org.java.plugin.registry.Extension.Parameter;
 import org.java.plugin.registry.PluginDescriptor;
 
-import de.d3web.plugin.util.Instantiation;
+import de.d3web.utils.Instantiation;
 import de.d3web.utils.InstantiationContext;
 import de.d3web.utils.Log;
 
