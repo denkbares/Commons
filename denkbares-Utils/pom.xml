@@ -10,11 +10,4 @@
 	<artifactId>denkbares-Utils</artifactId>
 	<description>General helpful code that is not related to KR and reasoning.</description>
 
-
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-	</dependencies>
 </project>
