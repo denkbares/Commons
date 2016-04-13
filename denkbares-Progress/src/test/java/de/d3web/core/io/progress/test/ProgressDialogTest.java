@@ -18,17 +18,18 @@
  */
 package de.d3web.core.io.progress.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.SwingUtilities;
-
-import org.junit.Test;
+import javax.swing.*;
 
 import de.d3web.core.io.progress.ProgressDialog;
+import org.junit.Assume;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * 
@@ -53,6 +54,11 @@ public class ProgressDialogTest {
 
 	@Test
 	public void progressDialog() throws InterruptedException, InvocationTargetException {
+		if (GraphicsEnvironment.isHeadless()) {
+			Assume.assumeTrue("JVM is headless, skipping test", false);
+			return;
+		}
+
 		TestCancelAction cancelAction = new TestCancelAction();
 		final ProgressDialog progressDialog = new ProgressDialog("Test");
 		progressDialog.setCancelAction(cancelAction);
