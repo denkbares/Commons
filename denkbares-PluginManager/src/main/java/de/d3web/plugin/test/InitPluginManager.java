@@ -28,7 +28,7 @@ import de.d3web.plugin.JPFPluginManager;
 import de.d3web.strings.Strings;
 
 /**
- * Provides a static method to initialize the JPF-Pluginmanager by using a classpath file generated
+ * Provides a static method to initialize the JPF-PluginManager by using a classpath file generated
  * from the Maven dependency plugin
  *
  * @author Markus Friedrich (denkbares GmbH)
@@ -42,29 +42,30 @@ public abstract class InitPluginManager {
 	}
 
 	/**
-	 * Initializes the JPF-Pluginmanager with the information stored in
+	 * Initializes the JPF-PluginManager with the information stored in
 	 * "target/dependencies/output.txt". This file can be generated with the maven dependency
-	 * plugin.
+	 * plugin. If the plugin manager is already initialized, the method does nothing.
 	 * <p>
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
-	 * @param additionalPluginPatterns specifies additional possible regex patterns of the files that are to be loaded
-	 *                                 by the plugin manager. By default, only files with prefixes "d3web-Plugin" or
-	 *                                 "KnowWE-Plugin" are loaded.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
+	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
+	 * loaded.
 	 * @throws IOException
 	 */
-	public static void init(String... additionalPluginPatterns) throws IOException {
-		init(new File("target/dependencies/output.txt"), additionalPluginPatterns);
+	public static void init(String... pluginFilterPattern) throws IOException {
+		init(new File("target/dependencies/output.txt"), pluginFilterPattern);
 	}
 
 	/**
-	 * Initializes the JPF-Pluginmanager with the information stored in
-	 * "target/dependencies/output.txt" This file can be generated with the maven dependency plugin
-	 * <BR> Important: Tests using this function must run maven install after each dependency
-	 * update
+	 * Initializes the JPF-PluginManager with the information stored in
+	 * "target/dependencies/output.txt" This file can be generated with the maven dependency plugin.
+	 * If the plugin manager is already initialized, the method does nothing. <p> Important: Tests
+	 * using this function must run maven install after each dependency update
 	 *
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager. If no
-	 *                            specific patterns are given, we exclusively load d3web-Plugins and KnowWE-Plugins.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
+	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
+	 * loaded.
 	 * @throws IOException
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
@@ -72,13 +73,15 @@ public abstract class InitPluginManager {
 	}
 
 	/**
-	 * Initializes the JPF-Pluginmanager with a list of plugin files. This file can be generated
-	 * with the maven dependency plugin
+	 * Initializes the JPF-PluginManager with a list of plugin files. This file can be generated
+	 * with the maven dependency plugin. If the plugin manager is already initialized, the method
+	 * does nothing.
 	 * <p>
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager. If no
-	 *                            specific patterns are given, we exclusively load d3web-Plugins and KnowWE-Plugins.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
+	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
+	 * loaded.
 	 */
 	public static void init(String[] jarFiles, String... pluginFilterPattern) {
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {

@@ -1134,7 +1134,8 @@ public class Strings {
 
 	/**
 	 * Unquotes the given String. If the String contains an escaped quote char (\"), it will be
-	 * unescaped.
+	 * unescaped. If the specified text ist null, null is returned. If the specified text is not
+	 * quoted the roiginal text is returned.
 	 *
 	 * @param text the string to be unquoted
 	 */

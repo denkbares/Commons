@@ -56,8 +56,8 @@ public final class JPFPluginManager extends PluginManager {
 	private final Map<org.java.plugin.registry.Extension, Extension> cachedExtension = new HashMap<org.java.plugin.registry.Extension, Extension>();
 
 	/**
-	 * Contains the registered Plugins. The field will be initialized lazy by
-	 * the {@link #getPlugins()} method.
+	 * Contains the registered Plugins. The field will be initialized lazy by the {@link
+	 * #getPlugins()} method.
 	 */
 	private Plugin[] plugins = null;
 
@@ -82,7 +82,8 @@ public final class JPFPluginManager extends PluginManager {
 				Log.severe("error initializing plugin '" + pluginFile + "': " + e);
 			}
 		}
-		Map<String, Identity> map = manager.publishPlugins(locations.toArray(new PluginLocation[locations.size()]));
+		Map<String, Identity> map = manager.publishPlugins(locations.toArray(new PluginLocation[locations
+				.size()]));
 		// activate all plugins
 		for (Identity i : map.values()) {
 			String id = i.getId();
@@ -110,10 +111,10 @@ public final class JPFPluginManager extends PluginManager {
 	}
 
 	/**
-	 * Checks whether the given pluginName matches any of the given pluginFilterPatterns. If no patterns are given, we
-	 * always return true.
+	 * Checks whether the given pluginName matches any of the given pluginFilterPatterns. If no
+	 * patterns are given, we always return true.
 	 *
-	 * @param pluginName           the name of the plugin to be checked
+	 * @param pluginName the name of the plugin to be checked
 	 * @param pluginFilterPatterns a set of regex pattern to either accept or decline a plugin name
 	 */
 	public static boolean isPlugin(String pluginName, String... pluginFilterPatterns) {
@@ -129,18 +130,17 @@ public final class JPFPluginManager extends PluginManager {
 	}
 
 	/**
-	 * This method initializes the JPFPluginmanager as PluginManager (which can
-	 * be accessed via PluginManager.getInstance()) with the directory of the
-	 * plugins as a String.
+	 * This method initializes the JPFPluginManager as PluginManager (which can be accessed via
+	 * PluginManager.getInstance()) with the directory of the plugins as a String. If the plugin
+	 * manager is already initialized, the method does nothing.
 	 * <p>
-	 * If the manager could not be initialized with the specified directory (for
-	 * any reason), an IllegalArgumentException is thrown.
+	 * If the manager could not be initialized with the specified directory (for any reason), an
+	 * IllegalArgumentException is thrown.
 	 *
-	 * @param directory           directory of the plugins
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager. If no
-	 *                            patterns are given, we try to load every file.
-	 * @throws IllegalArgumentException the directory could not be used for
-	 *                                  initialization
+	 * @param directory directory of the plugins
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
+	 * manager. If no patterns are given, we try to load every file.
+	 * @throws IllegalArgumentException the directory could not be used for initialization
 	 */
 	public static void init(String directory, String... pluginFilterPattern) {
 		if (instance != null) {
@@ -158,18 +158,21 @@ public final class JPFPluginManager extends PluginManager {
 	}
 
 	/**
-	 * This method initializes the JPFPluginmanager as PluginManager (which can
-	 * be accessed via PluginManager.getInstance()) with an array of plugin
-	 * files (any mixture of jars, zips or folders)
+	 * This method initializes the JPFPluginManager as PluginManager (which can be accessed via
+	 * PluginManager.getInstance()) with an array of plugin files (any mixture of jars, zips or
+	 * folders). If the plugin manager is already initialized, the method does nothing.
 	 * <p>
-	 * If the manager could not be initialized with the specified directory (for
-	 * any reason), an IllegalArgumentException is thrown.
+	 * If the manager could not be initialized with the specified directory (for any reason), an
+	 * IllegalArgumentException is thrown.
 	 *
 	 * @param pluginFiles list of plugin files
-	 * @throws IllegalArgumentException the files could not be used for
-	 *                                  initialization
+	 * @throws IllegalArgumentException the files could not be used for initialization
 	 */
 	public static void init(File[] pluginFiles) { // NOSONAR false-positive
+		if (instance != null) {
+			Log.warning("PluginManager already initialised.");
+			return;
+		}
 		// warning
 		if (pluginFiles == null) {
 			// throw new IllegalArgumentException("invalid plugin files");
@@ -220,7 +223,8 @@ public final class JPFPluginManager extends PluginManager {
 	@Override
 	public synchronized Extension[] getExtensions() {
 		List<Extension> result = new ArrayList<>();
-		Collection<PluginDescriptor> pluginDescriptors = manager.getRegistry().getPluginDescriptors();
+		Collection<PluginDescriptor> pluginDescriptors = manager.getRegistry()
+				.getPluginDescriptors();
 		for (PluginDescriptor pluginDescriptor : pluginDescriptors) {
 			for (org.java.plugin.registry.Extension e : pluginDescriptor.getExtensions()) {
 				Extension extension = cachedExtension.get(e);
