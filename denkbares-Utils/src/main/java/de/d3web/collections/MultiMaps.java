@@ -34,6 +34,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 import de.d3web.utils.EqualsUtils;
 
@@ -141,7 +146,8 @@ public class MultiMaps {
 	}
 
 	/**
-	 * HashSet memory optimized for cases where you have a lot of them but most of the time with only one element.
+	 * HashSet memory optimized for cases where you have a lot of them but most of the time with
+	 * only one element.
 	 */
 	static class MinimizedHashSet<T> extends AbstractSet<T> {
 
@@ -300,7 +306,8 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a collection factory for handling the entries as a tree, using {@link Comparator} to sort.
+	 * Returns a collection factory for handling the entries as a tree, using {@link Comparator} to
+	 * sort.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -574,7 +581,6 @@ public class MultiMaps {
 		}
 	}
 
-
 	public static final MultiMap EMPTY_MULTI_MAP = new EmptyMultiMap();
 
 	public static <K, V> MultiMap<K, V> emptyMultiMap() {
@@ -668,7 +674,6 @@ public class MultiMaps {
 			return Collections.emptyMap();
 		}
 	}
-
 
 	public static <K, V> MultiMap<K, V> singletonMultiMap(K key, V value) {
 		return new SingletonMultiMap<>(key, value);
@@ -768,5 +773,37 @@ public class MultiMaps {
 		public Map<K, Set<V>> toMap() {
 			return Collections.singletonMap(key, valueSet());
 		}
+	}
+
+	public static <K, V> Collector<V, ?, MultiMap<K, V>> toMultiMap(Function<V, K> keyExtractor) {
+		return new Collector<V, MultiMap<K, V>, MultiMap<K, V>>() {
+			@Override
+			public Supplier<MultiMap<K, V>> supplier() {
+				return DefaultMultiMap<K, V>::new;
+			}
+
+			@Override
+			public BiConsumer<MultiMap<K, V>, V> accumulator() {
+				return (mmap, value) -> mmap.put(keyExtractor.apply(value), value);
+			}
+
+			@Override
+			public BinaryOperator<MultiMap<K, V>> combiner() {
+				return (mmap1, mmap2) -> {
+					mmap1.putAll(mmap2);
+					return mmap1;
+				};
+			}
+
+			@Override
+			public Function<MultiMap<K, V>, MultiMap<K, V>> finisher() {
+				return Function.identity();
+			}
+
+			@Override
+			public Set<Characteristics> characteristics() {
+				return Collections.singleton(Collector.Characteristics.IDENTITY_FINISH);
+			}
+		};
 	}
 }
