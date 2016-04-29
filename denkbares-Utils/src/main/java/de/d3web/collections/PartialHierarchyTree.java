@@ -110,8 +110,26 @@ public class PartialHierarchyTree<T> {
 	 * @param term
 	 * @return whether t has been found and removed
 	 */
-	public synchronized boolean removeNodeFromTree(T term) {
-		return removeNodeFromTree(term, root);
+	public synchronized boolean remove(T term) {
+		return remove(term, root);
+	}
+
+	/**
+	 * Removes all elements of the given collection from this data structure, see remove(T term).
+	 * Returns true if the some value has been found and removed.
+	 *
+	 * @param terms
+	 * @return true if the PartialHierarchyTree has changed, false otherwise.
+	 */
+	public synchronized boolean removeAll(Collection<T> terms) {
+		boolean changed = false;
+		for (T term : terms) {
+			boolean removed = remove(term);
+			if(removed) {
+				changed = true;
+			}
+		}
+		return changed;
 	}
 
 	/**
@@ -348,7 +366,7 @@ public class PartialHierarchyTree<T> {
 	 * @param term
 	 * @param node
 	 */
-	private boolean removeNodeFromTree(T term, Node<T> node) {
+	private boolean remove(T term, Node<T> node) {
 		boolean found = false;
 		List<Node<T>> children = node.getChildren();
 		Iterator<Node<T>> iterator = children.iterator();
@@ -362,7 +380,7 @@ public class PartialHierarchyTree<T> {
 			}
 			else {
 				// other search recursive
-				if (removeNodeFromTree(term, child)) {
+				if (remove(term, child)) {
 					found = true;
 				}
 			}
