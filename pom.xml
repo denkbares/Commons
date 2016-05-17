@@ -12,6 +12,7 @@
 		<module>denkbares-PluginManager</module>
 		<module>denkbares-Utils</module>
 		<module>denkbares-Progress</module>
+		<module>denkbares-SemanticCore</module>
 		<module>denkbares-SemanticCore-Plugin-ExtensionPoints</module>
 	</modules>
 

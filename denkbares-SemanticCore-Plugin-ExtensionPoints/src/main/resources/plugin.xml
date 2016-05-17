@@ -3,7 +3,7 @@
 <plugin id="denkbares-SemanticCore-Plugin-ExtensionPoints" version="1.0">
 	<!-- This plugin only defines extension points for knowledge reader, knowledge writer and fragment handler. -->
 
-	<extension-point id="SemanticCoreReasoning">
+	<extension-point id="ReasoningConfig">
 		<parameter-def id="class" />
 		<parameter-def id="name" />
 		<parameter-def id="description" />
