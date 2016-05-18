@@ -42,7 +42,7 @@ public class ReasoningConfigs {
 		if (cache.isEmpty()) {
 			Extension[] reasoningExtensions = PluginManager.getInstance()
 					.getExtensions("denkbares-SemanticCore-Plugin-ExtensionPoints",
-							"SemanticCoreReasoning");
+							"ReasoningConfig");
 			for (Extension reasoningExtension : reasoningExtensions) {
 				ReasoningConfig singleton = (ReasoningConfig) reasoningExtension.getSingleton();
 				cache.put(singleton.getClass(), singleton);

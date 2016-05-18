@@ -1,7 +1,7 @@
 <?xml version="1.0" ?><!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0"
 	"http://jpf.sourceforge.net/plugin_1_0.dtd">
 <plugin id="denkbares-SemanticCore-Plugin-ExtensionPoints" version="1.0">
-	<!-- This plugin only defines extension points for knowledge reader, knowledge writer and fragment handler. -->
+	<!-- This plugin only defines extension points for denkbares-SemanticCore. -->
 
 	<extension-point id="ReasoningConfig">
 		<parameter-def id="class" />
