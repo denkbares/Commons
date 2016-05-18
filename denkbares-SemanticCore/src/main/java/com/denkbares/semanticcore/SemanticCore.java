@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -90,6 +91,7 @@ public class SemanticCore {
 	}
 
 	public static SemanticCore createInstance(String key, ReasoningConfig reasoning, String tmpFolder) throws IOException {
+		Objects.requireNonNull(reasoning);
 		SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
 		instances.put(key, instance);
 		Log.info("Created SemanticCore " + instance.repositoryId + ", rule set is: " + reasoning.getName() + ", implementation is: " + instance.repository
