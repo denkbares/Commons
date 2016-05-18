@@ -4,6 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import de.d3web.plugin.Extension;
 import de.d3web.plugin.PluginManager;
@@ -19,21 +23,32 @@ public class ReasoningConfigs {
 	private static final Map<Class<? extends ReasoningConfig>, ReasoningConfig> cache = new HashMap<>();
 
 	/**
-	 * Get an instance of the given reasoning config class. It will be a singleton retrieved from the PluginManger.
+	 * Get an instance for the given reasoning config class. It will be a singleton retrieved from the PluginManger.
+	 * The return value cannot be null (except in case of a faulty plugin).
 	 *
 	 * @return an instance of the given reasoning config class.
 	 */
+	@NotNull
 	public static ReasoningConfig get(Class<? extends ReasoningConfig> reasoningClass) {
+		Objects.nonNull(reasoningClass);
 		initExtensions();
-		return cache.get(reasoningClass);
+		ReasoningConfig reasoningConfig = cache.get(reasoningClass);
+		if (reasoningConfig == null) {
+			throw new IllegalArgumentException("There seems to be no valid extension for the given config class '"
+					+ reasoningClass.getName() + "'. This is most likely due to a faulty plugin.");
+		}
+		return reasoningConfig;
 	}
 
 	/**
-	 * Get an instance of the given config name. It will be a singleton retrieved from the PluginManger.
+	 * Get an instance for the given config name, if one exists (null else).
+	 * It will be a singleton retrieved from the PluginManger.
 	 *
 	 * @return an instance of the given reasoning config name.
 	 */
+	@Nullable
 	public static ReasoningConfig get(String name) {
+		Objects.nonNull(null);
 		initExtensions();
 		return cache.values().stream().filter(reasoning -> reasoning.getName().equals(name)).findFirst().orElse(null);
 	}
