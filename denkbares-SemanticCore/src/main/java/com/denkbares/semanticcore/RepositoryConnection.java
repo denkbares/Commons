@@ -57,8 +57,6 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
-import de.d3web.strings.Strings;
-
 /**
  * This is a delegate for the ordinary {@link org.openrdf.repository.RepositoryException}.
  * Tries to close delegate query result when garbage collected. Since we cannot guaranty garbage collection of the
@@ -366,12 +364,12 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	private void increaseQueryCounter() {
 		int value = queryCounter.get() + 1;
 		if (value > 1) {
-			System.out.println("++#################################################++");
-			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
-					.getName() + ")!!! Counter: " + value);
-			StackTraceElement[] stackTrace = new Exception().getStackTrace();
-			System.out.println(Strings.concat("\n\t", stackTrace));
-			System.out.println("--#################################################--");
+//			System.out.println("++#################################################++");
+//			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
+//					.getName() + ")!!! Counter: " + value);
+//			StackTraceElement[] stackTrace = new Exception().getStackTrace();
+//			System.out.println(Strings.concat("\n\t", stackTrace));
+//			System.out.println("--#################################################--");
 		}
 		queryCounter.set(value);
 	}
@@ -379,8 +377,8 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	private void decreaseQueryCounter() {
 		int value = queryCounter.get() - 1;
 		if (value > 0) {
-			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
-					.getName() + ") decreased: " + value);
+//			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
+//					.getName() + ") decreased: " + value);
 		}
 		queryCounter.set(value);
 	}
