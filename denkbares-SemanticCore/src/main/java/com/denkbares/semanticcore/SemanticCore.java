@@ -280,7 +280,7 @@ public class SemanticCore {
 	public void addData(File file) throws RDFParseException, RepositoryException, IOException {
 		if (!file.exists()) {
 			String message = "ontology file not found: " + file.getAbsolutePath();
-			de.d3web.utils.Log.severe(message);
+			Log.severe(message);
 		}
 
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase();
@@ -325,6 +325,9 @@ public class SemanticCore {
 	private RDFFormat getRdfFormat(String fileName) {
 		RDFFormat format;
 		if (fileName.toLowerCase().endsWith(".xml.dan")) {
+			format = RDFFormat.RDFXML;
+		}
+		else if (fileName.toLowerCase().endsWith(".xml")) {
 			format = RDFFormat.RDFXML;
 		}
 		else if (fileName.toLowerCase().endsWith(".ttl.dan")) {
