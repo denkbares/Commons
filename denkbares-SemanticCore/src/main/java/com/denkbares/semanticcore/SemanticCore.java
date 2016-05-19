@@ -35,6 +35,7 @@ import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.config.RepositoryConfig;
+import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -138,7 +139,7 @@ public class SemanticCore {
 	private void initConnectionDaemon() {
 		// checks every 10 seconds for open connections and warns about them...
 		// noinspection CodeBlock2Expr
-		daemon.scheduleAtFixedRate((Runnable) () -> {
+		daemon.scheduleAtFixedRate(() -> {
 			connections.forEachKey(Long.MAX_VALUE, connectionInfo -> {
 				if (connectionInfo.stopWatch.getTime() < THRESHOLD_TIME) return;
 				try {
@@ -211,6 +212,12 @@ public class SemanticCore {
 		}
 		finally {
 			instances.remove(repositoryId);
+			try {
+				repositoryManager.removeRepository(repositoryId);
+			}
+			catch (RepositoryException | RepositoryConfigException e) {
+				Log.info("Unable to remove repository from manager", e);
+			}
 		}
 	}
 

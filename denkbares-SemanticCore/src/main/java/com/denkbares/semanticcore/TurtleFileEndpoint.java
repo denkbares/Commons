@@ -42,7 +42,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * Creates a new endpoint by loading the turtle file into a newly created semantic core.
 	 *
 	 * @param sourceFile the turtle file to be loaded
-	 * @param reasoning    the reasoning config to be used by this endpoint
+	 * @param reasoning  the reasoning config to be used by this endpoint
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
