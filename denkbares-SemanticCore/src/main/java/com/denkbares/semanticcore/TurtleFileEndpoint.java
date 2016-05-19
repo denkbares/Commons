@@ -28,8 +28,7 @@ import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
-import com.denkbares.semanticcore.reasoning.RdfConfig;
-import com.denkbares.semanticcore.reasoning.ReasoningConfigs;
+import com.denkbares.semanticcore.reasoning.ReasoningConfig;
 
 /**
  * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the
@@ -43,11 +42,12 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * Creates a new endpoint by loading the turtle file into a newly created semantic core.
 	 *
 	 * @param sourceFile the turtle file to be loaded
+	 * @param reasoning    the reasoning config to be used by this endpoint
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(URL sourceFile, File tempFolder) throws IOException {
-		this(sourceFile, createOntologyName(sourceFile), tempFolder);
+	public TurtleFileEndpoint(URL sourceFile, ReasoningConfig reasoning, File tempFolder) throws IOException {
+		this(sourceFile, reasoning, createOntologyName(sourceFile), tempFolder);
 	}
 
 	/**
@@ -56,12 +56,13 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * is any.
 	 *
 	 * @param sourceFile   the turtle file to be loaded
+	 * @param reasoning    the reasoning config to be used by this endpoint
 	 * @param ontologyName the name/id of the ontology
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(URL sourceFile, String ontologyName, File tempFolder) throws IOException {
-		this(sourceFile.openStream(), true, ontologyName, tempFolder);
+	public TurtleFileEndpoint(URL sourceFile, ReasoningConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+		this(sourceFile.openStream(), reasoning, true, ontologyName, tempFolder);
 	}
 
 	/**
@@ -70,12 +71,13 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * is any.
 	 *
 	 * @param source       streamed turtle content to be loaded
+	 * @param reasoning    the reasoning config to be used by this endpoint
 	 * @param ontologyName the name/id of the ontology
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(InputStream source, String ontologyName, File tempFolder) throws IOException {
-		this(source, false, ontologyName, tempFolder);
+	public TurtleFileEndpoint(InputStream source, ReasoningConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+		this(source, reasoning, false, ontologyName, tempFolder);
 	}
 
 	/**
@@ -84,14 +86,15 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * is any.
 	 *
 	 * @param source       streamed turtle content to be loaded
+	 * @param reasoning    the reasoning config to be used by this endpoint
 	 * @param autoClose    if the specified stream shall be closed by this method after reading
 	 * @param ontologyName the name/id of the ontology
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	private TurtleFileEndpoint(InputStream source, boolean autoClose, String ontologyName, File tempFolder) throws IOException {
+	private TurtleFileEndpoint(InputStream source, ReasoningConfig reasoning, boolean autoClose, String ontologyName, File tempFolder) throws IOException {
 		this.ontologyName = ontologyName;
-		this.sc = SemanticCore.getOrCreateInstance(ontologyName, ReasoningConfigs.get(RdfConfig.class), tempFolder);
+		this.sc = SemanticCore.getOrCreateInstance(ontologyName, reasoning, tempFolder);
 		try {
 			sc.addData(source, RDFFormat.TURTLE);
 			setConnection(sc.getConnection());
