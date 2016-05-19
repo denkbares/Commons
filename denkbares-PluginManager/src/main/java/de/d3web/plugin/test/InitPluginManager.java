@@ -49,8 +49,9 @@ public abstract class InitPluginManager {
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
 	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
-	 * loaded.
+	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
+	 *                            exclusively
+	 *                            loaded.
 	 * @throws IOException
 	 */
 	public static void init(String... pluginFilterPattern) throws IOException {
@@ -64,8 +65,9 @@ public abstract class InitPluginManager {
 	 * using this function must run maven install after each dependency update
 	 *
 	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
-	 * loaded.
+	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
+	 *                            exclusively
+	 *                            loaded.
 	 * @throws IOException
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
@@ -80,12 +82,13 @@ public abstract class InitPluginManager {
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
 	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 * manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are exclusively
-	 * loaded.
+	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
+	 *                            exclusively
+	 *                            loaded.
 	 */
 	public static void init(String[] jarFiles, String... pluginFilterPattern) {
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
-			pluginFilterPattern = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*" };
+			pluginFilterPattern = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+" };
 		}
 		List<File> filteredJars = new ArrayList<>();
 		// adding the plugin itself
