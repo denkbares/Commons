@@ -639,6 +639,17 @@ public class Strings {
 		return result;
 	}
 
+	public static String[] splitUnquotedToArray(String text, String splitSymbol) {
+
+		List<StringFragment> stringFragments = splitUnquoted(text, splitSymbol, true, new QuoteSet(QUOTE_DOUBLE));
+		String [] result = new String[stringFragments.size()];
+
+		for (int i = 0; i < stringFragments.size(); i++) {
+			result[i] = stringFragments.get(i).getContent();
+		}
+		return result;
+	}
+
 	public static List<StringFragment> splitUnquoted(String text, String splitSymbol) {
 		return splitUnquoted(text, splitSymbol, true, new QuoteSet(QUOTE_DOUBLE));
 	}
