@@ -3,7 +3,7 @@
 <plugin id="denkbares-SemanticCore-Plugin-ExtensionPoints" version="1.0">
 	<!-- This plugin only defines extension points for denkbares-SemanticCore. -->
 
-	<extension-point id="ReasoningConfig">
+	<extension-point id="RepositoryConfig">
 		<parameter-def id="class" />
 		<parameter-def id="name" />
 		<parameter-def id="description" />
@@ -11,10 +11,20 @@
 		<parameter-def id="priority" type="number" />
 	</extension-point>
 
-	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="ReasoningConfig" id="RdfConfig">
-		<parameter id="class" value="com.denkbares.semanticcore.reasoning.RdfConfig" />
-		<parameter id="name" value="RdfConfig" />
-		<parameter id="description" value="Reasoning config for rdf or empty reasoning" />
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfConfigSesame">
+		<parameter id="class" value="com.denkbares.semanticcore.config.RdfConfig" />
+		<parameter id="name" value="RdfConfigSesame" />
+		<parameter id="description" value="Repository config for rdf or empty reasoning" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfsConfigSesame">
+		<parameter id="class" value="com.denkbares.semanticcore.config.RdfsConfig" />
+		<parameter id="name" value="RdfsConfigSesame" />
+		<parameter id="description" value="Repository config for rdfs reasoning with sesame" />
 		<parameter id="version" value="1.0" />
 		<parameter id="priority" value="5" />
 	</extension>

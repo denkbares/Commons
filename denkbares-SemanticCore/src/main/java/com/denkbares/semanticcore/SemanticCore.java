@@ -34,7 +34,6 @@ import org.openrdf.query.Update;
 import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.manager.LocalRepositoryManager;
 import org.openrdf.rio.RDFFormat;
@@ -43,7 +42,7 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 
-import com.denkbares.semanticcore.reasoning.ReasoningConfig;
+import com.denkbares.semanticcore.config.RepositoryConfig;
 import de.d3web.strings.Strings;
 import de.d3web.utils.Files;
 import de.d3web.utils.Log;
@@ -71,15 +70,15 @@ public class SemanticCore {
 		return instances.get(key);
 	}
 
-	public static SemanticCore getOrCreateInstance(String key, ReasoningConfig reasoning) throws IOException {
+	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning) throws IOException {
 		return getOrCreateInstance(key, reasoning, getDefaultTempPath());
 	}
 
-	public static SemanticCore getOrCreateInstance(String key, ReasoningConfig reasoning, File tmpPath) throws IOException {
+	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, File tmpPath) throws IOException {
 		return getOrCreateInstance(key, reasoning, tmpPath.getPath());
 	}
 
-	public static SemanticCore getOrCreateInstance(String key, ReasoningConfig reasoning, String tmpPath) throws IOException {
+	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, String tmpPath) throws IOException {
 		SemanticCore instance = getInstance(key);
 		if (instance == null) {
 			instance = createInstance(key, reasoning, tmpPath);
@@ -87,11 +86,11 @@ public class SemanticCore {
 		return instance;
 	}
 
-	public static SemanticCore createInstance(String key, ReasoningConfig reasoning) throws IOException {
+	public static SemanticCore createInstance(String key, RepositoryConfig reasoning) throws IOException {
 		return createInstance(key, reasoning, getDefaultTempPath());
 	}
 
-	public static SemanticCore createInstance(String key, ReasoningConfig reasoning, String tmpFolder) throws IOException {
+	public static SemanticCore createInstance(String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
 		Objects.requireNonNull(reasoning);
 		SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
 		instances.put(key, instance);
@@ -109,7 +108,7 @@ public class SemanticCore {
 		new ArrayList<>(instances.values()).forEach(com.denkbares.semanticcore.SemanticCore::shutdown);
 	}
 
-	private SemanticCore(String repositoryId, String repositoryLabel, ReasoningConfig reasoning, String tmpFolder, Map<String, String> overrides) throws IOException {
+	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig reasoning, String tmpFolder, Map<String, String> overrides) throws IOException {
 		this.repositoryId = repositoryId;
 		initRepoManagerIfNecessary(tmpFolder);
 		try {
@@ -117,7 +116,7 @@ public class SemanticCore {
 				throw new RuntimeException("Repository " + repositoryId + " already exists.");
 			}
 
-			RepositoryConfig repositoryConfig = reasoning.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
+			org.openrdf.repository.config.RepositoryConfig repositoryConfig = reasoning.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
 
 			repositoryManager.addRepositoryConfig(repositoryConfig);
 

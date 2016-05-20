@@ -1,18 +1,17 @@
-package com.denkbares.semanticcore.reasoning;
+package com.denkbares.semanticcore.config;
 
 import java.util.Map;
 
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.config.RepositoryConfig;
 import org.openrdf.repository.config.RepositoryConfigException;
 
 /**
- * Interface for reasoning configurations.
+ * Interface for repository configurations.
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 17.05.16
  */
-public interface ReasoningConfig {
+public interface RepositoryConfig {
 
 	/**
 	 * Creates a repository configuration for this reasoning.
@@ -23,7 +22,7 @@ public interface ReasoningConfig {
 	 * @return a RepositoryConfig for this reasoning
 	 * @throws RepositoryConfigException
 	 */
-	RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException;
+	org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException;
 
 	/**
 	 * The name or label for this reasoning. Can be used in UI e.g. to select reasoning in a drop down.
