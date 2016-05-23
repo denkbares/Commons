@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import de.d3web.collections.MappingIterator.MappingFunction;
 
@@ -50,9 +51,27 @@ import de.d3web.collections.MappingIterator.MappingFunction;
 public class MappingMap<K, O, V> extends AbstractMap<K, V> {
 
 	private final Map<K, O> delegate;
-	private final MappingFunction<O, V> mapper;
+	private final BiFunction<K, O, V> mapper;
 
+	/**
+	 * Creates a mapping map, that maps the values by some mapping function. The mapped value is
+	 * only created from the value, with no regard to the key.
+	 *
+	 * @param delegate the source map to be decorated
+	 * @param mapper the value -> value mapping
+	 */
 	public MappingMap(Map<K, O> delegate, MappingFunction<O, V> mapper) {
+		this(delegate, (k, v) -> mapper.apply(v));
+	}
+
+	/**
+	 * Creates a mapping map, that maps the values by some mapping function. The creating the mapped
+	 * value, the mapping function can also consider the value of the key.
+	 *
+	 * @param delegate the source map to be decorated
+	 * @param mapper the (key,value) -> value mapping
+	 */
+	public MappingMap(Map<K, O> delegate, BiFunction<K, O, V> mapper) {
 		this.delegate = delegate;
 		this.mapper = mapper;
 	}
@@ -64,15 +83,9 @@ public class MappingMap<K, O, V> extends AbstractMap<K, V> {
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
 				Iterator<Entry<K, O>> sourceIter = delegate.entrySet().iterator();
-				return new MappingIterator<Entry<K, O>, Entry<K, V>>(
-						sourceIter, new MappingFunction<Entry<K, O>, Entry<K, V>>() {
-					@Override
-					public Entry<K, V> apply(Entry<K, O> sourceItem) {
-						return new SimpleImmutableEntry<K, V>(
-								sourceItem.getKey(),
-								mapValue(sourceItem.getValue()));
-					}
-				});
+				return new MappingIterator<>(sourceIter,
+						e -> new SimpleImmutableEntry<>(
+								e.getKey(), mapValue(e.getKey(), e.getValue())));
 			}
 
 			@Override
@@ -101,10 +114,13 @@ public class MappingMap<K, O, V> extends AbstractMap<K, V> {
 
 	@Override
 	public V get(Object key) {
-		return mapValue(delegate.get(key));
+		return mapValue(key, delegate.get(key));
 	}
 
-	private V mapValue(O value) {
-		return (value == null) ? null : mapper.apply(value);
+	private V mapValue(Object key, O value) {
+		// if there is a value != null, key is always of type K (!);
+		// this is granted by the callers
+		//noinspection unchecked
+		return (value == null) ? null : mapper.apply((K) key, value);
 	}
 }

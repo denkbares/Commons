@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Utility class to count occurrences of particular objects. For each object a counter is created.
  * It will be counted how often the particular objects has been added.
@@ -48,7 +50,7 @@ public class CountingSet<E> implements Set<E> {
 		}
 	}
 
-	private final HashMap<E, Count> counters = new HashMap<E, Count>();
+	private final HashMap<E, Count> counters = new HashMap<>();
 
 	/**
 	 * Constructs a new, empty counting set.
@@ -84,18 +86,21 @@ public class CountingSet<E> implements Set<E> {
 		return counters.containsKey(o);
 	}
 
+	@NotNull
 	@Override
 	public Iterator<E> iterator() {
 		return counters.keySet().iterator();
 	}
 
+	@NotNull
 	@Override
 	public Object[] toArray() {
 		return counters.keySet().toArray();
 	}
 
+	@NotNull
 	@Override
-	public <T> T[] toArray(T[] a) {
+	public <T> T[] toArray(@NotNull T[] a) {
 		//noinspection SuspiciousToArrayCall
 		return counters.keySet().toArray(a);
 	}
@@ -128,12 +133,12 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	@Override
-	public boolean containsAll(Collection<?> c) {
+	public boolean containsAll(@NotNull Collection<?> c) {
 		return counters.keySet().containsAll(c);
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends E> c) {
+	public boolean addAll(@NotNull Collection<? extends E> c) {
 		boolean changed = false;
 		for (E object : c) {
 			changed |= add(object);
@@ -142,9 +147,9 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	@Override
-	public boolean retainAll(Collection<?> c) {
+	public boolean retainAll(@NotNull Collection<?> c) {
 		boolean changed = false;
-		Collection<E> copy = new ArrayList<E>(this);
+		Collection<E> copy = new ArrayList<>(this);
 		if (!(c instanceof Set)) c = new HashSet<Object>(c);
 		for (Object o : copy) {
 			if (!c.contains(o)) {
@@ -155,7 +160,7 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	@Override
-	public boolean removeAll(Collection<?> c) {
+	public boolean removeAll(@NotNull Collection<?> c) {
 		boolean changed = false;
 		for (Object object : c) {
 			changed |= remove(object);
