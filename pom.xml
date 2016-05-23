@@ -14,6 +14,7 @@
 		<module>denkbares-Progress</module>
 		<module>denkbares-SemanticCore</module>
 		<module>denkbares-SemanticCore-Plugin-ExtensionPoints</module>
+		<module>denkbares-SemanticCore-Plugin-Jena</module>
 	</modules>
 
 	<build>
