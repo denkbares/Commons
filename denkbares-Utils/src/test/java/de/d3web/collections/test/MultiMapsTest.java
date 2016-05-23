@@ -53,7 +53,7 @@ public class MultiMapsTest {
 		checkFactory(MultiMaps.hashFactory());
 		checkFactory(MultiMaps.hashMinimizedFactory());
 		checkFactory(MultiMaps.treeFactory());
-		checkFactory(MultiMaps.treeFactory(Comparator.reverseOrder()));
+		checkFactory(MultiMaps.treeFactory(Comparator.<String>reverseOrder()));
 		checkFactory(MultiMaps.linkedFactory());
 	}
 
@@ -152,7 +152,7 @@ public class MultiMapsTest {
 
 	@Test
 	public void treeFactoryComparator() {
-		N2MMap<String, String> map = new N2MMap<>(MultiMaps.treeFactory(Comparator.reverseOrder()), MultiMaps.treeFactory(Comparator
+		N2MMap<String, String> map = new N2MMap<>(MultiMaps.treeFactory(Comparator.<String>reverseOrder()), MultiMaps.<String>treeFactory(Comparator
 				.reverseOrder()));
 		map.putAll(baseMap);
 		assertEquals("[b, a]", map.keySet().toString());
