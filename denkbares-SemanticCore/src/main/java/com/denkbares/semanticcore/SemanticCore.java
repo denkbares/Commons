@@ -55,7 +55,7 @@ public class SemanticCore {
 	private static Map<String, SemanticCore> instances = new HashMap<>();
 	private static final Object repositoryManagerMutex = new Object();
 	private static LocalRepositoryManager repositoryManager = null;
-	private static final int THRESHOLD_TIME = 10000; // 10 seconds...
+	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 
 	private final String repositoryId;
@@ -136,7 +136,7 @@ public class SemanticCore {
 	}
 
 	private void initConnectionDaemon() {
-		// checks every 10 seconds for open connections and warns about them...
+		// checks every 2 min for open connections and warns about them...
 		// noinspection CodeBlock2Expr
 		daemon.scheduleAtFixedRate(() -> {
 			connections.forEachKey(Long.MAX_VALUE, connectionInfo -> {
@@ -157,7 +157,7 @@ public class SemanticCore {
 					Log.severe("Exception while checking connection status", e);
 				}
 			});
-		}, 60, 60, TimeUnit.SECONDS);
+		}, 0, 120, TimeUnit.SECONDS);
 	}
 
 	/**
