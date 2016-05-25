@@ -8,6 +8,17 @@
 	</parent>
 	<artifactId>denkbares-SemanticCore</artifactId>
 	<description>Classes to handle semantic repositories, connections, loading of SPARQL files etc.</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>

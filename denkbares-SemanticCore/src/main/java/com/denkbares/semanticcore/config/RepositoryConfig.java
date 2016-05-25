@@ -40,4 +40,12 @@ public interface RepositoryConfig {
 		// by default, just do nothing
 	}
 
+	/**
+	 * Returns whether the repository will shut down by itself on shutdown of the JVM.
+	 *
+	 * @return whether the repository will shut down automatically on JVM exit.
+	 */
+	default boolean isAutoShutdown() {
+		return false;
+	}
 }
