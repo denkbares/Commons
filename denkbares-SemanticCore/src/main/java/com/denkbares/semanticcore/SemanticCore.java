@@ -57,8 +57,10 @@ public class SemanticCore {
 	private static LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
+	private static boolean isShutdown;
 
 	private final String repositoryId;
+	private final RepositoryConfig repositoryConfig;
 	private AtomicLong allocationCounter = new AtomicLong(0);
 
 	private Repository repository;
@@ -100,7 +102,9 @@ public class SemanticCore {
 	}
 
 	private static String getDefaultTempPath() throws IOException {
-		return Files.createTempDir().getPath();
+		File tempDir = Files.createTempDir();
+		tempDir.deleteOnExit();
+		return tempDir.getPath();
 	}
 
 	public static void shutDownAllRepositories() {
@@ -108,21 +112,22 @@ public class SemanticCore {
 		new ArrayList<>(instances.values()).forEach(com.denkbares.semanticcore.SemanticCore::shutdown);
 	}
 
-	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig reasoning, String tmpFolder, Map<String, String> overrides) throws IOException {
+	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
 		this.repositoryId = repositoryId;
+		this.repositoryConfig = repositoryConfig;
 		initRepoManagerIfNecessary(tmpFolder);
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
 				throw new RuntimeException("Repository " + repositoryId + " already exists.");
 			}
 
-			org.openrdf.repository.config.RepositoryConfig repositoryConfig = reasoning.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
+			org.openrdf.repository.config.RepositoryConfig openRdfRepositoryConfig = repositoryConfig.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
 
-			repositoryManager.addRepositoryConfig(repositoryConfig);
+			repositoryManager.addRepositoryConfig(openRdfRepositoryConfig);
 
 			// Get the repository and connect to it!
 			this.repository = repositoryManager.getRepository(repositoryId);
-			reasoning.postCreationHook(this.repository);
+			repositoryConfig.postCreationHook(this.repository);
 
 			try (RepositoryConnection connection = getConnection()) {
 				connection.setNamespace("des", DEFAULT_NAMESPACE);
@@ -203,11 +208,15 @@ public class SemanticCore {
 				}
 			});
 			daemon.shutdown();
-			repository.shutDown();
+			if (!(isShutdown && repositoryConfig.isAutoShutdown())) {
+				// if the repository shuts down by itself on JVM exit, no need to
+				// force it here too and potentially cause conflicts
+				repository.shutDown();
+			}
 			Log.info("SemanticCore " + repositoryId + " shut down successful.");
 		}
-		catch (RepositoryException e) {
-			Log.severe("cannot shut down repository, removing the core without shutting down", e);
+		catch (Exception e) {
+			Log.severe("Exception while shutting down repository " + repositoryId + ", removing repository anyway", e);
 		}
 		finally {
 			instances.remove(repositoryId);
@@ -251,6 +260,19 @@ public class SemanticCore {
 				catch (RepositoryException e) {
 					throw new IOException("Cannot initialize repository", e);
 				}
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					@Override
+					public void run() {
+						isShutdown = true;
+						shutDownAllRepositories();
+						try {
+							FileUtils.deleteDirectory(tempFolder);
+						}
+						catch (IOException e) {
+							Log.warning("Unable to clean up repository temp folder '" + tempFolderPath + "' on shutdown", e);
+						}
+					}
+				});
 			}
 		}
 	}
@@ -298,12 +320,11 @@ public class SemanticCore {
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = entries.nextElement();
 				String name = entry.getName();
-				if (!name.startsWith("__MACOSX/")) {
-					InputStream input = zipFile.getInputStream(entry);
-					RDFFormat format = getRdfFormat(name);
-					if (format != null) {
-						addDataFromInputStream(input, format);
-					}
+				if (name.startsWith("__MACOSX/")) return;
+				InputStream input = zipFile.getInputStream(entry);
+				RDFFormat format = getRdfFormat(name);
+				if (format != null) {
+					addDataFromInputStream(input, format);
 				}
 			}
 			zipFile.close();
