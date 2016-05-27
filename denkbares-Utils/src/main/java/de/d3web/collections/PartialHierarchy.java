@@ -20,5 +20,5 @@ public interface PartialHierarchy<T> {
 	 * @param node2
 	 * @return
 	 */
-	boolean isSuccessorOf(T node1, T node2);
+	boolean isSuccessorOf(T node1, T node2) throws PartialHierarchyException;
 }

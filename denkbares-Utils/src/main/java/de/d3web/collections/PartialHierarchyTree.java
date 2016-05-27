@@ -142,7 +142,12 @@ public class PartialHierarchyTree<T> {
 	 */
 	public Node<T> find(T t) {
 		if (t == null) return null;
-		return findRecursiveNode(t, root);
+		try {
+			return findRecursiveNode(t, root);
+		}
+		catch (PartialHierarchyException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -160,7 +165,7 @@ public class PartialHierarchyTree<T> {
 		return depth;
 	}
 
-	private synchronized Node<T> findRecursiveNode(T externalNode, Node<T> treeNode) {
+	private synchronized Node<T> findRecursiveNode(T externalNode, Node<T> treeNode) throws PartialHierarchyException {
 		if (externalNode.equals(treeNode.data)) return treeNode;
 
 		// descending tree for search only makes sense for sub-node
@@ -282,13 +287,13 @@ public class PartialHierarchyTree<T> {
 	 * insertion. The tree is restructured if necessary.
 	 * 
 	 * If the element is already contained in the tree nothing happens.
-	 * 
-	 * 
+	 *
 	 * @created 12.04.2013
 	 * @param t
 	 * @return true if node was inserted, false otherwise (t already in tree)
+	 * @throws if a the hierarchy is invalid (forming a cycle) a PartialHierarchyException is thrown.
 	 */
-	public boolean insertNode(T t) {
+	public boolean insert(T t) throws PartialHierarchyException {
 		if (t == null) return false;
 		Node<T> existingNode = find(t);
 		if (existingNode == null) {
@@ -299,6 +304,28 @@ public class PartialHierarchyTree<T> {
 			// element already in tree
 			return false;
 		}
+	}
+
+	/**
+	 * Inserts a new element into the tree. It considers correct hierarchical
+	 * insertion, i.e., tree reflects hierarchical node structure after
+	 * insertion. The tree is restructured if necessary.
+	 *
+	 * If a the hierarchy is invalid (forming a cycle) insertion is aborted an 'false' is returned.
+	 *
+	 * @param t
+	 * @return true if the value has been inserted into the tree, false otherwise
+	 */
+	public boolean insertNode(T t) {
+		boolean inserted;
+		try {
+			inserted = insert(t);
+		}
+		catch (PartialHierarchyException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return inserted;
 	}
 
 	/**
@@ -318,7 +345,7 @@ public class PartialHierarchyTree<T> {
 	 * @param t
 	 * @param parent
 	 */
-	private synchronized void insertNodeUnder(T t, Node<T> parent) {
+	private synchronized void insertNodeUnder(T t, Node<T> parent) throws PartialHierarchyException {
 
 		List<Node<T>> children = parent.getChildren();
 		Iterator<Node<T>> descentIterator = children.iterator();

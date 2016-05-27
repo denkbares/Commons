@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import de.d3web.collections.PartialHierarchyException;
 import de.d3web.collections.PartialHierarchyTree;
 import de.d3web.collections.PartialHierarchyTree.Node;
 
@@ -25,12 +24,12 @@ public class PartialHierarchyTreeTest {
 		String ba = "BA";
 
 		// insert A
-		insert(tree, a);
+		tree.insertNode(a);
 
 		assertEquals(1, tree.getNodeCount());
 
 		// insert B
-		insert(tree, b);
+		tree.insertNode(b);
 
 		assertEquals(2, tree.getNodeCount());
 		assertEquals(2, tree.getNodes().size());
@@ -46,7 +45,7 @@ public class PartialHierarchyTreeTest {
 		assertEquals(0, bNode.getChildren().size());
 
 		// insert BA
-		insert(tree,ba);
+		tree.insertNode(ba);
 		assertEquals(3, tree.getNodeCount());
 		assertEquals(3, tree.getNodes().size());
 
@@ -87,9 +86,9 @@ public class PartialHierarchyTreeTest {
 		String ba = "BA";
 		String bac = "BAC";
 
-		insert(tree,ba);
-		insert(tree,bac);
-		insert(tree, b);
+		tree.insertNode(ba);
+		tree.insertNode(bac);
+		tree.insertNode(b);
 
 		// check correct insertion
 		assertEquals(3, tree.getNodeCount());
@@ -130,8 +129,8 @@ public class PartialHierarchyTreeTest {
 		String ba = "BA";
 		String bi = "BI";
 
-		insert(tree,ba);
-		insert(tree,bi);
+		tree.insertNode(ba);
+		tree.insertNode(bi);
 
 		// check BA
 		Node<String> baNode = tree.find(ba);
@@ -146,7 +145,7 @@ public class PartialHierarchyTreeTest {
 		assertTrue(biNode.getParent() == null);
 
 		// now insert B
-		insert(tree, b);
+		tree.insertNode(b);
 		assertEquals(3, tree.getNodeCount());
 
 		Node<String> bNode = tree.find(b);
@@ -188,15 +187,6 @@ public class PartialHierarchyTreeTest {
 		assertEquals(0, biNode.getChildren().size());
 		assertTrue(biNode.getParent() == null);
 
-	}
-
-	private void insert(PartialHierarchyTree<String> tree, String b) {
-		try {
-			tree.insertNode(b);
-		}
-		catch (PartialHierarchyException e) {
-			e.printStackTrace();
-		}
 	}
 
 }
