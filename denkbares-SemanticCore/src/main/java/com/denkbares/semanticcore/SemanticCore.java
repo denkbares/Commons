@@ -6,7 +6,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.Writer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -23,6 +26,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.OpenRDFException;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.query.BooleanQuery;
@@ -52,20 +56,19 @@ import de.d3web.utils.Streams;
 public class SemanticCore {
 
 	private static final Object DUMMY = new Object();
+	private static final String ALLOW_REUSE = "ALLOW-REUSE";
 	private static Map<String, SemanticCore> instances = new HashMap<>();
 	private static final Object repositoryManagerMutex = new Object();
 	private static LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
-	private static boolean isShutdown;
-
+	private static final int TEMP_DIR_ATTEMPTS = 1000;
 	private final String repositoryId;
-	private final RepositoryConfig repositoryConfig;
 	private AtomicLong allocationCounter = new AtomicLong(0);
 
 	private Repository repository;
 	private final ConcurrentHashMap<ConnectionInfo, Object> connections = new ConcurrentHashMap<>();
-	private AtomicLong connectionCounter = new AtomicLong(0);
+	//	private AtomicLong connectionCounter = new AtomicLong(0);
 	private ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor();
 
 	public static SemanticCore getInstance(String key) {
@@ -73,7 +76,7 @@ public class SemanticCore {
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning) throws IOException {
-		return getOrCreateInstance(key, reasoning, getDefaultTempPath());
+		return getOrCreateInstance(key, reasoning, (String) null);
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, File tmpPath) throws IOException {
@@ -89,7 +92,7 @@ public class SemanticCore {
 	}
 
 	public static SemanticCore createInstance(String key, RepositoryConfig reasoning) throws IOException {
-		return createInstance(key, reasoning, getDefaultTempPath());
+		return createInstance(key, reasoning, null);
 	}
 
 	public static SemanticCore createInstance(String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
@@ -102,9 +105,33 @@ public class SemanticCore {
 	}
 
 	private static String getDefaultTempPath() throws IOException {
-		File tempDir = Files.createTempDir();
-		tempDir.deleteOnExit();
-		return tempDir.getPath();
+		@NotNull File systemTempDir = Files.getSystemTempDir();
+		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-";
+		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+			File tempDirCandidate = new File(systemTempDir, baseName + counter);
+			if (tempDirCandidate.mkdir()) {
+				tempDirCandidate.deleteOnExit();
+				return tempDirCandidate.getAbsolutePath();
+			}
+			else {
+				// if the dir already exists, try to reuse it
+				// we reuse it, if we can get a lock on it
+				// (meaning no other SemanticCore from another JVM is currently locking it)
+				FileLock fileLock = null;
+				try {
+					FileChannel channel = new RandomAccessFile(
+							new File(tempDirCandidate, "lock"), "rw").getChannel();
+					fileLock = channel.tryLock();
+				}
+				catch (Exception ignore) {
+					Log.warning("asd", ignore);
+				}
+				if (fileLock != null) {
+					return tempDirCandidate.getAbsolutePath();
+				}
+			}
+		}
+		throw new IOException("Failed to create temp directory");
 	}
 
 	public static void shutDownAllRepositories() {
@@ -114,7 +141,6 @@ public class SemanticCore {
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
 		this.repositoryId = repositoryId;
-		this.repositoryConfig = repositoryConfig;
 		initRepoManagerIfNecessary(tmpFolder);
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
@@ -208,11 +234,7 @@ public class SemanticCore {
 				}
 			});
 			daemon.shutdown();
-			if (!(isShutdown && repositoryConfig.isAutoShutdown())) {
-				// if the repository shuts down by itself on JVM exit, no need to
-				// force it here too and potentially cause conflicts
-				repository.shutDown();
-			}
+			repository.shutDown();
 			Log.info("SemanticCore " + repositoryId + " shut down successful.");
 		}
 		catch (Exception e) {
@@ -245,7 +267,7 @@ public class SemanticCore {
 	private static void initRepoManagerIfNecessary(String tempFolderPath) throws IOException {
 		synchronized (repositoryManagerMutex) {
 			if (repositoryManager == null) {
-
+				if (tempFolderPath == null) tempFolderPath = getDefaultTempPath();
 				File repositoryFolder = new File(tempFolderPath, "repositories");
 				// clean repository folder...
 				if (repositoryFolder.exists() && repositoryFolder.isDirectory()) {
@@ -260,19 +282,6 @@ public class SemanticCore {
 				catch (RepositoryException e) {
 					throw new IOException("Cannot initialize repository", e);
 				}
-				Runtime.getRuntime().addShutdownHook(new Thread() {
-					@Override
-					public void run() {
-						isShutdown = true;
-						shutDownAllRepositories();
-						try {
-							FileUtils.deleteDirectory(tempFolder);
-						}
-						catch (IOException e) {
-							Log.warning("Unable to clean up repository temp folder '" + tempFolderPath + "' on shutdown", e);
-						}
-					}
-				});
 			}
 		}
 	}
@@ -367,7 +376,7 @@ public class SemanticCore {
 			format = RDFFormat.TURTLE;
 		}
 		else {
-			format = RDFFormat.forFileName(fileName);
+			format = Rio.getParserFormatForFileName(fileName);
 		}
 		return format;
 	}
