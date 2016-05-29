@@ -23,6 +23,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 
+import org.jetbrains.annotations.NotNull;
+
 import de.d3web.collections.Matrix;
 import de.d3web.strings.StringFragment;
 import de.d3web.strings.Strings;
@@ -39,11 +41,7 @@ public class Files {
 	 * @throws IOException if there is an error creating the temporary directory
 	 */
 	public static File createTempDir() throws IOException {
-		File baseDir = new File(System.getProperty("java.io.tmpdir"));
-		baseDir.mkdirs();
-		if (!baseDir.isDirectory()) {
-			throw new IOException("Failed to access temp directory");
-		}
+		File baseDir = getSystemTempDir();
 		String baseName = System.currentTimeMillis() + "-";
 
 		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
@@ -54,6 +52,22 @@ public class Files {
 		}
 		throw new IOException("Failed to create temp directory");
 
+	}
+
+	/**
+	 * Convenience method to get the default temp dir of the OS.
+	 *
+	 * @return the system's temp dir
+	 * @throws IOException
+	 */
+	@NotNull
+	public static File getSystemTempDir() throws IOException {
+		File baseDir = new File(System.getProperty("java.io.tmpdir"));
+		baseDir.mkdirs();
+		if (!baseDir.isDirectory()) {
+			throw new IOException("Failed to access temp directory");
+		}
+		return baseDir;
 	}
 
 	/**
