@@ -24,10 +24,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.Spliterator.*;
 
 /**
  * Utility methods to deal with locales.
@@ -99,6 +106,29 @@ public class Locales {
 				: defaultLocale;
 	}
 
+	/**
+	 * Returns the best matching locale of the same language out of a collection of available
+	 * locales. It returns the ROOT locale if no locales matches the available locales with at least
+	 * the same language.
+	 * <p/>
+	 * If the available locales are null or empty, null is returned. Otherwise the method is
+	 * guaranteed to return a locale instance out of the available ones with the same language or
+	 * the root locale.
+	 *
+	 * @param preferred the preferred locale to be used
+	 * @param available the available locales
+	 * @return the best matching locale, granted to have at least the same language, or the root
+	 * locale
+	 */
+	public static Locale findBestLocaleOfLanguage(Locale preferred, Collection<Locale> available) {
+		// if no locales contained, return null (we cannot select one)
+		if (available == null || available.isEmpty()) return null;
+		// if preferred is null, return the default value
+		if (preferred == null) return Locale.ROOT;
+		// otherwise select best, at least with same language
+		return findBestLocale(preferred, available, 100, Locale.ROOT);
+	}
+
 	private static Locale findBestLocale(Locale preferred, Collection<Locale> available, int minScore, Locale defaultLocale) {
 		// get locale if available
 		if (available.contains(preferred)) return preferred;
@@ -149,6 +179,53 @@ public class Locales {
 		// otherwise try normal selection of the first preferred locale
 		Locale first = preferenceList.isEmpty() ? Locale.ROOT : preferenceList.get(0);
 		return findBestLocale(first, available);
+	}
+
+	/**
+	 * Returns a iterator of the available locales, ordered by their preference
+	 * as specified in the preference list. If the available locales are empty or null, the stream
+	 * will be empty. For the order of the languages in the stream refer to {@link
+	 * #findBestLocale(List, Collection)}, where the next stream element is always the best one, if
+	 * the previous items of the stream where absent.
+	 *
+	 * @param preferenceList the preferred locales to be used
+	 * @param available the available locales
+	 * @return a sequential {@code Stream} of the available languages
+	 */
+	public static Iterator<Locale> iterateByPreference(List<Locale> preferenceList, Collection<Locale> available) {
+		if (available == null) return Collections.emptyIterator();
+		Set<Locale> remaining = new LinkedHashSet<>(available);
+		return new Iterator<Locale>() {
+			@Override
+			public boolean hasNext() {
+				return !remaining.isEmpty();
+			}
+
+			@Override
+			public Locale next() {
+				if (remaining.isEmpty()) throw new NoSuchElementException();
+				Locale bestLocale = findBestLocale(preferenceList, remaining);
+				remaining.remove(bestLocale);
+				return bestLocale;
+			}
+		};
+	}
+
+	/**
+	 * Returns a sequential {@code Stream} of the available locales, ordered by their preference
+	 * as specified in the preference list. If the available locales are empty or null, the stream
+	 * will be empty. For the order of the languages in the stream refer to {@link
+	 * #findBestLocale(List, Collection)}, where the next stream element is always the best one, if
+	 * the previous items of the stream where absent.
+	 *
+	 * @param preferenceList the preferred locales to be used
+	 * @param available the available locales
+	 * @return a sequential {@code Stream} of the available languages
+	 */
+	Stream<Locale> streamByPreference(List<Locale> preferenceList, Collection<Locale> available) {
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+				iterateByPreference(preferenceList, available),
+				ORDERED | DISTINCT | NONNULL | IMMUTABLE), false);
 	}
 
 	/**
