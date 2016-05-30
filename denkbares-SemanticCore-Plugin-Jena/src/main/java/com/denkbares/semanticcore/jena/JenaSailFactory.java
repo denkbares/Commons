@@ -1,13 +1,9 @@
 package com.denkbares.semanticcore.jena;
 
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.config.SailConfigException;
 import org.openrdf.sail.config.SailFactory;
 import org.openrdf.sail.config.SailImplConfig;
-import org.openrdf.sail.memory.MemoryStore;
-import org.openrdf.sail.memory.config.MemoryStoreConfig;
 
 /**
  * @author Albrecht Striffler (denkbares GmbH)
@@ -31,7 +27,7 @@ public class JenaSailFactory implements SailFactory {
 
 	@Override
 	public SailImplConfig getConfig() {
-		return null;
+		return new JenaSailImplConfig();
 	}
 
 	@Override
@@ -40,21 +36,7 @@ public class JenaSailFactory implements SailFactory {
 			throw new SailConfigException("Invalid Sail type: " + config.getType());
 		}
 
-		Model model = ModelFactory.createDefaultModel();
-		MemoryStore memoryStore = new MemoryStore();
-
-		if (config instanceof MemoryStoreConfig) {
-			MemoryStoreConfig memConfig = (MemoryStoreConfig) config;
-
-			memoryStore.setPersist(memConfig.getPersist());
-			memoryStore.setSyncDelay(memConfig.getSyncDelay());
-
-			if (memConfig.getIterationCacheSyncThreshold() > 0) {
-				memoryStore.setIterationCacheSyncThreshold(memConfig.getIterationCacheSyncThreshold());
-			}
-		}
-
-		return memoryStore;
+		return new JenaSail();
 	}
 }
 

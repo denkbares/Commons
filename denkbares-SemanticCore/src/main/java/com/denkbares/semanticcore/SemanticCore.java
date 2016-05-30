@@ -99,8 +99,7 @@ public class SemanticCore {
 		Objects.requireNonNull(reasoning);
 		SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
 		instances.put(key, instance);
-		Log.info("Created SemanticCore " + instance.repositoryId + ", rule set is: " + reasoning.getName() + ", implementation is: " + instance.repository
-				.getClass());
+		Log.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
 		return instance;
 	}
 

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?><!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0"
+	"http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="denkbares-SemanticCore-Plugin-Jena" version="1.0">
+
+	<requires>
+		<import plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" />
+	</requires>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig" id="RdfConfigJena">
+		<parameter id="class" value="com.denkbares.semanticcore.jena.RdfConfig" />
+		<parameter id="name" value="RdfConfigJena" />
+		<parameter id="description"
+			value="Repository config for rdf or empty reasoning with jena as the underlying model" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+
+</plugin>

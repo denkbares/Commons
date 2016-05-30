@@ -18,7 +18,7 @@ public class JenaSail extends SailBase {
 
 	@Override
 	protected void initializeInternal() throws SailException {
-		model = ModelFactory.createDefaultModel();
+		model = ModelFactory.createMemModelMaker().createFreshModel();
 	}
 
 	@Override
