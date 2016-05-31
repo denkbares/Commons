@@ -112,11 +112,11 @@ public class JenaTupleQuery implements TupleQuery {
 	@Override
 	public void setMaxExecutionTime(int maxExecTime) {
 		if (maxExecTime == 0) maxExecTime--; // compatibility to sesame, where 0 also already equals no time out
-		query.setTimeout(maxExecTime);
+		query.setTimeout(maxExecTime * 1000); // sesame specifies timeout in seconds, jena milliseconds
 	}
 
 	@Override
 	public int getMaxExecutionTime() {
-		return (int) query.getTimeout2();
+		return (int) query.getTimeout2() * 1000; // sesame specifies timeout in seconds, jena milliseconds
 	}
 }
