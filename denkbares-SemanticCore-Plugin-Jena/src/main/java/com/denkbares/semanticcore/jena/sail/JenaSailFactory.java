@@ -1,4 +1,4 @@
-package com.denkbares.semanticcore.jena;
+package com.denkbares.semanticcore.jena.sail;
 
 import org.openrdf.sail.Sail;
 import org.openrdf.sail.config.SailConfigException;
@@ -16,7 +16,7 @@ public class JenaSailFactory implements SailFactory {
 	 *
 	 * @see SailFactory#getSailType()
 	 */
-	public static final String SAIL_TYPE = "jena:DefaultStore";
+	public static final String SAIL_TYPE = "jena:SailRepository";
 
 	/**
 	 * Returns the Sail's type: <tt>jena:DefaultStore</tt>.
@@ -27,7 +27,7 @@ public class JenaSailFactory implements SailFactory {
 
 	@Override
 	public SailImplConfig getConfig() {
-		return new JenaSailImplConfig();
+		return new JenaSailConfig();
 	}
 
 	@Override

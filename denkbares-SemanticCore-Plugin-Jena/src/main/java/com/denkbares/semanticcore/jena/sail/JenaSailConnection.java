@@ -1,4 +1,4 @@
-package com.denkbares.semanticcore.jena;
+package com.denkbares.semanticcore.jena.sail;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -8,8 +8,6 @@ import java.util.Map;
 import info.aduna.iteration.CloseableIteration;
 import info.aduna.iteration.CloseableIteratorIteration;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.Namespace;
@@ -26,6 +24,9 @@ import org.openrdf.query.algebra.TupleExpr;
 import org.openrdf.sail.SailException;
 import org.openrdf.sail.helpers.SailConnectionBase;
 
+import com.denkbares.semanticcore.jena.JenaUtils;
+
+import static com.denkbares.semanticcore.jena.JenaUtils.sesame2Jena;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -62,7 +63,7 @@ public class JenaSailConnection extends SailConnectionBase {
 
 	@Override
 	protected CloseableIteration<? extends Statement, SailException> getStatementsInternal(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws SailException {
-		StmtIterator stmtIterator = model.listStatements(sesame2Jena(subj), sesame2Jena(pred), sesame2Jena(obj));
+		StmtIterator stmtIterator = model.listStatements(sesame2Jena(model, subj), sesame2Jena(model, pred), sesame2Jena(model, obj));
 		return new CloseableIteratorIteration<>(new Iterator<Statement>() {
 			@Override
 			public boolean hasNext() {
@@ -71,28 +72,9 @@ public class JenaSailConnection extends SailConnectionBase {
 
 			@Override
 			public Statement next() {
-				return jena2Sesame(stmtIterator.next());
+				return JenaUtils.jena2Sesame(valueFactory, stmtIterator.next());
 			}
 		});
-	}
-
-	private Statement jena2Sesame(org.apache.jena.rdf.model.Statement statement) {
-		return valueFactory.createStatement(jena2Sesame(statement.getSubject()), jena2Sesame(statement.getPredicate()), jena2Sesame(statement
-				.getObject()));
-	}
-
-	private Value jena2Sesame(RDFNode object) {
-		if (object.isURIResource()) return valueFactory.createURI(object.asResource().getURI());
-		if (object.isAnon()) valueFactory.createBNode(object.asNode().getBlankNodeLabel());
-		return valueFactory.createLiteral(object.asLiteral().getString(), object.asLiteral().getDatatypeURI());
-	}
-
-	private URI jena2Sesame(org.apache.jena.rdf.model.Property property) {
-		return valueFactory.createURI(property.getURI());
-	}
-
-	private Resource jena2Sesame(org.apache.jena.rdf.model.Resource subject) {
-		return valueFactory.createURI(subject.getURI());
 	}
 
 	@Override
@@ -116,39 +98,23 @@ public class JenaSailConnection extends SailConnectionBase {
 
 	@Override
 	protected void rollbackInternal() throws SailException {
-
+		if (model.supportsTransactions()) {
+			model.abort();
+		}
 	}
 
 	@Override
 	protected void addStatementInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
 		checkContexts(contexts);
-		model.add(toStatement(subj, pred, obj));
+		model.add(JenaUtils.toStatement(model, subj, pred, obj));
 
 	}
 
-	private org.apache.jena.rdf.model.Statement toStatement(Resource subj, URI pred, Value obj) {
-		return model.createStatement(
-				sesame2Jena(subj),
-				sesame2Jena(pred),
-				sesame2Jena(obj));
-	}
-
-	private RDFNode sesame2Jena(Value obj) {
-		return JenaUtils.valueToNode(model, obj);
-	}
-
-	private Property sesame2Jena(URI pred) {
-		return model.createProperty(pred.stringValue());
-	}
-
-	private org.apache.jena.rdf.model.Resource sesame2Jena(Resource subj) {
-		return model.createResource(subj.stringValue());
-	}
 
 	@Override
 	protected void removeStatementsInternal(Resource subj, URI pred, Value obj, Resource... contexts) throws SailException {
 		checkContexts(contexts);
-		model.remove(toStatement(subj, pred, obj));
+		model.remove(JenaUtils.toStatement(model, subj, pred, obj));
 	}
 
 	@Override

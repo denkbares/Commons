@@ -1,4 +1,4 @@
-package com.denkbares.semanticcore.jena;
+package com.denkbares.semanticcore.jena.sail;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -38,7 +38,7 @@ public class JenaSail extends SailBase {
 
 	@Override
 	public ValueFactory getValueFactory() {
-		return new ValueFactoryImpl();
+		return ValueFactoryImpl.getInstance();
 	}
 
 	Model getModel() {

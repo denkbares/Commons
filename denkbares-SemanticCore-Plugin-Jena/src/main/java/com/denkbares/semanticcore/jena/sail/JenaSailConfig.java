@@ -1,4 +1,4 @@
-package com.denkbares.semanticcore.jena;
+package com.denkbares.semanticcore.jena.sail;
 
 import org.openrdf.sail.config.SailImplConfigBase;
 
@@ -8,9 +8,9 @@ import org.openrdf.sail.config.SailImplConfigBase;
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 30.05.16
  */
-public class JenaSailImplConfig extends SailImplConfigBase {
+public class JenaSailConfig extends SailImplConfigBase {
 
-	public JenaSailImplConfig() {
+	public JenaSailConfig() {
 		super(JenaSailFactory.SAIL_TYPE);
 	}
 
