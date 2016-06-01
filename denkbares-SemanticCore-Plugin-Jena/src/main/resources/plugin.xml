@@ -25,5 +25,14 @@
 		<parameter id="priority" value="5" />
 	</extension>
 
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfsConfigJena">
+		<parameter id="class" value="com.denkbares.semanticcore.jena.RdfsConfig" />
+		<parameter id="name" value="RdfsConfigJena" />
+		<parameter id="description" value="Repository config for rdfs reasoning with jena as the underlying model" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
 
 </plugin>

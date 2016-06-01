@@ -1,41 +1,44 @@
 package com.denkbares.semanticcore.jena;
 
 import org.apache.jena.shared.ConfigException;
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.config.RepositoryConfigException;
 import org.openrdf.repository.config.RepositoryFactory;
 import org.openrdf.repository.config.RepositoryImplConfig;
-import org.openrdf.sail.config.SailFactory;
+import org.openrdf.repository.config.RepositoryImplConfigBase;
 
 /**
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 31.05.16
  */
-public class JenaRepositoryFactory implements RepositoryFactory {
+public abstract class AbstractJenaRepositoryFactory implements RepositoryFactory {
 
-	/**
-	 * The type of repositories that are created by this factory.
-	 *
-	 * @see SailFactory#getSailType()
-	 */
-	public static final String REPOSITORY_TYPE = "jena:DefaultRepository";
+	private final String repositoryType;
+
+	public AbstractJenaRepositoryFactory(String type) {
+		repositoryType = type;
+	}
 
 	@Override
 	public String getRepositoryType() {
-		return REPOSITORY_TYPE;
+		return repositoryType;
 	}
 
 	@Override
 	public RepositoryImplConfig getConfig() {
-		return new JenaRepositoryConfig();
+		return new RepositoryImplConfigBase(repositoryType);
 	}
 
 	@Override
 	public Repository getRepository(RepositoryImplConfig config) throws RepositoryConfigException {
-		if (!REPOSITORY_TYPE.equals(config.getType())) {
+		if (!repositoryType.equals(config.getType())) {
 			throw new ConfigException("Invalid repository type: " + config.getType());
 		}
-		return new JenaRepository();
+		return getRepository();
 	}
+
+	@NotNull
+	protected abstract Repository getRepository();
 
 }

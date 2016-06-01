@@ -3,7 +3,6 @@ package com.denkbares.semanticcore.jena;
 import java.io.File;
 
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.repository.RepositoryConnection;
@@ -19,9 +18,12 @@ public class JenaRepository extends RepositoryBase {
 	Model model;
 	private File dataDir;
 
+	public JenaRepository(Model model) {
+		this.model = model;
+	}
+
 	@Override
 	protected void initializeInternal() throws RepositoryException {
-		model = ModelFactory.createMemModelMaker().createFreshModel();
 	}
 
 	@Override

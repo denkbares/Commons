@@ -1,1 +1,2 @@
-com.denkbares.semanticcore.jena.JenaRepositoryFactory
+com.denkbares.semanticcore.jena.RdfJenaRepositoryFactory
+com.denkbares.semanticcore.jena.RdfsJenaRepositoryFactory
