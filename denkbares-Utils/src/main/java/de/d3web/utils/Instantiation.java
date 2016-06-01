@@ -195,7 +195,7 @@ public class Instantiation {
 
 		// parse boolean constant
 		if (BOOLEAN.matcher(parameter).matches()) {
-			return (type == Boolean.TYPE || type == Boolean.class)
+			return (type == Boolean.TYPE || type.isAssignableFrom(Boolean.class))
 					? Strings.equalsIgnoreCase(parameter, "true") : null;
 		}
 
