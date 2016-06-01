@@ -73,6 +73,11 @@ public class InstantiationTest {
 	}
 
 	@Test
+	public void staticMethods() throws Exception {
+		assertEquals(17, newMyClass("MyClass('c', java.lang.Integer.parseInt(\"17\"))").o);
+	}
+
+	@Test
 	public void nestedParameterParsing() throws Exception {
 		MyClass myClass = newMyClass("MyClass('c', new java.lang.Exception(\"outer\", new java.lang.IllegalArgumentException(\"inner\", null)))");
 

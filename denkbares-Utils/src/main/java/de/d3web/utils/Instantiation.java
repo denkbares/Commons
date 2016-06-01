@@ -19,8 +19,10 @@
 package de.d3web.utils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,6 +73,9 @@ public class Instantiation {
 
 	private static final Pattern CONSTRUCTOR_CALL = Pattern.compile(
 			"^\\s*(?:new\\s+)?(" + FULL_QUALIFIED_IDENTIFIER + ")\\s*(?:\\((.*)\\))?\\s*$");
+
+	private static final Pattern METHOD_CALL = Pattern.compile(
+			"^\\s*(" + FULL_QUALIFIED_IDENTIFIER + ")\\.(" + IDENTIFIER + ")\\s*\\((.*)\\)\\s*$");
 
 	private static final Pattern CONSTANT_REFERENCE = Pattern.compile(
 			"^\\s*(?:(" + FULL_QUALIFIED_IDENTIFIER + ")\\.)?(" + IDENTIFIER + ")\\s*$");
@@ -138,29 +143,29 @@ public class Instantiation {
 	 * Returns the parameters
 	 */
 	@NotNull
-	private List<Collection<Object>> getParameterValues(List<String> parameters, List<Constructor> constructors) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+	private List<Collection<Object>> getParameterValues(List<String> parameters, List<? extends Executable> executables) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 		// for each parameter, create a set of possible values that matches a constructor parameter
 		List<Collection<Object>> valueSets = new ArrayList<>(parameters.size());
 		for (int i = 0; i < parameters.size(); i++) {
 			// if parameter is "null", add a singleton set
-			// and remove all constructors with primitive types at that position
+			// and remove all executables with primitive types at that position
 			String parameter = parameters.get(i);
 			if (Strings.equals(parameter, "null")) {
 				valueSets.add(Collections.singleton(null));
 				int index = i;
-				constructors.removeIf(c -> c.getParameterTypes()[index].isPrimitive());
+				executables.removeIf(c -> c.getParameterTypes()[index].isPrimitive());
 				continue;
 			}
 
 			// create all values for the parameters (but only one per type)
 			Map<Class, Object> values = new LinkedHashMap<>();
-			Iterator<Constructor> iterator = constructors.iterator();
+			Iterator<? extends Executable> iterator = executables.iterator();
 			while (iterator.hasNext()) {
-				Constructor constructor = iterator.next();
-				Class type = constructor.getParameterTypes()[i];
+				Executable executable = iterator.next();
+				Class type = executable.getParameterTypes()[i];
 				if (values.containsKey(type)) continue;
 
-				// create value, if not possible remove constructor, otherwise add value
+				// create value, if not possible remove executable, otherwise add value
 				Object value = createValue(parameter, type);
 				if (value == null) iterator.remove();
 				else values.put(type, value);
@@ -199,7 +204,7 @@ public class Instantiation {
 					? Strings.equalsIgnoreCase(parameter, "true") : null;
 		}
 
-		// test for java reference (enum or constant)
+		// test for java field reference (enum or constant)
 		Matcher constantReference = CONSTANT_REFERENCE.matcher(parameter);
 		if (constantReference.matches()) {
 			String className = constantReference.group(1);
@@ -207,8 +212,8 @@ public class Instantiation {
 
 			// full qualified enums or public static fields
 			if (!Strings.isBlank(className)) {
-				Class<?> enclosingClass = Class.forName(constantReference.group(1));
-				Field field = enclosingClass.getField(constantReference.group(2));
+				Class<?> enclosingClass = classLoader.loadClass(className);
+				Field field = enclosingClass.getField(constantName);
 				if (Modifier.isStatic(field.getModifiers())) {
 					return field.get(null);
 				}
@@ -218,6 +223,39 @@ public class Instantiation {
 				// find constant by name
 				return Strings.parseEnum(constantName, (Class) type);
 			}
+		}
+
+		// test for java method call
+		Matcher methodCall = METHOD_CALL.matcher(parameter);
+		if (methodCall.matches()) {
+			String className = methodCall.group(1);
+			String methodName = methodCall.group(2);
+			List<String> methodParameters = splitParameterList(methodCall.group(3));
+
+			// carefully load class, because if no such class exists,
+			// we can still use it as a constructor call later on
+			Class<?> enclosingClass = classLoader.loadClass(className);
+			List<Method> methods = Arrays.asList(enclosingClass.getMethods()).stream()
+					.filter(m -> Strings.equals(methodName, m.getName()))
+					.filter(m -> Modifier.isStatic(m.getModifiers()))
+					.collect(Collectors.toList());
+			if (methods.isEmpty()) {
+				throw new NoSuchMethodException(context.getOrigin() +
+						": no public static method matches the specified method name: " + parameter);
+			}
+
+			// in the remaining constructors, search for the matching ones
+			List<Collection<Object>> valueSets = getParameterValues(methodParameters, methods);
+			for (Method method : methods) {
+				Object[] values = findParameterValues(method, valueSets);
+				if (values != null) {
+					return method.invoke(null, values);
+				}
+			}
+
+			// if no constructor remains, throw an exception
+			throw new NoSuchMethodException(context.getOrigin() +
+					": no public static method matches the specified parameters: " + parameter);
 		}
 
 		// parse integer number constants
@@ -276,7 +314,7 @@ public class Instantiation {
 	 * constructor, and so on. If multiple values of a collection matches the type, the first one is
 	 * selected. The method returns null if no argument set is matching the constructor.
 	 */
-	private Object[] findParameterValues(Constructor constructor, List<Collection<Object>> valueSets) {
+	private Object[] findParameterValues(Executable constructor, List<Collection<Object>> valueSets) {
 		Class[] expectedTypes = constructor.getParameterTypes();
 		Object[] result = new Object[expectedTypes.length];
 
