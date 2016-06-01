@@ -550,22 +550,37 @@ public class Strings {
 	}
 
 	/**
-	 * Checks whether the given text is correctly and completely quoted. This means that it starts
-	 * and ends with a quote that is not escaped and the text does not have any other not escaped
-	 * quotes in between.<br/> An escaped quote is a quote that is preceded by a backslash ->
-	 * \"<br/> The escaping backslash cannot be escaped itself by another backslash.
+	 * Checks whether the given text is correctly and completely quoted with double quotes. This
+	 * means that it starts and ends with a quote that is not escaped and the text does not have any
+	 * other not escaped quotes in between.<br/> An escaped quote is a quote that is preceded by a
+	 * backslash -> \"<br/> The escaping backslash cannot be escaped itself by another backslash.
 	 *
 	 * @param text the text to be checked
 	 * @return whether the given text is quoted
 	 * @created 30.05.2012
 	 */
 	public static boolean isQuoted(String text) {
+		return isQuoted(text, QUOTE_DOUBLE);
+	}
+
+	/**
+	 * Checks whether the given text is correctly and completely quoted with the specified quote
+	 * char. This means that it starts and ends with a quote that is not escaped and the text does
+	 * not have any other not escaped quotes in between.<br/> An escaped quote is a quote that is
+	 * preceded by a backslash -> \"<br/> The escaping backslash cannot be escaped itself by another
+	 * backslash.
+	 *
+	 * @param text the text to be checked
+	 * @return whether the given text is quoted
+	 * @created 30.05.2012
+	 */
+	public static boolean isQuoted(String text, char quoteChar) {
 		if (text.length() < 2) return false;
-		if (text.charAt(0) != QUOTE_DOUBLE) return false;
-		if (!isUnEscapedQuote(text, text.length() - 1)) return false;
+		if (text.charAt(0) != quoteChar) return false;
+		if (!isUnEscapedQuote(text, text.length() - 1, quoteChar)) return false;
 
 		for (int i = 1; i < text.length() - 1; i++) {
-			if (isUnEscapedQuote(text, i)) return false;
+			if (isUnEscapedQuote(text, i, quoteChar)) return false;
 		}
 		return true;
 	}
@@ -642,7 +657,7 @@ public class Strings {
 	public static String[] splitUnquotedToArray(String text, String splitSymbol) {
 
 		List<StringFragment> stringFragments = splitUnquoted(text, splitSymbol, true, new QuoteSet(QUOTE_DOUBLE));
-		String [] result = new String[stringFragments.size()];
+		String[] result = new String[stringFragments.size()];
 
 		for (int i = 0; i < stringFragments.size(); i++) {
 			result[i] = stringFragments.get(i).getContent();
@@ -1747,8 +1762,6 @@ public class Strings {
 	public static String readFile(File file) throws IOException {
 		return Streams.readStream(new FileInputStream(file));
 	}
-
-
 
 	public static void writeFile(String path, String content) throws IOException {
 		FileWriter stream = new FileWriter(path);
