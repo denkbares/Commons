@@ -123,13 +123,17 @@ public class Stopwatch {
 	 */
 	public String getDisplay() {
 		long time = getTime();
+		return getDisplay(time);
+	}
+
+	public static String getDisplay(long time) {
 		if (time > 60000) {
-			return getDisplay(TimeUnit.MINUTES);
+			return getDisplay(time, TimeUnit.MINUTES);
 		}
 		else if (time > 1000) {
-			return getDisplay(TimeUnit.SECONDS);
+			return getDisplay(time, TimeUnit.SECONDS);
 		}
-		return getDisplay(TimeUnit.MILLISECONDS);
+		return getDisplay(time, TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -138,7 +142,10 @@ public class Stopwatch {
 	 * @return the measure time as a display string
 	 */
 	public String getDisplay(TimeUnit unit) {
-		long time = getTime();
+		return getDisplay(getTime(), unit);
+	}
+
+	public static String getDisplay(long time, TimeUnit unit) {
 		switch (unit) {
 			case NANOSECONDS:
 			case MICROSECONDS:
