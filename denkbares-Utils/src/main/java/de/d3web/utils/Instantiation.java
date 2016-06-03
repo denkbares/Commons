@@ -223,6 +223,9 @@ public class Instantiation {
 				// find constant by name
 				return Strings.parseEnum(constantName, (Class) type);
 			}
+
+			// referenced a constant, but not found
+			return null;
 		}
 
 		// test for java method call
