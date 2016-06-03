@@ -69,7 +69,11 @@ public class SemanticCore {
 	private Repository repository;
 	private final ConcurrentHashMap<ConnectionInfo, Object> connections = new ConcurrentHashMap<>();
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
-	private ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
+		Thread thread = new Thread();
+		thread.setDaemon(true);
+		return thread;
+	});
 
 	public static SemanticCore getInstance(String key) {
 		return instances.get(key);
