@@ -54,7 +54,7 @@ public class Log {
 
 		private final String className;
 
-		private ClassDetection(String className) {
+		ClassDetection(String className) {
 			this.className = className;
 		}
 
@@ -76,7 +76,7 @@ public class Log {
 	 * @author Volker Belli (denkbares GmbH)
 	 * @created 19.01.2014
 	 */
-	interface StackFrame {
+	private interface StackFrame {
 
 		/**
 		 * Returns the class name of the specified method of this stack frame.
@@ -140,6 +140,7 @@ public class Log {
 	 * @author Volker Belli (denkbares GmbH)
 	 * @created 19.01.2014
 	 */
+	@SuppressWarnings("unused")
 	static class NativeExtractor implements StackFrameFactory {
 
 		@SuppressWarnings("restriction")
@@ -149,6 +150,7 @@ public class Log {
 
 				@Override
 				public String getClassName(int stackLevel) {
+					//noinspection deprecation
 					return sun.reflect.Reflection.getCallerClass(stackLevel + 2).getName();
 				}
 
@@ -167,6 +169,7 @@ public class Log {
 	 * @author Volker Belli (denkbares GmbH)
 	 * @created 19.01.2014
 	 */
+	@SuppressWarnings("unused")
 	static class CallStackExtractor implements StackFrameFactory {
 
 		@Override
@@ -194,6 +197,7 @@ public class Log {
 	 * @author Volker Belli (denkbares GmbH)
 	 * @created 19.01.2014
 	 */
+	@SuppressWarnings("unused")
 	static class FixedNameExtractor implements StackFrameFactory {
 
 		@Override
