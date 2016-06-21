@@ -51,7 +51,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
 			throws RepositoryException, MalformedQueryException {
 
 		String query = SPARQLLoader.load(fileName, c);
-		query = query.replaceAll("##LANG##", "\"" + langID + "\"");
+		query = query.replaceAll("###LANG###", langID);
 		return connection.prepareTupleQuery(QueryLanguage.SPARQL, query);
 	}
 
