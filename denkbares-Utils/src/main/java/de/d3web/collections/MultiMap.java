@@ -163,8 +163,8 @@ public interface MultiMap<K, V> {
 	 * set; otherwise v is not contained in the returned set.
 	 *
 	 * @param key the key whose associated values are to be returned
-	 * @return the value to which the specified key is mapped, or {@code null} if this map contains
-	 * no mapping for the key
+	 * @return the values to which the specified key is mapped, or {@code null} if this map contains
+	 * no mappings for the key
 	 * @throws ClassCastException if the key is of an inappropriate type for this map (optional)
 	 * @throws NullPointerException if the specified key is null and this map does not permit null
 	 * keys (optional)
