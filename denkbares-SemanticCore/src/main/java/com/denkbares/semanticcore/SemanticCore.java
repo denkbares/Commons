@@ -107,34 +107,40 @@ public class SemanticCore {
 		return instance;
 	}
 
-	private static String getDefaultTempPath() throws IOException {
+	public static String createRepositoryPath(String suffix) throws IOException {
 		@NotNull File systemTempDir = Files.getSystemTempDir();
-		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-";
+		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-" + suffix + "-";
 		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
 			File tempDirCandidate = new File(systemTempDir, baseName + counter);
 			if (tempDirCandidate.mkdir()) {
 				tempDirCandidate.deleteOnExit();
+				tryToLock(tempDirCandidate); // lock dir so other JVMs can't use it
 				return tempDirCandidate.getAbsolutePath();
 			}
 			else {
 				// if the dir already exists, try to reuse it
 				// we reuse it, if we can get a lock on it
 				// (meaning no other SemanticCore from another JVM is currently locking it)
-				FileLock fileLock = null;
 				try {
-					FileChannel channel = new RandomAccessFile(
-							new File(tempDirCandidate, "lock"), "rw").getChannel();
-					fileLock = channel.tryLock();
+					tryToLock(tempDirCandidate);
+					return tempDirCandidate.getAbsolutePath();
 				}
 				catch (Exception ignore) {
-					Log.warning("asd", ignore);
-				}
-				if (fileLock != null) {
-					return tempDirCandidate.getAbsolutePath();
+					// ignore and try next one
 				}
 			}
 		}
 		throw new IOException("Failed to create temp directory");
+	}
+
+	private static FileLock tryToLock(File tempDirCandidate) throws IOException {
+		FileChannel channel = new RandomAccessFile(
+				new File(tempDirCandidate, "lock"), "rw").getChannel();
+		FileLock fileLock = channel.tryLock();
+		if (fileLock == null) {
+			throw new IOException("Unable to lock file " + tempDirCandidate);
+		}
+		return fileLock;
 	}
 
 	public static void shutDownAllRepositories() {
@@ -144,7 +150,7 @@ public class SemanticCore {
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
 		this.repositoryId = repositoryId;
-		initRepoManagerIfNecessary(tmpFolder);
+		initializeRepositoryManagerIfNecessary(tmpFolder);
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
 				throw new RuntimeException("Repository " + repositoryId + " already exists.");
@@ -267,25 +273,29 @@ public class SemanticCore {
 		if (allocationCounter.get() <= 0) shutdown();
 	}
 
-	private static void initRepoManagerIfNecessary(String tempFolderPath) throws IOException {
+	private static void initializeRepositoryManagerIfNecessary(String repositoryPath) throws IOException {
 		synchronized (repositoryManagerMutex) {
 			if (repositoryManager == null) {
-				if (tempFolderPath == null) tempFolderPath = getDefaultTempPath();
-				File repositoryFolder = new File(tempFolderPath, "repositories");
-				// clean repository folder...
-				if (repositoryFolder.exists() && repositoryFolder.isDirectory()) {
-					FileUtils.deleteDirectory(repositoryFolder);
-				}
-				File tempFolder = new File(tempFolderPath);
-				repositoryManager = new LocalRepositoryManager(tempFolder);
-				Log.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
-				try {
-					repositoryManager.initialize();
-				}
-				catch (RepositoryException e) {
-					throw new IOException("Cannot initialize repository", e);
-				}
+				if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
+				initializeRepositoryManager(repositoryPath);
 			}
+		}
+	}
+
+	public static void initializeRepositoryManager(String repositoryPath) throws IOException {
+		File repositoryFolder = new File(repositoryPath, "repositories");
+		// clean repository folder...
+		if (repositoryFolder.exists() && repositoryFolder.isDirectory()) {
+			FileUtils.deleteDirectory(repositoryFolder);
+		}
+		File tempFolder = new File(repositoryPath);
+		repositoryManager = new LocalRepositoryManager(tempFolder);
+		Log.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
+		try {
+			repositoryManager.initialize();
+		}
+		catch (RepositoryException e) {
+			throw new IOException("Cannot initialize repository", e);
 		}
 	}
 
