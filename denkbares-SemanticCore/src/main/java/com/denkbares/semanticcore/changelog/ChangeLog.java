@@ -23,6 +23,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 import com.denkbares.semanticcore.SemanticCore;
+import de.d3web.utils.Log;
 
 public class ChangeLog {
 
@@ -65,11 +66,8 @@ public class ChangeLog {
 
 			logWriter = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			e.printStackTrace();
+		catch (IOException | ParseException e) {
+			Log.severe("Exception while loading file " + rdfFile, e);
 		}
 		return changes;
 	}
@@ -96,7 +94,7 @@ public class ChangeLog {
 			}
 		}
 		catch (RepositoryException e) {
-			e.printStackTrace();
+			Log.severe("Exception while committing changes", e);
 		}
 	}
 

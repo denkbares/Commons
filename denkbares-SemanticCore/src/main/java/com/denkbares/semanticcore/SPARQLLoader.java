@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import de.d3web.utils.Log;
+
 /**
  * @author Sebastian Furth (denkbares GmbH)
  */
@@ -20,7 +22,7 @@ public class SPARQLLoader {
 
 		try {
 			InputStream in = getInputStream(file, c);
-			Reader reader = new BufferedReader(new InputStreamReader(in));
+			Reader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 
 			int ch;
 			while ((ch = reader.read()) > -1) {
@@ -29,7 +31,7 @@ public class SPARQLLoader {
 			reader.close();
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			Log.severe("Exception while reading file " + file, e);
 		}
 
 		return query.toString();
