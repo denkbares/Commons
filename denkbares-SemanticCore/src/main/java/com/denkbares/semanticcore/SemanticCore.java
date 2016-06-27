@@ -2,10 +2,10 @@ package com.denkbares.semanticcore;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
@@ -53,23 +53,22 @@ import de.d3web.utils.Log;
 import de.d3web.utils.Stopwatch;
 import de.d3web.utils.Streams;
 
-public class SemanticCore {
+public final class SemanticCore {
 
 	private static final Object DUMMY = new Object();
-	private static final String ALLOW_REUSE = "ALLOW-REUSE";
-	private static Map<String, SemanticCore> instances = new HashMap<>();
+	private static final Map<String, SemanticCore> instances = new HashMap<>();
 	private static final Object repositoryManagerMutex = new Object();
-	private static LocalRepositoryManager repositoryManager = null;
+	private static volatile LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 	private final String repositoryId;
-	private AtomicLong allocationCounter = new AtomicLong(0);
+	private final AtomicLong allocationCounter = new AtomicLong(0);
 
-	private Repository repository;
+	private final Repository repository;
 	private final ConcurrentHashMap<ConnectionInfo, Object> connections = new ConcurrentHashMap<>();
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
-	private ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
+	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
 		Thread thread = new Thread();
 		thread.setDaemon(true);
 		return thread;
@@ -274,10 +273,12 @@ public class SemanticCore {
 	}
 
 	private static void initializeRepositoryManagerIfNecessary(String repositoryPath) throws IOException {
-		synchronized (repositoryManagerMutex) {
-			if (repositoryManager == null) {
-				if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
-				initializeRepositoryManager(repositoryPath);
+		if (repositoryManager == null) {
+			synchronized (repositoryManagerMutex) {
+				if (repositoryManager == null) {
+					if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
+					initializeRepositoryManager(repositoryPath);
+				}
 			}
 		}
 	}
@@ -322,8 +323,13 @@ public class SemanticCore {
 		try {
 			connection.add(is, DEFAULT_NAMESPACE, format);
 		}
+		catch (Exception e) {
+			Log.severe("Exception while adding data to semantic core.", e);
+		}
 		finally {
+			//noinspection ThrowFromFinallyBlock
 			connection.close();
+			// throwing inside finally should be ok with logging of exception above
 		}
 	}
 
@@ -336,7 +342,7 @@ public class SemanticCore {
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase();
 
 		// Load all ontology files of a ZIP-File
-		if (extension.equals("zip")) {
+		if ("zip".equals(extension)) {
 			ZipFile zipFile = new ZipFile(file);
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 			while (entries.hasMoreElements()) {
@@ -373,19 +379,17 @@ public class SemanticCore {
 
 	private RDFFormat getRdfFormat(String fileName) {
 		RDFFormat format;
-		if (fileName.toLowerCase().endsWith(".xml.dan")) {
+		String lsFileName = fileName.toLowerCase();
+		if (lsFileName.endsWith(".xml.dan") || lsFileName.endsWith(".xml")) {
 			format = RDFFormat.RDFXML;
 		}
-		else if (fileName.toLowerCase().endsWith(".xml")) {
-			format = RDFFormat.RDFXML;
-		}
-		else if (fileName.toLowerCase().endsWith(".ttl.dan")) {
+		else if (lsFileName.endsWith(".ttl.dan")) {
 			format = RDFFormat.TURTLE;
 		}
-		else if (fileName.toLowerCase().endsWith(".dan")) {
+		else if (lsFileName.endsWith(".dan")) {
 			format = RDFFormat.RDFXML;
 		}
-		else if (fileName.toLowerCase().endsWith(".ttl")) {
+		else if (lsFileName.endsWith(".ttl")) {
 			format = RDFFormat.TURTLE;
 		}
 		else {
@@ -505,9 +509,10 @@ public class SemanticCore {
 	}
 
 	public void export(File file) throws IOException, RepositoryException, RDFHandlerException {
-		Writer writer = new FileWriter(file);
-		export(writer);
-		writer.close();
+		try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+			export(writer);
+			writer.close();
+		}
 	}
 
 	public void export(Writer writer) throws RepositoryException, RDFHandlerException, IOException {
@@ -536,13 +541,13 @@ public class SemanticCore {
 		out.flush();
 	}
 
-	private class ConnectionInfo {
+	private static class ConnectionInfo {
 
 		private final Stopwatch stopWatch;
 		private final org.openrdf.repository.RepositoryConnection connection;
 		private final StackTraceElement[] stackTrace;
 
-		public ConnectionInfo(org.openrdf.repository.RepositoryConnection connection) {
+		ConnectionInfo(org.openrdf.repository.RepositoryConnection connection) {
 			this.connection = connection;
 			// for debugging purposes....
 			StackTraceElement[] stackTrace = new Exception().getStackTrace();

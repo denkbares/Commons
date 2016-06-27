@@ -23,12 +23,14 @@ package de.d3web.strings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.ParseException;
@@ -249,7 +251,7 @@ public class Strings {
 
 		List<String> nonEmpty = new ArrayList<>();
 		for (String string : entries) {
-			if (!string.equals("")) {
+			if (!string.isEmpty()) {
 				nonEmpty.add(string);
 			}
 		}
@@ -259,7 +261,7 @@ public class Strings {
 	public static StringFragment getFirstNonEmptyLineContent(String text) {
 		List<StringFragment> lineFragmentation = getLineFragmentation(text);
 		for (StringFragment stringFragment : lineFragmentation) {
-			if (stringFragment.getContent().trim().length() > 0) return stringFragment;
+			if (!stringFragment.getContent().trim().isEmpty()) return stringFragment;
 		}
 		return null;
 
@@ -938,6 +940,7 @@ public class Strings {
 	 *
 	 * @return the sub-sequence of the source text
 	 */
+	@SuppressWarnings("unused")
 	public static CharSequence subSequence(CharSequence source, int start, int end) {
 		if (start > end || start < 0 || end > source.length()) {
 			throw new StringIndexOutOfBoundsException();
@@ -1764,7 +1767,7 @@ public class Strings {
 	}
 
 	public static void writeFile(String path, String content) throws IOException {
-		FileWriter stream = new FileWriter(path);
+		Writer stream = new OutputStreamWriter(new FileOutputStream(new File(path)), "UTF-8");
 		BufferedWriter out = new BufferedWriter(stream);
 		out.write(content);
 		out.close();
