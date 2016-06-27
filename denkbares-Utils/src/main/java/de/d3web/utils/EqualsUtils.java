@@ -18,7 +18,7 @@
  */
 package de.d3web.utils;
 
-import java.lang.reflect.Array;
+import java.util.Objects;
 
 /**
  * Collected methods which allow easy implementation of <code>equals</code>.
@@ -40,34 +40,8 @@ public final class EqualsUtils {
 	 * 
 	 * @created 19.10.2010
 	 */
-	public static boolean equals(Object a, Object b) { // NOSONAR
-		// check for identity and make null-safe
-		if (a == b) return true;
-		if (a == null) return false;
-		if (b == null) return false;
-		// handle arrays element by element
-		if (isArray(a)) {
-			if (isArray(b)) {
-				// length must be identical for equal arrays
-				int length = Array.getLength(a);
-				if (length != Array.getLength(b)) return false;
-				// then iterate through both
-				// and check it recursively
-				for (int i = 0; i < length; i++) {
-					Object aItem = Array.get(a, i);
-					Object bItem = Array.get(b, i);
-					if (!equals(aItem, bItem)) return false;
-				}
-				// if all items has been equal,
-				// we are successfully done
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		// otherwise use equals method
-		return (a.equals(b));
+	public static boolean equals(Object a, Object b) {
+		return Objects.deepEquals(a, b);
 	}
 
 	private static boolean isArray(Object object) {
