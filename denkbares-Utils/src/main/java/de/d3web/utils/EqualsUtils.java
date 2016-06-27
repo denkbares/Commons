@@ -44,10 +44,6 @@ public final class EqualsUtils {
 		return Objects.deepEquals(a, b);
 	}
 
-	private static boolean isArray(Object object) {
-		return object.getClass().isArray();
-	}
-
 	/**
 	 * Checks if two objects are both null or if they equal with the equals
 	 * method
