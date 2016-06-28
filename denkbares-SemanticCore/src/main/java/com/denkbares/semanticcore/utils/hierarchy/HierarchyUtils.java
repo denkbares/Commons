@@ -31,6 +31,7 @@ import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 import com.denkbares.semanticcore.utils.Sparqls;
 import de.d3web.collections.PartialHierarchyTree;
+import de.d3web.utils.Log;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)
@@ -84,7 +85,7 @@ public class HierarchyUtils {
 			}
 		}
 		catch (QueryEvaluationException e) {
-			e.printStackTrace();
+			Log.severe("Exception while executing SPARQL", e);
 		}
 		return tree;
 	}
