@@ -38,8 +38,7 @@ import static org.junit.Assert.*;
 public class MappingMapTest {
 
 	private static final Map<String, Double> source = new LinkedHashMap<String, Double>();
-	private static final Map<String, Long> mapped = new MappingMap<String, Double, Long>(
-			source, Math::round);
+	private static final Map<String, Long> mapped = new MappingMap<>(source, (a) -> Math.round(a));
 
 	@BeforeClass
 	public static void init() {
