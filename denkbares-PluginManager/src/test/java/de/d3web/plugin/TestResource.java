@@ -61,7 +61,7 @@ public class TestResource {
 	private void testPlugin(Plugin plugin, String s) throws IOException {
 		Assert.assertNotNull(plugin);
 		Resource[] resources = plugin.getResources();
-		List<Resource> filteredResources = new LinkedList<Resource>();
+		List<Resource> filteredResources = new LinkedList<>();
 		for (Resource r : resources) {
 			if (!r.getPathName().contains(".svn")) {
 				filteredResources.add(r);

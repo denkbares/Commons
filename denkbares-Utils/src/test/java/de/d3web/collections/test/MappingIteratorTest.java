@@ -50,16 +50,16 @@ public class MappingIteratorTest {
 	public void basic() {
 		List<Integer> list = Arrays.asList(1, 2, 3);
 		List<String> expected = Arrays.asList("mapped:1", "mapped:2", "mapped:3");
-		assertItems(expected, new MappingIterator<Integer, String>(list.iterator(), mapper));
+		assertItems(expected, new MappingIterator<>(list.iterator(), mapper));
 	}
 
 	@Test
 	public void remove() {
-		List<Integer> list = new ArrayList<Integer>(Arrays.asList(1, 2, 3));
+		List<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3));
 		List<String> expected = Arrays.asList("mapped:2", "mapped:3");
 
 		MappingIterator<Integer, String> iterator =
-				new MappingIterator<Integer, String>(list.iterator(), mapper);
+				new MappingIterator<>(list.iterator(), mapper);
 		iterator.next();
 		iterator.remove();
 		assertItems(expected, iterator);

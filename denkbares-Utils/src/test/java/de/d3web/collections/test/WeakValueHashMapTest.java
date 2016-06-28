@@ -33,7 +33,7 @@ public class WeakValueHashMapTest {
 
 	@Test
 	public void basic() {
-		Map<Key, Value> map = new WeakValueHashMap<Key, Value>();
+		Map<Key, Value> map = new WeakValueHashMap<>();
 		Key key1 = new Key("key1");
 		Key key2 = new Key("key2");
 		Key key2b = new Key("key2");
@@ -80,7 +80,7 @@ public class WeakValueHashMapTest {
 
 	@Test
 	public void iteratorRemove() {
-		Map<Key, Value> map = new WeakValueHashMap<Key, Value>();
+		Map<Key, Value> map = new WeakValueHashMap<>();
 		Key key = new Key("key");
 		Value value = new Value("value");
 
@@ -106,7 +106,7 @@ public class WeakValueHashMapTest {
 	@SuppressWarnings("UnusedAssignment")
 	@Test
 	public void weakness() {
-		Map<Key, Value> map = new WeakValueHashMap<Key, Value>();
+		Map<Key, Value> map = new WeakValueHashMap<>();
 		Key key1 = new Key("key1");
 		Key key2 = new Key("key2");
 		Key key2b = new Key("key2");
@@ -136,7 +136,7 @@ public class WeakValueHashMapTest {
 	@SuppressWarnings("UnusedAssignment")
 	@Test
 	public void nullSecure() {
-		Map<Key, Value> map = new WeakValueHashMap<Key, Value>();
+		Map<Key, Value> map = new WeakValueHashMap<>();
 		Value value = new Value("value");
 
 		map.put(null, null);

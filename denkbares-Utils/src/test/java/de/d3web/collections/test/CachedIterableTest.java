@@ -41,7 +41,7 @@ public class CachedIterableTest {
 		List<String> list = Arrays.asList("a", "b", "c");
 		Iterator<String> iterator = list.iterator();
 		// create cache iterable on iterator
-		CachedIterable<String> cache = new CachedIterable<String>(iterator);
+		CachedIterable<String> cache = new CachedIterable<>(iterator);
 		// iterate two times to make sure that we can iterate repeatedly,
 		// even the original iterator is consumed
 		assertItems(list, cache.iterator());
@@ -50,7 +50,7 @@ public class CachedIterableTest {
 		assertFalse(iterator.hasNext());
 
 		// repeat to check also with iterable
-		cache = new CachedIterable<String>(list);
+		cache = new CachedIterable<>(list);
 		assertItems(list, cache.iterator());
 		assertItems(list, cache.iterator());
 	}
@@ -60,7 +60,7 @@ public class CachedIterableTest {
 		List<String> list = Arrays.asList("a", "b", "c");
 		Iterator<String> iterator = list.iterator();
 		// create cache iterable on iterator
-		CachedIterable<String> cache = new CachedIterable<String>(iterator);
+		CachedIterable<String> cache = new CachedIterable<>(iterator);
 
 		assertItems(list.subList(0, 0), cache.iterator(-1, -1));
 		assertItems(list.subList(0, 1), cache.iterator(-1, 1));

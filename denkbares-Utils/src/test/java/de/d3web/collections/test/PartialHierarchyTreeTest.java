@@ -14,7 +14,7 @@ public class PartialHierarchyTreeTest {
 
 	@Test
 	public void testHierarchyBasicInsert() {
-		PartialHierarchyTree<String> tree = new PartialHierarchyTree<String>(
+		PartialHierarchyTree<String> tree = new PartialHierarchyTree<>(
 				new StringPrefixHierarchy());
 
 		assertEquals(0, tree.getNodeCount());
@@ -61,7 +61,7 @@ public class PartialHierarchyTreeTest {
 		assertTrue(bNode.getData().equals(b));
 		List<Node<String>> bChildren = bNode.getChildren();
 		assertEquals(1, bChildren.size());
-		assertTrue(bChildren.contains(new Node<String>(ba)));
+		assertTrue(bChildren.contains(new Node<>(ba)));
 
 		// A should be still alone
 		aNode = tree.find(a);
@@ -79,7 +79,7 @@ public class PartialHierarchyTreeTest {
 
 	@Test
 	public void testHierarchyRestructuring1() {
-		PartialHierarchyTree<String> tree = new PartialHierarchyTree<String>(
+		PartialHierarchyTree<String> tree = new PartialHierarchyTree<>(
 				new StringPrefixHierarchy());
 
 		String b = "B";
@@ -122,7 +122,7 @@ public class PartialHierarchyTreeTest {
 
 	@Test
 	public void testHierarchyRestructuring2() {
-		PartialHierarchyTree<String> tree = new PartialHierarchyTree<String>(
+		PartialHierarchyTree<String> tree = new PartialHierarchyTree<>(
 				new StringPrefixHierarchy());
 
 		String b = "B";

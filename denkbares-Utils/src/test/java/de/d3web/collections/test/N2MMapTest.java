@@ -40,7 +40,7 @@ public class N2MMapTest {
 
 	@Before
 	public void setUp() {
-		map = new N2MMap<String, Integer>(
+		map = new N2MMap<>(
 				MultiMaps.linkedFactory(), MultiMaps.linkedFactory());
 	}
 
@@ -116,11 +116,11 @@ public class N2MMapTest {
 
 	@Test
 	public void put() {
-		Map<String, Integer> hash = new HashMap<String, Integer>();
+		Map<String, Integer> hash = new HashMap<>();
 		hash.put("a", 1);
 		hash.put("b", 1);
 
-		MultiMap<String, Integer> n2m = new N2MMap<String, Integer>();
+		MultiMap<String, Integer> n2m = new N2MMap<>();
 		n2m.put("a", 2);
 		n2m.put("a", 3);
 
@@ -200,7 +200,7 @@ public class N2MMapTest {
 
 	@Test
 	public void misc() {
-		Map<String, Integer> hash = new HashMap<String, Integer>();
+		Map<String, Integer> hash = new HashMap<>();
 		hash.put("a", 1);
 		hash.put("b", 1);
 
@@ -209,7 +209,7 @@ public class N2MMapTest {
 		map.putAll(hash);
 
 		// add other after
-		MultiMap<String, Integer> map2 = new N2MMap<String, Integer>();
+		MultiMap<String, Integer> map2 = new N2MMap<>();
 		map2.putAll(hash);
 		map2.put("c", 3);
 		map2.put("c", 4);
@@ -236,7 +236,7 @@ public class N2MMapTest {
 	}
 
 	private static <T extends Comparable<? super T>> String toString(Collection<T> c) {
-		List<T> list = new ArrayList<T>(c);
+		List<T> list = new ArrayList<>(c);
 		Collections.sort(list);
 		return list.toString();
 	}

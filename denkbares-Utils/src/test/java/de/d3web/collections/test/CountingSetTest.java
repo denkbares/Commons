@@ -32,19 +32,19 @@ import static org.junit.Assert.*;
 
 public class CountingSetTest {
 
-	private CountingSet<String> set = new CountingSet<String>();
+	private CountingSet<String> set = new CountingSet<>();
 	private final String testString = "test";
 	private final String testString2 = "test2";
 
 	@Before
 	public void setUp() {
-		set = new CountingSet<String>();
+		set = new CountingSet<>();
 	}
 
 	@Test
 	public void toStringTest() {
 		@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-		Set<String> s = new HashSet<String>();
+		Set<String> s = new HashSet<>();
 		s.add("foo");
 		set.add("foo");
 		assertEquals("{foo=1}", set.toString());

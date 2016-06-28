@@ -43,14 +43,14 @@ public class PeekableIteratorTest {
 	public void basic() {
 		// create list to iterate
 		int COUNT = 100;
-		List<Integer> list = new ArrayList<Integer>(COUNT);
+		List<Integer> list = new ArrayList<>(COUNT);
 		for (int i = 0; i < COUNT; i++) {
 			list.add(i);
 		}
 
 		// compare the iterators
 		Iterator<Integer> expected = list.iterator();
-		PeekableIterator<Integer> actual = new PeekableIterator<Integer>(list.iterator());
+		PeekableIterator<Integer> actual = new PeekableIterator<>(list.iterator());
 
 		while (expected.hasNext()) {
 			// both iterators must have same length
@@ -77,7 +77,7 @@ public class PeekableIteratorTest {
 	@Test
 	public void nullElements() {
 		// try with null as last element
-		PeekableIterator<String> iter = new PeekableIterator<String>(Arrays.asList("foo", null));
+		PeekableIterator<String> iter = new PeekableIterator<>(Arrays.asList("foo", null));
 
 		// check for "foo"
 		Assert.assertTrue(iter.hasNext());
@@ -93,7 +93,7 @@ public class PeekableIteratorTest {
 		Assert.assertFalse(iter.hasNext());
 
 		// try also with null as first element
-		iter = new PeekableIterator<String>(Arrays.asList(null, "foo").iterator());
+		iter = new PeekableIterator<>(Arrays.asList(null, "foo").iterator());
 
 		// check for null
 		Assert.assertTrue(iter.hasNext());
@@ -111,11 +111,11 @@ public class PeekableIteratorTest {
 
 	@Test(expected = NoSuchElementException.class)
 	public void exceedRangeByNext() {
-		new PeekableIterator<Integer>(Collections.<Integer>emptyList().iterator()).next();
+		new PeekableIterator<>(Collections.<Integer>emptyList().iterator()).next();
 	}
 
 	@Test(expected = NoSuchElementException.class)
 	public void exceedRangeByPeek() {
-		new PeekableIterator<Integer>(Collections.<Integer>emptyList().iterator()).peek();
+		new PeekableIterator<>(Collections.<Integer>emptyList().iterator()).peek();
 	}
 }

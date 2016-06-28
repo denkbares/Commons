@@ -37,7 +37,7 @@ public class GeneralizedSuffixTreeTest {
 
 	@Test
 	public void basic() {
-		GeneralizedSuffixTree<Integer> lookup = new GeneralizedSuffixTree<Integer>();
+		GeneralizedSuffixTree<Integer> lookup = new GeneralizedSuffixTree<>();
 		lookup.put("Hello World", 17);
 		lookup.put("Hello", 5);
 		lookup.put("Bananas", 7);
@@ -82,13 +82,13 @@ public class GeneralizedSuffixTreeTest {
 	}
 
 	private static <E> void assertSearch(GeneralizedSuffixTree<E> gst, String phrase, E... items) {
-		Set<E> expected = new TreeSet<E>(Arrays.asList(items));
+		Set<E> expected = new TreeSet<>(Arrays.asList(items));
 		Set<E> actual = search(gst, phrase);
 		assertEquals(expected, actual);
 	}
 
 	private static <E> Set<E> search(GeneralizedSuffixTree<E> gst, String phrase) {
-		Set<E> actual = new TreeSet<E>();
+		Set<E> actual = new TreeSet<>();
 		for (E item : gst.search(phrase)) {
 			actual.add(item);
 		}
