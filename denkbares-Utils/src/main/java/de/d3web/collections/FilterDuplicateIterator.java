@@ -28,7 +28,7 @@ import java.util.Set;
  * @created 13.03.2014
  */
 public class FilterDuplicateIterator<E> extends FilterIterator<E> {
-	private final Set<E> accepted = new HashSet<E>();
+	private final Set<E> accepted = new HashSet<>();
 
 	public FilterDuplicateIterator(Iterator<E> source) {
 		super(source);

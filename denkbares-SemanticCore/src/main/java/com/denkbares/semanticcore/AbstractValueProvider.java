@@ -94,7 +94,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
 
 	@Override
 	public Map<String, Value> values() {
-		final Map<String, Value> values = new HashMap<String, Value>();
+		final Map<String, Value> values = new HashMap<>();
 		currentBindings.forEach(new Consumer<Binding>() {
 			@Override
 			public void accept(Binding t) {

@@ -27,7 +27,7 @@ public enum OS {
 	}
 
 	public boolean isCurrentOS() {
-		return this.equals(getCurrentOS());
+		return this == getCurrentOS();
 	}
 
 	public static OS getCurrentOS() {

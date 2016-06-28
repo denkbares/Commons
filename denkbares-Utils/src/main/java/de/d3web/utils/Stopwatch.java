@@ -159,7 +159,7 @@ public class Stopwatch {
 				long hours = (time) / (60 * 60 * 1000);
 				long minutes = (time % (60 * 60 * 1000)) / (60 * 1000);
 				long seconds = (time % (60 * 1000)) / (1000);
-				if (hours == 0 && unit.equals(TimeUnit.MINUTES)) {
+				if (hours == 0 && unit == TimeUnit.MINUTES) {
 					return String.format("%d:%02d min", minutes, seconds);
 				}
 				else {

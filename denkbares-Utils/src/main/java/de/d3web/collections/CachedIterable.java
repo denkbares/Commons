@@ -33,7 +33,7 @@ import java.util.NoSuchElementException;
  */
 public class CachedIterable<E> implements Iterable<E> {
 	private final Iterator<E> futures;
-	private final List<E> cache = new ArrayList<E>();
+	private final List<E> cache = new ArrayList<>();
 
 	/**
 	 * Creates a new instance for the remaining elements of the specified iterator. Please note that

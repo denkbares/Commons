@@ -322,7 +322,7 @@ public class Files {
 	 */
 	public static List<String> getLines(Reader reader) throws IOException {
 		BufferedReader br = new BufferedReader(reader);
-		List<String> result = new LinkedList<String>();
+		List<String> result = new LinkedList<>();
 		String line;
 		while ((line = br.readLine()) != null) {
 			result.add(line);
@@ -336,7 +336,7 @@ public class Files {
 
 	public static Matrix<String> getCSVCells(File file, String splitSymbol) throws IOException {
 		List<String> lines = getLines(file);
-		Matrix<String> matrix = new Matrix<String>();
+		Matrix<String> matrix = new Matrix<>();
 		int row = 0;
 		for (String line : lines) {
 			List<StringFragment> fragments = Strings.splitUnquoted(line, splitSymbol);
@@ -454,7 +454,7 @@ public class Files {
 	 * @return all files matching the specified filter in the specified directory (recursively)
 	 */
 	public static Collection<File> recursiveGet(File root, FileFilter filter) {
-		Collection<File> files = new LinkedList<File>();
+		Collection<File> files = new LinkedList<>();
 		File[] list = root.listFiles();
 		if (list != null) for (File f : list) {
 			if (f.isDirectory()) {

@@ -49,7 +49,7 @@ public class JPFPlugin implements Plugin {
 		private final String path;
 
 		public ResourceFilter(Library lib) {
-			entries = new HashSet<String>();
+			entries = new HashSet<>();
 			path = lib.getPath();
 			for (String exportPrefix : lib.getExports()) {
 				if ("*".equals(exportPrefix)) { //$NON-NLS-1$
@@ -136,7 +136,7 @@ public class JPFPlugin implements Plugin {
 	public Resource[] getResources() {
 		if (this.resources == null) {
 			// create all resources
-			Collection<Resource> result = new LinkedList<Resource>();
+			Collection<Resource> result;
 			result = getResourcePaths(this.descriptor.getLocation());
 			this.resources = result.toArray(new Resource[result.size()]);
 		}
@@ -145,7 +145,7 @@ public class JPFPlugin implements Plugin {
 
 	private Collection<Resource> getResourcePaths(URL pluginUrl) {
 
-		Collection<Resource> result = new LinkedList<Resource>();
+		Collection<Resource> result = new LinkedList<>();
 		try {
 			String fileString = URLDecoder.decode(pluginUrl.getFile(), "UTF-8");
 			if (fileString.startsWith("file:/")) {
@@ -165,7 +165,7 @@ public class JPFPlugin implements Plugin {
 			}
 
 			if (pluginFile.isDirectory()) {
-				Collection<File> files = new LinkedList<File>();
+				Collection<File> files = new LinkedList<>();
 				collectFiles(pluginFile, files);
 				int prefixLen = pluginFile.getCanonicalPath().length() + 1;
 				for (File file : files) {
@@ -214,7 +214,7 @@ public class JPFPlugin implements Plugin {
 	private boolean matchesExports(String relativePath) {
 		// initialize resource filters lazy
 		if (this.resourceFilters == null) {
-			this.resourceFilters = new ArrayList<ResourceFilter>();
+			this.resourceFilters = new ArrayList<>();
 			for (Library library : this.descriptor.getLibraries()) {
 				// only export non-code libraries
 				if (library.isCodeLibrary()) continue;

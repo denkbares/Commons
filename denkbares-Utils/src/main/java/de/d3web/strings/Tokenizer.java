@@ -16,7 +16,7 @@ public class Tokenizer {
 	 */
 	public static List<String> tokenize(String text) {
 		if (Strings.isBlank(text)) return Collections.emptyList();
-		List<String> result = new LinkedList<String>();
+		List<String> result = new LinkedList<>();
 		int len = text.length();
 		int start = -1;
 		while ((start = nextWordIndex(text, start + 1)) < len) {

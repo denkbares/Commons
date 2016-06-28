@@ -55,8 +55,8 @@ public class PartialHierarchyTree<T> {
 
 	public PartialHierarchyTree(PartialHierarchy<T> h) {
 		this.hierarchy = h;
-		root = new Node<T>(null);
-		root.children = new ArrayList<Node<T>>();
+		root = new Node<>(null);
+		root.children = new ArrayList<>();
 	}
 
 	/**
@@ -93,9 +93,9 @@ public class PartialHierarchyTree<T> {
 	 */
 	public List<Node<T>> getRootLevelNodesSorted(Comparator<T> comp) {
 		List<Node<T>> children = root.getChildren();
-		List<Node<T>> copy = new ArrayList<Node<T>>();
+		List<Node<T>> copy = new ArrayList<>();
 		copy.addAll(children);
-		Collections.sort(copy, new PartialHierarchyNodeComparator<T>(comp));
+		Collections.sort(copy, new PartialHierarchyNodeComparator<>(comp));
 		return Collections.unmodifiableList(copy);
 	}
 
@@ -192,7 +192,7 @@ public class PartialHierarchyTree<T> {
 	 * @return
 	 */
 	public Set<Node<T>> getNodes() {
-		Set<Node<T>> result = new HashSet<Node<T>>();
+		Set<Node<T>> result = new HashSet<>();
 		collectNodes(root, result);
 		return Collections.unmodifiableSet(result);
 	}
@@ -204,7 +204,7 @@ public class PartialHierarchyTree<T> {
 	 * @return
 	 */
 	public List<T> getNodesDFSOrder() {
-		List<T> result = new ArrayList<T>();
+		List<T> result = new ArrayList<>();
 		addDFS(root, result);
 		return Collections.unmodifiableList(result);
 	}
@@ -225,9 +225,9 @@ public class PartialHierarchyTree<T> {
 	 * @return
 	 */
 	public Set<T> getNodeContents() {
-		Set<Node<T>> nodes = new HashSet<Node<T>>();
+		Set<Node<T>> nodes = new HashSet<>();
 		collectNodes(root, nodes);
-		Set<T> result = new HashSet<T>();
+		Set<T> result = new HashSet<>();
 		for (Node<T> node : nodes) {
 			result.add(node.data);
 		}
@@ -257,7 +257,7 @@ public class PartialHierarchyTree<T> {
 	 * @return all leafs of the hierarchy
 	 */
 	public Collection<T> getLeafNodes() {
-		Collection<T> result = new HashSet<T>();
+		Collection<T> result = new HashSet<>();
 		addLeafNodes(root, result);
 		return Collections.unmodifiableCollection(result);
 	}
@@ -276,7 +276,7 @@ public class PartialHierarchyTree<T> {
 	}
 
 	public int getNodeCount() {
-		Set<Node<T>> set = new HashSet<Node<T>>();
+		Set<Node<T>> set = new HashSet<>();
 		collectNodes(getRoot(), set);
 		return set.size();
 	}
@@ -362,13 +362,13 @@ public class PartialHierarchyTree<T> {
 		}
 		// if no super concept for descent is found, insert at this level
 		if (!descent) {
-			Node<T> newNode = new Node<T>(t);
+			Node<T> newNode = new Node<>(t);
 			parent.addChild(newNode);
 			newNode.setParent(parent);
 
 			// then check siblings, which could be sub-concepts of the new one
 			Iterator<Node<T>> checkSiblingsIterator = children.iterator();
-			List<Node<T>> successorSiblings = new ArrayList<Node<T>>();
+			List<Node<T>> successorSiblings = new ArrayList<>();
 			while (checkSiblingsIterator.hasNext()) {
 				Node<T> sibling = checkSiblingsIterator.next();
 				if (sibling.data.equals(t)) continue;
@@ -433,7 +433,7 @@ public class PartialHierarchyTree<T> {
 
 		final T data;
 		private transient Node<T> parent;
-		private List<Node<T>> children = new ArrayList<Node<T>>();
+		private List<Node<T>> children = new ArrayList<>();
 
 		@Override
 		public String toString() {
@@ -516,9 +516,9 @@ public class PartialHierarchyTree<T> {
 		}
 
 		public List<Node<T>> getChildrenSorted(Comparator<T> c) {
-			List<Node<T>> copy = new ArrayList<Node<T>>();
+			List<Node<T>> copy = new ArrayList<>();
 			copy.addAll(children);
-			Collections.sort(copy, new PartialHierarchyNodeComparator<T>(c));
+			Collections.sort(copy, new PartialHierarchyNodeComparator<>(c));
 			return Collections.unmodifiableList(copy);
 		}
 

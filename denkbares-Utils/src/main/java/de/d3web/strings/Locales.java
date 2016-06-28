@@ -321,7 +321,7 @@ public class Locales {
 	public static String toParsableList(boolean sorted, Collection<Locale> languages) {
 		if (languages == null) return "";
 		if (sorted) {
-			languages = new ArrayList<Locale>(languages);
+			languages = new ArrayList<>(languages);
 			Collections.sort((List) languages, ASCENDING);
 		}
 		return toParsableList(languages);
@@ -352,7 +352,7 @@ public class Locales {
 	 */
 	public static Set<Locale> parseList(String languages) {
 		if (Strings.isBlank(languages)) return Collections.emptySet();
-		LinkedHashSet<Locale> result = new LinkedHashSet<Locale>();
+		LinkedHashSet<Locale> result = new LinkedHashSet<>();
 		for (String lang : languages.split("[;,]")) {
 			result.add(parseLocale(lang));
 		}

@@ -39,7 +39,7 @@ import de.d3web.strings.Tokenizer;
  */
 public class InvertedIndex<E> {
 
-	private final Map<String, Set<E>> index = new HashMap<String, Set<E>>();
+	private final Map<String, Set<E>> index = new HashMap<>();
 	private final TokenNormalizer normalizer;
 
 	/**
@@ -120,7 +120,7 @@ public class InvertedIndex<E> {
 		String key = normalizer.normalize(token);
 		Set<E> set = index.get(key);
 		if (set == null) {
-			set = new HashSet<E>();
+			set = new HashSet<>();
 			index.put(key, set);
 		}
 		return set.add(element);
@@ -183,7 +183,7 @@ public class InvertedIndex<E> {
 		List<String> tokens = Tokenizer.tokenize(phrase);
 		if (tokens.size() == 0) return Collections.emptySet();
 		if (tokens.size() == 1) return get(tokens.get(0));
-		Set<E> result = new HashSet<E>();
+		Set<E> result = new HashSet<>();
 		for (String token : tokens) {
 			result.addAll(get(token));
 		}
@@ -206,7 +206,7 @@ public class InvertedIndex<E> {
 		for (String token : tokens) {
 			Set<E> elements = get(token);
 			if (result == null) {
-				result = new HashSet<E>(elements);
+				result = new HashSet<>(elements);
 			}
 			else {
 				result.retainAll(elements);
@@ -246,7 +246,7 @@ public class InvertedIndex<E> {
 	public static int matches(String text, int start, String notation) {
 		int ti = start, tl = text.length();
 		int ni = 0, nl = notation.length();
-		char nc = '\0', tc = '\0';
+		char nc, tc;
 		while (true) {
 			// ignore non-word-characters in notation
 			do {

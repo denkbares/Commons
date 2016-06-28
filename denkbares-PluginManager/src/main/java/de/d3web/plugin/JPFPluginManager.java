@@ -53,7 +53,7 @@ public final class JPFPluginManager extends PluginManager {
 
 	private final org.java.plugin.PluginManager manager;
 
-	private final Map<org.java.plugin.registry.Extension, Extension> cachedExtension = new HashMap<org.java.plugin.registry.Extension, Extension>();
+	private final Map<org.java.plugin.registry.Extension, Extension> cachedExtension = new HashMap<>();
 
 	/**
 	 * Contains the registered Plugins. The field will be initialized lazy by the {@link
@@ -64,7 +64,7 @@ public final class JPFPluginManager extends PluginManager {
 	private JPFPluginManager(File[] pluginFiles) throws JpfException {
 		this.manager = ObjectFactory.newInstance().createManager();
 
-		List<PluginLocation> locations = new ArrayList<PluginLocation>();
+		List<PluginLocation> locations = new ArrayList<>();
 		for (File pluginFile : pluginFiles) {
 			String pluginName = pluginFile.getName();
 
@@ -191,7 +191,7 @@ public final class JPFPluginManager extends PluginManager {
 
 	@Override
 	public synchronized Extension[] getExtensions(String extendedPluginID, String extendedPointID) {
-		List<Extension> result = new ArrayList<Extension>();
+		List<Extension> result = new ArrayList<>();
 		ExtensionPoint toolExtPoint = manager.getRegistry().getExtensionPoint(
 				extendedPluginID, extendedPointID);
 		Collection<org.java.plugin.registry.Extension> connectedExtensions = toolExtPoint
@@ -252,7 +252,7 @@ public final class JPFPluginManager extends PluginManager {
 	public synchronized Plugin[] getPlugins() {
 		// initialize plugins lazy
 		if (this.plugins == null) {
-			Collection<Plugin> result = new LinkedList<Plugin>();
+			Collection<Plugin> result = new LinkedList<>();
 			Collection<PluginDescriptor> descriptors =
 					this.manager.getRegistry().getPluginDescriptors();
 			for (PluginDescriptor descriptor : descriptors) {

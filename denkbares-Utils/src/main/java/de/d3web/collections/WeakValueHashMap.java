@@ -44,7 +44,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	private final Map<K, WeakValueRef<K, V>> hash;
 
 	/* Reference queue for cleared weak values references */
-	private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
+	private final ReferenceQueue<V> queue = new ReferenceQueue<>();
 
 	/**
 	 * This method does the trick. It removes all invalidated entries from the map, by removing

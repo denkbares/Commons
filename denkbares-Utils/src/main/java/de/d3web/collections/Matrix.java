@@ -36,7 +36,7 @@ import de.d3web.utils.Pair;
  */
 public class Matrix<E> {
 
-	private final Map<Pair<Integer, Integer>, E> elements = new HashMap<Pair<Integer, Integer>, E>();
+	private final Map<Pair<Integer, Integer>, E> elements = new HashMap<>();
 	private int rows = 0;
 	private int cols = 0;
 
@@ -100,7 +100,7 @@ public class Matrix<E> {
 	 */
 	public List<E> getRow(int row) {
 		int size = getColSize();
-		List<E> result = new ArrayList<E>(size);
+		List<E> result = new ArrayList<>(size);
 		for (int col=0; col<size; col++) {
 			result.add(get(row, col));
 		}
@@ -117,7 +117,7 @@ public class Matrix<E> {
 	 */
 	public List<E> getColumn(int col) {
 		int size = getRowSize();
-		List<E> result = new ArrayList<E>(size);
+		List<E> result = new ArrayList<>(size);
 		for (int row=0; row<size; row++) {
 			result.add(get(row, col));
 		}
@@ -127,6 +127,6 @@ public class Matrix<E> {
 	private Pair<Integer, Integer> getKey(int row, int col) {
 		if (row < 0) throw new IndexOutOfBoundsException("row must not be negative");
 		if (col < 0) throw new IndexOutOfBoundsException("col must not be negative");
-		return new Pair<Integer, Integer>(row, col);
+		return new Pair<>(row, col);
 	}
 }

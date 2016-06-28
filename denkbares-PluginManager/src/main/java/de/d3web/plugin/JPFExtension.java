@@ -183,7 +183,7 @@ public class JPFExtension implements de.d3web.plugin.Extension {
 	public List<String> getParameters(String parameter) {
 		Collection<Parameter> parameters = extension.getParameters(parameter);
 		if (parameters != null) {
-			List<String> ret = new ArrayList<String>();
+			List<String> ret = new ArrayList<>();
 			for (Parameter p : parameters) {
 				ret.add(p.valueAsString());
 			}

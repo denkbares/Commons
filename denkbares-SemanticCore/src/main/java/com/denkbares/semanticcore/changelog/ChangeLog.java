@@ -43,13 +43,13 @@ public class ChangeLog {
 	public static Queue<Change> loadChanges(File rdfFile) {
 
 		// clear previous content
-		committedChanges = new LinkedBlockingQueue<Change>();
+		committedChanges = new LinkedBlockingQueue<>();
 		es = Executors.newSingleThreadExecutor();
 
 		String fileName = rdfFile.getAbsolutePath();
 		fileName = fileName.substring(0, fileName.length() - 3);
 		fileName = fileName + "changes";
-		Queue<Change> changes = new LinkedList<Change>();
+		Queue<Change> changes = new LinkedList<>();
 		try {
 			File changeFile = new File(fileName);
 			if (changeFile.exists()) {

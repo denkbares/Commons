@@ -41,6 +41,6 @@ public class SubSpanIterable<E> implements Iterable<E> {
 
 	@Override
 	public Iterator<E> iterator() {
-		return new SubSpanIterator<E>(delegate.iterator(), start, end);
+		return new SubSpanIterator<>(delegate.iterator(), start, end);
 	}
 }

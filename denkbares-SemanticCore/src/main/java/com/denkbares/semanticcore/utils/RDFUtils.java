@@ -53,7 +53,7 @@ public class RDFUtils {
 
 	public static Collection<URI> getClasses(SPARQLEndpoint core, URI instance) {
 		String query = "SELECT ?class WHERE { <" + instance + "> rdf:type ?class .}";
-		List<URI> resultCollection = new ArrayList<URI>();
+		List<URI> resultCollection = new ArrayList<>();
 		try (SPARQLQueryResult queryResult = core.execute(core.prepareQuery(query))) {
 			TupleQueryResult result = queryResult.getResult();
 			while (result.hasNext()) {
