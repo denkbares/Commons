@@ -115,7 +115,7 @@ public class StringsTest {
 				Strings.splitUnquoted("sometext \"\"\"moretext; even\" more\"\"\" what; there is still more?", "; ", quotes)
 						.toString());
 
-		assertEquals(Arrays.asList("sometext \"\"\"moretext; even\" more\"\"\" what\"; \"there is still more?")
+		assertEquals(Collections.singletonList("sometext \"\"\"moretext; even\" more\"\"\" what\"; \"there is still more?")
 						.toString(),
 				Strings.splitUnquoted("sometext \"\"\"moretext; even\" more\"\"\" what\"; \"there is still more?", "; ", quotes)
 						.toString());

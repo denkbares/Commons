@@ -190,12 +190,8 @@ public class Files {
 	 * @created 01.10.2013
 	 */
 	public static List<String> getLines(File file) throws IOException {
-		Reader reader = new FileReader(file);
-		try {
+		try (Reader reader = new FileReader(file)) {
 			return getLines(reader);
-		}
-		finally {
-			reader.close();
 		}
 	}
 
@@ -209,12 +205,8 @@ public class Files {
 	 */
 	public static Properties getProperties(File file) throws IOException {
 		Properties properties = new Properties();
-		InputStream in = new FileInputStream(file);
-		try {
+		try (InputStream in = new FileInputStream(file)) {
 			properties.load(in);
-		}
-		finally {
-			in.close();
 		}
 		return properties;
 	}

@@ -41,8 +41,7 @@ public class DefaultMultiMapTest {
 
 	@Before
 	public void setUp() {
-		map = new DefaultMultiMap<>(
-				MultiMaps.treeFactory(), MultiMaps.treeFactory());
+		map = new DefaultMultiMap<>(MultiMaps.<String>treeFactory(), MultiMaps.<Integer>treeFactory());
 	}
 
 	@Test

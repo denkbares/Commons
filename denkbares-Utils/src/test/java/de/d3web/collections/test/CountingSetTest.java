@@ -19,6 +19,7 @@
 package de.d3web.collections.test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -119,10 +120,10 @@ public class CountingSetTest {
 		List<String> list = Arrays.asList(testString, testString2);
 		set.addAll(list);
 		set.addAll(list);
-		set.retainAll(Arrays.asList(testString2));
+		set.retainAll(Collections.singletonList(testString2));
 		assertTrue(set.contains(testString));
 		assertTrue(set.contains(testString2));
-		set.retainAll(new HashSet<Object>(Arrays.asList(testString2)));
+		set.retainAll(new HashSet<Object>(Collections.singletonList(testString2)));
 		assertFalse(set.contains(testString));
 		assertTrue(set.contains(testString2));
 		set.clear();

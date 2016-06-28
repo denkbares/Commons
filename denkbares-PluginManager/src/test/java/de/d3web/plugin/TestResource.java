@@ -73,17 +73,13 @@ public class TestResource {
 		// check the content of the file
 		Writer writer = new StringWriter();
 		char[] buffer = new char[1024];
-		InputStream is = resource.getInputStream();
-		try {
+		try (InputStream is = resource.getInputStream()) {
 			Reader reader = new BufferedReader(
 					new InputStreamReader(is, "UTF-8"));
 			int n;
 			while ((n = reader.read(buffer)) != -1) {
 				writer.write(buffer, 0, n);
 			}
-		}
-		finally {
-			is.close();
 		}
 		Assert.assertTrue(writer.toString().equals(s));
 	}

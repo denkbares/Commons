@@ -45,7 +45,7 @@ public class Exec {
 	public static String runSimpleCommand(String command, File directory)
 			throws IOException,
 			InterruptedException {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 
 		Process process = Runtime.getRuntime().exec(command, null, directory);
 
@@ -60,12 +60,12 @@ public class Exec {
 			String line;
 
 			while ((line = stdout.readLine()) != null) {
-				result.append(line + "\n");
+				result.append(line).append("\n");
 			}
 
-			StringBuffer error = new StringBuffer();
+			StringBuilder error = new StringBuilder();
 			while ((line = stderr.readLine()) != null) {
-				error.append(line + "\n");
+				error.append(line).append("\n");
 			}
 
 			if (error.length() > 0) {

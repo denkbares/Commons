@@ -42,7 +42,7 @@ import de.d3web.utils.Log;
 
 public class JPFPlugin implements Plugin {
 
-	private final class ResourceFilter {
+	private static final class ResourceFilter {
 
 		private boolean isPublic;
 		private final Set<String> entries;

@@ -42,16 +42,7 @@ public class RDFTransformator implements Transformator {
 			RDFWriter rdfWriter = Rio.createWriter(RDFFormat.RDFXML, new FileWriter(targetFile));
 			core.getConnection().export(rdfWriter);
 		}
-		catch (UnsupportedRDFormatException e) {
-			Log.severe("Exporting RDF failed.", e);
-		}
-		catch (IOException e) {
-			Log.severe("Exporting RDF failed.", e);
-		}
-		catch (RepositoryException e) {
-			Log.severe("Exporting RDF failed.", e);
-		}
-		catch (RDFHandlerException e) {
+		catch (UnsupportedRDFormatException | RDFHandlerException | RepositoryException | IOException e) {
 			Log.severe("Exporting RDF failed.", e);
 		}
 	}
