@@ -66,8 +66,6 @@ public final class JPFPluginManager extends PluginManager {
 
 		List<PluginLocation> locations = new ArrayList<>();
 		for (File pluginFile : pluginFiles) {
-			String pluginName = pluginFile.getName();
-
 			try {
 				PluginLocation location = StandardPluginLocation.create(pluginFile);
 				if (location != null) {

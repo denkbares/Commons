@@ -155,12 +155,12 @@ public class JPFPlugin implements Plugin {
 			File pluginFile = new File(fileString).getParentFile();
 			File pluginFileLinux = new File("/" + fileString).getParentFile();
 			if (!pluginFile.exists()) {
-				if (!pluginFileLinux.exists()) {
-					throw new IllegalStateException(
-							"Invalid plugin access due to internal error. Cannot find plugin location");
+				if (pluginFileLinux.exists()) {
+					pluginFile = pluginFileLinux;
 				}
 				else {
-					pluginFile = pluginFileLinux;
+					throw new IllegalStateException(
+							"Invalid plugin access due to internal error. Cannot find plugin location");
 				}
 			}
 
@@ -192,7 +192,7 @@ public class JPFPlugin implements Plugin {
 					}
 				}
 				finally {
-					if (zipfile != null) zipfile.close();
+					zipfile.close();
 				}
 			}
 		}

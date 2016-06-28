@@ -581,6 +581,11 @@ public class MultiMaps {
 		}
 
 		@Override
+		public int hashCode() {
+			return map.hashCode();
+		}
+
+		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.unmodifiableMap(map.toMap());
 		}

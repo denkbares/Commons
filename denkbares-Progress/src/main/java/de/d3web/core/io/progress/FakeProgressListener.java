@@ -101,7 +101,8 @@ public class FakeProgressListener implements ExtendedProgressListener {
 				}
 				progress = listener.getProgress();
 				try {
-					sleep(WAIT_TIME);
+					//noinspection BusyWait
+					sleep(WAIT_TIME); // need busy wait here, because there is no other way to get progress
 				}
 				catch (InterruptedException e) {
 					return;
