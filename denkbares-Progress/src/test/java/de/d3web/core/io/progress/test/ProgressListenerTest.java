@@ -22,8 +22,6 @@ import org.junit.Test;
 
 import de.d3web.core.io.progress.CombinedProgressListener;
 
-;
-
 public class ProgressListenerTest {
 
 	@Test(expected = IllegalArgumentException.class)

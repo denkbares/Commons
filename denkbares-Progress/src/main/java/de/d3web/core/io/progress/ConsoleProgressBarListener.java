@@ -23,6 +23,7 @@ package de.d3web.core.io.progress;
  * 
  * @author Volker Belli (denkbares GmbH)
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class ConsoleProgressBarListener implements ProgressListener {
 
 	private int lastProgress = -1;

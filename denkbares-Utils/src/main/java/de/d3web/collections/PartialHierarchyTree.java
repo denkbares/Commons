@@ -264,7 +264,7 @@ public class PartialHierarchyTree<T> {
 
 	private void addLeafNodes(Node<T> node, Collection<T> result) {
 		final List<Node<T>> children = node.getChildren();
-		if (children == null || children.size() == 0) {
+		if (children == null || children.isEmpty()) {
 			//is a leaf
 			result.add(node.getData());
 		}

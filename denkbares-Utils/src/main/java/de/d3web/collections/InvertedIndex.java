@@ -181,7 +181,7 @@ public class InvertedIndex<E> {
 	 */
 	public Set<E> getAny(String phrase) {
 		List<String> tokens = Tokenizer.tokenize(phrase);
-		if (tokens.size() == 0) return Collections.emptySet();
+		if (tokens.isEmpty()) return Collections.emptySet();
 		if (tokens.size() == 1) return get(tokens.get(0));
 		Set<E> result = new HashSet<>();
 		for (String token : tokens) {
@@ -200,7 +200,7 @@ public class InvertedIndex<E> {
 	 */
 	public Set<E> getAll(String phrase) {
 		List<String> tokens = Tokenizer.tokenize(phrase);
-		if (tokens.size() == 0) return Collections.emptySet();
+		if (tokens.isEmpty()) return Collections.emptySet();
 		if (tokens.size() == 1) return get(tokens.get(0));
 		Set<E> result = null;
 		for (String token : tokens) {
