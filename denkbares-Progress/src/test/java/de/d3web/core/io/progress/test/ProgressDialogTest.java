@@ -24,9 +24,10 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.*;
 
-import de.d3web.core.io.progress.ProgressDialog;
 import org.junit.Assume;
 import org.junit.Test;
+
+import de.d3web.core.io.progress.ProgressDialog;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -64,13 +65,7 @@ public class ProgressDialogTest {
 		progressDialog.setCancelAction(cancelAction);
 		progressDialog.setVisible(true);
 		progressDialog.updateProgress(0.1f, "Start");
-		SwingUtilities.invokeAndWait(new Runnable() {
-
-			@Override
-			public void run() {
-				assertEquals(0.1f, progressDialog.getProgress(), 0.00001);
-			}
-		});
+		SwingUtilities.invokeAndWait(() -> assertEquals(0.1f, progressDialog.getProgress(), 0.00001));
 		progressDialog.updateProgress(1f, "Done");
 		progressDialog.dispatchEvent(new WindowEvent(progressDialog,
 				WindowEvent.WINDOW_CLOSING));

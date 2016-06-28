@@ -44,14 +44,11 @@ import static java.util.Spliterator.*;
  */
 public class Locales {
 
-	public static final Comparator<Locale> ASCENDING = new Comparator<Locale>() {
-		@Override
-		public int compare(Locale o1, Locale o2) {
-			if (o1 == o2) return 0;
-			if (o1 == null) return -1;
-			if (o2 == null) return 1;
-			return String.valueOf(o1).compareTo(String.valueOf(o2));
-		}
+	public static final Comparator<Locale> ASCENDING = (o1, o2) -> {
+		if (o1 == o2) return 0;
+		if (o1 == null) return -1;
+		if (o2 == null) return 1;
+		return String.valueOf(o1).compareTo(String.valueOf(o2));
 	};
 
 	/**

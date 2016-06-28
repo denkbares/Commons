@@ -27,7 +27,6 @@ import java.util.Map;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.d3web.collections.MappingIterator;
 import de.d3web.collections.MappingMap;
 
 import static org.junit.Assert.*;
@@ -40,12 +39,7 @@ public class MappingMapTest {
 
 	private static final Map<String, Double> source = new LinkedHashMap<String, Double>();
 	private static final Map<String, Long> mapped = new MappingMap<String, Double, Long>(
-			source, new MappingIterator.MappingFunction<Double, Long>() {
-		@Override
-		public Long apply(Double sourceItem) {
-			return Math.round(sourceItem);
-		}
-	});
+			source, Math::round);
 
 	@BeforeClass
 	public static void init() {

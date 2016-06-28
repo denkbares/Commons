@@ -89,13 +89,7 @@ public class ProgressDialog extends JFrame implements ProgressListener {
 	@Override
 	public void updateProgress(final float percent, final String message) {
 		if (!SwingUtilities.isEventDispatchThread()) {
-			SwingUtilities.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					updateProgress(percent, message);
-				}
-			});
+			SwingUtilities.invokeLater(() -> updateProgress(percent, message));
 		}
 		else if (percent < 1f) {
 			if (!isVisible()) {
@@ -112,6 +106,7 @@ public class ProgressDialog extends JFrame implements ProgressListener {
 		}
 	}
 
+	@SuppressWarnings("ConstantConditions")
 	private static final ImageIcon[] TICKS = new ImageIcon[] {
 			new ImageIcon(Thread.currentThread().getContextClassLoader().getResource("de/d3web/core/io/progress/spinner_0.png")),
 			new ImageIcon(Thread.currentThread().getContextClassLoader().getResource("de/d3web/core/io/progress/spinner_1.png")),

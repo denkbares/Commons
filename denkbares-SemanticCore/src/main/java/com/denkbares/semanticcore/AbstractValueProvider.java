@@ -20,10 +20,8 @@ package com.denkbares.semanticcore;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import org.openrdf.model.Value;
-import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
@@ -95,13 +93,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
 	@Override
 	public Map<String, Value> values() {
 		final Map<String, Value> values = new HashMap<>();
-		currentBindings.forEach(new Consumer<Binding>() {
-			@Override
-			public void accept(Binding t) {
-				values.put(t.getName(), t.getValue());
-			}
-
-		});
+		currentBindings.forEach(t -> values.put(t.getName(), t.getValue()));
 		return values;
 	}
 
