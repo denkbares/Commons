@@ -2005,8 +2005,8 @@ public class Strings {
 	}
 
 	private static class Group {
-		int start;
-		int end;
+		final int start;
+		final int end;
 
 		public Group(int start, int end) {
 			this.start = start;

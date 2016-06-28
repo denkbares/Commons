@@ -15,7 +15,7 @@ import org.openrdf.repository.base.RepositoryBase;
  */
 public class JenaRepository extends RepositoryBase {
 
-	Model model;
+	final Model model;
 	private File dataDir;
 
 	public JenaRepository(Model model) {

@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ExtendedMap<K, V> extends AbstractMap<K, V> {
 
-	Entry<K, V> entry;
+	final Entry<K, V> entry;
 	private final Map<K, V> decorated;
 
 	public ExtendedMap(Map<K, V> decorated, K key, V value) {

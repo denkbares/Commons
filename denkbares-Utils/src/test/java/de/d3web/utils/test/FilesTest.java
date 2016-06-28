@@ -20,7 +20,6 @@ package de.d3web.utils.test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -55,7 +54,7 @@ public class FilesTest {
 				Files.getText(new File(TXT_FILE)).length());
 	}
 
-	public void checkBinarySize(String filename) throws IOException, FileNotFoundException {
+	public void checkBinarySize(String filename) throws IOException {
 		File file = new File(filename);
 		assertEquals(
 				"check file lenght of '" + file + "'",

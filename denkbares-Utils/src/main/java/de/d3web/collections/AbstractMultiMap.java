@@ -66,7 +66,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 			public Iterator<Entry<K, V>> iterator() {
 				return new Iterator<Entry<K, V>>() {
 
-					Iterator<K> keyIter = keySet().iterator();
+					final Iterator<K> keyIter = keySet().iterator();
 					Iterator<V> valIter = Collections.<V> emptySet().iterator();
 					K currentKey = null;
 					V currentVal = null;

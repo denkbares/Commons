@@ -50,7 +50,7 @@ public class StreamsTest {
 	}
 
 	@SuppressWarnings("resource")
-	public void checkBinarySize(String filename) throws IOException, FileNotFoundException {
+	public void checkBinarySize(String filename) throws IOException {
 		File file = new File(filename);
 		Assert.assertEquals(
 				"check file lenght of '" + file + "'",

@@ -60,7 +60,7 @@ public final class SemanticCore {
 	private static final Object repositoryManagerMutex = new Object();
 	private static volatile LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
-	public static String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
+	public static final String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 	private final String repositoryId;
 	private final AtomicLong allocationCounter = new AtomicLong(0);
