@@ -70,7 +70,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 		}
 	}
 
-	private final List<Entry<P, E>> items = new ArrayList<Entry<P, E>>();
+	private final List<Entry<P, E>> items = new ArrayList<>();
 
 	private transient Map<P, List<E>> cachedPriorityMap = null;
 
@@ -104,7 +104,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	@Override
 	public E set(int index, E element) {
 		Entry<P, E> oldItem = items.get(index);
-		Entry<P, E> newItem = new Entry<P, E>(oldItem.priority, element);
+		Entry<P, E> newItem = new Entry<>(oldItem.priority, element);
 		items.set(index, newItem);
 		invalidateCaches();
 		return oldItem.element;
@@ -125,7 +125,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 			// otherwise (empty list) use default priority
 			priority = defaultPriority;
 		}
-		items.add(index, new Entry<P, E>(priority, element));
+		items.add(index, new Entry<>(priority, element));
 		invalidateCaches();
 	}
 
@@ -161,14 +161,14 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 			index--;
 
 		// then insert item at position found
-		items.add(index, new Entry<P, E>(priority, element));
+		items.add(index, new Entry<>(priority, element));
 		invalidateCaches();
 	}
 
 	/**
 	 * Returns all the prioritized items grouped by their priorities as a map.
 	 * The items of the individual lists contains all items of this
-	 * {@link PriorityList} of a specific priority in the order as they are
+	 * PriorityList of a specific priority in the order as they are
 	 * available in this list.
 	 * 
 	 * @created 31.10.2013
@@ -180,13 +180,13 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 				cachedPriorityMap = Collections.emptyMap();
 			}
 			else {
-				cachedPriorityMap = new LinkedHashMap<P, List<E>>();
+				cachedPriorityMap = new LinkedHashMap<>();
 				P currentPrio = null;
 				List<E> currentList = null;
 				for (Entry<P, E> item : this.items) {
 					if (currentPrio == null || !item.priority.equals(currentPrio)) {
 						currentPrio = item.priority;
-						currentList = new LinkedList<E>();
+						currentList = new LinkedList<>();
 						cachedPriorityMap.put(currentPrio,
 								Collections.unmodifiableList(currentList));
 					}
@@ -200,7 +200,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	/**
 	 * Returns all the prioritized items grouped by their priorities as a list
 	 * of groups. The element-list of the individual groups contains all items
-	 * of this {@link PriorityList} of a specific priority in the order as they
+	 * of this PriorityList of a specific priority in the order as they
 	 * are available in this list.
 	 * 
 	 * @created 31.10.2013
@@ -208,15 +208,15 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	 */
 	public List<Group<P, E>> getPriorityGroups() {
 		Map<P, List<E>> priorityMap = getPriorityMap();
-		List<Group<P, E>> result = new ArrayList<PriorityList.Group<P, E>>(priorityMap.size());
+		List<Group<P, E>> result = new ArrayList<>(priorityMap.size());
 		for (java.util.Map.Entry<P, List<E>> entry : priorityMap.entrySet()) {
-			result.add(new Group<P, E>(entry.getKey(), entry.getValue()));
+			result.add(new Group<>(entry.getKey(), entry.getValue()));
 		}
 		return result;
 	}
 
 	/**
-	 * This method that allows to iterate over a {@link PriorityList} in groups
+	 * This method that allows to iterate over a PriorityList in groups
 	 * of elements with the same priority. The iteration starts with lowest
 	 * priority and proceeds stepwise to higher priorities (according to the
 	 * priority's natural order).
@@ -250,7 +250,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 				for (P priority : getPriorities()) {
 					if (currentPrio == null || priority.compareTo(currentPrio) > 0) {
 						currentPrio = priority;
-						return new Group<P, E>(priority, getElements(priority));
+						return new Group<>(priority, getElements(priority));
 					}
 				}
 				throw new NoSuchElementException();
@@ -264,7 +264,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	}
 
 	/**
-	 * Returns all the elements of this {@link PriorityList} that have the
+	 * Returns all the elements of this PriorityList that have the
 	 * specified priority. If there are no such objects, an empty list is
 	 * returned. The elements of the list remain the order the elements have in
 	 * this PriorityList.
@@ -275,7 +275,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	 */
 	public List<E> getElements(P priority) {
 		List<E> list = getPriorityMap().get(priority);
-		return (list != null) ? list : Collections.<E> emptyList();
+		return (list != null) ? list : Collections.emptyList();
 	}
 
 	/**

@@ -19,8 +19,8 @@ import org.openrdf.query.impl.TupleQueryResultImpl;
  */
 public class JenaTupleQuery implements TupleQuery {
 
-	private JenaRepository repository;
-	private QueryExecution query;
+	private final JenaRepository repository;
+	private final QueryExecution query;
 
 	public JenaTupleQuery(JenaRepository repository, QueryExecution query) {
 		this.repository = repository;

@@ -32,7 +32,7 @@ import org.openrdf.query.TupleQueryResultHandlerException;
  */
 public class TupleQuery implements org.openrdf.query.TupleQuery {
 
-	private org.openrdf.query.TupleQuery tupleQuery;
+	private final org.openrdf.query.TupleQuery tupleQuery;
 
 	public TupleQuery(org.openrdf.query.TupleQuery tupleQuery) {
 		this.tupleQuery = tupleQuery;

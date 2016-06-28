@@ -38,6 +38,6 @@ public interface ProgressListener {
 	 * @param percent the actual percentage of the progress
 	 * @param message a message containing information about the actual state
 	 */
-	public void updateProgress(float percent, String message);
+	void updateProgress(float percent, String message);
 
 }

@@ -40,19 +40,19 @@ import de.d3web.utils.Log;
 public class RDFUtils {
 
 	public static boolean isClass(SPARQLEndpoint core, URI resource) {
-		String query = "ASK { <" + resource.toString() + "> rdf:type rdfs:Class .}";
+		String query = "ASK { <" + resource + "> rdf:type rdfs:Class .}";
 		SPARQLBooleanQuery sparqlBooleanQuery = core.prepareBooleanQuery(query);
 		return sparqlBooleanQuery.evaluate();
 	}
 
 	public static boolean isProperty(SPARQLEndpoint core, URI resource) {
-		String query = "ASK { <" + resource.toString() + "> rdf:type rdf:Property .}";
+		String query = "ASK { <" + resource + "> rdf:type rdf:Property .}";
 		SPARQLBooleanQuery sparqlBooleanQuery = core.prepareBooleanQuery(query);
 		return sparqlBooleanQuery.evaluate();
 	}
 
 	public static Collection<URI> getClasses(SPARQLEndpoint core, URI instance) {
-		String query = "SELECT ?class WHERE { <" + instance.toString() + "> rdf:type ?class .}";
+		String query = "SELECT ?class WHERE { <" + instance + "> rdf:type ?class .}";
 		List<URI> resultCollection = new ArrayList<URI>();
 		try (SPARQLQueryResult queryResult = core.execute(core.prepareQuery(query))) {
 			TupleQueryResult result = queryResult.getResult();

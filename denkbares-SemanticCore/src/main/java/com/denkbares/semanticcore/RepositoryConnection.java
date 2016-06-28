@@ -67,7 +67,7 @@ import org.openrdf.rio.RDFParseException;
  */
 public class RepositoryConnection implements org.openrdf.repository.RepositoryConnection, AutoCloseable {
 
-	private org.openrdf.repository.RepositoryConnection connection;
+	private final org.openrdf.repository.RepositoryConnection connection;
 
 	private static final ThreadLocal<Integer> queryCounter = ThreadLocal.withInitial(() -> 0);
 
@@ -356,6 +356,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 		connection.clearNamespaces();
 	}
 
+	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
 		close();
@@ -385,7 +386,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 
 	private class CounterTupleQuery implements TupleQuery {
 
-		private TupleQuery query;
+		private final TupleQuery query;
 
 		public CounterTupleQuery(TupleQuery query) {
 			this.query = query;
@@ -466,7 +467,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 
 	private class CountingTupleQueryResult implements TupleQueryResult {
 
-		private TupleQueryResult tupleQueryResult;
+		private final TupleQueryResult tupleQueryResult;
 
 		public CountingTupleQueryResult(TupleQueryResult tupleQueryResult) {
 			this.tupleQueryResult = tupleQueryResult;
@@ -501,7 +502,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 
 	private class CountingTupleQueryResultHandler implements TupleQueryResultHandler {
 
-		private TupleQueryResultHandler tupleQueryResultHandler;
+		private final TupleQueryResultHandler tupleQueryResultHandler;
 
 		public CountingTupleQueryResultHandler(TupleQueryResultHandler tupleQueryResultHandler) {
 			this.tupleQueryResultHandler = tupleQueryResultHandler;

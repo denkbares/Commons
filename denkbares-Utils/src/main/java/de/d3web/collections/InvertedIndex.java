@@ -213,7 +213,7 @@ public class InvertedIndex<E> {
 			}
 			if (result.isEmpty()) break;
 		}
-		return (result == null) ? Collections.<E>emptySet() : Collections.unmodifiableSet(result);
+		return (result == null) ? Collections.emptySet() : Collections.unmodifiableSet(result);
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class InvertedIndex<E> {
 		String key = normalizer.normalize(token);
 		Set<E> result = index.get(key);
 		return (result == null)
-				? Collections.<E>emptySet()
+				? Collections.emptySet()
 				: Collections.unmodifiableSet(result);
 	}
 

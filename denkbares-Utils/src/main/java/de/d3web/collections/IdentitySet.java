@@ -32,7 +32,7 @@ import java.util.Iterator;
  */
 public class IdentitySet<E> extends AbstractSet<E> {
 
-	private transient IdentityHashMap<E, Object> map = new IdentityHashMap<E, Object>();
+	private final transient IdentityHashMap<E, Object> map = new IdentityHashMap<E, Object>();
 	private static final Object PRESENT = new Object();
 
 	@Override

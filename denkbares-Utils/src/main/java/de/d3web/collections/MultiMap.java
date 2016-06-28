@@ -463,7 +463,7 @@ public interface MultiMap<K, V> {
 	 * @return a string representation of this map
 	 */
 	@Override
-	public String toString();
+	String toString();
 
 	/**
 	 * Returns an immutable {@link Map} that represents the contents of this MultiMap, usually
@@ -473,5 +473,5 @@ public interface MultiMap<K, V> {
 	 * @return a map representation of the contents of this multi map
 	 * @created 09.01.2014
 	 */
-	public Map<K, Set<V>> toMap();
+	Map<K, Set<V>> toMap();
 }

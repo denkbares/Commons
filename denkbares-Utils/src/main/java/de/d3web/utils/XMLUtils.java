@@ -38,14 +38,17 @@ public class XMLUtils {
 			PREF_MAP.putAll(prefMap);
 		}
 
+		@Override
 		public String getNamespaceURI(String prefix) {
 			return PREF_MAP.get(prefix);
 		}
 
+		@Override
 		public String getPrefix(String uri) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public Iterator getPrefixes(String uri) {
 			throw new UnsupportedOperationException();
 		}

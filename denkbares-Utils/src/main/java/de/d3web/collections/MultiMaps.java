@@ -40,6 +40,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import org.jetbrains.annotations.NotNull;
+
 import de.d3web.utils.EqualsUtils;
 
 /**
@@ -79,7 +81,7 @@ public class MultiMaps {
 
 	private static final class TreeFactory<T> implements CollectionFactory<T> {
 
-		private Comparator<T> comparator;
+		private final Comparator<T> comparator;
 
 		public TreeFactory() {
 			this(null);
@@ -115,7 +117,7 @@ public class MultiMaps {
 
 	private static final class HashFactory<T> implements CollectionFactory<T> {
 
-		private int capacity;
+		private final int capacity;
 
 		public HashFactory(int capacity) {
 			this.capacity = capacity;
@@ -151,7 +153,7 @@ public class MultiMaps {
 	 */
 	static class MinimizedHashSet<T> extends AbstractSet<T> {
 
-		private static Object EMPTY = new Object();
+		private static final Object EMPTY = new Object();
 		private Object element = EMPTY;
 		private HashSet<T> backUpSet = null;
 
@@ -168,13 +170,14 @@ public class MultiMaps {
 			return element != EMPTY && EqualsUtils.equals(element, o);
 		}
 
+		@NotNull
 		@Override
 		public Iterator<T> iterator() {
 			return new Iterator<T>() {
 
 				private Object current = EMPTY;
 				boolean removable = false;
-				private Iterator<T> backupIterator = backUpSet == null ? null : backUpSet.iterator();
+				private final Iterator<T> backupIterator = backUpSet == null ? null : backUpSet.iterator();
 
 				@Override
 				public boolean hasNext() {
@@ -205,10 +208,12 @@ public class MultiMaps {
 						element = EMPTY;
 						return;
 					}
-					if (backupIterator != null) backupIterator.remove();
-					if (backUpSet.size() == 1) {
-						element = backupIterator.next();
-						backUpSet = null;
+					if (backupIterator != null) {
+						backupIterator.remove();
+						if (backUpSet.size() == 1) {
+							element = backupIterator.next();
+							backUpSet = null;
+						}
 					}
 				}
 			};
@@ -481,7 +486,7 @@ public class MultiMaps {
 		return new UnmodifiableMultiMap<>(map);
 	}
 
-	private static class UnmodifiableMultiMap<K, V> extends AbstractMultiMap<K, V> {
+	private static final class UnmodifiableMultiMap<K, V> extends AbstractMultiMap<K, V> {
 
 		private final MultiMap<K, V> map;
 

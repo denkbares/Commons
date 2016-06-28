@@ -12,8 +12,8 @@ import java.util.Set;
  */
 public class PartialHierarchyException extends Exception {
 
-	private Set<?> path;
-	private Object cycleStartObject;
+	private final Set<?> path;
+	private final Object cycleStartObject;
 
 	public PartialHierarchyException(Object cycleStartObject, Set path) {
 		super("The following row "+cycleStartObject+" forms a hierarchy cycle during insertion: " + path);

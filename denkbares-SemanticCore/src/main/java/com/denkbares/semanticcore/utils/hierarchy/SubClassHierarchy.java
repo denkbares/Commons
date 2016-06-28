@@ -30,8 +30,8 @@ import de.d3web.collections.PartialHierarchy;
  * @created 18.02.16.
  */
 public class SubClassHierarchy implements PartialHierarchy<URI> {
-	private SPARQLEndpoint core;
-	private String subClassRelation;
+	private final SPARQLEndpoint core;
+	private final String subClassRelation;
 
 	public SubClassHierarchy(SPARQLEndpoint core, String subClassRelation) {
 		this.core = core;

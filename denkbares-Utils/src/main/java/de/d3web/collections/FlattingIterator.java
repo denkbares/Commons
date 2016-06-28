@@ -30,7 +30,8 @@ import java.util.Iterator;
  */
 public class FlattingIterator<T> implements Iterator<T> {
 
-	public static interface IteratorFactory<S, T> {
+	@FunctionalInterface
+	public interface IteratorFactory<S, T> {
 
 		Iterator<T> create(S sourceObject);
 	}
@@ -41,13 +42,7 @@ public class FlattingIterator<T> implements Iterator<T> {
 	private Iterator<T> current = Collections.<T> emptyList().iterator();
 
 	public <I extends Iterable<T>> FlattingIterator(Iterator<I> iterables) {
-		this(iterables, new IteratorFactory<I, T>() {
-
-			@Override
-			public Iterator<T> create(I sourceObject) {
-				return sourceObject.iterator();
-			}
-		});
+		this(iterables, Iterable::iterator);
 	}
 
 	public FlattingIterator(Iterable<? extends Iterable<T>> iterables) {

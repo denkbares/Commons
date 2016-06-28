@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Implementation of a Map that will remove entries when the value in the map has been cleaned from
  * garbage collection – in contrast to WeakHashMap, which will remove the entries if the key is
@@ -39,10 +41,10 @@ import java.util.Set;
 public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
 	/* Hash table mapping keys to it weak values references */
-	private Map<K, WeakValueRef<K, V>> hash;
+	private final Map<K, WeakValueRef<K, V>> hash;
 
 	/* Reference queue for cleared weak values references */
-	private ReferenceQueue<V> queue = new ReferenceQueue<V>();
+	private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
 	/**
 	 * This method does the trick. It removes all invalidated entries from the map, by removing
@@ -72,7 +74,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 * factor is nonpositive
 	 */
 	public WeakValueHashMap(int initialCapacity, float loadFactor) {
-		hash = new HashMap<K, WeakValueRef<K, V>>(initialCapacity, loadFactor);
+		hash = new HashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**
@@ -107,11 +109,13 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 		putAll(map);
 	}
 
+	@NotNull
 	@Override
 	public Set<Entry<K, V>> entrySet() {
 		processQueue();
 		final Set<Entry<K, WeakValueRef<K, V>>> entries = hash.entrySet();
 		return new AbstractSet<Entry<K, V>>() {
+			@NotNull
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
 				final Iterator<Entry<K, WeakValueRef<K, V>>> iterator = entries.iterator();
@@ -161,6 +165,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 * with most implementations of the <code>Map</code> interface, the time required by this
 	 * operation is linear in the size of the map.</em>
 	 */
+	@Override
 	public int size() {
 		processQueue();
 		return hash.size();
@@ -169,6 +174,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	/**
 	 * Returns <code>true</code> if this map contains no key-value mappings.
 	 */
+	@Override
 	public boolean isEmpty() {
 		processQueue();
 		return hash.isEmpty();
@@ -179,6 +185,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 *
 	 * @param key The key whose presence in this map is to be tested
 	 */
+	@Override
 	public boolean containsKey(Object key) {
 		processQueue();
 		return hash.containsKey(key);
@@ -206,6 +213,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 * @return The previous value to which this key was mapped, or <code>null</code> if if there was
 	 * no mapping for the key
 	 */
+	@Override
 	public V put(K key, V value) {
 		processQueue();
 		return unwrap(hash.put(key, wrap(key, value)));
@@ -218,6 +226,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 * @return The value to which this key was mapped, or <code>null</code> if there was no mapping
 	 * for the key
 	 */
+	@Override
 	public V remove(Object key) {
 		processQueue();
 		return unwrap(hash.remove(key));
@@ -226,6 +235,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	/**
 	 * Removes all mappings from this map.
 	 */
+	@Override
 	public void clear() {
 		processQueue();
 		hash.clear();
@@ -254,7 +264,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
 	private WeakValueRef<K, V> wrap(K key, V value) {
 		if (value == null) return null;
-		return new WeakValueRef<K, V>(key, value, queue);
+		return new WeakValueRef<>(key, value, queue);
 	}
 
 	private V unwrap(WeakValueRef<K, V> reference) {

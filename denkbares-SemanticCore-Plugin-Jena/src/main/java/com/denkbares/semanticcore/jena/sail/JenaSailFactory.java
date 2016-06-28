@@ -21,6 +21,7 @@ public class JenaSailFactory implements SailFactory {
 	/**
 	 * Returns the Sail's type: <tt>jena:DefaultStore</tt>.
 	 */
+	@Override
 	public String getSailType() {
 		return SAIL_TYPE;
 	}

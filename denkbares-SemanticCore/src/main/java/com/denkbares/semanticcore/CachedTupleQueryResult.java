@@ -70,6 +70,7 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 		return getBindingSets().iterator();
 	}
 
+	@Override
 	public List<BindingSet> getBindingSets() {
 		return Collections.unmodifiableList(cache);
 	}

@@ -58,6 +58,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	 * @return a cached version of this result
 	 * @throws QueryEvaluationException
 	 */
+	@Override
 	public CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException {
 		if (calledNext) {
 			throw new UnsupportedOperationException("After calling next(), cacheAndClose() is no longer usable.");
@@ -130,6 +131,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		delegate.remove();
 	}
 
+	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
 		close();

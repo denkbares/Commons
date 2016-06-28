@@ -50,7 +50,7 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 	 * objects.
 	 */
 	public N2MMap() {
-		this(MultiMaps.<K> hashFactory(), MultiMaps.<V> hashFactory());
+		this(MultiMaps.hashFactory(), MultiMaps.hashFactory());
 	}
 
 	/**
@@ -165,13 +165,13 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 	@Override
 	public Set<K> getKeys(Object value) {
 		Set<K> keys = v2k.get(value);
-		return (keys == null) ? Collections.<K> emptySet() : Collections.unmodifiableSet(keys);
+		return (keys == null) ? Collections.emptySet() : Collections.unmodifiableSet(keys);
 	}
 
 	@Override
 	public Set<V> getValues(Object key) {
 		Set<V> values = k2v.get(key);
-		return (values == null) ? Collections.<V> emptySet() : Collections.unmodifiableSet(values);
+		return (values == null) ? Collections.emptySet() : Collections.unmodifiableSet(values);
 	}
 
 	@Override

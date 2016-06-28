@@ -142,6 +142,7 @@ public class ChangeLog {
 			this.change = change;
 		}
 
+		@Override
 		public void run() {
 			logWriter.println(change.toCSVString());
 			logWriter.flush();

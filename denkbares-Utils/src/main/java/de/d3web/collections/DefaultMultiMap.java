@@ -53,7 +53,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 	 * Creates a new N2MMap using HashSets and HashMaps for the contained objects.
 	 */
 	public DefaultMultiMap() {
-		this(MultiMaps.<K>hashFactory(), MultiMaps.<V>hashFactory());
+		this(MultiMaps.hashFactory(), MultiMaps.hashFactory());
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 	@Override
 	public Set<V> getValues(Object key) {
 		Set<V> values = k2v.get(key);
-		return (values == null) ? Collections.<V>emptySet() : Collections.unmodifiableSet(values);
+		return (values == null) ? Collections.emptySet() : Collections.unmodifiableSet(values);
 	}
 
 	@Override

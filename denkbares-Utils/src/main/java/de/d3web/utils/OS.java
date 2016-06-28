@@ -11,7 +11,7 @@ public enum OS {
 	private final Pattern pattern;
 	private static final OS currentOS = findOS(System.getProperty("os.name"));
 
-	private OS(String regex) {
+	OS(String regex) {
 		this.pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 	}
 

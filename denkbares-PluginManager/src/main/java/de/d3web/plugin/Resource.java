@@ -36,7 +36,7 @@ public interface Resource {
 	 * 
 	 * @return the size of the resource
 	 */
-	public long getSize();
+	long getSize();
 
 	/**
 	 * Returns a created InputStream to read the binary data of the underlying
@@ -46,7 +46,7 @@ public interface Resource {
 	 * @return the stream to read the data from
 	 * @throws IOException the stream could not been created
 	 */
-	public InputStream getInputStream() throws IOException;
+	InputStream getInputStream() throws IOException;
 
 	/**
 	 * Returns the relative path of this resource within the public resource
@@ -54,5 +54,5 @@ public interface Resource {
 	 * 
 	 * @return the relative path of the resource
 	 */
-	public String getPathName();
+	String getPathName();
 }
