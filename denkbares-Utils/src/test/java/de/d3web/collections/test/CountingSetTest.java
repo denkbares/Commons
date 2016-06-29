@@ -89,12 +89,11 @@ public class CountingSetTest {
 		assertEquals(testString, set.iterator().next());
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void toArray() {
 		set.add(testString);
-		assertEquals(new Object[] { testString }, set.toArray());
-		assertEquals(new String[] { testString }, set.toArray(new String[1]));
+		assertArrayEquals(new Object[] { testString }, set.toArray());
+		assertArrayEquals(new String[] { testString }, set.toArray(new String[1]));
 	}
 
 	@Test

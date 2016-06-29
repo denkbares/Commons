@@ -31,6 +31,7 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	private final Iterator<? extends T> iterators[];
 	private int current;
 
+	@SafeVarargs
 	public ConcatenateIterator(Iterator<? extends T>... iterators) {
 		this.iterators = iterators;
 		this.current = 0;

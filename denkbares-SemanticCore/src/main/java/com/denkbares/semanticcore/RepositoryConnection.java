@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.List;
 
 import info.aduna.iteration.Iteration;
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.IsolationLevel;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
@@ -56,6 +57,8 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
+
+import de.d3web.utils.Log;
 
 /**
  * This is a delegate for the ordinary {@link org.openrdf.repository.RepositoryException}.
@@ -195,12 +198,14 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 		return connection.isEmpty();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setAutoCommit(boolean autoCommit) throws RepositoryException {
 		connection.setAutoCommit(autoCommit);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public boolean isAutoCommit() throws RepositoryException {
@@ -356,6 +361,16 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 		connection.clearNamespaces();
 	}
 
+	public static void closeQuietly(@NotNull org.openrdf.repository.RepositoryConnection connection) {
+		try {
+			connection.close();
+		}
+		catch (Exception e) {
+			Log.severe("Exception during close()", e);
+		}
+	}
+
+
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
@@ -404,11 +419,13 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 			query.evaluate(new CountingTupleQueryResultHandler(handler));
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void setMaxQueryTime(int maxQueryTime) {
 			query.setMaxQueryTime(maxQueryTime);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public int getMaxQueryTime() {
 			return query.getMaxQueryTime();

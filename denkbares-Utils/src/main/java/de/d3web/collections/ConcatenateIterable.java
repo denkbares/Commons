@@ -40,6 +40,7 @@ public class ConcatenateIterable<T> implements Iterable<T> {
 		this(new Iterable[] {iterable1, iterable2, iterable3});
 	}
 
+	@SafeVarargs
 	public ConcatenateIterable(Iterable<? extends T>... iterables) {
 		this.iterables = iterables;
 	}

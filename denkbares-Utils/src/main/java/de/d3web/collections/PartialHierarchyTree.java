@@ -171,10 +171,7 @@ public class PartialHierarchyTree<T> {
 		// descending tree for search only makes sense for sub-node
 		if (treeNode.equals(root) || hierarchy.isSuccessorOf(externalNode, treeNode.data)) {
 			List<Node<T>> children = treeNode.getChildren();
-			Iterator<Node<T>> iterator = children.iterator();
-			while (iterator.hasNext()) {
-				Node<T> child = iterator.next();
-
+			for (Node<T> child : children) {
 				// other search recursive
 				Node<T> found = findRecursiveNode(externalNode, child);
 				if (found != null) {

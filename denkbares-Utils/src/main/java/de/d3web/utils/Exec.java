@@ -54,8 +54,8 @@ public class Exec {
 
 		try
 		{
-			stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			stdout = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+			stderr = new BufferedReader(new InputStreamReader(process.getErrorStream(), "UTF-8"));
 
 			String line;
 
@@ -78,9 +78,9 @@ public class Exec {
 		finally {
 			// we must close all by exec(..) opened streams:
 			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4784692
-			process.getInputStream().close();
-			if (stdout != null) stdout.close();
-			if (stderr != null) stderr.close();
+			Streams.closeQuietly(process.getInputStream());
+			Streams.closeQuietly(stdout);
+			Streams.closeQuietly(stderr);
 		}
 
 		return result.toString();

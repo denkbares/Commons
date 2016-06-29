@@ -5,9 +5,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -152,8 +152,8 @@ public class Files {
 			}
 		}
 		finally {
-			if (in1 != null) in1.close();
-			if (in2 != null) in2.close();
+			Streams.closeQuietly(in1);
+			Streams.closeQuietly(in2);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class Files {
 	 * @created 01.10.2013
 	 */
 	public static List<String> getLines(File file) throws IOException {
-		try (Reader reader = new FileReader(file)) {
+		try (Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
 			return getLines(reader);
 		}
 	}
@@ -300,7 +300,7 @@ public class Files {
 
 		// and finally write the lines back to disc
 		try (FileOutputStream out = new FileOutputStream(file)) {
-			out.write(Strings.concat("\n", lines).getBytes());
+			out.write(Strings.concat("\n", lines).getBytes("UTF-8"));
 		}
 	}
 

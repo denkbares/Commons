@@ -178,8 +178,7 @@ public class JPFPlugin implements Plugin {
 				}
 			}
 			else {
-				ZipFile zipfile = new ZipFile(pluginFile);
-				try {
+				try (ZipFile zipfile = new ZipFile(pluginFile)) {
 					Enumeration<? extends ZipEntry> entries = zipfile.entries();
 					while (entries.hasMoreElements()) {
 						ZipEntry entry = entries.nextElement();
@@ -190,9 +189,6 @@ public class JPFPlugin implements Plugin {
 							result.add(new JPFResource(resourceUrl, relativePath));
 						}
 					}
-				}
-				finally {
-					zipfile.close();
 				}
 			}
 		}

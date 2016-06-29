@@ -90,7 +90,7 @@ public class ChangeLog {
 				connection.commit();
 			}
 			finally {
-				connection.close();
+				com.denkbares.semanticcore.RepositoryConnection.closeQuietly(connection);
 			}
 		}
 		catch (RepositoryException e) {

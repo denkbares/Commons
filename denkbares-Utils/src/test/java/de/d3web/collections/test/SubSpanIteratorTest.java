@@ -47,12 +47,14 @@ public class SubSpanIteratorTest {
 		assertElements(list, 10, -1);
 	}
 
-	private <E> void assertElements(Iterable<E> actual, int start, int end, E... expected) {
+	@SafeVarargs
+	private final <E> void assertElements(Iterable<E> actual, int start, int end, E... expected) {
 		assertElements(new SubSpanIterator<>(actual.iterator(), start, end), expected);
 		assertElements(new SubSpanIterable<>(actual, start, end).iterator(), expected);
 	}
 
-	private <E> void assertElements(Iterator<E> actual, E... expected) {
+	@SafeVarargs
+	private final <E> void assertElements(Iterator<E> actual, E... expected) {
 		for (E e : expected) {
 			assertTrue("to few elements in iterator", actual.hasNext());
 			assertEquals("unexpected element in iterator", e, actual.next());

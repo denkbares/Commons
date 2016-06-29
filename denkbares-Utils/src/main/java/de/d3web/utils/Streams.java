@@ -1,10 +1,13 @@
 package de.d3web.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Scanner;
+
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class for stream handling
@@ -29,8 +32,23 @@ public class Streams {
 			Streams.stream(inputStream, outputStream);
 		}
 		finally {
-			inputStream.close();
-			outputStream.close();
+			closeQuietly(inputStream);
+			closeQuietly(outputStream);
+		}
+	}
+
+	/**
+	 * Closes the closable and logs away exception that might be thrown. Use this inside finally blocks.
+	 *
+	 * @param closeable the closable to be closed
+	 */
+	public static void closeQuietly(@Nullable Closeable closeable) {
+		if (closeable == null) return;
+		try {
+			closeable.close();
+		}
+		catch (Exception e) {
+			Log.severe("Exception during close()", e);
 		}
 	}
 
@@ -119,7 +137,7 @@ public class Streams {
 			return getBytes(input);
 		}
 		finally {
-			input.close();
+			closeQuietly(input);
 		}
 	}
 
@@ -164,7 +182,7 @@ public class Streams {
 			return getText(input);
 		}
 		finally {
-			input.close();
+			closeQuietly(input);
 		}
 	}
 

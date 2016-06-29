@@ -53,6 +53,7 @@ public class MultiMapsTest {
 		checkFactory(MultiMaps.hashFactory());
 		checkFactory(MultiMaps.hashMinimizedFactory());
 		checkFactory(MultiMaps.treeFactory());
+		//noinspection RedundantTypeArguments
 		checkFactory(MultiMaps.treeFactory(Comparator.<String>reverseOrder()));
 		checkFactory(MultiMaps.linkedFactory());
 	}

@@ -81,6 +81,7 @@ public class GeneralizedSuffixTreeTest {
 		assertTrue(lookup.isEmpty());
 	}
 
+	@SafeVarargs
 	private static <E> void assertSearch(GeneralizedSuffixTree<E> gst, String phrase, E... items) {
 		Set<E> expected = new TreeSet<>(Arrays.asList(items));
 		Set<E> actual = search(gst, phrase);

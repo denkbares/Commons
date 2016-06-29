@@ -104,19 +104,18 @@ public class Change {
 	}
 
 	public String toCSVString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(action == Action.ADD ? "ADD" : "REMOVE");
-		builder.append(";");
-		builder.append(Strings.writeDate(date));
-		builder.append(";");
-		builder.append(user);
-		builder.append(";");
-		builder.append(subject);
-		builder.append(";");
-		builder.append(predicate);
-		builder.append(";");
-		builder.append(object);
-		return builder.toString();
+		String builder = (action == Action.ADD ? "ADD" : "REMOVE") +
+				";" +
+				Strings.writeDate(date) +
+				";" +
+				user +
+				";" +
+				subject +
+				";" +
+				predicate +
+				";" +
+				object;
+		return builder;
 	}
 
 	@Override

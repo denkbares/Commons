@@ -29,6 +29,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import de.d3web.utils.Streams;
 
 /**
  * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the
@@ -103,7 +104,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 			throw new IOException("cannot initialize ontology from resource stream", e);
 		}
 		finally {
-			if (autoClose) source.close();
+			if (autoClose) Streams.closeQuietly(source);
 		}
 		// allocate core if everything if this instance is created and returned
 		sc.allocate();
