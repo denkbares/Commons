@@ -172,6 +172,27 @@ public interface MultiMap<K, V> {
 	Set<V> getValues(Object key);
 
 	/**
+	 * Returns any of the values to which the specified key is mapped. It returns null if this map
+	 * contains no mapping for the key.
+	 * <p>
+	 * <p>
+	 * More formally, if this map contains a mapping from a key {@code k} to one or multiple values
+	 * {@code v} such that {@code (key==null ? k==null : key.equals(k))}, then this method returns
+	 * any of the {@code v} in the set; otherwise null is returned.
+	 *
+	 * @param key the key whose associated value is to be returned
+	 * @return any of the values to which the specified key is mapped, or {@code null} if this map
+	 * contains no mappings for the key
+	 * @throws ClassCastException if the key is of an inappropriate type for this map (optional)
+	 * @throws NullPointerException if the specified key is null and this map does not permit null
+	 * keys (optional)
+	 */
+	default V getAnyValue(Object key) {
+		Collection<V> values = getValues(key);
+		return values.isEmpty() ? null : values.iterator().next();
+	}
+
+	/**
 	 * Returns all keys to which the specified value is mapped. It returns an empty set if this map
 	 * contains no mapping for the value.
 	 * <p>
@@ -188,6 +209,27 @@ public interface MultiMap<K, V> {
 	 * keys (optional)
 	 */
 	Set<K> getKeys(Object value);
+
+	/**
+	 * Returns any of the keys to which the specified value is mapped. It returns null if this map
+	 * contains no mapping for the value.
+	 * <p>
+	 * <p>
+	 * More formally, if this map contains a mapping from one or multiple keys {@code k} to a value
+	 * {@code v} such that {@code (value==null ? v==null : value.equals(v))}, then this method
+	 * returns any of the {@code k} in the set; otherwise null is returned.
+	 *
+	 * @param value the value whose associated key is to be returned
+	 * @return any of the values to which the specified key is mapped, or {@code null} if this map
+	 * contains no mapping for the key
+	 * @throws ClassCastException if the key is of an inappropriate type for this map (optional)
+	 * @throws NullPointerException if the specified key is null and this map does not permit null
+	 * keys (optional)
+	 */
+	default K getAnyKey(Object value) {
+		Collection<K> keys = getKeys(value);
+		return keys.isEmpty() ? null : keys.iterator().next();
+	}
 
 	// Modification Operations
 

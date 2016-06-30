@@ -816,4 +816,36 @@ public class MultiMaps {
 			}
 		};
 	}
+
+	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor) {
+		return new Collector<E, MultiMap<K, V>, MultiMap<K, V>>() {
+			@Override
+			public Supplier<MultiMap<K, V>> supplier() {
+				return DefaultMultiMap<K, V>::new;
+			}
+
+			@Override
+			public BiConsumer<MultiMap<K, V>, E> accumulator() {
+				return (mmap, item) -> mmap.put(keyExtractor.apply(item), valueExtractor.apply(item));
+			}
+
+			@Override
+			public BinaryOperator<MultiMap<K, V>> combiner() {
+				return (mmap1, mmap2) -> {
+					mmap1.putAll(mmap2);
+					return mmap1;
+				};
+			}
+
+			@Override
+			public Function<MultiMap<K, V>, MultiMap<K, V>> finisher() {
+				return Function.identity();
+			}
+
+			@Override
+			public Set<Characteristics> characteristics() {
+				return Collections.singleton(Collector.Characteristics.IDENTITY_FINISH);
+			}
+		};
+	}
 }
