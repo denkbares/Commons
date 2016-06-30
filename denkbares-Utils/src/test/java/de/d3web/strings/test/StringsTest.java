@@ -330,4 +330,22 @@ public class StringsTest {
 		String stringFromCharCode = Strings.fromCharCode(charCode);
 		assertEquals("-", stringFromCharCode);
 	}
+
+	@Test
+	public void trimBlankLines() {
+		String source = "  \n" +
+				"  What is up?\n" +
+				"\n" +
+				"   \n" +
+				"All is fine!\n" +
+				"  \r\n  ";
+		assertEquals("  What is up?\n" +
+				"\n" +
+				"   \n" +
+				"All is fine!\n", Strings.trimBlankLines(source));
+		assertEquals("  What is up?\n" +
+				"\n" +
+				"   \n" +
+				"All is fine!", Strings.trimBlankLinesAndTrailingLineBreak(source));
+	}
 }
