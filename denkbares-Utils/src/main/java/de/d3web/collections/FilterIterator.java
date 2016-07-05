@@ -21,6 +21,7 @@ package de.d3web.collections;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 /**
  * Class to filter the elements of an given iterator by some accept method.
@@ -91,6 +92,23 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
+	 * Creates a new Iterable for the specified iterable for the specified filter functional
+	 * interface. The returned iterable contains only the elements that passes the accept function
+	 * of the specified filter with "true".
+	 * <p/>
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
+	 * without creating a subclass of this abstract class.
+	 *
+	 * @param iterable the iterable to be filtered
+	 * @param filter the filter function to be applied
+	 * @param <E> the type of the elements to be iterated
+	 * @return an iterator only containing the accepted entries
+	 */
+	public static <E> Iterable<E> filter(Iterable<E> iterable, final EntryFilter<? super E> filter) {
+		return () -> filter(iterable.iterator(), filter);
+	}
+
+	/**
 	 * Creates a new FilterIterator for the specified iterator and a filter functional interface.
 	 * The returned iterator contains only the elements that passes the accept function of the
 	 * specified filter with "true".
@@ -114,6 +132,49 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 					signalEnd();
 					return e.equals(Stop.INCLUDE);
 				}
+			}
+		};
+	}
+
+	/**
+	 * Creates a new Iterable for the specified iterable for the specified filter functional
+	 * interface. The returned iterable contains only the elements that continuously (!) passes the
+	 * accept function of the specified filter with "true". All elements after the first rejected
+	 * element are truncated, without calling the filter function for them.
+	 * <p/>
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
+	 * without creating a subclass of this abstract class.
+	 *
+	 * @param iterable the iterable to be filtered
+	 * @param filter the filter function to be applied
+	 * @param <E> the type of the elements to be iterated
+	 * @return an iterator only containing the accepted entries
+	 */
+	public static <E> Iterable<E> takeWhile(Iterable<E> iterable, Predicate<? super E> filter) {
+		return () -> takeWhile(iterable.iterator(), filter);
+	}
+
+	/**
+	 * Creates a new FilterIterator for the specified iterator and a filter functional interface.
+	 * The returned iterator contains only the elements that continuously (!) passes the accept
+	 * function of the specified filter with "true". All elements after the first rejected element
+	 * are truncated, without calling the filter function for them.
+	 * <p/>
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
+	 * without creating a subclass of this abstract class.
+	 *
+	 * @param iterator the iterator to be filtered
+	 * @param filter the filter function to be applied
+	 * @param <E> the type of the elements to be iterated
+	 * @return an iterator only containing the accepted entries
+	 */
+	public static <E> FilterIterator<E> takeWhile(Iterator<E> iterator, Predicate<? super E> filter) {
+		return new FilterIterator<E>(iterator) {
+			@Override
+			public boolean accept(E item) {
+				if (filter.test(item)) return true;
+				signalEnd();
+				return false;
 			}
 		};
 	}
