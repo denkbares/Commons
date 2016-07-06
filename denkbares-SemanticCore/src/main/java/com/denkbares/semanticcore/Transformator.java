@@ -17,4 +17,8 @@ public interface Transformator {
 
 	String getTitle();
 
+	default String getFileExtension() {
+		return "";
+	}
+
 }

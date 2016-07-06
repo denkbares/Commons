@@ -39,7 +39,7 @@ public class RDFTransformator implements Transformator {
 	@Override
 	public void transform(String targetFile, SemanticCore core) {
 		try {
-			RDFWriter rdfWriter = Rio.createWriter(RDFFormat.RDFXML, new FileWriter(targetFile));
+			RDFWriter rdfWriter = Rio.createWriter(RDFFormat.TURTLE, new FileWriter(targetFile));
 			core.getConnection().export(rdfWriter);
 		}
 		catch (UnsupportedRDFormatException | RDFHandlerException | RepositoryException | IOException e) {
@@ -54,7 +54,11 @@ public class RDFTransformator implements Transformator {
 
 	@Override
 	public String getTitle() {
-		return "RDF-XML";
+		return "Turtle (RDF)";
 	}
 
+	@Override
+	public String getFileExtension() {
+		return ".ttl.dan";
+	}
 }
