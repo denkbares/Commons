@@ -91,6 +91,7 @@ public class Stopwatch {
 	 * @param message the message to be printed before the time
 	 */
 	public Stopwatch show(String message) {
+		//noinspection UseOfSystemOutOrSystemErr
 		System.out.println(message + ": " + getDisplay());
 		return this;
 	}
