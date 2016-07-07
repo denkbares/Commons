@@ -52,6 +52,6 @@ public class ConcatenateIterable<T> implements Iterable<T> {
 			iterators[i] = iterables[i].iterator();
 		}
 		//noinspection unchecked
-		return new ConcatenateIterator(iterators);
+		return ConcatenateIterator.concat(iterators);
 	}
 }

@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.Test;
 
 import de.d3web.collections.MappingIterator;
-import de.d3web.collections.MappingIterator.MappingFunction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,13 +38,7 @@ import static org.junit.Assert.assertFalse;
  */
 public class MappingIteratorTest {
 
-	private static final MappingFunction<Integer, String> mapper =
-			new MappingFunction<Integer, String>() {
-				@Override
-				public String apply(Integer i) {
-					return "mapped:" + i;
-				}
-			};
+	private static final Function<Integer, String> mapper = i -> "mapped:" + i;
 
 	@Test
 	public void basic() {

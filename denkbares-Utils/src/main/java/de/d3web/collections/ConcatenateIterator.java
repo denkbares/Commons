@@ -18,43 +18,102 @@
  */
 package de.d3web.collections;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 /**
- * Concatenates the items of multiple {@link Iterator}s into one Iterator.
+ * Concatenates the items of multiple {@link Iterator}s into one Iterator. Please use the factory
+ * methods {@link #flapMap(Iterator)}, {@link #flapMap(Iterator, Function)} and {@link
+ * #concat(Iterator[])} instead of the constructor.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 14.01.2013
  */
 public class ConcatenateIterator<T> implements Iterator<T> {
 
-	private final Iterator<? extends T> iterators[];
-	private int current;
+	private final Iterator<? extends Iterator<? extends T>> iterators;
+	private Iterator<? extends T> current;
 
-	@SafeVarargs
-	public ConcatenateIterator(Iterator<? extends T>... iterators) {
+	/**
+	 * Constructor is private, because of generic type conflicts otherwise.
+	 */
+	private ConcatenateIterator(Iterator<? extends Iterator<? extends T>> iterators) {
 		this.iterators = iterators;
-		this.current = 0;
+		this.current = this.iterators.hasNext() ? this.iterators.next() : null;
+		// call hasNext to proceed to first item value of the preceding iterators are empty
+		hasNext();
+	}
+
+	/**
+	 * Concatenates the specified iterators into one iterator.
+	 *
+	 * @param iterators the iterators to be concatenated
+	 * @param <T> the element type
+	 * @return the concatenated iterator
+	 */
+	@SafeVarargs
+	public static <T> Iterator<T> concat(Iterator<? extends T>... iterators) {
+		return new ConcatenateIterator<T>(Arrays.asList(iterators).iterator());
+	}
+
+	/**
+	 * Concatenates the specified iterators into one iterator.
+	 *
+	 * @param iterables the iterables to be concatenated
+	 * @param <T> the element type
+	 * @return the concatenated iterator
+	 */
+	@SafeVarargs
+	public static <T> Iterator<T> concat(Iterable<? extends T>... iterables) {
+		return new ConcatenateIterator<T>(Arrays.asList(iterables)
+				.stream().map(Iterable::iterator).iterator());
+	}
+
+	/**
+	 * Concatenates flattens the specified iterator of iterators into an plaint iterator. The first
+	 * iterator will be completely processed, before the next iterator is consumed.
+	 *
+	 * @param iterators the iterators to be flatten
+	 * @param <T> the element type
+	 * @return the flat iterator for all elements
+	 */
+	public static <T> Iterator<T> flapMap(Iterator<? extends Iterator<? extends T>> iterators) {
+		return new ConcatenateIterator<T>(iterators);
+	}
+
+	/**
+	 * Concatenates flattens the specified iterator of iterators into an plaint iterator. The first
+	 * iterator will be completely processed, before the next iterator is consumed.
+	 *
+	 * @param sources the iterator over the source objects
+	 * @param mapper the mapping function, creating the to-be-flatten-iterators from the source
+	 * items
+	 * @param <T> the element type
+	 * @return the flat iterator for all elements
+	 */
+	public static <T, S> Iterator<T> flapMap(Iterator<S> sources, Function<S, ? extends Iterator<T>> mapper) {
+		return flapMap(new MappingIterator<S, Iterator<T>>(sources, mapper));
 	}
 
 	@Override
 	public boolean hasNext() {
-		while (current < iterators.length && !iterators[current].hasNext())
-			current++;
-
-		return current < iterators.length;
+		// proceed to next iterator that has an element
+		while (current != null && !current.hasNext()) {
+			current = iterators.hasNext() ? iterators.next() : null;
+		}
+		return current != null;
 	}
 
 	@Override
 	public T next() {
-		while (current < iterators.length && !iterators[current].hasNext())
-			current++;
-
-		return iterators[current].next();
+		if (!hasNext()) throw new NoSuchElementException();
+		return current.next();
 	}
 
 	@Override
 	public void remove() {
-		iterators[current].remove();
+		current.remove();
 	}
 }

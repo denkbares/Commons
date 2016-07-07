@@ -20,6 +20,7 @@
 package de.d3web.collections;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 /**
  * Iterator that decorates an other iterator, but mapping its elements with a specified mapper
@@ -30,18 +31,8 @@ import java.util.Iterator;
  */
 public class MappingIterator<S, E> implements Iterator<E> {
 
-	/**
-	 * Functional interface to map a source value of type S to a mapped value of type E
-	 *
-	 * @param <S> the source type
-	 * @param <E> the mapped type
-	 */
-	public interface MappingFunction<S, E> {
-		E apply(S sourceItem);
-	}
-
 	private final Iterator<S> source;
-	private final MappingFunction<? super S, ? extends E> mapper;
+	private final Function<? super S, ? extends E> mapper;
 
 	/**
 	 * Creates a new iterator that decorates an other iterator, but mapping its elements with the
@@ -50,7 +41,7 @@ public class MappingIterator<S, E> implements Iterator<E> {
 	 * @param source the iterator to get the original elements from
 	 * @param mapper the mapping function, applied for each element during iteration
 	 */
-	public MappingIterator(Iterator<S> source, MappingFunction<? super S, ? extends E> mapper) {
+	public MappingIterator(Iterator<S> source, Function<? super S, ? extends E> mapper) {
 		this.source = source;
 		this.mapper = mapper;
 	}

@@ -41,7 +41,7 @@ public class ExtendedSet<E> extends AbstractSet<E> {
 		}
 		// otherwise, if the added element is new, extend the decorated set by one item
 		//noinspection unchecked
-		return new ConcatenateIterator<>(
+		return ConcatenateIterator.concat(
 				Collections.singleton(element).iterator(),
 				decorated.iterator());
 	}

@@ -38,7 +38,7 @@ public class PeekableIterator<E> implements Iterator<E> {
 
 	private static final Object SENTINEL = new Object();
 
-	private final Iterator<E> iterator;
+	private final Iterator<? extends E> iterator;
 	private Object next = null;
 
 	/**
@@ -46,7 +46,7 @@ public class PeekableIterator<E> implements Iterator<E> {
 	 *
 	 * @param collection an iterable to be iterated
 	 */
-	public PeekableIterator(Iterable<E> collection) {
+	public PeekableIterator(Iterable<? extends E> collection) {
 		this(collection.iterator());
 	}
 
@@ -59,7 +59,7 @@ public class PeekableIterator<E> implements Iterator<E> {
 	 *
 	 * @param iterator the iterator to be wrapped and iterated
 	 */
-	public PeekableIterator(Iterator<E> iterator) {
+	public PeekableIterator(Iterator<? extends E> iterator) {
 		this.iterator = iterator;
 		updateNext();
 	}

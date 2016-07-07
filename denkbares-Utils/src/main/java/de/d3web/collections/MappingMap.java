@@ -26,8 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
-
-import de.d3web.collections.MappingIterator.MappingFunction;
+import java.util.function.Function;
 
 /**
  * Implements a map that is located on top of an existing map but mapping the values through a
@@ -60,7 +59,7 @@ public class MappingMap<K, O, V> extends AbstractMap<K, V> {
 	 * @param delegate the source map to be decorated
 	 * @param mapper the value -> value mapping
 	 */
-	public MappingMap(Map<K, O> delegate, MappingFunction<O, V> mapper) {
+	public MappingMap(Map<K, O> delegate, Function<O, V> mapper) {
 		this(delegate, (k, v) -> mapper.apply(v));
 	}
 
