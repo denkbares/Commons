@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /**
  * Concatenates the items of multiple {@link Iterator}s into one Iterator. Please use the factory
- * methods {@link #flapMap(Iterator)}, {@link #flapMap(Iterator, Function)} and {@link
+ * methods {@link #flatMap(Iterator)}, {@link #flatMap(Iterator, Function)} and {@link
  * #concat(Iterator[])} instead of the constructor.
  *
  * @author Volker Belli (denkbares GmbH)
@@ -79,7 +79,7 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	 * @param <T> the element type
 	 * @return the flat iterator for all elements
 	 */
-	public static <T> Iterator<T> flapMap(Iterator<? extends Iterator<? extends T>> iterators) {
+	public static <T> Iterator<T> flatMap(Iterator<? extends Iterator<? extends T>> iterators) {
 		return new ConcatenateIterator<T>(iterators);
 	}
 
@@ -93,8 +93,8 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	 * @param <T> the element type
 	 * @return the flat iterator for all elements
 	 */
-	public static <T, S> Iterator<T> flapMap(Iterator<S> sources, Function<S, ? extends Iterator<T>> mapper) {
-		return flapMap(new MappingIterator<S, Iterator<T>>(sources, mapper));
+	public static <T, S> Iterator<T> flatMap(Iterator<S> sources, Function<S, ? extends Iterator<T>> mapper) {
+		return flatMap(new MappingIterator<S, Iterator<T>>(sources, mapper));
 	}
 
 	@Override
