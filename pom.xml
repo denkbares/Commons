@@ -103,4 +103,19 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<id>des-repo-public</id>
+			<name>Denkbares Public Repository</name>
+			<url>https://repo.denkbares.com/repo-public/</url>
+		</repository>
+	</repositories>
 </project>
