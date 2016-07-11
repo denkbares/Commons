@@ -1,0 +1,63 @@
+#
+# Sesame configuration template for a GraphDB-SE Monitor repository.
+# More infos on configuration parameters on
+# http://graphdb.ontotext.com/documentation/free/configuring-a-repository.html
+#
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix sr: <http://www.openrdf.org/config/repository/sail#>.
+@prefix sail: <http://www.openrdf.org/config/sail#>.
+@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+
+[] a rep:Repository ;
+#    rep:repositoryID "" ;
+#    rdfs:label "" ;
+    rep:repositoryImpl [
+        rep:repositoryType "graphdb:FreeSailRepository" ;
+        sr:sailImpl [
+            sail:sailType "graphdb:FreeSail" ;
+
+			owlim:ruleset "empty" ;
+
+            owlim:owlim-license "" ;
+            owlim:base-URL "https://www.denkbares.com/base#" ;
+            owlim:defaultNS "" ;
+            owlim:entity-index-size "1000000" ;
+            owlim:entity-id-size  "32" ;
+            owlim:imports "" ;
+        	owlim:repository-type "file-repository" ;
+            owlim:storage-folder "storage" ;
+ 
+            owlim:enable-context-index "true" ;
+
+            # We set the overall cache-memory and comment out all the other more specific cache size settings.
+            # This way, the cache will be divided evenly between all active caches.
+            owlim:cache-memory "500m" ;
+            # owlim:tuple-index-memory "80m" ;
+
+            owlim:enablePredicateList "false" ;
+            # owlim:predicate-memory "80m" ;
+
+            # owlim:fts-memory "20m" ;
+            owlim:ftsIndexPolicy "never" ;
+            owlim:ftsLiteralsOnly "true" ;
+
+            owlim:in-memory-literal-properties "false" ;
+            owlim:enable-literal-index "true" ;
+            owlim:index-compression-ratio "-1" ;
+            
+            owlim:check-for-inconsistencies "false" ;
+            owlim:disable-sameAs "false" ;
+            owlim:enable-optimization "true" ;
+
+            # since we don't use persistent file repositories, we can just use fast transactions
+            owlim:transaction-mode "safe" ;
+            owlim:transaction-isolation "true" ;
+            owlim:query-timeout "0" ;
+
+            owlim:query-limit-results "0" ;
+            owlim:throw-QueryEvaluationException-on-timeout "true" ;
+            owlim:useShutdownHooks "true" ;
+            owlim:read-only "false" ;
+        ]
+    ].

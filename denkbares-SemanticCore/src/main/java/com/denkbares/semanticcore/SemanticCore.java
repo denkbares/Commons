@@ -46,7 +46,11 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 
+import com.denkbares.events.EventListener;
+import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import de.d3web.plugin.Extension;
+import de.d3web.plugin.PluginManager;
 import de.d3web.strings.Strings;
 import de.d3web.utils.Files;
 import de.d3web.utils.Log;
@@ -57,8 +61,9 @@ public final class SemanticCore {
 
 	private static final Object DUMMY = new Object();
 	private static final Map<String, SemanticCore> instances = new HashMap<>();
-	private static final Object repositoryManagerMutex = new Object();
-	private static volatile LocalRepositoryManager repositoryManager = null;
+	private static final Object lazyInitializationMutex = new Object();
+	private static volatile boolean lazyInitializationDone = false;
+	private static LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static final String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
@@ -148,8 +153,10 @@ public final class SemanticCore {
 	}
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
+
+		initializeLazy(tmpFolder);
+
 		this.repositoryId = repositoryId;
-		initializeRepositoryManagerIfNecessary(tmpFolder);
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
 				throw new RuntimeException("Repository " + repositoryId + " already exists.");
@@ -161,7 +168,7 @@ public final class SemanticCore {
 
 			// Get the repository and connect to it!
 			this.repository = repositoryManager.getRepository(repositoryId);
-			repositoryConfig.postCreationHook(this.repository);
+			EventManager.getInstance().fireEvent(new RepositoryCreatedEvent(repositoryConfig, repository));
 
 			try (RepositoryConnection connection = getConnection()) {
 				connection.setNamespace("des", DEFAULT_NAMESPACE);
@@ -172,6 +179,29 @@ public final class SemanticCore {
 		}
 		initConnectionDaemon();
 
+	}
+
+	private void initializeLazy(String tmpFolder) throws IOException {
+		if (!lazyInitializationDone) {
+			synchronized (lazyInitializationMutex) {
+				if (!lazyInitializationDone) {
+					initializeRepositoryManagerLazy(tmpFolder);
+					initEventListenerLazy();
+					lazyInitializationDone = true;
+				}
+			}
+		}
+	}
+
+	private static void initEventListenerLazy() {
+		Extension[] extensions = PluginManager.getInstance().getExtensions(
+				"denkbares-SemanticCore-Plugin-ExtensionPoints", "EventListener");
+		for (Extension extension : extensions) {
+			Object listener = extension.getSingleton();
+			if (listener instanceof EventListener) {
+				EventManager.getInstance().registerListener(((EventListener) listener));
+			}
+		}
 	}
 
 	private void initConnectionDaemon() {
@@ -272,15 +302,9 @@ public final class SemanticCore {
 		if (allocationCounter.get() <= 0) shutdown();
 	}
 
-	private static void initializeRepositoryManagerIfNecessary(String repositoryPath) throws IOException {
-		if (repositoryManager == null) {
-			synchronized (repositoryManagerMutex) {
-				if (repositoryManager == null) {
-					if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
-					initializeRepositoryManager(repositoryPath);
-				}
-			}
-		}
+	private static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
+		if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
+		initializeRepositoryManager(repositoryPath);
 	}
 
 	public static void initializeRepositoryManager(String repositoryPath) throws IOException {

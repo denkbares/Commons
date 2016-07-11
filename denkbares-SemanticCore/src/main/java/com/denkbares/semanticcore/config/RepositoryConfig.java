@@ -2,7 +2,6 @@ package com.denkbares.semanticcore.config;
 
 import java.util.Map;
 
-import org.openrdf.repository.Repository;
 import org.openrdf.repository.config.RepositoryConfigException;
 
 /**
@@ -30,14 +29,5 @@ public interface RepositoryConfig {
 	 * @return the name of this reasoning.
 	 */
 	String getName();
-
-	/**
-	 * Allows to perform additional operations on the created repository.
-	 *
-	 * @param repository the repository created by this reasoning
-	 */
-	default void postCreationHook(Repository repository) {
-		// by default, just do nothing
-	}
 
 }

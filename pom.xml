@@ -15,6 +15,7 @@
 		<module>denkbares-SemanticCore</module>
 		<module>denkbares-SemanticCore-Plugin-ExtensionPoints</module>
 		<module>denkbares-SemanticCore-Plugin-Jena</module>
+		<module>denkbares-SemanticCore-Plugin-GraphDB</module>
 	</modules>
 
 	<build>

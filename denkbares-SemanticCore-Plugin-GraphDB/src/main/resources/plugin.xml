@@ -1,0 +1,109 @@
+<?xml version="1.0" ?><!DOCTYPE plugin PUBLIC "-//JPF//Java Plug-in Manifest 1.0"
+	"http://jpf.sourceforge.net/plugin_1_0.dtd">
+<plugin id="denkbares-SemanticCore-Plugin-GraphDB" version="1.0">
+
+	<requires>
+		<import plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" />
+	</requires>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfGraphDBConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.RdfGraphDBConfig" />
+		<parameter id="name" value="RdfGraphDB" />
+		<parameter id="description" value="Repository config for GraphDB's built-in rdf or empty rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="6" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfsConfigGraphDB">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.RdfsConfig" />
+		<parameter id="name" value="RdfsGraphDB" />
+		<parameter id="description" value="Repository config for GraphDB's built-in rdfs rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="4" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfsOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.RdfsOptimizedConfig" />
+		<parameter id="name" value="RdfsOptimized" />
+		<parameter id="description" value="Repository config for GraphDB's built-in rdfs-optimized rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig" id="OwlMaxConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlMaxConfig" />
+		<parameter id="name" value="OwlMax" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl-max rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="OwlMaxOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlMaxOptimizedConfig" />
+		<parameter id="name" value="OwlMaxOptimized" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl-max-optimized rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="OwlHorstConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlHorstConfig" />
+		<parameter id="name" value="OwlHorst" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl-horst rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="OwlHorstOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlHorstOptimizedConfig" />
+		<parameter id="name" value="OwlHorstOptimized" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl-horst-optimized rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="OwlHorstOptimizedPropertyChainsConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlHorstOptimizedPropertyChainsConfig" />
+		<parameter id="name" value="OwlHorstOptimizedPropertyChains" />
+		<parameter id="description"
+			value="Repository config for GraphDB's built-in owl-horst-optimized rule-set, extended with property-chains." />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="Owl2RlReducedOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.Owl2RlReducedOptimizedConfig" />
+		<parameter id="name" value="Owl2RlReducedOptimizedConfig" />
+		<parameter id="description"
+			value="This is a config for backwards compatibility. It uses for GraphDB's built-in owl-horst-optimized rule-set, extended with property-chains." />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig" id="Owl2RlConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.Owl2RlConfig" />
+		<parameter id="name" value="Owl2Rl" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl2-rl rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="Owl2RlOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.Owl2RlOptimizedConfig" />
+		<parameter id="name" value="Owl2RlOptimized" />
+		<parameter id="description" value="Repository config for GraphDB's built-in owl2-rl-optimized rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
+</plugin>
