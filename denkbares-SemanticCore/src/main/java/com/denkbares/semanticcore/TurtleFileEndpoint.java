@@ -112,7 +112,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 
 	private static String createOntologyName(URL sourceFile) {
 		return sourceFile.getPath().replaceFirst("^.*/[^/]+]", "")
-				.replaceAll("[^\\w\\d_\\-\\.\\(\\)=\\+#]+", "-") + "-#" +
+				.replaceAll("[^\\w\\d_\\-.()=+#]+", "-") + "-#" +
 				String.format("%08x", (0xFFFFFFFFL & sourceFile.hashCode())).toUpperCase();
 	}
 
