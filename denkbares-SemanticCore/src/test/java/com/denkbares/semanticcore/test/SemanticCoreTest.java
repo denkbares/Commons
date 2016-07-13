@@ -15,7 +15,7 @@ import com.denkbares.semanticcore.SemanticCore;
 import com.denkbares.semanticcore.TupleQueryResult;
 import com.denkbares.semanticcore.config.RdfConfig;
 import com.denkbares.semanticcore.config.RepositoryConfigs;
-import de.d3web.plugin.test.InitPluginManager;
+import com.denkbares.plugin.test.InitPluginManager;
 
 import static org.junit.Assert.assertEquals;
 

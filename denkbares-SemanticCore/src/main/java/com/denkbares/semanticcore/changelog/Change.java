@@ -7,7 +7,7 @@ import java.util.Date;
 
 import org.openrdf.model.Statement;
 
-import de.d3web.strings.Strings;
+import com.denkbares.strings.Strings;
 
 public class Change {
 

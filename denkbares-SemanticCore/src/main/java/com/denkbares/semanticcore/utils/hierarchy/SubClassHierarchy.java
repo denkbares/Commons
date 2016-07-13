@@ -23,7 +23,7 @@ import java.net.URI;
 
 import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
-import de.d3web.collections.PartialHierarchy;
+import com.denkbares.collections.PartialHierarchy;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)

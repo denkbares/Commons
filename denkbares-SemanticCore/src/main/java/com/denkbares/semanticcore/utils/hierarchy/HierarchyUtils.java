@@ -30,8 +30,8 @@ import org.openrdf.query.TupleQueryResult;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 import com.denkbares.semanticcore.utils.Sparqls;
-import de.d3web.collections.PartialHierarchyTree;
-import de.d3web.utils.Log;
+import com.denkbares.collections.PartialHierarchyTree;
+import com.denkbares.utils.Log;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)

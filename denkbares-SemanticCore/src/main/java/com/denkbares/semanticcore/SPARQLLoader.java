@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)
