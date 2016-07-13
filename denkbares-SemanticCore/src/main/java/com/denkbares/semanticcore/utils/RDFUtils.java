@@ -31,7 +31,7 @@ import org.openrdf.query.TupleQueryResult;
 import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)

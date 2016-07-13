@@ -23,7 +23,7 @@ import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.Query;
 import org.openrdf.query.QueryEvaluationException;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * @author Jochen Reutelshöfer

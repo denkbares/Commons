@@ -29,7 +29,7 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQueryResult;
 import org.openrdf.repository.RepositoryException;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)

@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * A very simple EventManager. Events are represented by Classes.

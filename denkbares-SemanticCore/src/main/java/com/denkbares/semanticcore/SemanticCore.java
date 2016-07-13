@@ -49,13 +49,13 @@ import org.openrdf.rio.Rio;
 import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
-import de.d3web.plugin.Extension;
-import de.d3web.plugin.PluginManager;
-import de.d3web.strings.Strings;
-import de.d3web.utils.Files;
-import de.d3web.utils.Log;
-import de.d3web.utils.Stopwatch;
-import de.d3web.utils.Streams;
+import com.denkbares.plugin.Extension;
+import com.denkbares.plugin.PluginManager;
+import com.denkbares.strings.Strings;
+import com.denkbares.utils.Files;
+import com.denkbares.utils.Log;
+import com.denkbares.utils.Stopwatch;
+import com.denkbares.utils.Streams;
 
 public final class SemanticCore {
 

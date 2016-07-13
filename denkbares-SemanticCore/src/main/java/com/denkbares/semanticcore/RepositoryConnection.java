@@ -58,7 +58,7 @@ import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * This is a delegate for the ordinary {@link org.openrdf.repository.RepositoryException}.

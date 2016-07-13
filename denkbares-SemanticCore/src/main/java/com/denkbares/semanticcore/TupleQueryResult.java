@@ -29,7 +29,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sparql.query.SPARQLQueryBindingSet;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * This is a delegate for the ordinary {@link org.openrdf.query.TupleQueryResult}.

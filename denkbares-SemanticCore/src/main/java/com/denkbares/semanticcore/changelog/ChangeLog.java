@@ -23,7 +23,7 @@ import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 
 import com.denkbares.semanticcore.SemanticCore;
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 public class ChangeLog {
 

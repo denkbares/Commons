@@ -28,7 +28,7 @@ import org.openrdf.rio.RDFWriter;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.UnsupportedRDFormatException;
 
-import de.d3web.utils.Log;
+import com.denkbares.utils.Log;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)

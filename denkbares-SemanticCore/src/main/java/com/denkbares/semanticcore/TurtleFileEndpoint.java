@@ -29,7 +29,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
-import de.d3web.utils.Streams;
+import com.denkbares.utils.Streams;
 
 /**
  * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the

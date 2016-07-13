@@ -24,7 +24,7 @@ import java.util.Locale;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 
-import de.d3web.strings.Strings;
+import com.denkbares.strings.Strings;
 
 /**
  * Implementation of some util class that handles string values together with a potential language

@@ -33,9 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
-import de.d3web.utils.Files;
-import de.d3web.utils.Log;
-import de.d3web.utils.Streams;
+import com.denkbares.utils.Files;
+import com.denkbares.utils.Log;
+import com.denkbares.utils.Streams;
 
 import static com.denkbares.semanticcore.SemanticCore.DEFAULT_NAMESPACE;
 
