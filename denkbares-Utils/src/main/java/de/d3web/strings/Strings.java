@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1718,14 +1719,18 @@ public class Strings {
 	public enum Encoding {
 		UTF8("UTF-8"), ISO_8859_1("ISO-8859-1");
 
-		private final String encoding;
+		private final Charset charset;
 
 		Encoding(String encoding) {
-			this.encoding = encoding;
+			this.charset = Charset.forName(encoding);
 		}
 
-		public String getEncoding() {
-			return encoding;
+		public String encoding() {
+			return charset.name();
+		}
+
+		public Charset charset() {
+			return charset;
 		}
 	}
 
@@ -1741,7 +1746,7 @@ public class Strings {
 	 */
 	public static String decodeURL(String text, Encoding encoding) {
 		try {
-			return URLDecoder.decode(text, encoding.getEncoding());
+			return URLDecoder.decode(text, encoding.encoding());
 		}
 		catch (UnsupportedEncodingException e) {
 			Log.warning(e.getMessage());
