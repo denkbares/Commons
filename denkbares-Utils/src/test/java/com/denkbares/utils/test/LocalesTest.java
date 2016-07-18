@@ -19,7 +19,11 @@
 
 package com.denkbares.utils.test;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Assert;
@@ -29,6 +33,7 @@ import com.denkbares.strings.Locales;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Volker Belli (denkbares GmbH)
@@ -45,10 +50,11 @@ public class LocalesTest {
 				Locale.GERMANY, Locale.ENGLISH, Locale.ROOT));
 		Assert.assertEquals(Locale.ROOT, Locales.findBestLocale(Locale.ROOT,
 				Locale.GERMANY, Locale.ENGLISH, Locale.ROOT));
+		Locale platt = new Locale("de", "DE", "platt");
 		Assert.assertEquals(Locale.GERMAN, Locales.findBestLocale(Locale.GERMAN,
-				Locale.GERMAN, Locale.GERMANY, new Locale("de", "DE", "platt"), Locale.ENGLISH, Locale.ROOT));
+				Locale.GERMAN, Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT));
 		Assert.assertEquals(Locale.GERMANY, Locales.findBestLocale(Locale.GERMANY,
-				Locale.GERMAN, Locale.GERMANY, new Locale("de", "DE", "platt"), Locale.ENGLISH, Locale.ROOT));
+				Locale.GERMAN, Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT));
 
 		// match same language
 		Assert.assertEquals(Locale.GERMAN, Locales.findBestLocale(Locale.GERMANY,
@@ -63,6 +69,50 @@ public class LocalesTest {
 		// match first one if preferred is not contained, and root is also not
 		Assert.assertEquals(Locale.GERMANY, Locales.findBestLocale(Locale.CHINESE,
 				Locale.GERMANY, Locale.ENGLISH));
+
+		// match best of language
+		Assert.assertEquals(Locale.GERMAN, Locales.findBestLocaleOfLanguage(Locale.GERMAN,
+				Arrays.asList(Locale.GERMAN, Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(Locale.GERMANY, Locales.findBestLocaleOfLanguage(Locale.GERMAN,
+				Arrays.asList(Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(platt, Locales.findBestLocaleOfLanguage(Locale.GERMAN,
+				Arrays.asList(platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(Locale.ROOT, Locales.findBestLocaleOfLanguage(Locale.GERMAN,
+				Arrays.asList(Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(Locale.ROOT, Locales.findBestLocaleOfLanguage(Locale.GERMAN,
+				Collections.singletonList(Locale.ENGLISH)));
+		Assert.assertEquals(null, Locales.findBestLocaleOfLanguage(Locale.GERMAN, Collections.emptyList()));
+		Assert.assertEquals(null, Locales.findBestLocaleOfLanguage(Locale.GERMAN, null));
+		Assert.assertEquals(null, Locales.findBestLocaleOfLanguage(null, null));
+
+		// match best
+		Assert.assertEquals(Locale.GERMAN, Locales.findBestLocale(
+				Arrays.asList(Locale.GERMAN, Locale.ENGLISH),
+				Arrays.asList(Locale.GERMAN, Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(Locale.GERMANY, Locales.findBestLocale(
+				Arrays.asList(Locale.GERMAN, Locale.ENGLISH),
+				Arrays.asList(Locale.GERMANY, platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(platt, Locales.findBestLocale(
+				Arrays.asList(Locale.GERMAN, Locale.ENGLISH),
+				Arrays.asList(platt, Locale.ENGLISH, Locale.ROOT)));
+		Assert.assertEquals(Locale.ENGLISH, Locales.findBestLocale(
+				Arrays.asList(Locale.GERMAN, Locale.ENGLISH),
+				Collections.singletonList(Locale.ENGLISH)));
+		Assert.assertEquals(null, Locales.findBestLocale(Locale.GERMAN, Collections.emptyList()));
+		Assert.assertEquals(null, Locales.findBestLocale(Locale.GERMAN, (Collection<Locale>) null));
+		Assert.assertEquals(null, Locales.findBestLocale((List<Locale>) null, (Collection<Locale>) null));
+
+		// iterate
+		Iterator<Locale> localeIterator = Locales.iterateByPreference(Arrays.asList(Locale.GERMAN, Locale.ENGLISH),
+				Arrays.asList(platt, Locale.ENGLISH, Locale.ROOT));
+		assertTrue(localeIterator.hasNext());
+		assertEquals(platt, localeIterator.next());
+		assertTrue(localeIterator.hasNext());
+		assertEquals(Locale.ENGLISH, localeIterator.next());
+		assertTrue(localeIterator.hasNext());
+		assertEquals(Locale.ROOT, localeIterator.next());
+		assertFalse(localeIterator.hasNext());
+
 	}
 
 	@Test

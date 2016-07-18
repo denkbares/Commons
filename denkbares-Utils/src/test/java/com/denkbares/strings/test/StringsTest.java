@@ -20,6 +20,8 @@ package com.denkbares.strings.test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -27,6 +29,7 @@ import java.util.Locale;
 import org.junit.Test;
 
 import com.denkbares.strings.QuoteSet;
+import com.denkbares.strings.StringFragment;
 import com.denkbares.strings.Strings;
 
 import static org.junit.Assert.*;
@@ -347,5 +350,25 @@ public class StringsTest {
 				"\n" +
 				"   \n" +
 				"All is fine!", Strings.trimBlankLinesAndTrailingLineBreak(source));
+	}
+
+	@Test
+	public void getStackTrace() {
+		StringWriter buffer = new StringWriter();
+		PrintWriter print = new PrintWriter(buffer);
+		Exception e = new Exception();
+		e.printStackTrace(print);
+		print.flush();
+		String stackTrace = Strings.getStackTrace(e);
+		assertEquals(buffer.toString(), stackTrace);
+	}
+
+	@Test
+	public void stringFragment() {
+		StringFragment stringFragment = new StringFragment("Test", 1, "aTest");
+		assertEquals("Test", stringFragment.getContent());
+		assertEquals(5, stringFragment.getEnd());
+		assertEquals(4, stringFragment.length());
+		assertEquals("aTest", stringFragment.getFatherString());
 	}
 }

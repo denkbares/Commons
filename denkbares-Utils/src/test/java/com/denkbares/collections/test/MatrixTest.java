@@ -38,4 +38,14 @@ public class MatrixTest {
 		assertEquals(Arrays.asList(null, null, null, "What"), matrix.getColumn(5));
 	}
 
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void exception1() {
+		new Matrix().get(0, -5);
+	}
+
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void exception2() {
+		new Matrix().get(-1, 0);
+	}
+
 }
