@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -200,5 +201,206 @@ public class MultiMapsTest {
 		assertNotEquals(other, map);
 		assertNotEquals(other.hashCode(), map.hashCode());
 		assertNotEquals(other.toString(), map.toString());
+	}
+
+	@Test
+	public void synchronizedMultiMap() {
+		DefaultMultiMap<String, String> normalMap = new DefaultMultiMap<>();
+		normalMap.put("hi", "ho");
+		normalMap.put("hi", "he");
+		normalMap.put("hey", "hu");
+		DefaultMultiMap<String, String> normalMap2 = new DefaultMultiMap<>();
+		normalMap2.put("hi", "ho");
+		normalMap2.put("hi", "he");
+		normalMap2.put("hey", "hu");
+		MultiMap<String, String> synchronizedMap = MultiMaps.synchronizedMultiMap(normalMap2);
+
+		assertEquals(normalMap.size(), synchronizedMap.size());
+		assertEquals(normalMap.isEmpty(), synchronizedMap.isEmpty());
+		assertEquals(normalMap.containsKey("hi"), synchronizedMap.containsKey("hi"));
+		assertEquals(normalMap.containsValue("ho"), synchronizedMap.containsValue("ho"));
+		assertEquals(normalMap.contains("hi", "ho"), synchronizedMap.contains("hi", "ho"));
+		assertEquals(normalMap.getValues("hi"), synchronizedMap.getValues("hi"));
+		assertEquals(normalMap.getKeys("ho"), synchronizedMap.getKeys("ho"));
+		assertEquals(normalMap.put("a", "b"), synchronizedMap.put("a", "b"));
+		assertEquals(normalMap.getValues("a"), synchronizedMap.getValues("a"));
+		assertEquals(normalMap.removeKey("a"), synchronizedMap.removeKey("a"));
+		assertEquals(normalMap.getValues("a"), synchronizedMap.getValues("a"));
+		assertEquals(normalMap.put("a", "b"), synchronizedMap.put("a", "b"));
+		assertEquals(normalMap.removeValue("b"), synchronizedMap.removeValue("b"));
+		assertEquals(normalMap.getValues("a"), synchronizedMap.getValues("a"));
+		assertEquals(normalMap.put("a", "b"), synchronizedMap.put("a", "b"));
+		assertEquals(normalMap.remove("a", "b"), synchronizedMap.remove("a", "b"));
+		assertEquals(normalMap.getValues("a"), synchronizedMap.getValues("a"));
+		assertEquals(normalMap.putAll(synchronizedMap), synchronizedMap.putAll(normalMap));
+		assertEquals(normalMap.getValues("hi"), synchronizedMap.getValues("hi"));
+		assertEquals(normalMap.keySet(), synchronizedMap.keySet());
+		assertEquals(normalMap.valueSet(), synchronizedMap.valueSet());
+		assertEquals(normalMap.entrySet(), synchronizedMap.entrySet());
+		assertEquals(normalMap.toMap(), synchronizedMap.toMap());
+
+
+		normalMap.clear();
+		synchronizedMap.clear();
+		assertEquals(normalMap.isEmpty(), synchronizedMap.isEmpty());
+
+	}
+
+	@Test
+	public void emptyMultiMap() {
+		MultiMap<Object, Object> map = MultiMaps.emptyMultiMap();
+		assertEquals(0, map.size());
+		assertEquals(false, map.containsKey("x"));
+		assertEquals(false, map.containsValue("x"));
+		assertEquals(false, map.contains("x", "y"));
+		assertEquals(Collections.emptySet(), map.getValues("x"));
+		assertEquals(Collections.emptySet(), map.getKeys("x"));
+		assertEquals(Collections.emptySet(), map.keySet());
+		assertEquals(Collections.emptySet(), map.valueSet());
+		assertEquals(Collections.emptySet(), map.entrySet());
+		assertEquals(Collections.emptyMap(), map.toMap());
+		map.clear();
+		assertEquals(MultiMaps.emptyMultiMap(), map);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException1() {
+		MultiMaps.emptyMultiMap().put("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException2() {
+		MultiMaps.emptyMultiMap().removeKey("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException3() {
+		MultiMaps.emptyMultiMap().removeValue("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException4() {
+		MultiMaps.emptyMultiMap().remove("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException5() {
+		MultiMaps.emptyMultiMap().putAll(Collections.emptyMap());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void emptyMapException6() {
+		MultiMaps.emptyMultiMap().putAll(MultiMaps.emptyMultiMap());
+	}
+
+	@Test
+	public void unmodifiableMultiMap() {
+		DefaultMultiMap<String, String> normalMap = new DefaultMultiMap<>();
+		normalMap.put("hi", "ho");
+		normalMap.put("hi", "he");
+		normalMap.put("hey", "hu");
+		DefaultMultiMap<String, String> normalMap2 = new DefaultMultiMap<>();
+		normalMap2.put("hi", "ho");
+		normalMap2.put("hi", "he");
+		normalMap2.put("hey", "hu");
+		MultiMap<String, String> unmodifiableMap = MultiMaps.unmodifiableMultiMap(normalMap2);
+
+		assertEquals(normalMap.size(), unmodifiableMap.size());
+		assertEquals(normalMap.isEmpty(), unmodifiableMap.isEmpty());
+		assertEquals(normalMap.containsKey("hi"), unmodifiableMap.containsKey("hi"));
+		assertEquals(normalMap.containsValue("ho"), unmodifiableMap.containsValue("ho"));
+		assertEquals(normalMap.contains("hi", "ho"), unmodifiableMap.contains("hi", "ho"));
+		assertEquals(normalMap.getValues("hi"), unmodifiableMap.getValues("hi"));
+		assertEquals(normalMap.getKeys("ho"), unmodifiableMap.getKeys("ho"));
+		assertEquals(normalMap.getValues("a"), unmodifiableMap.getValues("a"));
+		assertEquals(normalMap.keySet(), unmodifiableMap.keySet());
+		assertEquals(normalMap.valueSet(), unmodifiableMap.valueSet());
+		assertEquals(normalMap.entrySet(), unmodifiableMap.entrySet());
+		assertEquals(normalMap.toMap(), unmodifiableMap.toMap());
+	}
+
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException1() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).put("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException2() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).removeKey("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException3() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).removeValue("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException4() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).remove("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException5() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).putAll(Collections.emptyMap());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void unmodifiableMapException6() {
+		MultiMaps.unmodifiableMultiMap(new DefaultMultiMap<>()).putAll(MultiMaps.emptyMultiMap());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException1() {
+		MultiMaps.singletonMultiMap("a", "b").put("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException2() {
+		MultiMaps.singletonMultiMap("a", "b").removeKey("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException3() {
+		MultiMaps.singletonMultiMap("a", "b").removeValue("a");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException4() {
+		MultiMaps.singletonMultiMap("a", "b").remove("a", "b");
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException5() {
+		MultiMaps.singletonMultiMap("a", "b").putAll(Collections.emptyMap());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void singletonMapException6() {
+		MultiMaps.singletonMultiMap("a", "b").putAll(MultiMaps.emptyMultiMap());
+	}
+
+	@Test
+	public void toMultiMap1() {
+		MultiMap<String, String> map = Stream.of("a1", "a2", "a3", "b1", "b2")
+				.collect(MultiMaps.toMultiMap(string -> string.substring(0, 1)));
+
+		assertTrue(map.contains("a", "a1"));
+		assertTrue(map.contains("a", "a2"));
+		assertTrue(map.contains("a", "a3"));
+		assertTrue(map.contains("b", "b1"));
+		assertTrue(map.contains("b", "b2"));
+	}
+
+	@Test
+	public void toMultiMap2() {
+		MultiMap<String, String> map = Stream.of("a1", "a2", "a3", "b1", "b2")
+				.collect(MultiMaps.toMultiMap(string -> string.substring(0, 1), string -> string.substring(1)));
+
+		assertTrue(map.contains("a", "1"));
+		assertTrue(map.contains("a", "2"));
+		assertTrue(map.contains("a", "3"));
+		assertTrue(map.contains("b", "1"));
+		assertTrue(map.contains("b", "2"));
 	}
 }

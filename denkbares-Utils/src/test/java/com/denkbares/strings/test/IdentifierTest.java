@@ -20,9 +20,13 @@ package com.denkbares.strings.test;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.denkbares.strings.Identifier;
+
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Test for the critical conversion from {@link Identifier} to its external
@@ -31,8 +35,27 @@ import com.denkbares.strings.Identifier;
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 25.04.2012
  */
-public class IdentifierTest extends TestCase {
+public class IdentifierTest {
 
+	@Test
+	public void basic() {
+		Identifier hi = new Identifier("Hi");
+		Identifier extended = new Identifier(hi, "how", "are", "you");
+		assertEquals(new Identifier("hi", "how", "are", "you"), extended);
+
+		assertTrue(extended.startsWith(hi));
+
+		assertEquals("you", extended.getLastPathElement());
+		assertEquals(new Identifier("how", "are", "you"), extended.rest(hi));
+
+		assertEquals(new Identifier("are", "you"), extended.rest(2));
+
+		assertFalse(hi.isEmpty());
+
+		assertEquals(4, extended.countPathElements());
+	}
+
+	@Test
 	public void testFromExternalForm() {
 		checkPath("");
 		checkPath("\"");
@@ -77,6 +100,7 @@ public class IdentifierTest extends TestCase {
 				+ listOutput + " ==> " + externalForm + " ==> " + listOutPutFromExternalForm, equals);
 	}
 
+	@Test
 	public void testConcatParse() {
 		concatParse("\"", "\"");
 		concatParse("term, Identifier", ", ");
