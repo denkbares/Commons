@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import com.denkbares.utils.Log;
 
@@ -43,7 +42,7 @@ public final class EventManager {
 		return instance;
 	}
 
-	private final Map<Class<? extends Event>, WeakHashMap<EventListener, Object>> listenerMap = new HashMap<>();
+	private final Map<Class<? extends Event>, HashMap<EventListener, Object>> listenerMap = new HashMap<>();
 
 	/**
 	 * Creates the listener map by fetching all EventListener extensions from
@@ -58,9 +57,9 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// Register the listener for the event's class
-			WeakHashMap<EventListener, Object> list = listenerMap.get(eventClass);
+			HashMap<EventListener, Object> list = listenerMap.get(eventClass);
 			if (list == null) {
-				list = new WeakHashMap<>();
+				list = new HashMap<>();
 				listenerMap.put(eventClass, list);
 			}
 			list.put(listener, null);
@@ -73,7 +72,7 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// unregister the listener for the event's class
-			WeakHashMap<EventListener, Object> list = listenerMap.get(eventClass);
+			HashMap<EventListener, Object> list = listenerMap.get(eventClass);
 			list.remove(listener);
 		}
 	}
@@ -91,7 +90,7 @@ public final class EventManager {
 			Class<?> eventClass = event.getClass();
 			while (Event.class.isAssignableFrom(eventClass)) {
 				@SuppressWarnings("SuspiciousMethodCalls")
-				WeakHashMap<EventListener, Object> listeners = this.listenerMap.get(eventClass);
+				HashMap<EventListener, Object> listeners = this.listenerMap.get(eventClass);
 				if (listeners != null) {
 					allListeners.addAll(listeners.keySet());
 				}
