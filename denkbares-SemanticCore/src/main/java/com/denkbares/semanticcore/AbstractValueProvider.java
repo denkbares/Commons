@@ -42,7 +42,7 @@ public abstract class AbstractValueProvider implements ValueProvider {
 
 	public AbstractValueProvider(RepositoryConnection connection, String queryFile, String language, Class<?> c) throws QueryEvaluationException, RepositoryException, MalformedQueryException {
 		com.denkbares.semanticcore.TupleQuery query = loadQuery(connection, queryFile, language, c);
-		queryResult = query.evaluate().cachedAndClosed();
+		queryResult = query.evaluate();
 	}
 
 	private com.denkbares.semanticcore.TupleQuery loadQuery(RepositoryConnection connection, String fileName, String langID, Class<?> c)
@@ -87,7 +87,9 @@ public abstract class AbstractValueProvider implements ValueProvider {
 
 	@Override
 	public String stringValue(String variable) {
-		return value(variable).stringValue();
+		Value value = value(variable);
+		if (value != null) return value.stringValue();
+		return "";
 	}
 
 	@Override
