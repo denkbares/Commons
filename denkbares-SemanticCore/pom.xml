@@ -57,6 +57,11 @@
 			<version>2.9.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-sail-nativerdf</artifactId>
+			<version>2.9.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.denkbares</groupId>
 			<artifactId>denkbares-SemanticCore-Plugin-ExtensionPoints</artifactId>
 			<version>${denkbares.version}</version>
