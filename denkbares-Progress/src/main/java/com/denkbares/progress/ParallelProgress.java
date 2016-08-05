@@ -18,52 +18,24 @@
  */
 package com.denkbares.progress;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Class that decorates a progress and allows to split it into a set of multiple
  * progresses. Each of that multiple progresses may be continued independently.
  * If all of them reaches 100%, the original one is also progressed to 100%.
- * 
+ *
  * @author volker_belli
  * @created 09.09.2012
  */
 public class ParallelProgress implements ExtendedProgressListener {
 
-	private class PartListener implements ExtendedProgressListener {
-
-		private float current = 0f;
-		private final float fraction;
-		private float partCurrent = 0f;
-
-		public PartListener(float fraction) {
-			this.fraction = fraction;
-		}
-
-		@Override
-		public void updateProgress(float percent, String message) {
-			if (percent > 1f) percent = 1f;
-			if (percent < 0f) percent = 0f;
-			this.partCurrent = percent;
-			float absolute = percent * fraction;
-			float delta = absolute - current;
-			this.current = absolute;
-			incrementProgress(delta, message);
-		}
-
-		@Override
-		public float getProgress() {
-			return partCurrent;
-		}
-
-		@Override
-		public String getMessage() {
-			return lastMessage;
-		}
-	}
-
 	private final ProgressListener delegate;
-	private float current = 0f;
 	private final PartListener[] partListeners;
-
+	private final Map<PartListener, PartListener> activeListeners = new ConcurrentHashMap<>();
+	private float current = 0f;
 	private String lastMessage = "";
 
 	/**
@@ -71,8 +43,8 @@ public class ParallelProgress implements ExtendedProgressListener {
 	 * If is divided into several sub-tasks (and a progress listener for each).
 	 * The number of sub-tasks is specified by the size of partSizes. The
 	 * percentage 0%..100% is split according to the specified partSizes.
-	 * 
-	 * @param delegate the progress listener to delegate the update to
+	 *
+	 * @param delegate     the progress listener to delegate the update to
 	 * @param subTaskSizes the relative size of the individual sub-tasks
 	 */
 	public ParallelProgress(ProgressListener delegate, float... subTaskSizes) {
@@ -94,8 +66,8 @@ public class ParallelProgress implements ExtendedProgressListener {
 	 * If is divided into several sub-tasks (and a progress listener for each).
 	 * The number of sub-tasks is specified by the parameter subTaskCount. The
 	 * percentage 0%..100% is split into identical parts for each sub-task.
-	 * 
-	 * @param delegate the progress listener to delegate the update to
+	 *
+	 * @param delegate     the progress listener to delegate the update to
 	 * @param subTaskCount the number of individual sub-tasks
 	 */
 	public ParallelProgress(ProgressListener delegate, int subTaskCount) {
@@ -126,6 +98,23 @@ public class ParallelProgress implements ExtendedProgressListener {
 
 	@Override
 	public void updateProgress(float percent, String message) {
+		if (message == null) {
+			// just a new percentage, reuse last message
+			message = lastMessage;
+		}
+		else if (activeListeners.size() > 1) {
+			// must be multiple, concat them
+			Iterator<String> messages = activeListeners.keySet().stream()
+					.sorted()
+					.map(PartListener::getMessage).distinct()
+					.iterator();
+			StringBuilder messageBuilder = new StringBuilder();
+			while (messages.hasNext()) {
+				messageBuilder.append(messages.next());
+				if (messages.hasNext()) messageBuilder.append(" | ");
+			}
+			message = messageBuilder.toString();
+		}
 		lastMessage = message;
 		// write through to delegate, but not update current percentage
 		this.delegate.updateProgress(percent, message);
@@ -135,10 +124,10 @@ public class ParallelProgress implements ExtendedProgressListener {
 	 * Utility method to easily increment a progress of a special sub-task.
 	 *
 	 * @param subTaskIndex the index of the sub-task
-	 * @param percent the fraction of the progress of this sub-task (1.0 for 100%)
-	 * @param message the message to be applied
-	 * @see #getSubTaskProgressListener(int)
+	 * @param percent      the fraction of the progress of this sub-task (1.0 for 100%)
+	 * @param message      the message to be applied
 	 * @throws java.lang.ArrayIndexOutOfBoundsException if the specified sub-task is not one of the created sub-tasks
+	 * @see #getSubTaskProgressListener(int)
 	 */
 	public void updateProgress(int subTaskIndex, float percent, String message) {
 		getSubTaskProgressListener(subTaskIndex).updateProgress(percent, message);
@@ -149,9 +138,9 @@ public class ParallelProgress implements ExtendedProgressListener {
 	 * The previously set message is reused.
 	 *
 	 * @param subTaskIndex the index of the sub-task
-	 * @param percent the fraction of the progress of this sub-task (1.0 for 100%)
-	 * @see #getSubTaskProgressListener(int)
+	 * @param percent      the fraction of the progress of this sub-task (1.0 for 100%)
 	 * @throws java.lang.ArrayIndexOutOfBoundsException if the specified sub-task is not one of the created sub-tasks
+	 * @see #getSubTaskProgressListener(int)
 	 */
 	public void updateProgress(int subTaskIndex, float percent) {
 		getSubTaskProgressListener(subTaskIndex).updateProgress(percent, lastMessage);
@@ -165,6 +154,52 @@ public class ParallelProgress implements ExtendedProgressListener {
 	@Override
 	public String getMessage() {
 		return lastMessage;
+	}
+
+	private class PartListener implements ExtendedProgressListener, Comparable<PartListener> {
+
+		private final float fraction;
+		private float current = 0f;
+		private String currentMessage = null;
+		private float partCurrent = 0f;
+
+		public PartListener(float fraction) {
+			this.fraction = fraction;
+		}
+
+		@Override
+		public void updateProgress(float percent, String message) {
+			if (percent > 1f) percent = 1f;
+			if (percent < 0f) percent = 0f;
+			//noinspection FloatingPointEquality
+			if (percent == 1f) {
+				activeListeners.remove(this);
+			}
+			else if (message != null) {
+				currentMessage = message;
+				activeListeners.put(this, this);
+			}
+			this.partCurrent = percent;
+			float absolute = percent * fraction;
+			float delta = absolute - current;
+			this.current = absolute;
+			incrementProgress(delta, message);
+		}
+
+		@Override
+		public float getProgress() {
+			return partCurrent;
+		}
+
+		@Override
+		public String getMessage() {
+			return currentMessage;
+		}
+
+		@Override
+		public int compareTo(PartListener o) {
+			return Float.compare(partCurrent, o.partCurrent);
+		}
 	}
 
 }
