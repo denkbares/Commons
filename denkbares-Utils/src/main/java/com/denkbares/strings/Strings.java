@@ -1957,12 +1957,47 @@ public class Strings {
 	 * @created 19.02.2014
 	 */
 	public static String getStackTrace(Throwable e) {
+		return getStackTrace(e, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns the stack trace of a specified exception as a newly created String object. If the
+	 * exception is null, null is returned.
+	 *
+	 * @param e the exception to get the stack trace for
+	 * @return the stack trace of the exception
+	 * @created 19.02.2014
+	 */
+	public static String getStackTrace(Throwable e, int maxDepth) {
 		if (e == null) return null;
 		StringWriter buffer = new StringWriter();
 		PrintWriter print = new PrintWriter(buffer);
 		e.printStackTrace(print);
 		print.flush();
-		return buffer.toString();
+		String trace = buffer.toString();
+		if (maxDepth >= 0 && maxDepth < Integer.MAX_VALUE) {
+			trace = trace.substring(0, ordinalIndexOf(trace, "\n", maxDepth));
+		}
+		return trace;
+	}
+
+	/**
+	 * Finds the ordinal or nth index of the given string in the given text. Note that the first occurrence is found by
+	 * n = 0. Second occurrence by n = 1 and so on.
+	 * <p>
+	 * Implementation from user <i>aioobe</i> from <a href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
+	 *
+	 * @param text   the text in which to find the index of the given string
+	 * @param string the string to find in the given text
+	 * @param n      the ordinal of the occurrence to find
+	 * @return the index of the nth occurrence of the given string in the given text
+	 */
+	public static int ordinalIndexOf(String text, String string, int n) {
+		int pos = text.indexOf(string, 0);
+		while (n-- > 0 && pos != -1) {
+			pos = text.indexOf(string, pos + 1);
+		}
+		return pos;
 	}
 
 	public static String getDurationVerbalization(long timeMillis) {
