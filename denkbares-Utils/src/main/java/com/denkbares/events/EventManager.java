@@ -22,7 +22,10 @@ package com.denkbares.events;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import com.denkbares.utils.Log;
 
@@ -35,6 +38,26 @@ public final class EventManager {
 
 	private static EventManager instance;
 
+	/**
+	 * There are two types of listener registrations, PERSISTENT and WEAK. PERSISTENT is as you expect, you have to
+	 * {@link #unregister(EventListener)} manually to clean up, once the listener is no longer needed. With type WEAK,
+	 * the listener will be cleaned up automatically by the garbage collector, once there are no other references to the
+	 * listener besides the once in the {@link EventManager}.
+	 */
+	public enum RegistrationType {
+		/**
+		 * Registration will be weak, the listener will be cleaned up automatically by the garbage collector, once
+		 * there are no other references to the listener besides the once in the {@link EventManager}. Use this type, if
+		 * you do not have full control over the life cycle of the listener.
+		 */
+		WEAK,
+		/**
+		 * Default registration type. The listener will not be cleaned up (unregistered) from the {@link EventManager}
+		 * unless {@link #unregister(EventListener)} is called.
+		 */
+		PERSISTENT
+	}
+
 	public static EventManager getInstance() {
 		if (instance == null) {
 			instance = new EventManager();
@@ -42,7 +65,14 @@ public final class EventManager {
 		return instance;
 	}
 
-	private final Map<Class<? extends Event>, HashMap<EventListener, Object>> listenerMap = new HashMap<>();
+	private final Map<Class<? extends Event>, WeakHashMap<EventListener, Object>> listeners = new HashMap<>();
+
+	/**
+	 * This set is only used to ensure the listener is not removed from the weak hash map, in case it was registered as
+	 * a persistent listener.
+	 */
+	@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+	private final Set<EventListener> persistentListeners = new HashSet<>();
 
 	/**
 	 * Creates the listener map by fetching all EventListener extensions from
@@ -51,30 +81,58 @@ public final class EventManager {
 	private EventManager() {
 	}
 
+	/**
+	 * Registers the given listener in this EventManager. Make sure to unregister the listener with the method {@link
+	 * #unregister(EventListener)}, once it is no longer used.
+	 *
+	 * @param listener the listener to register
+	 */
 	public synchronized void registerListener(EventListener listener) {
+		registerListener(listener, RegistrationType.PERSISTENT);
+	}
+
+	/**
+	 * Registers the given listener in this EventManager. Make sure to unregister the listener with the method {@link
+	 * #unregister(EventListener)}, once it is no longer used.<br>
+	 * If parameter <tt>registerWeak</tt> is set to false, the listener will be cleaned up automatically by the JVM
+	 * garbage collector once there is no other reference to the {@link EventListener} besides this manager.
+	 *
+	 * @param listener         the listener to register
+	 * @param registrationType determines the type of registrations, see {@link RegistrationType}
+	 */
+	public synchronized void registerListener(EventListener listener, RegistrationType registrationType) {
 		// Get the classes of the events
 		Collection<Class<? extends Event>> eventClasses = listener.getEvents();
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// Register the listener for the event's class
-			HashMap<EventListener, Object> list = listenerMap.get(eventClass);
+			WeakHashMap<EventListener, Object> list = listeners.get(eventClass);
 			if (list == null) {
-				list = new HashMap<>();
-				listenerMap.put(eventClass, list);
+				list = new WeakHashMap<>();
+				listeners.put(eventClass, list);
 			}
 			list.put(listener, null);
+			if (registrationType == RegistrationType.PERSISTENT) {
+				persistentListeners.add(listener);
+			}
 		}
 	}
 
+	/**
+	 * Unregisters the given listener from the EventManager.
+	 *
+	 * @param listener the listener to unregister
+	 */
 	public synchronized void unregister(EventListener listener) {
 		// Get the classes of the events
 		Collection<Class<? extends Event>> eventClasses = listener.getEvents();
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// unregister the listener for the event's class
-			HashMap<EventListener, Object> list = listenerMap.get(eventClass);
+			WeakHashMap<EventListener, Object> list = listeners.get(eventClass);
 			list.remove(listener);
 		}
+		persistentListeners.remove(listener);
 	}
 
 	/**
@@ -90,7 +148,7 @@ public final class EventManager {
 			Class<?> eventClass = event.getClass();
 			while (Event.class.isAssignableFrom(eventClass)) {
 				@SuppressWarnings("SuspiciousMethodCalls")
-				HashMap<EventListener, Object> listeners = this.listenerMap.get(eventClass);
+				WeakHashMap<EventListener, Object> listeners = this.listeners.get(eventClass);
 				if (listeners != null) {
 					allListeners.addAll(listeners.keySet());
 				}

@@ -199,7 +199,10 @@ public final class SemanticCore {
 		for (Extension extension : extensions) {
 			Object listener = extension.getSingleton();
 			if (listener instanceof EventListener) {
-				EventManager.getInstance().registerListener(((EventListener) listener));
+				synchronized (EventManager.getInstance()) {
+					EventManager.getInstance()
+							.registerListener(((EventListener) listener), EventManager.RegistrationType.WEAK);
+				}
 			}
 		}
 	}
