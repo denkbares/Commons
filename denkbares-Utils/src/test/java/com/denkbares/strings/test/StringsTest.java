@@ -18,6 +18,7 @@
  */
 package com.denkbares.strings.test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -239,6 +240,15 @@ public class StringsTest {
 		Strings.writeFile(filePath, testString);
 		assertEquals(testString, Strings.readFile(filePath));
 		assertEquals(testString, Strings.readStream(new FileInputStream(filePath)));
+	}
+
+
+	@Test
+	public void writeReadFile2() throws IOException {
+		String testString = "abcdefghijklmnopqrstuvwqyzöäüß";
+		String filePath = "target/testfile.txt";
+		Strings.writeFile(new File(filePath), testString);
+		assertEquals(testString, Strings.readFile(new File(filePath)));
 	}
 
 	@Test

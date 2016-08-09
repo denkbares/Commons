@@ -20,17 +20,12 @@
 
 package com.denkbares.strings;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -53,6 +48,7 @@ import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Pair;
 import com.denkbares.utils.Streams;
@@ -1782,8 +1778,7 @@ public class Strings {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(String filePath) throws IOException {
-		File file = new File(filePath);
-		return readFile(file);
+		return Files.readFile(filePath);
 	}
 
 	/**
@@ -1796,14 +1791,29 @@ public class Strings {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(File file) throws IOException {
-		return Streams.readStream(new FileInputStream(file));
+		return Files.readFile(file);
 	}
 
+	/**
+	 * Writes the given string content to a file with the given path.
+	 *
+	 * @param path    the path to the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
 	public static void writeFile(String path, String content) throws IOException {
-		Writer stream = new OutputStreamWriter(new FileOutputStream(new File(path)), "UTF-8");
-		BufferedWriter out = new BufferedWriter(stream);
-		out.write(content);
-		out.close();
+		Files.writeFile(path, content);
+	}
+
+	/**
+	 * Writes the given string content to the given file
+	 *
+	 * @param file    the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void writeFile(File file, String content) throws IOException {
+		Files.writeFile(file, content);
 	}
 
 	private static final Pattern LOCALE_PATTERN = Pattern.compile("(\\w\\w)(?:_(\\w\\w)(?:_#([^_]*))?(?:_(\\p{Graph}+))?)?");

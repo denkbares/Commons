@@ -1,6 +1,7 @@
 package com.denkbares.utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -8,9 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,14 +54,64 @@ public class Files {
 			}
 		}
 		throw new IOException("Failed to create temp directory");
+	}
 
+	/**
+	 * Writes the given string content to a file with the given path.
+	 *
+	 * @param path    the path to the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void writeFile(String path, String content) throws IOException {
+		writeFile(new File(path), content);
+	}
+
+	/**
+	 * Writes the given string content to the given file
+	 *
+	 * @param file    the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void writeFile(File file, String content) throws IOException {
+		Writer stream = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
+		BufferedWriter out = new BufferedWriter(stream);
+		out.write(content);
+		out.close();
+	}
+
+	/**
+	 * Reads the contents of a file into a String and return the string.
+	 *
+	 * @param filePath the file to be loaded
+	 * @return the contents of the file
+	 * @throws IOException          if there was any problem reading the file
+	 * @throws NullPointerException if the argument is null.
+	 * @created 16.09.2012
+	 */
+	public static String readFile(String filePath) throws IOException {
+		return readFile(new File(filePath));
+	}
+
+	/**
+	 * Reads the contents of a file into a String and return the string.
+	 *
+	 * @param file the file to be loaded
+	 * @return the contents of the file
+	 * @throws IOException          if there was any problem reading the file
+	 * @throws NullPointerException if the argument is null.
+	 * @created 16.09.2012
+	 */
+	public static String readFile(File file) throws IOException {
+		return Streams.readStream(new FileInputStream(file));
 	}
 
 	/**
 	 * Convenience method to get the default temp dir of the OS.
 	 *
 	 * @return the system's temp dir
-	 * @throws IOException
+	 * @throws IOException if access is not possible
 	 */
 	@NotNull
 	public static File getSystemTempDir() throws IOException {
@@ -218,8 +271,8 @@ public class Files {
 	 * overwritten, and succeeding ones (if there are any) will be deleted. If there is no such line
 	 * contained, the new property will be appended to the end of the file.
 	 *
-	 * @param file the properties file to be updated
-	 * @param key the key to be overwritten or added
+	 * @param file  the properties file to be updated
+	 * @param key   the key to be overwritten or added
 	 * @param value the (new) value for the key
 	 * @throws IOException if the properties file could not been read or written
 	 */
@@ -238,7 +291,7 @@ public class Files {
 	 * The method is also capable to delete entries, if the key occurs in the specified entries with
 	 * value null.
 	 *
-	 * @param file the properties file to be updated
+	 * @param file    the properties file to be updated
 	 * @param entries the keys to be overwritten with their (new) values
 	 * @throws IOException if the properties file could not been read or written
 	 */
@@ -376,7 +429,7 @@ public class Files {
 	 * are tested case insensitive. The specified extension must contain only the characters after
 	 * the separating ".", not the "." itself. The characters are compared case insensitive.
 	 *
-	 * @param fileName the abstract path of the file to be tested
+	 * @param fileName   the abstract path of the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
 	 */
@@ -399,11 +452,11 @@ public class Files {
 	 * are tested case insensitive. The specified extension must contain only the characters after
 	 * the separating ".", not the "." itself. The characters are compared case insensitive.
 	 *
-	 * @param file the file to be tested
+	 * @param file       the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
 	 * @throws NullPointerException if the array of extensions is null or if any of the contained
-	 * extension is null
+	 *                              extension is null
 	 */
 	public static boolean hasExtension(File file, String... extensions) {
 		return file != null && hasExtension(file.getName(), extensions);
@@ -441,19 +494,21 @@ public class Files {
 	 * Recursively gets all files matching the specified {@link FileFilter}. If no filter is
 	 * specified, all files recursively contained in the specified directory are returned.
 	 *
-	 * @param root the root directory
+	 * @param root   the root directory
 	 * @param filter filters the files
 	 * @return all files matching the specified filter in the specified directory (recursively)
 	 */
 	public static Collection<File> recursiveGet(File root, FileFilter filter) {
 		Collection<File> files = new LinkedList<>();
 		File[] list = root.listFiles();
-		if (list != null) for (File f : list) {
-			if (f.isDirectory()) {
-				files.addAll(recursiveGet(f, filter));
-			}
-			else if (filter == null || filter.accept(f)) {
-				files.add(f);
+		if (list != null) {
+			for (File f : list) {
+				if (f.isDirectory()) {
+					files.addAll(recursiveGet(f, filter));
+				}
+				else if (filter == null || filter.accept(f)) {
+					files.add(f);
+				}
 			}
 		}
 		return files;

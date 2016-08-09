@@ -22,10 +22,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.denkbares.collections.Matrix;
+import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Streams;
 
@@ -42,6 +46,7 @@ public class FilesTest {
 
 	private static final String TXT_FILE = "src/test/resources/exampleFiles/faust.txt";
 	private static final String JPG_FILE = "src/test/resources/exampleFiles/faust.jpg";
+	private static final String PROPERTIES_FILE = "src/test/resources/exampleFiles/test.properties";
 
 	@Test
 	public void readFiles() throws IOException {
@@ -52,6 +57,59 @@ public class FilesTest {
 				"check text length of '" + TXT_FILE + "'",
 				219369,
 				Files.getText(new File(TXT_FILE)).length());
+	}
+
+	@Test
+	public void copy() throws IOException {
+		File target = new File("target/copyTest.txt");
+		target.delete();
+		File source = new File(TXT_FILE);
+		Files.copy(source, target);
+		assertArrayEquals(Files.getBytes(source), Files.getBytes(target));
+	}
+
+	@Test
+	public void hasEqualFingerprint() throws IOException {
+		assertTrue(Files.hasEqualFingerprint(new File(TXT_FILE), new File(TXT_FILE)));
+		assertTrue(Files.hasEqualFingerprint(new File(JPG_FILE), new File(JPG_FILE)));
+		assertFalse(Files.hasEqualFingerprint(new File(TXT_FILE), new File(JPG_FILE)));
+		File target = new File("target/copyTest.txt");
+		target.delete();
+		File source = new File(TXT_FILE);
+		Files.copy(source, target);
+		assertFalse(Files.hasEqualFingerprint(source, target));
+		target.setLastModified(source.lastModified());
+		assertTrue(Files.hasEqualFingerprint(source, target));
+
+		assertFalse(Files.hasEqualFingerprint(new File(""), new File("")));
+		assertFalse(Files.hasEqualFingerprint(source, new File("")));
+	}
+
+	@Test
+	public void testGetCSVCells() throws IOException {
+		String path = "target/csvTest.csv";
+		Strings.writeFile(path, "11,12,13\n21,22,23\n31,32,33");
+		Matrix<String> csvCells = Files.getCSVCells(new File(path));
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				assertEquals((i + 1) + "" + (j + 1), csvCells.get(i, j));
+			}
+		}
+	}
+
+	@Test
+	public void hasEqualContent() throws IOException {
+		assertTrue(Files.hasEqualContent(new File(TXT_FILE), new File(TXT_FILE)));
+		assertTrue(Files.hasEqualContent(new File(JPG_FILE), new File(JPG_FILE)));
+		assertFalse(Files.hasEqualContent(new File(TXT_FILE), new File(JPG_FILE)));
+		File target = new File("target/copyTest.txt");
+		target.delete();
+		File source = new File(TXT_FILE);
+		Files.copy(source, target);
+		assertTrue(Files.hasEqualContent(source, target));
+
+		assertFalse(Files.hasEqualContent(new File(""), new File("")));
+		assertFalse(Files.hasEqualContent(source, new File("")));
 	}
 
 	public void checkBinarySize(String filename) throws IOException {
@@ -106,5 +164,48 @@ public class FilesTest {
 		assertFalse(Files.hasExtension(txtFile, "foo", "bla"));
 		assertFalse(Files.hasExtension(txtFileName, (String) null));
 		assertFalse(Files.hasExtension(txtFile, (String[]) null));
+	}
+
+	@Test
+	public void recursiveGet() throws IOException {
+		new File("target/dir1/").mkdirs();
+		new File("target/dir2/dir3/dir3/").mkdirs();
+		Strings.writeFile("target/a1.txt", "testing123");
+		Strings.writeFile("target/dir1/a2.txt", "testing123");
+		Strings.writeFile("target/dir1/a3.txt", "testing123");
+		Strings.writeFile("target/dir2/a4.txt", "testing123");
+		Strings.writeFile("target/dir2/dir3/dir3/a5.txt", "testing123");
+		Collection<File> files = Files.recursiveGet(new File("target"), file -> file.getName()
+				.endsWith(".txt") && file.getName().startsWith("a"));
+		int count = 1;
+		for (File file : files) {
+			assertEquals("a" + count++ + ".txt", file.getName());
+		}
+	}
+
+	@Test
+	public void getProperties() throws IOException {
+		Properties properties = Files.getProperties(new File(PROPERTIES_FILE));
+		assertEquals("Hi", properties.getProperty("test.prop.a"));
+		assertEquals("Ho", properties.getProperty("test.prop.b"));
+		assertEquals("Ha", properties.getProperty("test.prop.c"));
+		assertEquals("Hu", properties.getProperty("test.prop.d"));
+		assertNull(properties.getProperty("test.prop.e"));
+	}
+
+	@Test
+	public void updateProperties() throws IOException {
+		File properties = new File("target/properties-copy.properties");
+		Files.copy(new File(PROPERTIES_FILE), properties);
+
+		Files.updatePropertiesFile(properties, "test.prop.b", "New!");
+
+		assertEquals("New!", Files.getProperties(properties).getProperty("test.prop.b"));
+		assertEquals(4, Files.getProperties(properties).entrySet().size());
+
+		Files.updatePropertiesFile(properties, "test.prop.e", "Also New!");
+
+		assertEquals("Also New!", Files.getProperties(properties).getProperty("test.prop.e"));
+		assertEquals(5, Files.getProperties(properties).entrySet().size());
 	}
 }
