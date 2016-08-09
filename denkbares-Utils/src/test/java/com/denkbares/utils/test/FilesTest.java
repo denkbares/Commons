@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -175,8 +178,9 @@ public class FilesTest {
 		Strings.writeFile("target/dir1/a3.txt", "testing123");
 		Strings.writeFile("target/dir2/a4.txt", "testing123");
 		Strings.writeFile("target/dir2/dir3/dir3/a5.txt", "testing123");
-		Collection<File> files = Files.recursiveGet(new File("target"), file -> file.getName()
-				.endsWith(".txt") && file.getName().startsWith("a"));
+		List<File> files = new ArrayList<>(Files.recursiveGet(new File("target"), file -> file.getName()
+				.endsWith(".txt") && file.getName().startsWith("a")));
+		files.sort(Comparator.comparing(File::getName));
 		int count = 1;
 		for (File file : files) {
 			assertEquals("a" + count++ + ".txt", file.getName());
