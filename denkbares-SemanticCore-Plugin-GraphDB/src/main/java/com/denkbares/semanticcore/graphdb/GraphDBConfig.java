@@ -72,7 +72,6 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
 			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
-			Log.info("Using logger " + ch.qos.logback.classic.Logger.class.getName());
 		}
 		else {
 			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
