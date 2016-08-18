@@ -73,6 +73,10 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
 			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
 		}
+		else {
+			throw new IllegalStateException("GraphDB requires \"ch.qos.logback.classic.Logger\", but was \""
+					+ rootLogger.getClass().getName());
+		}
 
 		// prepare rule set
 		if (ruleSet == null) {
