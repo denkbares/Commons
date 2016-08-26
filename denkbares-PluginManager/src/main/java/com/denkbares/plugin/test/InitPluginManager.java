@@ -33,7 +33,7 @@ import com.denkbares.strings.Strings;
  *
  * @author Markus Friedrich (denkbares GmbH)
  */
-public abstract class InitPluginManager {
+public final class InitPluginManager {
 
 	/**
 	 * Avoids the creation of an instance for this class.
@@ -52,7 +52,7 @@ public abstract class InitPluginManager {
 	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
 	 *                            exclusively
 	 *                            loaded.
-	 * @throws IOException
+	 * @throws IOException if the dependencies file or references plugins could not been read
 	 */
 	public static void init(String... pluginFilterPattern) throws IOException {
 		init(new File("target/dependencies/output.txt"), pluginFilterPattern);
@@ -68,7 +68,7 @@ public abstract class InitPluginManager {
 	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
 	 *                            exclusively
 	 *                            loaded.
-	 * @throws IOException
+	 * @throws IOException if the classpath file or references plugins could not been read
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
 		init(Strings.readFile(classpathFile).split(";"), pluginFilterPattern);
@@ -107,10 +107,10 @@ public abstract class InitPluginManager {
 
 	private static boolean checkIfPlugin(File file, String... pluginFilterPattern) {
 		File project = file;
-		if (file.getName().equals("classes")) {
+		if ("classes".equals(file.getName())) {
 			// jump two levels higher because dependencies to eclipse
-			// projects are named: projectname/target/classes
-			// the absolute file is needed to prevent a nullpointer in the own
+			// projects are named: projectName/target/classes
+			// the absolute file is needed to prevent a NullPointerException in the own
 			// project
 			project = file.getParentFile().getAbsoluteFile();
 			project = project.getParentFile();
