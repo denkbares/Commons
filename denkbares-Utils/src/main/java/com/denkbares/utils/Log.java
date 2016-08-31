@@ -263,7 +263,7 @@ public class Log {
 			Log.extractor = extractor;
 		}
 		catch (Exception e) {
-			String message = "method " + method + " cannot be initialized. "+e.getMessage();
+			String message = "method " + method + " cannot be initialized. " + e.getMessage();
 			Logger.getLogger(Log.class.getName()).log(Level.WARNING, message);
 			throw new IllegalStateException(message, e);
 		}
@@ -430,6 +430,45 @@ public class Log {
 	 */
 	public static void severe(String message, Throwable e) {
 		log(1, Level.SEVERE, message, e);
+	}
+
+	/**
+	 * Log a message of the specified log level, but allows to pretend that the originator of this
+	 * log message if not the current method, but its calling method (or its calling method's
+	 * calling method, and so on).
+	 * <p>
+	 * Note: You should not use this method until you expose some log feature to a utility class
+	 * where the actual logging frame should not be the utility class method, but the calling
+	 * method.
+	 * <p>
+	 *
+	 * @param framesAbove the number of call stack frames to go up to find the logging originator
+	 * @param level the log level to be used for logging
+	 * @param message The string message (or a key in the message catalog)
+	 */
+	public static void mock(int framesAbove, Level level, String message) {
+		if (framesAbove <= 0) throw new IndexOutOfBoundsException();
+		log(1 + framesAbove, level, message);
+	}
+
+	/**
+	 * Log a message of the specified log level, but allows to pretend that the originator of this
+	 * log message if not the current method, but its calling method (or its calling method's
+	 * calling method, and so on).
+	 * <p>
+	 * Note: You should not use this method until you expose some log feature to a utility class
+	 * where the actual logging frame should not be the utility class method, but the calling
+	 * method.
+	 * <p>
+	 *
+	 * @param framesAbove the number of call stack frames to go up to find the logging originator
+	 * @param level the log level to be used for logging
+	 * @param message The string message (or a key in the message catalog)
+	 * @param e the exception to be logged
+	 */
+	public static void mock(int framesAbove, Level level, String message, Throwable e) {
+		if (framesAbove <= 0) throw new IndexOutOfBoundsException();
+		log(1 + framesAbove, level, message, e);
 	}
 
 	/**

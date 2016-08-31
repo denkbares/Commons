@@ -20,6 +20,7 @@
 package com.denkbares.utils;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 /**
  * Utility class to measure some time with some more comfort as direct accessing
@@ -103,7 +104,7 @@ public class Stopwatch {
 	 * @param message the message to be printed before the time
 	 */
 	public Stopwatch log(String message) {
-		Log.info(message + ": " + getDisplay());
+		Log.mock(1, Level.INFO, message + ": " + getDisplay());
 		return this;
 	}
 
