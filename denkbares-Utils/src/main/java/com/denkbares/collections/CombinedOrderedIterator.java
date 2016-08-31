@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +29,7 @@ public class CombinedOrderedIterator<E> implements Iterator<E> {
 	/**
 	 * List of all iterators, without any empty iterator.
 	 */
-	private final List<PeekableIterator<E>> iterators = new LinkedList<>();
+	private final List<PeekableIterator<? extends E>> iterators;
 	private final Comparator<E> order;
 
 	/**
@@ -73,12 +74,19 @@ public class CombinedOrderedIterator<E> implements Iterator<E> {
 	 * Creates a new iterator that combines all the specified iterators into one. The iterators
 	 * itself must already be sorted according to the specified order, otherwise the iteration order
 	 * is unpredictable.
+	 * <p>
+	 * In contrast to the other constructor methods, here a parallel stream of iterators may be
+	 * specified. Because the combined iterator has to prepare at least one item from each iterator
+	 * (to detect the initial order), this can be done in parallel here.
 	 *
 	 * @param iterators the iterators to be combined
 	 * @param order the order of the items
 	 */
 	public CombinedOrderedIterator(Stream<? extends Iterator<? extends E>> iterators, Comparator<E> order) {
-		this(iterators.iterator(), order);
+		this.iterators = iterators.filter(Iterator::hasNext).map(PeekableIterator::new)
+				// create a linked list, which is mutable, because we will delete items later on
+				.collect(Collectors.toCollection(LinkedList::new));
+		this.order = order;
 	}
 
 	/**
@@ -103,6 +111,7 @@ public class CombinedOrderedIterator<E> implements Iterator<E> {
 	 * @param order the order of the items
 	 */
 	public CombinedOrderedIterator(Iterator<? extends Iterator<? extends E>> iterators, Comparator<E> order) {
+		this.iterators = new LinkedList<>();
 		iterators.forEachRemaining(subset -> {
 			if (subset.hasNext()) {
 				this.iterators.add(new PeekableIterator<>(subset));
@@ -122,8 +131,8 @@ public class CombinedOrderedIterator<E> implements Iterator<E> {
 		if (iterators.isEmpty()) throw new NoSuchElementException();
 
 		// find iterator with best rating
-		PeekableIterator<E> bestIterator = null;
-		for (PeekableIterator<E> iterator : iterators) {
+		PeekableIterator<? extends E> bestIterator = null;
+		for (PeekableIterator<? extends E> iterator : iterators) {
 			if (bestIterator == null || order.compare(bestIterator.peek(), iterator.peek()) > 0) {
 				bestIterator = iterator;
 			}
