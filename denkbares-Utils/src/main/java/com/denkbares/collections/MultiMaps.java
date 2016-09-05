@@ -591,6 +591,99 @@ public class MultiMaps {
 		}
 	}
 
+	/**
+	 * Returns a multi map that has the keys and values switched/exchanged. Exactly for each
+	 * key-&gt;value relation of the original map there is a value-&gt;key relation in the returned
+	 * one.
+	 * <p>
+	 * All changes made to the returned map are mapped into the specified map, and vice versa.
+	 *
+	 * @param map the map to get a reversed one
+	 * @param <K> the key type of the map to be reversed, becoming the values type of the new map
+	 * @param <V>the value type of the map to be reversed, becoming the key type of the new map
+	 * @return the reversed map where keys and values are exchanged
+	 */
+	public static <K, V> MultiMap<V, K> reversed(MultiMap<K, V> map) {
+		if (map instanceof ReversedMultiMap) {
+			return ((ReversedMultiMap<K, V>) map).map;
+		}
+		return new ReversedMultiMap<>(map);
+	}
+
+	private static final class ReversedMultiMap<K, V> extends AbstractMultiMap<K, V> {
+
+		private final MultiMap<V, K> map;
+
+		private ReversedMultiMap(MultiMap<V, K> map) {
+			this.map = map;
+		}
+
+		@Override
+		public int size() {
+			return map.size();
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return map.containsValue(key);
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			return map.containsKey(value);
+		}
+
+		@Override
+		public boolean contains(Object key, Object value) {
+			return map.contains(value, key);
+		}
+
+		@Override
+		public Set<V> getValues(Object key) {
+			return map.getKeys(key);
+		}
+
+		@Override
+		public Set<K> getKeys(Object value) {
+			return map.getValues(value);
+		}
+
+		@Override
+		public boolean put(K key, V value) {
+			return map.put(value, key);
+		}
+
+		@Override
+		public Set<V> removeKey(Object key) {
+			return map.removeValue(key);
+		}
+
+		@Override
+		public Set<K> removeValue(Object value) {
+			return map.removeKey(value);
+		}
+
+		@Override
+		public boolean remove(Object key, Object value) {
+			return map.remove(value, key);
+		}
+
+		@Override
+		public void clear() {
+			map.clear();
+		}
+
+		@Override
+		public Set<K> keySet() {
+			return map.valueSet();
+		}
+
+		@Override
+		public Set<V> valueSet() {
+			return map.keySet();
+		}
+	}
+
 	public static final MultiMap EMPTY_MULTI_MAP = new EmptyMultiMap();
 
 	public static <K, V> MultiMap<K, V> emptyMultiMap() {
@@ -785,6 +878,26 @@ public class MultiMaps {
 		}
 	}
 
+	/**
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
+	 * {@code V}, grouping elements according to a classification function, and returning the
+	 * results in a {@link MultiMap}, where the keys are extracted by the specified function, and
+	 * the values are the unmodified values of the stream.
+	 * <p>
+	 * <p>The classification function maps elements to some key type {@code K}. The collector
+	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
+	 * classification function to the input elements, and whose corresponding values are the input
+	 * elements which map to the associated key under the classification function.
+	 * <p>
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
+	 * {@code MultiMap} objects returned.
+	 *
+	 * @param <V> the type of the input elements
+	 * @param <K> the type of the keys
+	 * @param keyExtractor the classifier function mapping input elements to keys
+	 * @return a {@code Collector} implementing the group-by operation
+	 * @see java.util.stream.Collectors#groupingBy(Function)
+	 */
 	public static <K, V> Collector<V, ?, MultiMap<K, V>> toMultiMap(Function<V, K> keyExtractor) {
 		return new Collector<V, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override
@@ -817,6 +930,26 @@ public class MultiMaps {
 		};
 	}
 
+	/**
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
+	 * {@code V}, grouping elements according to a classification function, and returning the
+	 * results in a {@link MultiMap}, where the keys are extracted by the specified keyExtractor
+	 * function, and the values are the values of the stream mapped through the specified
+	 * valueExtractor function.
+	 * <p>
+	 * <p>The classification function maps elements to some key type {@code K}. The collector
+	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
+	 * classification function to the input elements, and whose corresponding values are the mapped
+	 * input elements which map to the associated key under the classification function.
+	 * <p>
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
+	 * {@code MultiMap} objects returned.
+	 *
+	 * @param <V> the type of the input elements
+	 * @param <K> the type of the keys
+	 * @param keyExtractor the classifier function mapping input elements to keys
+	 * @return a {@code Collector} implementing the group-by operation
+	 */
 	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor) {
 		return new Collector<E, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override

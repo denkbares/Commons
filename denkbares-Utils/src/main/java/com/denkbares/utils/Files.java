@@ -59,7 +59,7 @@ public class Files {
 	/**
 	 * Writes the given string content to a file with the given path.
 	 *
-	 * @param path    the path to the file to be written
+	 * @param path the path to the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
@@ -68,17 +68,20 @@ public class Files {
 	}
 
 	/**
-	 * Writes the given string content to the given file
+	 * Writes the given string content to the given file. Creates missing parent directories is
+	 * required.
 	 *
-	 * @param file    the file to be written
+	 * @param file the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
 	public static void writeFile(File file, String content) throws IOException {
-		Writer stream = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-		BufferedWriter out = new BufferedWriter(stream);
-		out.write(content);
-		out.close();
+		file.getParentFile().mkdirs();
+		try (Writer stream = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+			BufferedWriter out = new BufferedWriter(stream);
+			out.write(content);
+			out.close();
+		}
 	}
 
 	/**
@@ -86,7 +89,7 @@ public class Files {
 	 *
 	 * @param filePath the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException          if there was any problem reading the file
+	 * @throws IOException if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -99,7 +102,7 @@ public class Files {
 	 *
 	 * @param file the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException          if there was any problem reading the file
+	 * @throws IOException if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -271,8 +274,8 @@ public class Files {
 	 * overwritten, and succeeding ones (if there are any) will be deleted. If there is no such line
 	 * contained, the new property will be appended to the end of the file.
 	 *
-	 * @param file  the properties file to be updated
-	 * @param key   the key to be overwritten or added
+	 * @param file the properties file to be updated
+	 * @param key the key to be overwritten or added
 	 * @param value the (new) value for the key
 	 * @throws IOException if the properties file could not been read or written
 	 */
@@ -291,7 +294,7 @@ public class Files {
 	 * The method is also capable to delete entries, if the key occurs in the specified entries with
 	 * value null.
 	 *
-	 * @param file    the properties file to be updated
+	 * @param file the properties file to be updated
 	 * @param entries the keys to be overwritten with their (new) values
 	 * @throws IOException if the properties file could not been read or written
 	 */
@@ -429,7 +432,7 @@ public class Files {
 	 * are tested case insensitive. The specified extension must contain only the characters after
 	 * the separating ".", not the "." itself. The characters are compared case insensitive.
 	 *
-	 * @param fileName   the abstract path of the file to be tested
+	 * @param fileName the abstract path of the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
 	 */
@@ -452,11 +455,11 @@ public class Files {
 	 * are tested case insensitive. The specified extension must contain only the characters after
 	 * the separating ".", not the "." itself. The characters are compared case insensitive.
 	 *
-	 * @param file       the file to be tested
+	 * @param file the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
 	 * @throws NullPointerException if the array of extensions is null or if any of the contained
-	 *                              extension is null
+	 * extension is null
 	 */
 	public static boolean hasExtension(File file, String... extensions) {
 		return file != null && hasExtension(file.getName(), extensions);
@@ -494,7 +497,7 @@ public class Files {
 	 * Recursively gets all files matching the specified {@link FileFilter}. If no filter is
 	 * specified, all files recursively contained in the specified directory are returned.
 	 *
-	 * @param root   the root directory
+	 * @param root the root directory
 	 * @param filter filters the files
 	 * @return all files matching the specified filter in the specified directory (recursively)
 	 */

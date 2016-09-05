@@ -247,6 +247,56 @@ public class MultiMapsTest {
 	}
 
 	@Test
+	public void reversedMultiMap() {
+		DefaultMultiMap<String, String> normalMap = new DefaultMultiMap<>();
+		normalMap.put("hi", "ho");
+		normalMap.put("hi", "he");
+		normalMap.put("hey", "hu");
+		DefaultMultiMap<String, String> hidden = new DefaultMultiMap<>();
+		hidden.put("ho", "hi");
+		hidden.put("he", "hi");
+		MultiMap<String, String> reversed = MultiMaps.reversed(hidden);
+		reversed.put("hey", "hu");
+
+		// check if new entry is written through the reversed to the original map
+		assertEquals("hu", reversed.getAnyValue("hey"));
+		assertEquals("hey", reversed.getAnyKey("hu"));
+		assertEquals("hu", hidden.getAnyKey("hey"));
+		assertEquals("hey", hidden.getAnyValue("hu"));
+
+		assertEquals(normalMap.size(), reversed.size());
+		assertEquals(normalMap.isEmpty(), reversed.isEmpty());
+		assertEquals(normalMap.containsKey("hi"), reversed.containsKey("hi"));
+		assertEquals(normalMap.containsValue("ho"), reversed.containsValue("ho"));
+		assertEquals(normalMap.contains("hi", "ho"), reversed.contains("hi", "ho"));
+		assertEquals(normalMap.getValues("hi"), reversed.getValues("hi"));
+		assertEquals(normalMap.getKeys("ho"), reversed.getKeys("ho"));
+		assertEquals(normalMap.put("a", "b"), reversed.put("a", "b"));
+		assertEquals(normalMap.getValues("a"), reversed.getValues("a"));
+		assertEquals(normalMap.removeKey("a"), reversed.removeKey("a"));
+		assertEquals(normalMap.getValues("a"), reversed.getValues("a"));
+		assertEquals(normalMap.put("a", "b"), reversed.put("a", "b"));
+		assertEquals(normalMap.removeValue("b"), reversed.removeValue("b"));
+		assertEquals(normalMap.getValues("a"), reversed.getValues("a"));
+		assertEquals(normalMap.put("a", "b"), reversed.put("a", "b"));
+		assertEquals(normalMap.remove("a", "b"), reversed.remove("a", "b"));
+		assertEquals(normalMap.getValues("a"), reversed.getValues("a"));
+		assertEquals(normalMap.putAll(reversed), reversed.putAll(normalMap));
+		assertEquals(normalMap.getValues("hi"), reversed.getValues("hi"));
+		assertEquals(normalMap.keySet(), reversed.keySet());
+		assertEquals(normalMap.valueSet(), reversed.valueSet());
+		assertEquals(normalMap.entrySet(), reversed.entrySet());
+		assertEquals(normalMap.toMap(), reversed.toMap());
+
+
+		normalMap.clear();
+		reversed.clear();
+		assertEquals(normalMap.isEmpty(), reversed.isEmpty());
+		assertEquals(normalMap, reversed);
+		assertEquals(normalMap.isEmpty(), hidden.isEmpty());
+	}
+
+	@Test
 	public void emptyMultiMap() {
 		MultiMap<Object, Object> map = MultiMaps.emptyMultiMap();
 		assertEquals(0, map.size());
