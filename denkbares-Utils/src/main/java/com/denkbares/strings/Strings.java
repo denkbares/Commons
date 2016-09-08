@@ -100,7 +100,7 @@ public class Strings {
 	 * printed as {@link String#valueOf(Object)} would do.
 	 *
 	 * @param separator the separating text in between the concatenated strings
-	 * @param strings   the strings to be concatenated
+	 * @param strings the strings to be concatenated
 	 * @return the resulting concatenation
 	 */
 	public static String concat(String separator, Collection<?> strings) {
@@ -114,7 +114,7 @@ public class Strings {
 	 * printed as {@link String#valueOf(Object)} would do.
 	 *
 	 * @param separator the separating text in between the concatenated strings
-	 * @param strings   the strings to be concatenated
+	 * @param strings the strings to be concatenated
 	 * @return the resulting concatenation
 	 */
 	public static String concat(String separator, Object[] strings) {
@@ -135,7 +135,7 @@ public class Strings {
 	/**
 	 * Tests if the specified text string ends with the specified prefix.
 	 *
-	 * @param text   the text string to be checked
+	 * @param text the text string to be checked
 	 * @param suffix the suffix to be looked for
 	 * @return <code>true</code> if the character sequence represented by the argument is a suffix
 	 * of the character sequence represented by the specified text string; <code>false</code>
@@ -164,10 +164,10 @@ public class Strings {
 	 * corresponding closing bracket/symbol -1 is returned. If there is no open bracket at the
 	 * specified position -1 is also returned.
 	 *
-	 * @param text             the text to be searched
+	 * @param text the text to be searched
 	 * @param openBracketIndex the index of zje bracket
-	 * @param open             the open bracket character
-	 * @param close            the closing bracket character
+	 * @param open the open bracket character
+	 * @param close the closing bracket character
 	 * @return the index of the corresponding closing bracket character
 	 */
 	public static int indexOfClosingBracket(String text, int openBracketIndex, char open, char close) {
@@ -205,10 +205,10 @@ public class Strings {
 	 * (opening bracket 'open' and closing bracket 'close') Here the kind of bracket can be passed
 	 * as char, however it will also work with char that are not brackets.. ;-)
 	 *
-	 * @param text   the text to be searched
+	 * @param text the text to be searched
 	 * @param symbol the symbol to be matched
-	 * @param open   the opening bracket character
-	 * @param close  the closing bracket character
+	 * @param open the opening bracket character
+	 * @param close the closing bracket character
 	 * @return the index of the first un-embraced character
 	 */
 	public static List<Integer> indicesOfUnbraced(String text, String symbol, char open, char close) {
@@ -283,7 +283,7 @@ public class Strings {
 	 * Returns true if one of the given strings is contained in the given text. The case of the text
 	 * and the strings are ignored. If text is null it is treated as an empty string.
 	 *
-	 * @param text    the text to search in
+	 * @param text the text to search in
 	 * @param strings the strings to be searched
 	 * @return weather there is an occurrence of any of the strings in the text
 	 */
@@ -296,7 +296,7 @@ public class Strings {
 	 * case of the text and the strings are ignored. If text is null it is treated as an empty
 	 * string.
 	 *
-	 * @param text    the text to search in
+	 * @param text the text to search in
 	 * @param strings the strings to be searched
 	 * @return the index of the first occurrence of the strings
 	 */
@@ -308,7 +308,7 @@ public class Strings {
 	 * Finds the index of the first occurrence of one of the given strings in the given text.
 	 * Occurrences between quotes are ignored. If text is null it is treated as an empty string.
 	 *
-	 * @param text    the text to search in
+	 * @param text the text to search in
 	 * @param strings the strings to be searched
 	 * @return the index of the first unquoted occurrence of the strings
 	 */
@@ -320,7 +320,7 @@ public class Strings {
 	 * Finds the index of the first occurrence of one of the given strings in the given text. If
 	 * text is null it is treated as an empty string.
 	 *
-	 * @param text    the text where we search for the strings
+	 * @param text the text where we search for the strings
 	 * @param strings the strings for which you want the index in the text
 	 * @return the first index of any of the strings in the text or -1 if none of the strings is
 	 * found
@@ -333,8 +333,8 @@ public class Strings {
 	 * Finds the index of the first occurrence of one of the given strings in the given text. Use
 	 * the flags for more options. If text is null it is treated as an empty string.
 	 *
-	 * @param text    the text where we search for the strings
-	 * @param flags   the settings flags to influence the behavior of the method
+	 * @param text the text where we search for the strings
+	 * @param flags the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
 	 * @return the first index of any of the strings in the text or -1 if none of the strings is
 	 * found
@@ -386,10 +386,10 @@ public class Strings {
 	 * the given offset. Use the flags for more options. If text is null it is treated as an empty
 	 * string.
 	 *
-	 * @param text    the text where we search for the strings
-	 * @param offset  the offset from where we start to look for the strings (flags like UNQUOTED or
-	 *                FIRST_IN_LINE also consider the text before the offset!)
-	 * @param flags   the settings flags to influence the behavior of the method
+	 * @param text the text where we search for the strings
+	 * @param offset the offset from where we start to look for the strings (flags like UNQUOTED or
+	 * FIRST_IN_LINE also consider the text before the offset!)
+	 * @param flags the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
 	 * @return the first index of any of the strings in the text or -1 if none of the strings is
 	 * found
@@ -520,7 +520,7 @@ public class Strings {
 	 * If a index is given which does not fit inside the given text, an {@link
 	 * IllegalArgumentException} is thrown.
 	 *
-	 * @param text  the text which may contain quotes
+	 * @param text the text which may contain quotes
 	 * @param index the index or position in the text which will be check if it is in quotes or not
 	 */
 	public static boolean isQuoted(String text, int index) {
@@ -621,7 +621,7 @@ public class Strings {
 	 * Scans the 'text' for the last occurrence of any of the strings, which are not embraced in
 	 * quotes ('"') and returns the start index of the strings.
 	 *
-	 * @param text    the text to be searched
+	 * @param text the text to be searched
 	 * @param strings the strings to be matched
 	 * @return the last start index of the strings in unquoted text
 	 */
@@ -633,8 +633,8 @@ public class Strings {
 	 * Finds the index of the last occurrence of any of the given strings in the given text. Use the
 	 * flags for more settings.
 	 *
-	 * @param text    the text where we search for the strings
-	 * @param flags   the settings flags to influence the behavior of the method
+	 * @param text the text where we search for the strings
+	 * @param flags the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
 	 * @return the last index of any of the strings in the text or -1 if none of the strings is
 	 * found
@@ -689,7 +689,7 @@ public class Strings {
 	/**
 	 * Splits the text by the <tt>splitSymbol</tt> disregarding splitSymbols which are quoted.
 	 *
-	 * @param text        the text to be split
+	 * @param text the text to be split
 	 * @param splitSymbol the regex to split by
 	 * @return the fragments of the text
 	 */
@@ -700,7 +700,7 @@ public class Strings {
 	/**
 	 * Splits the text by the <tt>splitRegex</tt> disregarding splitSymbols which are quoted.
 	 *
-	 * @param text         the text to be split
+	 * @param text the text to be split
 	 * @param splitPattern the regex to split by
 	 * @return the fragments of the text
 	 */
@@ -864,7 +864,7 @@ public class Strings {
 	/**
 	 * Tests if the specified text string starts with the specified prefix.
 	 *
-	 * @param text   the text string to be checked
+	 * @param text the text string to be checked
 	 * @param prefix the prefix to be looked for
 	 * @return <code>true</code> if the character sequence represented by the argument is a prefix
 	 * of the character sequence represented by the specified text string; <code>false</code>
@@ -1025,7 +1025,8 @@ public class Strings {
 
 	/**
 	 * Removes all blank lines before or after the specified string. All lines containing
-	 * non-whitespace characters remain unchanged, except the last line, where the trailing line break is also removed.
+	 * non-whitespace characters remain unchanged, except the last line, where the trailing line
+	 * break is also removed.
 	 *
 	 * @param text the text to trim the empty lines from
 	 * @return the trimmed text
@@ -1157,10 +1158,11 @@ public class Strings {
 	 * Quotes the given String with a given quote char. If the String contains the quote char, it
 	 * will be escaped with the escape char \. Don't use \ as the quote char for this reason.
 	 *
-	 * @param text      the string to be quoted
+	 * @param text the string to be quoted
 	 * @param quoteChar the char used to quote
 	 */
 	public static String quote(String text, char quoteChar) {
+		if (text == null) return null;
 		StringBuilder builder = new StringBuilder((text.length()) + 5);
 		builder.append(quoteChar);
 		for (int i = 0; i < text.length(); i++) {
@@ -1189,7 +1191,7 @@ public class Strings {
 	 * Unquotes the given String from the given quote char. If the String contains an escaped quote
 	 * char (escaped with \), it will be unescaped.
 	 *
-	 * @param text      the text to be unquoted
+	 * @param text the text to be unquoted
 	 * @param quoteChar the char the string was quoted with
 	 */
 	public static String unquote(String text, char quoteChar) {
@@ -1701,8 +1703,9 @@ public class Strings {
 	}
 
 	/**
-	 * Capitalizes the given string, meaning the first character will be upper case, all following are lower case. If
-	 * there are multiple words, still only the first character of the string will be capitalized!
+	 * Capitalizes the given string, meaning the first character will be upper case, all following
+	 * are lower case. If there are multiple words, still only the first character of the string
+	 * will be capitalized!
 	 *
 	 * @param text the text to capitalize (make the first char upper case, rest lower case)
 	 * @return the capitalized version of the text
@@ -1735,7 +1738,7 @@ public class Strings {
 	 * {@link URLEncoder#encode(String, String)}. The encoding can be specified by this function. In
 	 * most cases UTF-8 encoding works best, see method {@link #decodeURL(String)} for this.
 	 *
-	 * @param text     the text to be encoded
+	 * @param text the text to be encoded
 	 * @param encoding the encoding to be used for decode
 	 * @return the encoded string
 	 * @created 03.05.2012
@@ -1773,7 +1776,7 @@ public class Strings {
 	 *
 	 * @param filePath the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException          if there was any problem reading the file
+	 * @throws IOException if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -1786,7 +1789,7 @@ public class Strings {
 	 *
 	 * @param file the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException          if there was any problem reading the file
+	 * @throws IOException if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -1797,7 +1800,7 @@ public class Strings {
 	/**
 	 * Writes the given string content to a file with the given path.
 	 *
-	 * @param path    the path to the file to be written
+	 * @param path the path to the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
@@ -1808,7 +1811,7 @@ public class Strings {
 	/**
 	 * Writes the given string content to the given file
 	 *
-	 * @param file    the file to be written
+	 * @param file the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
@@ -1855,7 +1858,7 @@ public class Strings {
 	 *
 	 * @param percentage string contains a floating point number or a percentage string
 	 * @return the value of the floating point number, including % interpretation
-	 * @throws NumberFormatException          if it is not a valid number format
+	 * @throws NumberFormatException if it is not a valid number format
 	 * @throws java.lang.NullPointerException if the specified argument is null
 	 * @see Double#parseDouble(String)
 	 */
@@ -1875,7 +1878,7 @@ public class Strings {
 	 * matched to a enum constant of the specified enum type, null is returned. This method never
 	 * throws an exception.
 	 *
-	 * @param name     the name of the enum constant
+	 * @param name the name of the enum constant
 	 * @param enumType the type of the enum
 	 * @return the enum constant found case insensitive
 	 * @created 26.01.2014
@@ -1894,9 +1897,9 @@ public class Strings {
 	 * Please not that null as a default value is not allowed. In this case use the method {@link
 	 * #parseEnum(String, Class)}, because this method is not capable to handle null.
 	 *
-	 * @param name         the name of the enum constant
+	 * @param name the name of the enum constant
 	 * @param defaultValue the default enum constant to be used if the name does not match a
-	 *                     specific enum constant
+	 * specific enum constant
 	 * @return the enum constant found case insensitive
 	 * @throws NullPointerException if the default value is null
 	 * @created 26.01.2014
@@ -1948,7 +1951,7 @@ public class Strings {
 	 * backslash.
 	 *
 	 * @param text the text to be checked
-	 * @param end  the expected end character
+	 * @param end the expected end character
 	 * @return if the expected end character is there and is being escaped
 	 * @created 02.12.2013
 	 */
@@ -1992,14 +1995,14 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the ordinal or nth index of the given string in the given text. Note that the first occurrence is found by
-	 * n = 0. Second occurrence by n = 1 and so on.
+	 * Finds the ordinal or nth index of the given string in the given text. Note that the first
+	 * occurrence is found by n = 0. Second occurrence by n = 1 and so on.
 	 * <p>
 	 * Implementation from user <i>aioobe</i> from <a href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
 	 *
-	 * @param text   the text in which to find the index of the given string
+	 * @param text the text in which to find the index of the given string
 	 * @param string the string to find in the given text
-	 * @param n      the ordinal of the occurrence to find
+	 * @param n the ordinal of the occurrence to find
 	 * @return the index of the nth occurrence of the given string in the given text
 	 */
 	public static int ordinalIndexOf(String text, String string, int n) {
@@ -2054,9 +2057,8 @@ public class Strings {
 	 * Un-serializes a date string created by {@link #writeDate(Date)}.
 	 *
 	 * @param compatibilityFormat allows to provide an additional format which will be applied, if
-	 *                            the default one fails. This allows to support persistence files that were written
-	 *                            before the
-	 *                            date verbalization was standardized.
+	 * the default one fails. This allows to support persistence files that were written before the
+	 * date verbalization was standardized.
 	 */
 	public static Date readDate(String dateString, SimpleDateFormat compatibilityFormat) throws ParseException {
 		try {
