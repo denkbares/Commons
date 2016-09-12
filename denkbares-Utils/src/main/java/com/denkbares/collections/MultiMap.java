@@ -516,4 +516,17 @@ public interface MultiMap<K, V> {
 	 * @created 09.01.2014
 	 */
 	Map<K, Set<V>> toMap();
+
+	/**
+	 * Returns a multi map that has the keys and values switched/exchanged. Exactly for each
+	 * key-&gt;value relation of this map there is a value-&gt;key relation in the returned
+	 * one.
+	 * <p>
+	 * All changes made to the returned map are mapped into this map, and vice versa.
+	 *
+	 * @return the reversed map where keys and values are exchanged
+	 */
+	default MultiMap<V, K> reversed() {
+		return MultiMaps.reversed(this);
+	}
 }
