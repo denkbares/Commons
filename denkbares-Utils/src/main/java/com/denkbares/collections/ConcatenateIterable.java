@@ -54,4 +54,18 @@ public class ConcatenateIterable<T> implements Iterable<T> {
 		//noinspection unchecked
 		return ConcatenateIterator.concat(iterators);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("[");
+		Iterator<T> iterator = iterator();
+		while (iterator.hasNext()) {
+			builder.append(iterator.next());
+			if (iterator.hasNext()) {
+				builder.append(", ");
+			}
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 }
