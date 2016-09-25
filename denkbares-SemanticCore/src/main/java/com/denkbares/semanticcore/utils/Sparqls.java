@@ -21,12 +21,18 @@ package com.denkbares.semanticcore.utils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.function.Function;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
+import org.openrdf.query.QueryEvaluationException;
 
+import com.denkbares.collections.DefaultMultiMap;
+import com.denkbares.collections.MultiMap;
+import com.denkbares.semanticcore.ClosableTupleQueryResult;
+import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Log;
 
@@ -41,15 +47,22 @@ public class Sparqls {
 	 * text. If no language is specified, the root language is returned. If the column does not
 	 * exists or no value is available, null is returned.
 	 *
-	 * @param bindings   the bindings of the sparql result row
+	 * @param bindings the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the text or null
 	 */
 	public static Text asText(BindingSet bindings, String columnName) {
-		// be careful to get the string/language, because it is not sure that the items exists
-		// Note: it would be easier and faster to simply do all calls directly and catch the
-		// NullPointerException, but this is a mess when debugging for other NullPointerExceptions
-		Binding binding = bindings.getBinding(columnName);
+		return asText(bindings.getBinding(columnName));
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a language-tagged text. If no language is
+	 * specified, the root language is returned. If the binding is null, null is returned.
+	 *
+	 * @param binding the binding of the sparql result row
+	 * @return the text or null
+	 */
+	private static Text asText(Binding binding) {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		return Text.create(value);
@@ -59,15 +72,22 @@ public class Sparqls {
 	 * Reads a value from a binding set of a sparql result row and returns it as a plain string. If
 	 * the column does not exists or no value is available, null is returned.
 	 *
-	 * @param bindings   the bindings of the sparql result row
+	 * @param bindings the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the plain string or null
 	 */
 	public static String asString(BindingSet bindings, String columnName) {
-		// be careful to get the uri, because it is not sure that the items exists
-		// Note: it would be easier and faster to simply do all calls directly and catch the
-		// NullPointerException, but this is a mess when debugging for other NullPointerExceptions
-		Binding binding = bindings.getBinding(columnName);
+		return asString(bindings.getBinding(columnName));
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a plain string. If
+	 * the binding is null, null is returned.
+	 *
+	 * @param binding the binding of the sparql result row
+	 * @return the plain string or null
+	 */
+	private static String asString(Binding binding) {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		if (value == null) return null;
@@ -79,15 +99,23 @@ public class Sparqls {
 	 * the column does not exists or no value is available, null is returned. If there is a value,
 	 * but it cannot be parsed as a number null is returned.
 	 *
-	 * @param bindings   the bindings of the sparql result row
+	 * @param bindings the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the number value or null
 	 */
 	public static Float asFloat(BindingSet bindings, String columnName) {
-		// be careful to get the uri, because it is not sure that the items exists
-		// Note: it would be easier and faster to simply do all calls directly and catch the
-		// NullPointerException, but this is a mess when debugging for other NullPointerExceptions
-		Binding binding = bindings.getBinding(columnName);
+		return asFloat(bindings.getBinding(columnName));
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a float number. If
+	 * the binding is null, null is returned. If there is a value,
+	 * but it cannot be parsed as a number null is returned.
+	 *
+	 * @param binding the bindings of the sparql result row
+	 * @return the number value or null
+	 */
+	private static Float asFloat(Binding binding) {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		if (value == null) return null;
@@ -113,8 +141,8 @@ public class Sparqls {
 	 * If there is a value, but it cannot be parsed as a number the specified default value is
 	 * returned.
 	 *
-	 * @param bindings     the bindings of the sparql result row
-	 * @param columnName   the column name to read from
+	 * @param bindings the bindings of the sparql result row
+	 * @param columnName the column name to read from
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -124,19 +152,43 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a integer number.
+	 * Reads a value from a binding returns it as a float number. If
+	 * the binding is null, the specified default value is returned.
+	 * If there is a value, but it cannot be parsed as a number the specified default value is
+	 * returned.
+	 *
+	 * @param binding the binding of the sparql result row
+	 * @param defaultValue the default value
+	 * @return the number value or null
+	 */
+	public static float asFloat(Binding binding, float defaultValue) {
+		Float result = asFloat(binding);
+		return (result == null) ? defaultValue : result;
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as an integer number.
 	 * If the column does not exists or no value is available, null is returned. If there is a
 	 * value, but it cannot be parsed as a number null is returned.
 	 *
-	 * @param bindings   the bindings of the sparql result row
+	 * @param bindings the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the number value or null
 	 */
 	public static Integer asInteger(BindingSet bindings, String columnName) {
-		// be careful to get the uri, because it is not sure that the items exists
-		// Note: it would be easier and faster to simply do all calls directly and catch the
-		// NullPointerException, but this is a mess when debugging for other NullPointerExceptions
 		Binding binding = bindings.getBinding(columnName);
+		return asInteger(binding);
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as an integer number. If
+	 * the binding is null, null is returned. If there is a value,
+	 * but it cannot be parsed as a number null is returned.
+	 *
+	 * @param binding the bindings of the sparql result row
+	 * @return the number value or null
+	 */
+	private static Integer asInteger(Binding binding) {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		if (value == null) return null;
@@ -162,8 +214,8 @@ public class Sparqls {
 	 * returned. If there is a value, but it cannot be parsed as a number the specified default
 	 * value is returned.
 	 *
-	 * @param bindings     the bindings of the sparql result row
-	 * @param columnName   the column name to read from
+	 * @param bindings the bindings of the sparql result row
+	 * @param columnName the column name to read from
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -173,16 +225,46 @@ public class Sparqls {
 	}
 
 	/**
+	 * Reads a value from a binding returns it as an integer number. If
+	 * the binding is null, the specified default value is returned.
+	 * If there is a value, but it cannot be parsed as a number the specified default value is
+	 * returned.
+	 *
+	 * @param binding the binding of the sparql result row
+	 * @param defaultValue the default value
+	 * @return the number value or null
+	 */
+	public static int asInteger(Binding binding, int defaultValue) {
+		Integer result = asInteger(binding);
+		return (result == null) ? defaultValue : result;
+	}
+
+	/**
 	 * Reads a value from a binding set of a sparql result row and returns it as a uri. If the
 	 * column does not exists or no value is available, null is returned. If there is a value, but
 	 * it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
 	 *
-	 * @param bindings   the bindings of the sparql result row
+	 * @param bindings the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the uri value or null
 	 */
 	public static URI asURI(BindingSet bindings, String columnName) {
-		String string = asString(bindings, columnName);
+		return toURI(asString(bindings, columnName));
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a uri. If the
+	 * binding is null, null is returned. If there is a value, but
+	 * it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
+	 *
+	 * @param binding the binding of the sparql result row
+	 * @return the uri value or null
+	 */
+	public static URI asURI(Binding binding) {
+		return toURI(asString(binding));
+	}
+
+	private static URI toURI(String string) {
 		if (string == null) return null;
 
 		// try to create uri directly
@@ -199,5 +281,51 @@ public class Sparqls {
 		catch (URISyntaxException e) {
 			throw new IllegalStateException("unexpected internal error, must not happen", e);
 		}
+	}
+
+	/**
+	 * Iterates the complete query result and collects the bindings as a multi-map. The result ist
+	 * not (!) automatically closed.
+	 *
+	 * @param queryResult the query result to be iterated
+	 * @param keyExtractor the function to extract the keys
+	 * @param valueExtractor the function to extract the values
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 * @return a multi-map of the key-value-pairs
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, Function<BindingSet, K> keyExtractor, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
+		MultiMap<K, V> map = new DefaultMultiMap<>();
+		ClosableTupleQueryResult iterator = queryResult.getResult();
+		while (iterator.hasNext()) {
+			BindingSet bindingSet = iterator.next();
+			K key = keyExtractor.apply(bindingSet);
+			V value = valueExtractor.apply(bindingSet);
+			map.put(key, value);
+		}
+		return map;
+	}
+
+	/**
+	 * Iterates the complete query result and collects the bindings as a multi-map. The result ist
+	 * not (!) automatically closed.
+	 *
+	 * @param queryResult the query result to be iterated
+	 * @param keyName the name of the binding to be used for the keys (sparql variable name without
+	 * the leading "?")
+	 * @param keyExtractor the function to convert the key bindings into a keys
+	 * @param valueName the name of the binding to be used for the values (sparql variable name
+	 * without the leading "?")
+	 * @param valueExtractor the function to convert the value bindings into a values
+	 * @param <K> the key type
+	 * @param <V> the value type
+	 * @return a multi-map of the key-value-pairs
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, String keyName, Function<Binding, K> keyExtractor, String valueName, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
+		return toMultiMap(queryResult,
+				b -> keyExtractor.apply(b.getBinding(keyName)),
+				b -> valueExtractor.apply(b.getBinding(valueName)));
 	}
 }
