@@ -20,6 +20,7 @@
 package com.denkbares.semanticcore.utils;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
@@ -63,5 +64,19 @@ public class Text {
 
 	public Locale getLanguage() {
 		return language;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Text)) return false;
+		Text text = (Text) o;
+		return Objects.equals(string, text.string) &&
+				Objects.equals(language, text.language);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(string, language);
 	}
 }

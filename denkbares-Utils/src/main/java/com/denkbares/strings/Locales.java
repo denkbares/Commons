@@ -98,7 +98,7 @@ public class Locales {
 		if (available == null || available.isEmpty()) return null;
 
 		Locale defaultLocale = available.iterator().next();
-		return (preferred != null)
+		return ((preferred != null) && (available.size() > 1))
 				? findBestLocale(preferred, available, 1, defaultLocale)
 				: defaultLocale;
 	}
@@ -165,6 +165,7 @@ public class Locales {
 	public static Locale findBestLocale(List<Locale> preferenceList, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
+		if (available.size() == 1) return available.iterator().next();
 
 		// search for first locale that has a language match
 		// and use the best match for that locale
