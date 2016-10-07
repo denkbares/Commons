@@ -93,11 +93,6 @@ public class Instantiation {
 	 *
 	 * @param constructorCall A constructor call that may contain primitive arguments.
 	 * @return the created instance
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchMethodException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws InvocationTargetException
 	 * @throws FormatException if the constructor syntax of the specified constructorCall is not
 	 * correct
 	 * @throws IllegalArgumentException if the parameters of the constructor call does not match the
@@ -116,7 +111,7 @@ public class Instantiation {
 		List<String> parameters = splitParameterList(matcher.group(2));
 
 		// create a subset of constructors with the expected number of arguments
-		List<Constructor> constructors = Arrays.asList(clazz.getConstructors()).stream()
+		List<Constructor> constructors = Arrays.stream(clazz.getConstructors())
 				.filter(c -> c.getParameterCount() == parameters.size())
 				.collect(Collectors.toCollection(LinkedList::new)); // grants mutability
 
@@ -238,7 +233,7 @@ public class Instantiation {
 			// carefully load class, because if no such class exists,
 			// we can still use it as a constructor call later on
 			Class<?> enclosingClass = classLoader.loadClass(className);
-			List<Method> methods = Arrays.asList(enclosingClass.getMethods()).stream()
+			List<Method> methods = Arrays.stream(enclosingClass.getMethods())
 					.filter(m -> Strings.equals(methodName, m.getName()))
 					.filter(m -> Modifier.isStatic(m.getModifiers()))
 					.collect(Collectors.toList());
