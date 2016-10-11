@@ -60,6 +60,35 @@ public class NumberAwareComparatorTest {
 	}
 
 	@Test
+	public void versionNumbers() throws Exception {
+		assertTrue(CASE_INSENSITIVE.compare("1.0.1", "1.0.1") == 0);
+		assertTrue(CASE_INSENSITIVE.compare("1.0.2", "1.0.1") > 0);
+		assertTrue(CASE_INSENSITIVE.compare("1.0.1", "1.0.2") < 0);
+
+		assertTrue(CASE_INSENSITIVE.compare("1.1.1", "1.0.1") > 0);
+		assertTrue(CASE_INSENSITIVE.compare("1.0.1", "1.1.1") < 0);
+
+		assertTrue(CASE_INSENSITIVE.compare("1.10.1", "1.2.1") > 0);
+		assertTrue(CASE_INSENSITIVE.compare("1.2.1", "1.10.1") < 0);
+
+		assertTrue(CASE_INSENSITIVE.compare("2.10", "2.10.1") < 0);
+		assertTrue(CASE_INSENSITIVE.compare("2.10.1", "2.10") > 0);
+
+		assertTrue(CASE_SENSITIVE.compare("1.0.1", "1.0.1") == 0);
+		assertTrue(CASE_SENSITIVE.compare("1.0.2", "1.0.1") > 0);
+		assertTrue(CASE_SENSITIVE.compare("1.0.1", "1.0.2") < 0);
+
+		assertTrue(CASE_SENSITIVE.compare("1.1.1", "1.0.1") > 0);
+		assertTrue(CASE_SENSITIVE.compare("1.0.1", "1.1.1") < 0);
+
+		assertTrue(CASE_SENSITIVE.compare("1.10.1", "1.2.1") > 0);
+		assertTrue(CASE_SENSITIVE.compare("1.2.1", "1.10.1") < 0);
+
+		assertTrue(CASE_SENSITIVE.compare("2.10", "2.10.1") < 0);
+		assertTrue(CASE_SENSITIVE.compare("2.10.1", "2.10") > 0);
+	}
+
+	@Test
 	public void mixed() {
 		assertTrue(CASE_INSENSITIVE.compare("file10", "file2") > 0);
 		assertTrue(CASE_INSENSITIVE.compare("file10", "file2x") > 0);
