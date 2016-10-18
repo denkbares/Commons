@@ -74,7 +74,7 @@ public final class SemanticCore {
 	private final ConcurrentHashMap<ConnectionInfo, Object> connections = new ConcurrentHashMap<>();
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
 	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
-		Thread thread = new Thread();
+		Thread thread = new Thread("SemanticCore-Connection-Daemon");
 		thread.setDaemon(true);
 		return thread;
 	});
