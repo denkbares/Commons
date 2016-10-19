@@ -29,7 +29,16 @@
 					<groupId>org.openrdf.sesame</groupId>
 					<artifactId>sesame-sail-lucene4</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>io.dropwizard.metrics</groupId>
+					<artifactId>metrics-core</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>3.1.2-java7</version>
 		</dependency>
 	</dependencies>
 
