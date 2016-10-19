@@ -10,6 +10,7 @@ import java.util.Map;
 
 import ch.qos.logback.classic.Level;
 import com.ontotext.trree.config.OWLIMSailSchema;
+import com.ontotext.trree.statistics.StatisticsSettings;
 import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -55,17 +56,26 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	}
 
 	public GraphDBConfig(String ruleSet, String configFile) {
+		// we deactivate statistics, because it can cause memory leaks on web app redeploy.
+		StatisticsSettings.getInstance().setStatisticsEnabled(false);
+
 		// fix to avoid weird exception log with graphdb-free-runtime 7.0.3
 		// ERROR com.ontotext.GraphDBConfigParameters - Exception when trying to find the plugins/ folder
 		// com.ontotext.graphdb.ConfigException: graphdb.dist must be set to the GraphDB distribution directory...
-		try {
-			File tempDir = Files.createTempDir();
-			tempDir.delete();
-			tempDir.deleteOnExit();
-			System.setProperty("graphdb.dist", tempDir.getAbsolutePath());
-		}
-		catch (IOException e) {
-			Log.warning("Exception while creating workaround graphdb dist folder.");
+		if (System.getProperty("graphdb.dist") == null) {
+			try {
+				// try static, unchanging directory first
+				File tempDir = new File(Files.getSystemTempDir(), "graphdb-dist-mock-dir");
+				tempDir.mkdirs();
+				if (!tempDir.isDirectory() || !tempDir.canRead()) {
+					tempDir = Files.createTempDir();
+					tempDir.deleteOnExit();
+				}
+				System.setProperty("graphdb.dist", tempDir.getAbsolutePath());
+			}
+			catch (IOException e) {
+				Log.warning("Exception while creating workaround graphdb dist folder.");
+			}
 		}
 
 		// Configure logging
