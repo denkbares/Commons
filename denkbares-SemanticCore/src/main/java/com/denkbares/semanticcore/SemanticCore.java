@@ -48,9 +48,9 @@ import org.openrdf.rio.Rio;
 
 import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
-import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.plugin.Extension;
 import com.denkbares.plugin.PluginManager;
+import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
@@ -145,11 +145,6 @@ public final class SemanticCore {
 			throw new IOException("Unable to lock file " + tempDirCandidate);
 		}
 		return fileLock;
-	}
-
-	public static void shutDownAllRepositories() {
-		// create new list to avoid concurrent modification exception
-		new ArrayList<>(instances.values()).forEach(com.denkbares.semanticcore.SemanticCore::shutdown);
 	}
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
@@ -305,6 +300,12 @@ public final class SemanticCore {
 		if (allocationCounter.get() <= 0) shutdown();
 	}
 
+
+	public static void shutDownAllRepositories() {
+		// create new list to avoid concurrent modification exception
+		new ArrayList<>(instances.values()).forEach(com.denkbares.semanticcore.SemanticCore::shutdown);
+	}
+
 	private static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
 		if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
 		initializeRepositoryManager(repositoryPath);
@@ -325,6 +326,27 @@ public final class SemanticCore {
 		catch (RepositoryException e) {
 			throw new IOException("Cannot initialize repository", e);
 		}
+	}
+
+	public static void shutDownRepositoryManager() {
+		Log.info("Shutting down repository manager.");
+		// shut down any remaining repositories
+		try {
+			repositoryManager.getRepositoryIDs().forEach(id -> {
+				try {
+					repositoryManager.getRepository(id).shutDown();
+					Log.info("Repository " + id + " shut down successful.");
+				}
+				catch (RepositoryException |RepositoryConfigException e) {
+					Log.severe("Unable to shut down repository " + id, e);
+				}
+			});
+		}
+		catch (RepositoryException e) {
+			Log.severe("Unable to retrieve repositories during manager shutdown", e);
+		}
+		repositoryManager.shutDown();
+		lazyInitializationDone = false;
 	}
 
 	public ValueFactory getValueFactory() {
@@ -435,9 +457,6 @@ public final class SemanticCore {
 	 * @param sparqlFile   Input File
 	 * @param replacements String arrays of replacements to run on the query
 	 * @return A {@see TupleQueryResult}
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws QueryEvaluationException
 	 */
 	public TupleQueryResult query(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		String queryString = SPARQLLoader.load(sparqlFile, getClass());
@@ -454,9 +473,6 @@ public final class SemanticCore {
 	 *
 	 * @param queryString SPARQL query
 	 * @return A {@see TupleQueryResult}
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws QueryEvaluationException
 	 */
 	public TupleQueryResult query(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		RepositoryConnection connection = getConnection();
@@ -470,9 +486,6 @@ public final class SemanticCore {
 	 * @param sparqlFile   Input File
 	 * @param replacements String arrays of replacements to run on the query
 	 * @return Result of the ASK query
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws QueryEvaluationException
 	 */
 	public boolean ask(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		String queryString = SPARQLLoader.load(sparqlFile, getClass());
@@ -487,9 +500,6 @@ public final class SemanticCore {
 	 *
 	 * @param queryString SPARQL query
 	 * @return Result of the ASK query
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws QueryEvaluationException
 	 */
 	public boolean ask(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		try (RepositoryConnection connection = getConnection()) {
@@ -503,10 +513,6 @@ public final class SemanticCore {
 	 *
 	 * @param sparqlFile   Input File
 	 * @param replacements String arrays of replacements to run on the query
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws QueryEvaluationException
-	 * @throws UpdateExecutionException
 	 * @created 09.01.2015
 	 */
 	public void update(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UpdateExecutionException {
@@ -524,9 +530,6 @@ public final class SemanticCore {
 	 * deletes statements!
 	 *
 	 * @param queryString the query to update the contents
-	 * @throws RepositoryException
-	 * @throws MalformedQueryException
-	 * @throws UpdateExecutionException
 	 * @created 09.01.2015
 	 */
 	public void update(String queryString) throws RepositoryException, MalformedQueryException, UpdateExecutionException {
