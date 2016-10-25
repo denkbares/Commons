@@ -100,9 +100,19 @@ public interface Extension {
 	 * The ID of the ExtensionPoint extended by this extension can be accessed
 	 * by this method
 	 * 
+	 * @deprecated because of typo, use {@link #getExtendedPointID()} instead
 	 * @return ID of the ExtensionPoint
 	 */
+	@Deprecated
 	String getExtendetPointID();
+
+	/**
+	 * The ID of the ExtensionPoint extended by this extension can be accessed
+	 * by this method
+	 *
+	 * @return ID of the ExtensionPoint
+	 */
+	String getExtendedPointID();
 
 	/**
 	 * The ID of the Plugin, containing the ExtensionPoint this extension
@@ -113,11 +123,9 @@ public interface Extension {
 	String getExtendedPluginID();
 
 	/**
-	 * TODO: remove
-	 * 
-	 * @created 20.05.2011
-	 * @return
+	 * @deprecated because of renaming, use {@link #getExtendedPluginID()}
 	 */
+	@Deprecated
 	String getPluginID();
 
 	/**

@@ -171,6 +171,11 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 
 	@Override
 	public String getExtendetPointID() {
+		return getExtendedPointID();
+	}
+
+	@Override
+	public String getExtendedPointID() {
 		return extension.getExtendedPointId();
 	}
 
