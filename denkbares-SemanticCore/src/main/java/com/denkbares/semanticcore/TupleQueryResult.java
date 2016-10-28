@@ -27,7 +27,6 @@ import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sparql.query.SPARQLQueryBindingSet;
 
 import com.denkbares.utils.Log;
 
@@ -56,7 +55,6 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	 * results are retrieved beforehand), but is the easier to user (no exceptions, some additional methods...)
 	 *
 	 * @return a cached version of this result
-	 * @throws QueryEvaluationException
 	 */
 	@Override
 	public CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException {
@@ -70,7 +68,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 				while (!Thread.currentThread().isInterrupted() && hasNext()) {
 					// we create a new binding set to make sure it doesn't hold
 					// any references to the connection or repository
-					bindingSets.add(new SPARQLQueryBindingSet(next()));
+					bindingSets.add(new CachedBindingSet(next()));
 				}
 				if (Thread.currentThread().isInterrupted()) {
 					Log.info("SPARQL query caching interrupted, closing...");
