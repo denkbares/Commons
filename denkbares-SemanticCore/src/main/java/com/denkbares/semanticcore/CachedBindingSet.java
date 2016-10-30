@@ -41,8 +41,12 @@ public class CachedBindingSet extends AbstractBindingSet {
 	 */
 	private Value convertValue(Value value) {
 		if (value instanceof URI) {
-			if (value instanceof URIImpl) return value;
-			else return new URIImpl(value.stringValue());
+			if (value instanceof URIImpl) {
+				return value;
+			}
+			else {
+				return new URIImpl(value.stringValue());
+			}
 		}
 		else if (value instanceof Literal) {
 			if (value instanceof LiteralImpl) {
@@ -52,14 +56,18 @@ public class CachedBindingSet extends AbstractBindingSet {
 				Literal literal = (Literal) value;
 				CachedLiteralImpl cachedLiteral = new CachedLiteralImpl();
 				cachedLiteral.setLabel(literal.getLabel());
-				cachedLiteral.setLanguage(literal.getLanguage());
 				cachedLiteral.setDatatype(literal.getDatatype());
+				cachedLiteral.setLanguage(literal.getLanguage());
 				return cachedLiteral;
 			}
 		}
 		else if (value instanceof BNode) {
-			if (value instanceof BNodeImpl) return value;
-			else return new BNodeImpl(((BNode) value).getID());
+			if (value instanceof BNodeImpl) {
+				return value;
+			}
+			else {
+				return new BNodeImpl(((BNode) value).getID());
+			}
 		}
 		throw new UnsupportedOperationException("Unable to cache value of type " + value.getClass());
 	}
@@ -120,7 +128,9 @@ public class CachedBindingSet extends AbstractBindingSet {
 
 		@Override
 		public void setLanguage(String language) {
-			super.setLanguage(language);
+			if (language != null) {
+				super.setLanguage(language);
+			}
 		}
 	}
 
