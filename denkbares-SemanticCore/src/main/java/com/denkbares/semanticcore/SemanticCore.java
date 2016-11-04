@@ -14,9 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,7 +60,15 @@ import com.denkbares.utils.Streams;
 
 public final class SemanticCore {
 
-	private static final Object DUMMY = new Object();
+	private static final long MAX_SHUTDOWN_WAIT = 1000 * 60;
+
+	public enum State {
+		initializing, active, shutdown
+	}
+
+	private volatile State state = State.initializing;
+
+	private final Object connectionsMutex = new Object();
 	private static final Map<String, SemanticCore> instances = new HashMap<>();
 	private static final Object lazyInitializationMutex = new Object();
 	private static volatile boolean lazyInitializationDone = false;
@@ -68,10 +77,9 @@ public final class SemanticCore {
 	public static final String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 	private final String repositoryId;
-	private final AtomicLong allocationCounter = new AtomicLong(0);
-
 	private final Repository repository;
-	private final ConcurrentHashMap<ConnectionInfo, Object> connections = new ConcurrentHashMap<>();
+	private final AtomicLong allocationCounter = new AtomicLong(0);
+	private final Set<ConnectionInfo> connections = new HashSet<>();
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
 	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
 		Thread thread = new Thread("SemanticCore-Connection-Daemon");
@@ -107,6 +115,7 @@ public final class SemanticCore {
 		Objects.requireNonNull(reasoning);
 		SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
 		instances.put(key, instance);
+		instance.state = State.active;
 		Log.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
 		return instance;
 	}
@@ -206,25 +215,31 @@ public final class SemanticCore {
 		// checks every 2 min for open connections and warns about them...
 		// noinspection CodeBlock2Expr
 		daemon.scheduleAtFixedRate(() -> {
-			connections.forEachKey(Long.MAX_VALUE, connectionInfo -> {
-				if (connectionInfo.stopWatch.getTime() < THRESHOLD_TIME) return;
-				try {
-					if (connectionInfo.connection.isOpen()) {
-						Log.warning("There is an connection that is open since "
-								+ connectionInfo.stopWatch.getDisplay()
-								+ ". If these messages continue, it might be an indication that something "
-								+ "went wrong in the code.\n"
-								+ Strings.concat("\n\t", connectionInfo.stackTrace));
+			synchronized (connectionsMutex) {
+				connections.forEach(connectionInfo -> {
+					if (connectionInfo.stopWatch.getTime() < THRESHOLD_TIME) return;
+					try {
+						if (connectionInfo.connection.isOpen()) {
+							Log.warning("There is an connection that is open since "
+									+ connectionInfo.stopWatch.getDisplay()
+									+ ". If these messages continue, it might be an indication that something "
+									+ "went wrong in the code.\n"
+									+ Strings.concat("\n\t", connectionInfo.stackTrace));
+						}
+						else {
+							connections.remove(connectionInfo);
+						}
 					}
-					else {
-						connections.remove(connectionInfo);
+					catch (RepositoryException e) {
+						Log.severe("Exception while checking connection status", e);
 					}
-				}
-				catch (RepositoryException e) {
-					Log.severe("Exception while checking connection status", e);
-				}
-			});
+				});
+			}
 		}, 0, 120, TimeUnit.SECONDS);
+	}
+
+	public String getRepositoryId() {
+		return repositoryId;
 	}
 
 	/**
@@ -250,6 +265,29 @@ public final class SemanticCore {
 	}
 
 	/**
+	 * Shuts down this semantic core, if it is not allocated. In this case destroys this instance so
+	 * that is should not be used any longer. It is also removed from the internal SemanticCore
+	 * caches. If this instance is allocated at least once, the method does nothing.
+	 *
+	 * @see #allocate()
+	 * @see #release()
+	 * @see #shutdown()
+	 */
+	public void requestShutdown() {
+		if (!isAllocated()) shutdown();
+	}
+
+	/**
+	 * Checks if this core is currently allocated, meaning {@link #allocate()} was called more often than {@link
+	 * #release()}.
+	 *
+	 * @return if this core is allocated or not
+	 */
+	public boolean isAllocated() {
+		return allocationCounter.get() > 0;
+	}
+
+	/**
 	 * Shuts down this semantic core, independently from any allocation / release state. It destroys
 	 * this instance so that is should not be used any longer. It is also removed from the internal
 	 * SemanticCore caches.
@@ -259,19 +297,45 @@ public final class SemanticCore {
 	 * @see #requestShutdown()
 	 */
 	public void shutdown() {
+		state = State.shutdown;
 		try {
-			connections.forEachKey(Long.MAX_VALUE, connectionInfo -> {
-				try {
-					connectionInfo.connection.close();
-					connections.remove(connectionInfo);
+			Stopwatch stopwatch = new Stopwatch();
+			synchronized (connectionsMutex) {
+				// we check the connections and wait a finite MAX_SHUTDOWN_WAIT time for them to close if they are still open
+				long start = System.currentTimeMillis();
+				while (true) {
+					connections.removeIf(connectionInfo -> {
+						try {
+							if (!connectionInfo.connection.isOpen()) return true;
+						}
+						catch (RepositoryException e) {
+							Log.info("Exception while checking connection status", e);
+						}
+						Log.info("Waiting for connection to close...");
+						return false;
+					});
+					if (connections.isEmpty() || System.currentTimeMillis() - start > MAX_SHUTDOWN_WAIT) {
+						break;
+					}
+					// sleep some time till the next try
+					//noinspection BusyWait
+					Thread.sleep(1000);
 				}
-				catch (RepositoryException e) {
-					Log.info("Unable to shutdown connection", e);
-				}
-			});
+				// if there are still open questions, they will be closed by force
+				connections.forEach(connectionInfo -> {
+					try {
+						connectionInfo.connection.close();
+						Log.severe("Shutting down repository connection by force, this might cause subsequent exceptions.");
+					}
+					catch (RepositoryException e) {
+						Log.info("Unable to shutdown connection", e);
+					}
+				});
+				connections.clear();
+			}
 			daemon.shutdown();
 			repository.shutDown();
-			Log.info("SemanticCore " + repositoryId + " shut down successful.");
+			Log.info("SemanticCore " + repositoryId + " shut down successfully in " + stopwatch.getDisplay());
 		}
 		catch (Exception e) {
 			Log.severe("Exception while shutting down repository " + repositoryId + ", removing repository anyway", e);
@@ -287,23 +351,9 @@ public final class SemanticCore {
 		}
 	}
 
-	/**
-	 * Shuts down this semantic core, if it is not allocated. In this case destroys this instance so
-	 * that is should not be used any longer. It is also removed from the internal SemanticCore
-	 * caches. If this instance is allocated at least once, the method does nothing.
-	 *
-	 * @see #allocate()
-	 * @see #release()
-	 * @see #shutdown()
-	 */
-	public void requestShutdown() {
-		if (allocationCounter.get() <= 0) shutdown();
-	}
-
-
 	public static void shutDownAllRepositories() {
 		// create new list to avoid concurrent modification exception
-		new ArrayList<>(instances.values()).forEach(com.denkbares.semanticcore.SemanticCore::shutdown);
+		new ArrayList<>(instances.values()).forEach(SemanticCore::shutdown);
 	}
 
 	private static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
@@ -337,7 +387,7 @@ public final class SemanticCore {
 					repositoryManager.getRepository(id).shutDown();
 					Log.info("Repository " + id + " shut down successful.");
 				}
-				catch (RepositoryException |RepositoryConfigException e) {
+				catch (RepositoryException | RepositoryConfigException e) {
 					Log.severe("Unable to shut down repository " + id, e);
 				}
 			});
@@ -354,10 +404,19 @@ public final class SemanticCore {
 	}
 
 	public RepositoryConnection getConnection() throws RepositoryException {
-		org.openrdf.repository.RepositoryConnection connection = repository.getConnection();
-		connections.put(new ConnectionInfo(connection), DUMMY);
-//		System.out.println(connections.size() + " open connections on repo " + repositoryId + ", " + connectionCounter.incrementAndGet() + " created since startup");
-		return new RepositoryConnection(connection);
+		// check state also before synchronizing to avoid having to wait for connection shutdown
+		// just to learn that the core is already shut down
+		if (state == State.shutdown) throwShutdownException();
+		synchronized (connectionsMutex) {
+			if (state == State.shutdown) throwShutdownException();
+			org.openrdf.repository.RepositoryConnection connection = repository.getConnection();
+			connections.add(new ConnectionInfo(connection));
+			return new RepositoryConnection(connection);
+		}
+	}
+
+	private void throwShutdownException() throws RepositoryException {
+		throw new RepositoryException("Repository was shut down, no new connections are accepted.");
 	}
 
 	public void addData(InputStream is, String fileExtention) throws RDFParseException, RepositoryException, IOException {
