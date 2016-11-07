@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.denkbares.utils.Log;
+
 /**
  * 
  * This data structure is able to capture a (evolving) subset of nodes of a
@@ -67,7 +69,6 @@ public class PartialHierarchyTree<T> {
 	 * 
 	 * 
 	 * @created 25.11.2013
-	 * @return
 	 */
 	public Node<T> getRoot() {
 		return root;
@@ -78,7 +79,6 @@ public class PartialHierarchyTree<T> {
 	 * the overall tree is empty.
 	 * 
 	 * @created 26.11.2013
-	 * @return
 	 */
 	public List<Node<T>> getRootLevelNodes() {
 		return root.getChildren();
@@ -89,7 +89,6 @@ public class PartialHierarchyTree<T> {
 	 * comparator. If this returns an empty list, the overall tree is empty.
 	 * 
 	 * @created 26.11.2013
-	 * @return
 	 */
 	public List<Node<T>> getRootLevelNodesSorted(Comparator<T> comp) {
 		List<Node<T>> children = root.getChildren();
@@ -107,7 +106,6 @@ public class PartialHierarchyTree<T> {
 	 * 
 	 * 
 	 * @created 12.04.2013
-	 * @param term
 	 * @return whether t has been found and removed
 	 */
 	public synchronized boolean remove(T term) {
@@ -118,7 +116,6 @@ public class PartialHierarchyTree<T> {
 	 * Removes all elements of the given collection from this data structure, see remove(T term).
 	 * Returns true if the some value has been found and removed.
 	 *
-	 * @param terms
 	 * @return true if the PartialHierarchyTree has changed, false otherwise.
 	 */
 	public synchronized boolean removeAll(Collection<T> terms) {
@@ -137,8 +134,6 @@ public class PartialHierarchyTree<T> {
 	 * logarithmic time using the hierarchy relation.
 	 * 
 	 * @created 25.11.2013
-	 * @param t
-	 * @return
 	 */
 	public Node<T> find(T t) {
 		if (t == null) return null;
@@ -152,9 +147,6 @@ public class PartialHierarchyTree<T> {
 
 	/**
 	 * Returns the depth level of this node in the tree
-	 *
-	 * @param node
-	 * @return
 	 */
 	public int getDepthLevel(Node<T> node) {
 		int depth = 0;
@@ -186,7 +178,6 @@ public class PartialHierarchyTree<T> {
 	 * Returns all nodes contained in this tree.
 	 * 
 	 * @created 12.04.2013
-	 * @return
 	 */
 	public Set<Node<T>> getNodes() {
 		Set<Node<T>> result = new HashSet<>();
@@ -198,7 +189,6 @@ public class PartialHierarchyTree<T> {
 	 * Returns all nodes contained in this tree.
 	 * 
 	 * @created 12.04.2013
-	 * @return
 	 */
 	public List<T> getNodesDFSOrder() {
 		List<T> result = new ArrayList<>();
@@ -219,7 +209,6 @@ public class PartialHierarchyTree<T> {
 	 * tree.
 	 * 
 	 * @created 12.04.2013
-	 * @return
 	 */
 	public Set<T> getNodeContents() {
 		Set<Node<T>> nodes = new HashSet<>();
@@ -234,8 +223,6 @@ public class PartialHierarchyTree<T> {
 	/**
 	 * 
 	 * @created 12.04.2013
-	 * @param n
-	 * @param result
 	 */
 	private void collectNodes(Node<T> n, Set<Node<T>> result) {
 		result.add(n);
@@ -286,9 +273,8 @@ public class PartialHierarchyTree<T> {
 	 * If the element is already contained in the tree nothing happens.
 	 *
 	 * @created 12.04.2013
-	 * @param t
 	 * @return true if node was inserted, false otherwise (t already in tree)
-	 * @throws if a the hierarchy is invalid (forming a cycle) a PartialHierarchyException is thrown.
+	 * @throws PartialHierarchyException if a the hierarchy is invalid (forming a cycle) a PartialHierarchyException is thrown.
 	 */
 	public boolean insert(T t) throws PartialHierarchyException {
 		if (t == null) return false;
@@ -310,7 +296,6 @@ public class PartialHierarchyTree<T> {
 	 *
 	 * If a the hierarchy is invalid (forming a cycle) insertion is aborted an 'false' is returned.
 	 *
-	 * @param t
 	 * @return true if the value has been inserted into the tree, false otherwise
 	 */
 	public boolean insertNode(T t) {
@@ -319,7 +304,7 @@ public class PartialHierarchyTree<T> {
 			inserted = insert(t);
 		}
 		catch (PartialHierarchyException e) {
-			e.printStackTrace();
+			Log.severe("Unable to insert node", e);
 			return false;
 		}
 		return inserted;
@@ -339,8 +324,6 @@ public class PartialHierarchyTree<T> {
 	 * found, they need to be re-hanged to be child of the new concept.
 	 * 
 	 * @created 12.04.2013
-	 * @param t
-	 * @param parent
 	 */
 	private synchronized void insertNodeUnder(T t, Node<T> parent) throws PartialHierarchyException {
 
@@ -384,12 +367,6 @@ public class PartialHierarchyTree<T> {
 
 	}
 
-	/**
-	 * 
-	 * @created 12.04.2013
-	 * @param term
-	 * @param node
-	 */
 	private boolean remove(T term, Node<T> node) {
 		boolean found = false;
 		List<Node<T>> children = node.getChildren();
@@ -453,7 +430,6 @@ public class PartialHierarchyTree<T> {
 		 * 
 		 * 
 		 * @created 26.11.2013
-		 * @return
 		 */
 		public Node<T> getParent() {
 			if (parent.data == null) return null;
@@ -475,6 +451,7 @@ public class PartialHierarchyTree<T> {
 			if (obj instanceof Node<?>) {
 				Object otherData = ((Node<?>) obj).getData();
 				if (otherData == null && data == null) return super.equals(obj);
+				//noinspection SimplifiableIfStatement
 				if (data == null) return false;
 				return data.equals(otherData);
 			}
