@@ -88,7 +88,7 @@ public final class InitPluginManager {
 	 */
 	public static void init(String[] jarFiles, String... pluginFilterPattern) {
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
-			pluginFilterPattern = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+" };
+			pluginFilterPattern = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+", "^SemanticAnalytics.*" };
 		}
 		List<File> filteredJars = new ArrayList<>();
 		// adding the plugin itself
