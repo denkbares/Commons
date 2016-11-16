@@ -300,12 +300,13 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Writes the document to the given output stream.
+	 * Writes the document to the given output stream with the given encoding.
 	 *
 	 * @param document     document to write to the stream
 	 * @param outputStream output stream to write the document to
+	 * @param encoding     the encoding to use when writing
 	 */
-	public static void documentToStream(Document document, OutputStream outputStream) throws IOException {
+	public static void documentToStream(Document document, OutputStream outputStream, String encoding) throws IOException {
 		Source source = new DOMSource(document);
 		Result result = new StreamResult(outputStream);
 		Transformer transformer;
@@ -313,7 +314,7 @@ public class XMLUtils {
 			transformer = TransformerFactory.newInstance().newTransformer();
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 			if (document.getXmlEncoding() == null) {
-				transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+				transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
 			}
 			else {
 				transformer.setOutputProperty(OutputKeys.ENCODING, document.getXmlEncoding());
@@ -326,6 +327,16 @@ public class XMLUtils {
 		catch (TransformerFactoryConfigurationError | TransformerException e) {
 			throw new IOException(e.getMessage());
 		}
+	}
+
+	/**
+	 * Writes the document to the given output file.
+	 *
+	 * @param document     document to write to the stream
+	 * @param outputStream output stream to write the document to
+	 */
+	public static void documentToStream(Document document, OutputStream outputStream) throws IOException {
+		documentToStream(document, outputStream, "UTF-8");
 	}
 
 	/**
