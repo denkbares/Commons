@@ -24,13 +24,13 @@ import java.util.Collection;
 
 /**
  * This class implements a typed, null-save tuple of a number of other objects.
- * 
+ *
  * @author volker_belli
- * 
  */
 public class Tuple {
 
 	private final Object[] items;
+	private int hash = -1;
 
 	public Tuple(Object... items) {
 		this.items = items;
@@ -62,6 +62,7 @@ public class Tuple {
 
 	@Override
 	public int hashCode() {
-		return Arrays.hashCode(this.items);
+		if (hash == -1) hash = Arrays.hashCode(this.items);
+		return hash;
 	}
 }
