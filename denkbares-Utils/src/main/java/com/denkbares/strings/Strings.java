@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.utils.Files;
@@ -238,10 +239,8 @@ public class Strings {
 					result.add(i);
 				}
 			}
-
 		}
 		return result;
-
 	}
 
 	public static String[] getCharacterChains(String text) {
@@ -263,7 +262,6 @@ public class Strings {
 			if (!stringFragment.getContent().trim().isEmpty()) return stringFragment;
 		}
 		return null;
-
 	}
 
 	public static List<StringFragment> getLineFragmentation(String text) {
@@ -497,6 +495,7 @@ public class Strings {
 	 * @param text the string to be checked
 	 * @return <code>true</code> iff the string has no non-whitespace character
 	 */
+	@Contract("null -> true")
 	public static boolean isBlank(String text) {
 		if (text == null) return true;
 		// matches against "[\\s\\xA0]*"
@@ -545,7 +544,6 @@ public class Strings {
 			if ((i == index)) {
 				return quoted || isClosingQuote;
 			}
-
 		}
 		return false;
 	}
@@ -812,7 +810,6 @@ public class Strings {
 				continue;
 			}
 			actualPart.append(text.charAt(i));
-
 		}
 		String actualPartString = actualPart.toString();
 		if (includeBlankFragments || !isBlank(actualPartString)) {
@@ -828,7 +825,6 @@ public class Strings {
 		else if (quoteStates[q] == 1) {
 			quoteStates[q] = 0;
 		}
-
 	}
 
 	private static boolean isHiddenByOtherQuote(int[] quoteStates, QuoteSet[] quotes, int q) {
@@ -1179,7 +1175,7 @@ public class Strings {
 	/**
 	 * Unquotes the given String. If the String contains an escaped quote char (\"), it will be
 	 * unescaped. If the specified text ist null, null is returned. If the specified text is not
-	 * quoted the roiginal text is returned.
+	 * quoted the original text is returned.
 	 *
 	 * @param text the string to be unquoted
 	 */
@@ -1747,11 +1743,7 @@ public class Strings {
 		try {
 			return URLDecoder.decode(text, encoding.encoding());
 		}
-		catch (UnsupportedEncodingException e) {
-			Log.warning(e.getMessage());
-			return text;
-		}
-		catch (IllegalArgumentException e) {
+		catch (UnsupportedEncodingException | IllegalArgumentException e) {
 			Log.warning(e.getMessage());
 			return text;
 		}
@@ -2108,5 +2100,4 @@ public class Strings {
 		}
 		return builder.toString();
 	}
-
 }
