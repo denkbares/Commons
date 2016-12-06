@@ -20,9 +20,11 @@ package com.denkbares.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +70,18 @@ public class CountingSet<E> implements Set<E> {
 	 */
 	public CountingSet(Collection<? extends E> c) {
 		addAll(c);
+	}
+
+	/**
+	 * Returns an iterator for the elements of this set ordered by element count.
+	 * The first element of this iterator, if existing, is the element with max count.
+	 *
+	 * @return iterator with descending count order
+	 */
+	public Iterator<E> iteratorDescendingOrder() {
+		List<E> list = new ArrayList<>(counters.keySet());
+		Collections.sort(list, (o1, o2) -> Integer.compare(getCount(o2), getCount(o1)));
+		return list.iterator();
 	}
 
 	@Override
@@ -150,7 +164,7 @@ public class CountingSet<E> implements Set<E> {
 	public boolean retainAll(@NotNull Collection<?> c) {
 		boolean changed = false;
 		Collection<E> copy = new ArrayList<>(this);
-		if (!(c instanceof Set)) c = new HashSet<Object>(c);
+		if (!(c instanceof Set)) c = new HashSet<>(c);
 		for (Object o : copy) {
 			if (!c.contains(o)) {
 				changed |= remove(o);
