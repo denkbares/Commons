@@ -49,8 +49,8 @@ import org.xml.sax.SAXException;
 public class XMLUtils {
 
 	/**
-	 * Creates a new {@link XPath} instance using the default {@link XPathFactory} and sets a matching
-	 * {@link NamespaceContext} that resolves namespaces
+	 * Creates a new {@link XPath} instance using the default {@link XPathFactory} and sets a
+	 * matching {@link NamespaceContext} that resolves namespaces
 	 *
 	 * @param namespaceMap Map of identifier -> URI namespaces to use
 	 * @return {@link XPath} aware of given namespaces
@@ -68,7 +68,7 @@ public class XMLUtils {
 	 * Extracts primitive Values form a string
 	 *
 	 * @param textContent Sting containing the primitive value
-	 * @param clazz       Name of the Class
+	 * @param clazz Name of the Class
 	 * @return Extracted Value
 	 * @throws IOException if the class is not supported
 	 */
@@ -101,7 +101,8 @@ public class XMLUtils {
 	 * given <tt>tagName</tt>.
 	 *
 	 * @param element the element to get the children from
-	 * @return the children of the given element with the given <tt>tagName</tt> as a normal {@link List}
+	 * @return the children of the given element with the given <tt>tagName</tt> as a normal {@link
+	 * List}
 	 */
 	public static List<Element> getChildren(Element element, String... tagName) {
 		return getElementList(element.getChildNodes(), tagName);
@@ -115,6 +116,24 @@ public class XMLUtils {
 	 */
 	public static List<Element> getChildren(Element element) {
 		return getElementList(element.getChildNodes());
+	}
+
+	/**
+	 * Get the first child element of a document element. The method returns null if no child
+	 * element is available or if the specified element is null.
+	 *
+	 * @param element the element to get the child element from
+	 * @return the first child element of the given element
+	 */
+	public static Element getFirstChild(Element element) {
+		if (element == null) return null;
+		NodeList list = element.getChildNodes();
+		for (int i = 0; i < list.getLength(); i++) {
+			if (list.item(i) instanceof Element) {
+				return (Element) list.item(i);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -139,7 +158,7 @@ public class XMLUtils {
 	 * list will only contain that elements of the NodeList that match the
 	 * specified node name. The name selection is case insensitive.
 	 *
-	 * @param list      Nodelist containing all types of nodes (text nodes etc.)
+	 * @param list Nodelist containing all types of nodes (text nodes etc.)
 	 * @param nodeNames the name of the elements to be selected (case insensitive)
 	 * @return a list containing all elements from nodelist, but not containing other nodes such as
 	 * text nodes etc.
@@ -167,7 +186,7 @@ public class XMLUtils {
 	 * @param stream the XML input stream
 	 * @return Document the document created from the stream
 	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 *                     the XML parser cannot be configured
+	 * the XML parser cannot be configured
 	 */
 	public static Document streamToDocument(InputStream stream) throws IOException {
 		return streamToDocument(stream, null);
@@ -176,12 +195,12 @@ public class XMLUtils {
 	/**
 	 * Creates an XML {@link Document} from the given {@link InputStream}.
 	 *
-	 * @param stream   the XML input stream
+	 * @param stream the XML input stream
 	 * @param resolver is a {@link EntityResolver} to specify how entities given in the {@link
-	 *                 Document} should be resolved
+	 * Document} should be resolved
 	 * @return Document the document created from the stream
 	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 *                     the XML parser cannot be configured
+	 * the XML parser cannot be configured
 	 */
 	public static Document streamToDocument(InputStream stream, EntityResolver resolver) throws IOException {
 		DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
@@ -216,7 +235,7 @@ public class XMLUtils {
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
-	 * @param values  the string values to add
+	 * @param values the string values to add
 	 * @created 25.01.2014
 	 */
 	public static void writeStrings(Element element, String tagName, String... values) {
@@ -235,7 +254,7 @@ public class XMLUtils {
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
-	 * @param values  the string values to add
+	 * @param values the string values to add
 	 * @created 25.01.2014
 	 */
 	public static void writeEnums(Element element, String tagName, Enum<?>... values) {
@@ -302,9 +321,9 @@ public class XMLUtils {
 	/**
 	 * Writes the document to the given output stream with the given encoding.
 	 *
-	 * @param document     document to write to the stream
+	 * @param document document to write to the stream
 	 * @param outputStream output stream to write the document to
-	 * @param encoding     the encoding to use when writing
+	 * @param encoding the encoding to use when writing
 	 */
 	public static void documentToStream(Document document, OutputStream outputStream, String encoding) throws IOException {
 		Source source = new DOMSource(document);
@@ -332,7 +351,7 @@ public class XMLUtils {
 	/**
 	 * Writes the document to the given output file.
 	 *
-	 * @param document     document to write to the stream
+	 * @param document document to write to the stream
 	 * @param outputStream output stream to write the document to
 	 */
 	public static void documentToStream(Document document, OutputStream outputStream) throws IOException {
@@ -342,7 +361,7 @@ public class XMLUtils {
 	/**
 	 * Writes the document to the given output file.
 	 *
-	 * @param document   document to write to the stream
+	 * @param document document to write to the stream
 	 * @param outputFile output stream to write the document to
 	 */
 	public static void documentToFile(Document document, File outputFile) throws IOException {
