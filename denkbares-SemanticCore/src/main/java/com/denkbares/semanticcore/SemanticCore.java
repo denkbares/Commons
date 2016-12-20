@@ -325,7 +325,15 @@ public final class SemanticCore {
 				connections.forEach(connectionInfo -> {
 					try {
 						connectionInfo.connection.close();
-						Log.severe("Shutting down repository connection by force, this might cause subsequent exceptions.");
+
+						StringBuilder traceBuilder = new StringBuilder();
+						for (StackTraceElement traceElement : connectionInfo.stackTrace) {
+							traceBuilder.append("at ").append(traceElement).append("\n");
+						}
+
+						Log.severe("Shutting down repository connection by force, this might cause subsequent exceptions.\n"
+								+ "Connection was opened with the following trace:\n"
+								+ traceBuilder);
 					}
 					catch (RepositoryException e) {
 						Log.info("Unable to shutdown connection", e);
