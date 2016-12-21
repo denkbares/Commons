@@ -1221,13 +1221,14 @@ public class Strings {
 
 	/**
 	 * Safe way to url-encode strings without dealing with {@link UnsupportedEncodingException} of
-	 * {@link URLEncoder#encode(String, String)}.
+	 * {@link URLEncoder#encode(String, String)}. If the specified text is null, null is returned.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
 	 * @created 03.05.2012
 	 */
 	public static String encodeURL(String text) {
+		if (text == null) return null;
 		try {
 			return URLEncoder.encode(text, "UTF-8");
 		}
