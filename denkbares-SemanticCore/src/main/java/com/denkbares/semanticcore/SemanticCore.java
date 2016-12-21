@@ -364,7 +364,8 @@ public final class SemanticCore {
 		new ArrayList<>(instances.values()).forEach(SemanticCore::shutdown);
 	}
 
-	private static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
+	private synchronized static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
+		if (repositoryManager != null) return; // could already be initialized externally
 		if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
 		initializeRepositoryManager(repositoryPath);
 	}
