@@ -19,7 +19,7 @@
 
 package com.denkbares.semanticcore;
 
-import org.openrdf.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 
 /**
  * TupleQueryResult that is also auto closable. Always use the following way: <p/>
@@ -30,7 +30,7 @@ import org.openrdf.query.QueryEvaluationException;
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 29.01.16
  */
-public interface ClosableTupleQueryResult extends org.openrdf.query.TupleQueryResult, AutoCloseable {
+public interface ClosableTupleQueryResult extends org.eclipse.rdf4j.query.TupleQueryResult, AutoCloseable {
 
 	/**
 	 * Will cause the underlying result to be retrieved completely into a cache. After the caching, the underlying

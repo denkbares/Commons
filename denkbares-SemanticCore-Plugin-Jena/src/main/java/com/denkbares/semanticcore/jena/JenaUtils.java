@@ -3,6 +3,7 @@ package com.denkbares.semanticcore.jena;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.jena.query.QuerySolution;
@@ -10,18 +11,17 @@ import org.apache.jena.rdf.model.AnonId;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
-import org.jetbrains.annotations.NotNull;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.AbstractBindingSet;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.impl.BindingImpl;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.AbstractBindingSet;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.impl.SimpleBinding;
 
 /**
  * Some util methods for handling Jena repositories.
@@ -36,14 +36,17 @@ public class JenaUtils {
 		if (value instanceof Literal) {
 			Literal literal = (Literal) value;
 			String label = literal.getLabel();
-			String language = literal.getLanguage();
-			URI dataType = literal.getDatatype();
-			if (dataType != null) {
-				return model.createTypedLiteral(label, dataType.stringValue());
+			Optional<String> language = literal.getLanguage();
+			IRI dataType = literal.getDatatype();
+			if (language.isPresent()) {
+				return model.createLiteral(label, language.get());
 			}
-			return model.createLiteral(label, language);
+			else {
+				return model.createTypedLiteral(label, dataType.stringValue());
+
+			}
 		}
-		else if (value instanceof URI) {
+		else if (value instanceof IRI) {
 			return model.createResource(value.stringValue());
 		}
 		else if (value instanceof BNode) {
@@ -52,7 +55,7 @@ public class JenaUtils {
 		throw new IllegalArgumentException("Unable to create jena RDFNode from sesame Value " + value.stringValue());
 	}
 
-	public static org.apache.jena.rdf.model.Statement toStatement(Model model, Resource subj, URI pred, Value obj) {
+	public static org.apache.jena.rdf.model.Statement toStatement(Model model, Resource subj, IRI pred, Value obj) {
 		return model.createStatement(
 				sesame2Jena(model, subj),
 				sesame2Jena(model, pred),
@@ -63,7 +66,7 @@ public class JenaUtils {
 		return JenaUtils.valueToNode(model, obj);
 	}
 
-	public static Property sesame2Jena(Model model, URI pred) {
+	public static Property sesame2Jena(Model model, IRI pred) {
 		return model.createProperty(pred.stringValue());
 	}
 
@@ -78,17 +81,17 @@ public class JenaUtils {
 	}
 
 	public static Value jena2Sesame(ValueFactory valueFactory, RDFNode object) {
-		if (object.isURIResource()) return valueFactory.createURI(object.asResource().getURI());
+		if (object.isURIResource()) return valueFactory.createIRI(object.asResource().getURI());
 		if (object.isAnon()) valueFactory.createBNode(object.asNode().getBlankNodeLabel());
 		return valueFactory.createLiteral(object.asLiteral().getString(), object.asLiteral().getDatatypeURI());
 	}
 
-	public static URI jena2Sesame(ValueFactory valueFactory, org.apache.jena.rdf.model.Property property) {
-		return valueFactory.createURI(property.getURI());
+	public static IRI jena2Sesame(ValueFactory valueFactory, org.apache.jena.rdf.model.Property property) {
+		return valueFactory.createIRI(property.getURI());
 	}
 
 	public static Resource jena2Sesame(ValueFactory valueFactory, org.apache.jena.rdf.model.Resource subject) {
-		return valueFactory.createURI(subject.getURI());
+		return valueFactory.createIRI(subject.getURI());
 	}
 
 	public static BindingSet jena2Sesame(JenaRepository repository, QuerySolution solution) {
@@ -118,7 +121,6 @@ public class JenaUtils {
 				return names;
 			}
 
-			@NotNull
 			private void initNames() {
 				if (names == null) {
 					names = new HashSet<>();
@@ -128,7 +130,7 @@ public class JenaUtils {
 
 			@Override
 			public Binding getBinding(String bindingName) {
-				return new BindingImpl(bindingName, getValue(bindingName));
+				return new SimpleBinding(bindingName, getValue(bindingName));
 			}
 
 			@Override

@@ -27,25 +27,25 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.manager.LocalRepositoryManager;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.manager.LocalRepositoryManager;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
 
 import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
@@ -166,7 +166,7 @@ public final class SemanticCore {
 				throw new RuntimeException("Repository " + repositoryId + " already exists.");
 			}
 
-			org.openrdf.repository.config.RepositoryConfig openRdfRepositoryConfig = repositoryConfig.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
+			org.eclipse.rdf4j.repository.config.RepositoryConfig openRdfRepositoryConfig = repositoryConfig.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
 
 			repositoryManager.addRepositoryConfig(openRdfRepositoryConfig);
 
@@ -178,7 +178,7 @@ public final class SemanticCore {
 				connection.setNamespace("des", DEFAULT_NAMESPACE);
 			}
 		}
-		catch (OpenRDFException e) {
+		catch (RDF4JException e) {
 			throw new IOException("Cannot initialize repository", e);
 		}
 		initConnectionDaemon();
@@ -418,7 +418,7 @@ public final class SemanticCore {
 		if (state == State.shutdown) throwShutdownException();
 		synchronized (connectionsMutex) {
 			if (state == State.shutdown) throwShutdownException();
-			org.openrdf.repository.RepositoryConnection connection = repository.getConnection();
+			org.eclipse.rdf4j.repository.RepositoryConnection connection = repository.getConnection();
 			connections.add(new ConnectionInfo(connection));
 			return new RepositoryConnection(connection);
 		}
@@ -436,18 +436,15 @@ public final class SemanticCore {
 	}
 
 	public void addData(InputStream is, RDFFormat format) throws RDFParseException, RepositoryException, IOException {
-		org.openrdf.repository.RepositoryConnection connection = this.getConnection();
-		try {
+		try (org.eclipse.rdf4j.repository.RepositoryConnection connection = this.getConnection()) {
 			connection.add(is, DEFAULT_NAMESPACE, format);
 		}
 		catch (Exception e) {
 			Log.severe("Exception while adding data to semantic core.", e);
 		}
-		finally {
-			//noinspection ThrowFromFinallyBlock
-			connection.close();
-			// throwing inside finally should be ok with logging of exception above
-		}
+		//noinspection ThrowFromFinallyBlock
+		// throwing inside finally should be ok with logging of exception above
+
 	}
 
 	public void addData(File file) throws RDFParseException, RepositoryException, IOException {
@@ -510,7 +507,7 @@ public final class SemanticCore {
 			format = RDFFormat.TURTLE;
 		}
 		else {
-			format = Rio.getParserFormatForFileName(fileName);
+			format = Rio.getParserFormatForFileName(fileName).orElse(null);
 		}
 		return format;
 	}
@@ -642,10 +639,10 @@ public final class SemanticCore {
 	private static class ConnectionInfo {
 
 		private final Stopwatch stopWatch;
-		private final org.openrdf.repository.RepositoryConnection connection;
+		private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
 		private final StackTraceElement[] stackTrace;
 
-		ConnectionInfo(org.openrdf.repository.RepositoryConnection connection) {
+		ConnectionInfo(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 			this.connection = connection;
 			// for debugging purposes....
 			StackTraceElement[] stackTrace = new Exception().getStackTrace();

@@ -2,7 +2,7 @@ package com.denkbares.semanticcore.jena;
 
 import org.apache.jena.rdf.model.ModelFactory;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.repository.Repository;
+import org.eclipse.rdf4j.repository.Repository;
 
 /**
  * @author Albrecht Striffler (denkbares GmbH)

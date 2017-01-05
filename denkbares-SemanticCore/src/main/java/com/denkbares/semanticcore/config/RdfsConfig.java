@@ -2,11 +2,11 @@ package com.denkbares.semanticcore.config;
 
 import java.util.Map;
 
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.sail.config.SailRepositoryConfig;
-import org.openrdf.sail.config.SailImplConfig;
-import org.openrdf.sail.inferencer.fc.config.ForwardChainingRDFSInferencerConfig;
-import org.openrdf.sail.memory.config.MemoryStoreConfig;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
+import org.eclipse.rdf4j.sail.config.SailImplConfig;
+import org.eclipse.rdf4j.sail.inferencer.fc.config.ForwardChainingRDFSInferencerConfig;
+import org.eclipse.rdf4j.sail.memory.config.MemoryStoreConfig;
 
 /**
  * Config sesame rdfs reasoning.
@@ -17,14 +17,14 @@ import org.openrdf.sail.memory.config.MemoryStoreConfig;
 public class RdfsConfig implements RepositoryConfig {
 
 	@Override
-	public org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
+	public org.eclipse.rdf4j.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
 		// create a configuration for the SAIL stack
 		SailImplConfig backendConfig = new MemoryStoreConfig();
 
 		// create a configuration for the repository implementation
 		SailRepositoryConfig repositoryTypeSpec = new SailRepositoryConfig(new ForwardChainingRDFSInferencerConfig(backendConfig));
 
-		return new org.openrdf.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
+		return new org.eclipse.rdf4j.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
 	}
 
 	@Override

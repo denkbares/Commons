@@ -2,7 +2,7 @@ package com.denkbares.semanticcore.utils;
 
 import java.util.Comparator;
 
-import org.openrdf.model.URI;
+import org.eclipse.rdf4j.model.URI;
 
 public class URIComparator implements Comparator<URI> {
 

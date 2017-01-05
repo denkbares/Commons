@@ -21,9 +21,10 @@ package com.denkbares.semanticcore.utils;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
 
 import com.denkbares.strings.Strings;
 
@@ -50,9 +51,9 @@ public class Text {
 	public static Text create(Value value) {
 		if (value == null) return null;
 		if (value instanceof Literal) {
-			Locale locale = Strings.parseLocale(((Literal) value).getLanguage());
-			if (locale != null) {
-				return new Text(value.stringValue(), locale);
+			Optional<String> language = ((Literal) value).getLanguage();
+			if (language.isPresent()) {
+				return new Text(value.stringValue(), Strings.parseLocale(language.get()));
 			}
 		}
 		return new Text(value.stringValue(), Locale.ROOT);

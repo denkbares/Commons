@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFParseException;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.utils.Streams;

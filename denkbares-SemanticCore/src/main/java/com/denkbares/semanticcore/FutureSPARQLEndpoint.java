@@ -22,9 +22,9 @@ package com.denkbares.semanticcore;
 import java.io.IOException;
 import java.util.Map;
 
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;

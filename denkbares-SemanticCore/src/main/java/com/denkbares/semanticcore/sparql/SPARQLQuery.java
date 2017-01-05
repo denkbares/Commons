@@ -21,8 +21,8 @@ package com.denkbares.semanticcore.sparql;
 
 import java.util.Map;
 
-import org.openrdf.model.Value;
-import org.openrdf.query.TupleQuery;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.TupleQuery;
 
 import com.denkbares.semanticcore.SemanticCore;
 

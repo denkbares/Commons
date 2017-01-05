@@ -2,7 +2,7 @@ package com.denkbares.semanticcore.config;
 
 import java.util.Map;
 
-import org.openrdf.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
 
 /**
  * Interface for repository configurations.
@@ -21,7 +21,7 @@ public interface RepositoryConfig {
 	 * @return a RepositoryConfig for this reasoning
 	 * @throws RepositoryConfigException
 	 */
-	org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException;
+	org.eclipse.rdf4j.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException;
 
 	/**
 	 * The name or label for this reasoning. Can be used in UI e.g. to select reasoning in a drop down.

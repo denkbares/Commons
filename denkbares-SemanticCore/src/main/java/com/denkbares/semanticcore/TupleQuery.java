@@ -19,22 +19,22 @@
 
 package com.denkbares.semanticcore;
 
-import org.openrdf.model.Value;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.TupleQueryResultHandler;
-import org.openrdf.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.TupleQueryResultHandler;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 
 /**
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 29.01.16
  */
-public class TupleQuery implements org.openrdf.query.TupleQuery {
+public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery {
 
-	private final org.openrdf.query.TupleQuery tupleQuery;
+	private final org.eclipse.rdf4j.query.TupleQuery tupleQuery;
 
-	public TupleQuery(org.openrdf.query.TupleQuery tupleQuery) {
+	public TupleQuery(org.eclipse.rdf4j.query.TupleQuery tupleQuery) {
 		this.tupleQuery = tupleQuery;
 	}
 

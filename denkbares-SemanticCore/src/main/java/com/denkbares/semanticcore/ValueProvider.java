@@ -21,8 +21,8 @@ package com.denkbares.semanticcore;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.openrdf.model.Value;
-import org.openrdf.query.BindingSet;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)

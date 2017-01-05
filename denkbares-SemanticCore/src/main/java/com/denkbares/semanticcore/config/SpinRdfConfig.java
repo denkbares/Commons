@@ -2,12 +2,12 @@ package com.denkbares.semanticcore.config;
 
 import java.util.Map;
 
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryImplConfig;
-import org.openrdf.repository.sail.config.SailRepositoryConfig;
-import org.openrdf.sail.config.SailImplConfig;
-import org.openrdf.sail.memory.config.MemoryStoreConfig;
-import org.openrdf.sail.spin.config.SpinSailConfig;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.config.RepositoryImplConfig;
+import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
+import org.eclipse.rdf4j.sail.config.SailImplConfig;
+import org.eclipse.rdf4j.sail.memory.config.MemoryStoreConfig;
+import org.eclipse.rdf4j.sail.spin.config.SpinSailConfig;
 
 /**
  * Config to create a sesame SPIN sail with no prior SPARQLs defined and based on RDF reasoning.
@@ -18,10 +18,10 @@ import org.openrdf.sail.spin.config.SpinSailConfig;
 public class SpinRdfConfig implements RepositoryConfig {
 
 	@Override
-	public org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
+	public org.eclipse.rdf4j.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
 		SailImplConfig spinSailConfig = new SpinSailConfig(new MemoryStoreConfig());
 		RepositoryImplConfig repositoryTypeSpec = new SailRepositoryConfig(spinSailConfig);
-		return new org.openrdf.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
+		return new org.eclipse.rdf4j.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
 	}
 
 	@Override
