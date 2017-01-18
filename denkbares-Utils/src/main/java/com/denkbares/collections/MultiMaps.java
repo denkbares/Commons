@@ -951,10 +951,34 @@ public class MultiMaps {
 	 * @return a {@code Collector} implementing the group-by operation
 	 */
 	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor) {
+		return toMultiMap(keyExtractor, valueExtractor, MultiMaps.hashFactory(), MultiMaps.hashFactory());
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
+	 * {@code V}, grouping elements according to a classification function, and returning the
+	 * results in a {@link MultiMap}, where the keys are extracted by the specified keyExtractor
+	 * function, and the values are the values of the stream mapped through the specified
+	 * valueExtractor function.
+	 * <p>
+	 * <p>The classification function maps elements to some key type {@code K}. The collector
+	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
+	 * classification function to the input elements, and whose corresponding values are the mapped
+	 * input elements which map to the associated key under the classification function.
+	 * <p>
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
+	 * {@code MultiMap} objects returned.
+	 *
+	 * @param <V> the type of the input elements
+	 * @param <K> the type of the keys
+	 * @param keyExtractor the classifier function mapping input elements to keys
+	 * @return a {@code Collector} implementing the group-by operation
+	 */
+	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor, MultiMaps.CollectionFactory<K> keyFactory, MultiMaps.CollectionFactory<V> valueFactory) {
 		return new Collector<E, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override
 			public Supplier<MultiMap<K, V>> supplier() {
-				return DefaultMultiMap<K, V>::new;
+				return () -> new DefaultMultiMap<>(keyFactory, valueFactory);
 			}
 
 			@Override
