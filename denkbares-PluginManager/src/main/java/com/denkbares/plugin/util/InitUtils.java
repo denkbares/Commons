@@ -50,7 +50,7 @@ public class InitUtils {
 	 * @param potentialAppNames the potentially known names for the app
 	 * @return the root directory used for initializing the application and plugins
 	 */
-	public static File initPlugins(Collection<String> potentialAppNames) throws IOException {
+	public static File initPlugins(Collection<String> potentialAppNames, String... pluginFilterPatterns) throws IOException {
 		File rootDirectory = null;
 		for (String appName : potentialAppNames) {
 			File jarFile = new File(appName + ".jar");
@@ -60,7 +60,7 @@ public class InitUtils {
 			Log.info("initialize d3web Mobile, check for jar app at: " + jarFile.getAbsolutePath());
 			if (new File("./lib/").exists() && jarFile.exists()) {
 				// started as standalone application
-				JPFPluginManager.init("./lib/");
+				JPFPluginManager.init("./lib/", pluginFilterPatterns);
 				rootDirectory = new File("./webapp/");
 
 				// copy files from main jar
@@ -89,13 +89,13 @@ public class InitUtils {
 				String dirDialog = appFile + "/Contents/Resources/Java";
 				if (new File(dirDialog).isDirectory()) {
 					Log.info("initialize for macos app: d3web Mobile");
-					JPFPluginManager.init(dirDialog);
+					JPFPluginManager.init(dirDialog, pluginFilterPatterns);
 					rootDirectory = new File(appFile, "webapp");
 					break;
 				}
 				else if (new File(dirMate).isDirectory()) {
 					Log.info("initialize for mac osx app: Service Mate");
-					JPFPluginManager.init(dirMate);
+					JPFPluginManager.init(dirMate, pluginFilterPatterns);
 					rootDirectory = new File(appFile + "/Contents/Resources/ServiceMate");
 					break;
 				}
@@ -114,7 +114,7 @@ public class InitUtils {
 			if (thisClass.isFile() && thisClass.getParentFile().getName().equals("lib")) {
 				Log.info("Initializing MobileApplication in Service Mate (OSX) at " + thisClass.getParentFile()
 						.getAbsolutePath());
-				JPFPluginManager.init(thisClass.getParent());
+				JPFPluginManager.init(thisClass.getParent(), pluginFilterPatterns);
 				rootDirectory = thisClass.getParentFile().getParentFile().getParentFile();
 			}
 			else {
@@ -132,7 +132,7 @@ public class InitUtils {
 			if (winMate.isDirectory()) {
 				Log.info("Windows application found at: " + winMate.getAbsolutePath());
 
-				JPFPluginManager.init(winMate.getAbsolutePath());
+				JPFPluginManager.init(winMate.getAbsolutePath(), pluginFilterPatterns);
 				rootDirectory = winMate.getParentFile().getParentFile();
 			}
 		}
@@ -140,7 +140,7 @@ public class InitUtils {
 		// if still not initialized: use "target" folder, running in IDE debugger
 		if (rootDirectory == null && new File("target").exists()) {
 			Log.info("start from debugger detected: target folder used");
-			InitPluginManager.init();
+			InitPluginManager.init(pluginFilterPatterns);
 			rootDirectory = new File("target/webapp/");
 			// copy files from src/main/resources to
 			copyDir(new File("src/main/resources/webapp"), new File("target/webapp/"));
@@ -150,7 +150,7 @@ public class InitUtils {
 		File classpathFile = new File("WEB-INF/classes/output.txt");
 		if (rootDirectory == null && classpathFile.exists()) {
 			Log.info("start from debugger detected: dependencies file used");
-			InitPluginManager.init(classpathFile);
+			InitPluginManager.init(classpathFile, pluginFilterPatterns);
 			rootDirectory = new File(".");
 		}
 
