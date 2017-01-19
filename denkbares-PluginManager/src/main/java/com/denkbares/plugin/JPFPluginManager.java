@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -195,18 +194,14 @@ public final class JPFPluginManager extends PluginManager {
 		Collection<org.java.plugin.registry.Extension> connectedExtensions = toolExtPoint
 				.getConnectedExtensions();
 		for (org.java.plugin.registry.Extension e : connectedExtensions) {
-			Extension extension = cachedExtension.get(e);
-			if (extension == null) {
-				extension = new JPFExtension(e, manager);
-				cachedExtension.put(e, extension);
-			}
+			Extension extension = cachedExtension.computeIfAbsent(e, k -> new JPFExtension(e, manager));
 			result.add(extension);
 		}
 		return toSortedAndFilteredArray(result);
 	}
 
 	public Extension[] toSortedAndFilteredArray(List<Extension> result) {
-		Collections.sort(result, new PluginCollectionComparatorByPriority());
+		result.sort(new PluginCollectionComparatorByPriority());
 		Set<String> ids = new HashSet<>();
 		// lets filter duplicate IDs... higher priority wins.
 		List<Extension> filtered = new ArrayList<>(result.size());
@@ -225,11 +220,7 @@ public final class JPFPluginManager extends PluginManager {
 				.getPluginDescriptors();
 		for (PluginDescriptor pluginDescriptor : pluginDescriptors) {
 			for (org.java.plugin.registry.Extension e : pluginDescriptor.getExtensions()) {
-				Extension extension = cachedExtension.get(e);
-				if (extension == null) {
-					extension = new JPFExtension(e, manager);
-					cachedExtension.put(e, extension);
-				}
+				Extension extension = cachedExtension.computeIfAbsent(e, k -> new JPFExtension(e, manager));
 				result.add(extension);
 			}
 		}
@@ -237,9 +228,9 @@ public final class JPFPluginManager extends PluginManager {
 	}
 
 	@Override
-	public Extension getExtension(String extendetPluginID,
-								  String extendetPointID, String pluginID, String extensionID) {
-		Extension[] extensions = getExtensions(extendetPluginID, extendetPointID);
+	public Extension getExtension(String extendedPluginID,
+								  String extendedPointID, String pluginID, String extensionID) {
+		Extension[] extensions = getExtensions(extendedPluginID, extendedPointID);
 		for (Extension e : extensions) {
 			if (e.getID().equals(extensionID) && e.getPluginID().equals(pluginID)) return e;
 		}
