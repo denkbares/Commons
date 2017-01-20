@@ -143,7 +143,10 @@ public class InitUtils {
 			InitPluginManager.init(pluginFilterPatterns);
 			rootDirectory = new File("target/webapp/");
 			// copy files from src/main/resources to
-			copyDir(new File("src/main/resources/webapp"), new File("target/webapp/"));
+			File source = new File("src/main/resources/webapp");
+			if (source.exists()) {
+				copyDir(source, new File("target/webapp/"));
+			}
 		}
 
 		// if still not initialized: use dependency file, running in IDE debugger's war server
