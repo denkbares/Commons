@@ -145,6 +145,7 @@ public final class JPFPluginManager extends PluginManager {
 			return;
 		}
 		File pluginsDir = new File(directory);
+		Log.info("Initializing plugins from directory " + pluginsDir.getAbsolutePath());
 		File[] pluginFiles = pluginsDir.listFiles();
 		if (pluginFiles != null) {
 			pluginFiles = Arrays.stream(pluginFiles)
@@ -172,8 +173,7 @@ public final class JPFPluginManager extends PluginManager {
 		}
 		// warning
 		if (pluginFiles == null) {
-			// throw new IllegalArgumentException("invalid plugin files");
-			Log.severe("invalid plugin files");
+			Log.severe("No files found in plugin directory.");
 			return;
 		}
 		try {
