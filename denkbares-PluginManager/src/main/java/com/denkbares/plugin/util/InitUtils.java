@@ -16,6 +16,8 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.denkbares.plugin.JPFPluginManager;
 import com.denkbares.plugin.Plugin;
 import com.denkbares.plugin.PluginManager;
@@ -57,7 +59,6 @@ public class InitUtils {
 			File appFile = new File(appName + ".app");
 
 			// check bundled jar file
-			Log.info("initialize d3web Mobile, check for jar app at: " + jarFile.getAbsolutePath());
 			if (new File("./lib/").exists() && jarFile.exists()) {
 				// started as standalone application
 				JPFPluginManager.init("./lib/", pluginFilterPatterns);
@@ -80,7 +81,6 @@ public class InitUtils {
 			}
 
 			// check max osx app
-			Log.info("initialize d3web Mobile, check for osx app at: " + appFile.getAbsolutePath());
 			if (appFile.exists()) {
 				Log.info("Mac OSX app detected at: " + appFile.getAbsolutePath());
 				// started as MacOS bundle,
@@ -88,52 +88,34 @@ public class InitUtils {
 				String dirMate = appFile + "/Contents/Resources/ServiceMate/WEB-INF/lib/";
 				String dirDialog = appFile + "/Contents/Resources/Java";
 				if (new File(dirDialog).isDirectory()) {
-					Log.info("initialize for macos app: d3web Mobile");
 					JPFPluginManager.init(dirDialog, pluginFilterPatterns);
 					rootDirectory = new File(appFile, "webapp");
 					break;
 				}
 				else if (new File(dirMate).isDirectory()) {
-					Log.info("initialize for mac osx app: Service Mate");
 					JPFPluginManager.init(dirMate, pluginFilterPatterns);
 					rootDirectory = new File(appFile + "/Contents/Resources/ServiceMate");
 					break;
 				}
 			}
-		}
 
-		// Find app in ServiceMate (OSX): Hack via protection domain
-		try {
-			final String thisClassPath = InitUtils.class.getProtectionDomain()
-					.getCodeSource()
-					.getLocation()
-					.toURI()
-					.getPath();
-			final File thisClass = new File(thisClassPath);
-
-			if (thisClass.isFile() && thisClass.getParentFile().getName().equals("lib")) {
-				Log.info("Initializing MobileApplication in Service Mate (OSX) at " + thisClass.getParentFile()
-						.getAbsolutePath());
-				JPFPluginManager.init(thisClass.getParent(), pluginFilterPatterns);
-				rootDirectory = thisClass.getParentFile().getParentFile().getParentFile();
-			}
-			else {
-				Log.info("Code source of InitUtils inconclusive for finding MobileApplication: " + thisClassPath);
-			}
-		}
-		catch (URISyntaxException e) {
-			Log.info("Cannot get source location from protection domain.");
-		}
-
-		// if still not initialized: try the windows structure
-		if (rootDirectory == null) {
-			File winMate = new File("ServiceMate/WEB-INF/lib");
-			Log.info("initialize d3web Mobile, check for Windows app at: " + winMate.getAbsolutePath());
+			File winMate = new File(appName + "/WEB-INF/lib");
 			if (winMate.isDirectory()) {
-				Log.info("Windows application found at: " + winMate.getAbsolutePath());
-
 				JPFPluginManager.init(winMate.getAbsolutePath(), pluginFilterPatterns);
 				rootDirectory = winMate.getParentFile().getParentFile();
+			}
+		}
+
+		// Find web app
+		if (rootDirectory == null) {
+			File classFile = getClassFile();
+			File libDir = getLibFolder(classFile);
+			if (libDir != null) {
+				JPFPluginManager.init(libDir.getAbsolutePath(), pluginFilterPatterns);
+				rootDirectory = libDir.getParentFile().getParentFile();
+			}
+			else {
+				Log.info("Unable to find lib dir based on code source of: " + classFile);
 			}
 		}
 
@@ -164,6 +146,34 @@ public class InitUtils {
 		}
 		installPluginResources(rootDirectory);
 		return rootDirectory;
+	}
+
+	private static File getLibFolder(File thisClassFile) {
+		File libDir = thisClassFile.getParentFile();
+		while (libDir != null && !(libDir.isDirectory() && libDir.getName().equals("lib"))) {
+			libDir = libDir.getParentFile();
+		}
+		return libDir;
+	}
+
+	@NotNull
+	private static File getClassFile() {
+		String thisClassPath = null;
+		try {
+			thisClassPath = InitUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+		}
+		catch (URISyntaxException e) {
+			Log.info("Cannot get source location from protection domain.");
+		}
+		if (thisClassPath == null) {
+			String absolutePath = new File(InitUtils.class.getProtectionDomain()
+					.getCodeSource().getLocation().getFile()).getAbsolutePath();
+			absolutePath = absolutePath.substring(absolutePath.lastIndexOf("file:") + 5);
+			return new File(absolutePath);
+		}
+		else {
+			return new File(thisClassPath);
+		}
 	}
 
 	private static void installPluginResources(File targetFolder) {
