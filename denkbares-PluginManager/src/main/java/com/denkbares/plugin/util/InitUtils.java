@@ -132,11 +132,16 @@ public class InitUtils {
 		}
 
 		// if still not initialized: use dependency file, running in IDE debugger's war server
-		File classpathFile = new File("WEB-INF/classes/output.txt");
-		if (rootDirectory == null && classpathFile.exists()) {
-			Log.info("start from debugger detected: dependencies file used");
-			InitPluginManager.init(classpathFile, pluginFilterPatterns);
-			rootDirectory = new File(".");
+		if (rootDirectory == null) {
+			File classpathFile = new File("WEB-INF/classes/output.txt");
+			if (!classpathFile.exists()) {
+				classpathFile = new File("WEB-INF/dependencies/output.txt");
+			}
+			if (classpathFile.exists()) {
+				Log.info("start from debugger detected: dependencies file used");
+				InitPluginManager.init(classpathFile, pluginFilterPatterns);
+				rootDirectory = new File(".");
+			}
 		}
 
 		// install on root directory
