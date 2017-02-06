@@ -1,5 +1,7 @@
 package com.denkbares.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,7 +71,7 @@ public class XMLUtils {
 	 * Extracts primitive Values form a string
 	 *
 	 * @param textContent Sting containing the primitive value
-	 * @param clazz Name of the Class
+	 * @param clazz       Name of the Class
 	 * @return Extracted Value
 	 * @throws IOException if the class is not supported
 	 */
@@ -158,7 +161,7 @@ public class XMLUtils {
 	 * list will only contain that elements of the NodeList that match the
 	 * specified node name. The name selection is case insensitive.
 	 *
-	 * @param list Nodelist containing all types of nodes (text nodes etc.)
+	 * @param list      Nodelist containing all types of nodes (text nodes etc.)
 	 * @param nodeNames the name of the elements to be selected (case insensitive)
 	 * @return a list containing all elements from nodelist, but not containing other nodes such as
 	 * text nodes etc.
@@ -181,12 +184,22 @@ public class XMLUtils {
 	}
 
 	/**
+	 * Creates an XML {@link Document} from the given String.
+	 *
+	 * @param string the string representing the XML {@link Document}
+	 * @return a XML Document representation of the given string
+	 */
+	public static Document stringToDocument(String string) throws IOException, SAXException, ParserConfigurationException {
+		return streamToDocument(new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8)));
+	}
+
+	/**
 	 * Creates an XML {@link Document} from the given {@link InputStream}.
 	 *
 	 * @param stream the XML input stream
 	 * @return Document the document created from the stream
 	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 * the XML parser cannot be configured
+	 *                     the XML parser cannot be configured
 	 */
 	public static Document streamToDocument(InputStream stream) throws IOException {
 		return streamToDocument(stream, null);
@@ -195,12 +208,12 @@ public class XMLUtils {
 	/**
 	 * Creates an XML {@link Document} from the given {@link InputStream}.
 	 *
-	 * @param stream the XML input stream
+	 * @param stream   the XML input stream
 	 * @param resolver is a {@link EntityResolver} to specify how entities given in the {@link
-	 * Document} should be resolved
+	 *                 Document} should be resolved
 	 * @return Document the document created from the stream
 	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 * the XML parser cannot be configured
+	 *                     the XML parser cannot be configured
 	 */
 	public static Document streamToDocument(InputStream stream, EntityResolver resolver) throws IOException {
 		DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
@@ -235,7 +248,7 @@ public class XMLUtils {
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
-	 * @param values the string values to add
+	 * @param values  the string values to add
 	 * @created 25.01.2014
 	 */
 	public static void writeStrings(Element element, String tagName, String... values) {
@@ -254,7 +267,7 @@ public class XMLUtils {
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
-	 * @param values the string values to add
+	 * @param values  the string values to add
 	 * @created 25.01.2014
 	 */
 	public static void writeEnums(Element element, String tagName, Enum<?>... values) {
@@ -321,9 +334,9 @@ public class XMLUtils {
 	/**
 	 * Writes the document to the given output stream with the given encoding.
 	 *
-	 * @param document document to write to the stream
+	 * @param document     document to write to the stream
 	 * @param outputStream output stream to write the document to
-	 * @param encoding the encoding to use when writing
+	 * @param encoding     the encoding to use when writing
 	 */
 	public static void documentToStream(Document document, OutputStream outputStream, String encoding) throws IOException {
 		Source source = new DOMSource(document);
@@ -349,9 +362,9 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Writes the document to the given output file.
+	 * Writes the XML {@link Document} to the given output file.
 	 *
-	 * @param document document to write to the stream
+	 * @param document     document to write to the stream
 	 * @param outputStream output stream to write the document to
 	 */
 	public static void documentToStream(Document document, OutputStream outputStream) throws IOException {
@@ -359,9 +372,21 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Writes the document to the given output file.
+	 * Writes the XML {@link Document} as a string and returns it.
 	 *
-	 * @param document document to write to the stream
+	 * @param document the document for which you want the content as a string
+	 * @return the string content of the document
+	 */
+	public static String documentToString(Document document) throws IOException {
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		documentToStream(document, stream);
+		return new String(stream.toByteArray(), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Writes the XML {@link Document} to the given output file.
+	 *
+	 * @param document   document to write to the stream
 	 * @param outputFile output stream to write the document to
 	 */
 	public static void documentToFile(Document document, File outputFile) throws IOException {
