@@ -14,7 +14,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -314,14 +313,20 @@ public class Files {
 			linesToAdd.put(entry.getKey(), newLine);
 		}
 
-		List<String> lines;
+		List<String> modifiedLines = new LinkedList<>();
 		if (file.exists()) {
 			// read the properties file and iterate each line,
 			// preserving comments and order
-			lines = getLines(file);
+			List<String> lines = getLines(file);
 			ListIterator<String> lineIterator = lines.listIterator();
 			while (lineIterator.hasNext()) {
+				// read next single line
 				String line = lineIterator.next();
+				// (to handle multi-line properties well, add lines as long we terminate with a '\')
+				while (line.endsWith("\\") && lineIterator.hasNext()) {
+					line += "\n" + lineIterator.next();
+				}
+
 				// parse each line as a property
 				Properties parsedLine = new Properties();
 				parsedLine.load(new StringReader(line));
@@ -330,33 +335,26 @@ public class Files {
 				if (!parsedLine.isEmpty()) {
 					String key = (String) parsedLine.keySet().iterator().next();
 					if (linesToAdd.containsKey(key)) {
-						String newLine = linesToAdd.get(key);
-						if (newLine == null) {
-							// if already replaced one line with the key,
-							// remove duplicate lines with same key
-							lineIterator.remove();
-						}
-						else {
-							// overwrite the first line with the specified key
-							lineIterator.set(newLine);
-							// and remove the line to mark it as added
-							linesToAdd.remove(key);
-						}
+						// get the replacing line and overwrite our line with it
+						// the get may return null, to mark to delete the line
+						line = linesToAdd.get(key);
+						linesToAdd.remove(key);
 					}
+				}
+
+				// finally add the read or replaced line, if not going to be deleted/skipped
+				if (line != null) {
+					modifiedLines.add(line);
 				}
 			}
 
 			// we append the new lines at the end, for all not inserted lines to add
-			linesToAdd.values().stream().filter(Objects::nonNull).forEach(lines::add);
-		}
-		else {
-			// Create a new empty list of lines
-			lines = new ArrayList<>(linesToAdd.values());
+			linesToAdd.values().stream().filter(Objects::nonNull).forEach(modifiedLines::add);
 		}
 
 		// and finally write the lines back to disc
 		try (FileOutputStream out = new FileOutputStream(file)) {
-			out.write(Strings.concat("\n", lines).getBytes("UTF-8"));
+			out.write(Strings.concat("\n", modifiedLines).getBytes("UTF-8"));
 		}
 	}
 
