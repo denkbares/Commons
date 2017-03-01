@@ -59,7 +59,7 @@ public class FilesTest {
 		assertEquals(
 				"check text length of '" + TXT_FILE + "'",
 				219369,
-				Files.getText(new File(TXT_FILE)).length());
+				Files.getText(new File(TXT_FILE)).replace("\r", "").length());
 	}
 
 	@Test

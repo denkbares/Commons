@@ -45,7 +45,7 @@ public class StreamsTest {
 				"check text length of 'faust.txt'",
 				219369,
 				Streams.getTextAndClose(
-						new FileInputStream("src/test/resources/exampleFiles/faust.txt")).length());
+						new FileInputStream("src/test/resources/exampleFiles/faust.txt")).replace("\r", "").length());
 	}
 
 	@SuppressWarnings("resource")
