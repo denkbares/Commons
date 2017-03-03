@@ -22,7 +22,7 @@ public class Streams {
 	 * returns after the stream has completely been written. Before the method
 	 * returns, both stream will be closed.
 	 *
-	 * @param inputStream  the source stream to read the data from
+	 * @param inputStream the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
@@ -38,7 +38,8 @@ public class Streams {
 	}
 
 	/**
-	 * Closes the closable and logs away exception that might be thrown. Use this inside finally blocks.
+	 * Closes the closable and logs away exception that might be thrown. Use this inside finally
+	 * blocks.
 	 *
 	 * @param closeable the closable to be closed
 	 */
@@ -56,22 +57,22 @@ public class Streams {
 	 * Streams the specified inputStream to the specified outputStream and
 	 * returns after the stream has completely been written.
 	 *
-	 * @param inputStream  the source stream to read the data from
+	 * @param inputStream the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
 	 */
 	public static void stream(InputStream inputStream, OutputStream outputStream) throws IOException {
-		stream(inputStream, outputStream, 1024);
+		stream(inputStream, outputStream, 8 * 1024);
 	}
 
 	/**
 	 * Streams the specified inputStream to the specified outputStream and
 	 * returns after the stream has completely been written.
 	 *
-	 * @param inputStream  the source stream to read the data from
+	 * @param inputStream the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
-	 * @param chunkSize    the size of the particular chunks to be copied
+	 * @param chunkSize the size of the particular chunks to be copied
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
 	 */
@@ -87,7 +88,7 @@ public class Streams {
 	 * Creates a asynchronous streaming task from the specified source
 	 * {@link InputStream} to the specified target {@link OutputStream}.
 	 *
-	 * @param inputStream  the source stream
+	 * @param inputStream the source stream
 	 * @param outputStream the target stream
 	 * @created 27.04.2011
 	 */
@@ -192,5 +193,4 @@ public class Streams {
 		result.close();
 		return result;
 	}
-
 }
