@@ -295,9 +295,11 @@ public class Files {
 	 *
 	 * @param file the properties file to be updated
 	 * @param entries the keys to be overwritten with their (new) values
+	 * @param comments extra comment lines to be added as the topmost lines (prefix '#' will be
+	 * added automatically)
 	 * @throws IOException if the properties file could not been read or written
 	 */
-	public static void updatePropertiesFile(File file, Map<String, String> entries) throws IOException {
+	public static void updatePropertiesFile(File file, Map<String, String> entries, String... comments) throws IOException {
 		// create well-encoded lines to be added;
 		// preserve null to mark lines to be deleted
 		Map<String, String> linesToAdd = new HashMap<>();
@@ -313,7 +315,15 @@ public class Files {
 			linesToAdd.put(entry.getKey(), newLine);
 		}
 
+		// first add the comment lines that are specified
 		List<String> modifiedLines = new LinkedList<>();
+		for (String comment : comments) {
+			for (String line : comment.split("[\n\r]+")) {
+				modifiedLines.add("#" + line);
+			}
+		}
+
+		// then go through the file and add all lines, replacing single lines as requested
 		if (file.exists()) {
 			// read the properties file and iterate each line,
 			// preserving comments and order
