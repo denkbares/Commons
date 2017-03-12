@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This class provides some basic implementation for a {@link MultiMap}s for easier
  * implementation of the actual multi-maps:
@@ -58,6 +60,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 		return size() == 0;
 	}
 
+	@NotNull
 	@Override
 	public Set<Entry<K, V>> entrySet() {
 		return new AbstractSet<Entry<K, V>>() {
@@ -157,6 +160,7 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 		}
 	}
 
+	@NotNull
 	@Override
 	public Map<K, Set<V>> toMap() {
 		return new AbstractMap<K, Set<V>>() {

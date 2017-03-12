@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * An object that maps keys to values. In contrast to an ordinary {@link Map} this map will contain
  * any number of entries even with the same keys. Therefore adding a key/value pair will not
@@ -163,12 +165,12 @@ public interface MultiMap<K, V> {
 	 * set; otherwise v is not contained in the returned set.
 	 *
 	 * @param key the key whose associated values are to be returned
-	 * @return the values to which the specified key is mapped, or {@code null} if this map contains
-	 * no mappings for the key
+	 * @return the values to which the specified key is mapped
 	 * @throws ClassCastException if the key is of an inappropriate type for this map (optional)
 	 * @throws NullPointerException if the specified key is null and this map does not permit null
 	 * keys (optional)
 	 */
+	@NotNull
 	Set<V> getValues(Object key);
 
 	/**
@@ -202,12 +204,12 @@ public interface MultiMap<K, V> {
 	 * the set; otherwise k is not contained in the returned set.
 	 *
 	 * @param value the value whose associated keys are to be returned
-	 * @return the value to which the specified key is mapped, or {@code null} if this map contains
-	 * no mapping for the key
+	 * @return the value to which the specified key is mapped
 	 * @throws ClassCastException if the key is of an inappropriate type for this map (optional)
 	 * @throws NullPointerException if the specified key is null and this map does not permit null
 	 * keys (optional)
 	 */
+	@NotNull
 	Set<K> getKeys(Object value);
 
 	/**
@@ -258,10 +260,8 @@ public interface MultiMap<K, V> {
 	 * formally, if this map contains a mapping from key <tt>k</tt> to value <tt>v</tt> such that
 	 * <code>(key==null ?  k==null : key.equals(k))</code>, that mapping is removed.
 	 * <p>
-	 * <p>
 	 * Returns all the values to which this map previously associated the key, or an empty set if
 	 * the map contained no mapping for the key.
-	 * <p>
 	 * <p>
 	 * The map will not contain a mapping for the specified key once the call returns.
 	 *
@@ -273,6 +273,7 @@ public interface MultiMap<K, V> {
 	 * @throws NullPointerException if the specified key is null and this map does not permit null
 	 * keys (optional)
 	 */
+	@NotNull
 	Set<V> removeKey(Object key);
 
 	/**
@@ -295,6 +296,7 @@ public interface MultiMap<K, V> {
 	 * @throws NullPointerException if the specified key is null and this map does not permit null
 	 * keys (optional)
 	 */
+	@NotNull
 	Set<K> removeValue(Object value);
 
 	/**
@@ -437,17 +439,21 @@ public interface MultiMap<K, V> {
 	// Views
 
 	/**
-	 * Returns an unmodifiable {@link Set} view of the keys contained in this map.
+	 * Returns an unmodifiable {@link Set} view of the keys contained in this map. Returns an empty
+	 * set if this multi-map is empty.
 	 *
 	 * @return a set view of the keys contained in this map
 	 */
+	@NotNull
 	Set<K> keySet();
 
 	/**
-	 * Returns an unmodifiable {@link Set} view of the values contained in this map.
+	 * Returns an unmodifiable {@link Set} view of the values contained in this map. Returns an
+	 * empty set if this multi-map is empty.
 	 *
 	 * @return a set view of the values contained in this map
 	 */
+	@NotNull
 	Set<V> valueSet();
 
 	/**
@@ -463,6 +469,7 @@ public interface MultiMap<K, V> {
 	 *
 	 * @return a set view of the mappings contained in this map
 	 */
+	@NotNull
 	Set<Map.Entry<K, V>> entrySet();
 
 	// Comparison and hashing
@@ -515,6 +522,7 @@ public interface MultiMap<K, V> {
 	 * @return a map representation of the contents of this multi map
 	 * @created 09.01.2014
 	 */
+	@NotNull
 	Map<K, Set<V>> toMap();
 
 	/**
@@ -526,6 +534,7 @@ public interface MultiMap<K, V> {
 	 *
 	 * @return the reversed map where keys and values are exchanged
 	 */
+	@NotNull
 	default MultiMap<V, K> reversed() {
 		return MultiMaps.reversed(this);
 	}

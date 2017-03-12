@@ -26,6 +26,8 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.denkbares.strings.Strings;
 
 /**
@@ -73,6 +75,7 @@ public class GeneralizedSuffixTree<E> extends DefaultMultiMap<String, E> {
 		return added;
 	}
 
+	@NotNull
 	@Override
 	public Set<E> removeKey(Object key) {
 		Set<E> values = super.removeKey(key);
@@ -80,6 +83,7 @@ public class GeneralizedSuffixTree<E> extends DefaultMultiMap<String, E> {
 		return values;
 	}
 
+	@NotNull
 	@Override
 	public Set<String> removeValue(Object value) {
 		Set<String> keys = super.removeValue(value);

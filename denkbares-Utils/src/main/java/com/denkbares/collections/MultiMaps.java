@@ -390,6 +390,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<V> getValues(Object key) {
 			synchronized (mutex) {
@@ -397,6 +398,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<K> getKeys(Object value) {
 			synchronized (mutex) {
@@ -411,6 +413,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<V> removeKey(Object key) {
 			synchronized (mutex) {
@@ -418,6 +421,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<K> removeValue(Object value) {
 			synchronized (mutex) {
@@ -453,6 +457,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<K> keySet() {
 			synchronized (mutex) {
@@ -460,6 +465,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<V> valueSet() {
 			synchronized (mutex) {
@@ -467,6 +473,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Set<Entry<K, V>> entrySet() {
 			synchronized (mutex) {
@@ -474,6 +481,7 @@ public class MultiMaps {
 			}
 		}
 
+		@NotNull
 		@Override
 		public Map<K, Set<V>> toMap() {
 			synchronized (mutex) {
@@ -514,11 +522,13 @@ public class MultiMaps {
 			return map.contains(key, value);
 		}
 
+		@NotNull
 		@Override
 		public Set<V> getValues(Object key) {
 			return Collections.unmodifiableSet(map.getValues(key));
 		}
 
+		@NotNull
 		@Override
 		public Set<K> getKeys(Object value) {
 			return Collections.unmodifiableSet(map.getKeys(value));
@@ -529,11 +539,13 @@ public class MultiMaps {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<V> removeKey(Object key) {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> removeValue(Object value) {
 			throw new UnsupportedOperationException();
@@ -559,16 +571,19 @@ public class MultiMaps {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> keySet() {
 			return Collections.unmodifiableSet(map.keySet());
 		}
 
+		@NotNull
 		@Override
 		public Set<V> valueSet() {
 			return Collections.unmodifiableSet(map.valueSet());
 		}
 
+		@NotNull
 		@Override
 		public Set<Entry<K, V>> entrySet() {
 			return Collections.unmodifiableSet(map.entrySet());
@@ -585,6 +600,7 @@ public class MultiMaps {
 			return map.hashCode();
 		}
 
+		@NotNull
 		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.unmodifiableMap(map.toMap());
@@ -638,11 +654,13 @@ public class MultiMaps {
 			return map.contains(value, key);
 		}
 
+		@NotNull
 		@Override
 		public Set<V> getValues(Object key) {
 			return map.getKeys(key);
 		}
 
+		@NotNull
 		@Override
 		public Set<K> getKeys(Object value) {
 			return map.getValues(value);
@@ -653,11 +671,13 @@ public class MultiMaps {
 			return map.put(value, key);
 		}
 
+		@NotNull
 		@Override
 		public Set<V> removeKey(Object key) {
 			return map.removeValue(key);
 		}
 
+		@NotNull
 		@Override
 		public Set<K> removeValue(Object value) {
 			return map.removeKey(value);
@@ -673,11 +693,13 @@ public class MultiMaps {
 			map.clear();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> keySet() {
 			return map.valueSet();
 		}
 
+		@NotNull
 		@Override
 		public Set<V> valueSet() {
 			return map.keySet();
@@ -713,11 +735,13 @@ public class MultiMaps {
 			return false;
 		}
 
+		@NotNull
 		@Override
 		public Set<V> getValues(Object key) {
 			return Collections.emptySet();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> getKeys(Object value) {
 			return Collections.emptySet();
@@ -728,11 +752,13 @@ public class MultiMaps {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<V> removeKey(Object key) {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> removeValue(Object value) {
 			throw new UnsupportedOperationException();
@@ -757,21 +783,25 @@ public class MultiMaps {
 		public void clear() {
 		}
 
+		@NotNull
 		@Override
 		public Set<K> keySet() {
 			return Collections.emptySet();
 		}
 
+		@NotNull
 		@Override
 		public Set<V> valueSet() {
 			return Collections.emptySet();
 		}
 
+		@NotNull
 		@Override
 		public Set<Entry<K, V>> entrySet() {
 			return Collections.emptySet();
 		}
 
+		@NotNull
 		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.emptyMap();
@@ -812,11 +842,13 @@ public class MultiMaps {
 			return containsKey(key) && containsValue(value);
 		}
 
+		@NotNull
 		@Override
 		public Set<V> getValues(Object key) {
 			return containsKey(key) ? valueSet() : Collections.emptySet();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> getKeys(Object value) {
 			return containsValue(value) ? keySet() : Collections.emptySet();
@@ -827,11 +859,13 @@ public class MultiMaps {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<V> removeKey(Object key) {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> removeValue(Object value) {
 			throw new UnsupportedOperationException();
@@ -857,21 +891,25 @@ public class MultiMaps {
 			throw new UnsupportedOperationException();
 		}
 
+		@NotNull
 		@Override
 		public Set<K> keySet() {
 			return Collections.singleton(key);
 		}
 
+		@NotNull
 		@Override
 		public Set<V> valueSet() {
 			return Collections.singleton(value);
 		}
 
+		@NotNull
 		@Override
 		public Set<Entry<K, V>> entrySet() {
 			return Collections.singleton(new AbstractMap.SimpleImmutableEntry<>(key, value));
 		}
 
+		@NotNull
 		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.singletonMap(key, valueSet());

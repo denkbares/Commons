@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This class provides an implementation for a {@link MultiMap} that only uses a single hash map for
  * the underlying representation. Therefore accessing the values by the keys is efficient (O(1)),
@@ -87,6 +89,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 		size = 0;
 	}
 
+	@NotNull
 	@Override
 	public Set<K> removeValue(Object value) {
 		Set<K> keys = getKeys(value);
@@ -103,6 +106,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 		return Collections.unmodifiableSet(keys);
 	}
 
+	@NotNull
 	@Override
 	public Set<V> removeKey(Object key) {
 		Set<V> values = k2v.remove(key);
@@ -127,6 +131,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 		return isRemoved;
 	}
 
+	@NotNull
 	@Override
 	public Set<K> getKeys(Object value) {
 		Set<K> result = keyFactory.createSet();
@@ -138,6 +143,7 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 		return Collections.unmodifiableSet(result);
 	}
 
+	@NotNull
 	@Override
 	public Set<V> getValues(Object key) {
 		Set<V> values = k2v.get(key);
@@ -163,11 +169,13 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 		return false;
 	}
 
+	@NotNull
 	@Override
 	public Set<K> keySet() {
 		return Collections.unmodifiableSet(k2v.keySet());
 	}
 
+	@NotNull
 	@Override
 	public Set<V> valueSet() {
 		Set<V> result = valueFactory.createSet();

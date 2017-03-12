@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.denkbares.collections.MultiMaps.CollectionFactory;
 
 /**
@@ -102,6 +104,7 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 	}
 
 
+	@NotNull
 	@Override
 	public Set<K> removeValue(Object value) {
 		Set<K> keys = v2k.remove(value);
@@ -119,6 +122,7 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 		return Collections.unmodifiableSet(keys);
 	}
 
+	@NotNull
 	@Override
 	public Set<V> removeKey(Object key) {
 		Set<V> values = k2v.remove(key);
@@ -162,12 +166,14 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 		return true;
 	}
 
+	@NotNull
 	@Override
 	public Set<K> getKeys(Object value) {
 		Set<K> keys = v2k.get(value);
 		return (keys == null) ? Collections.emptySet() : Collections.unmodifiableSet(keys);
 	}
 
+	@NotNull
 	@Override
 	public Set<V> getValues(Object key) {
 		Set<V> values = k2v.get(key);
@@ -190,11 +196,13 @@ public class N2MMap<K, V> extends AbstractMultiMap<K, V> {
 		return v2k.containsKey(value);
 	}
 
+	@NotNull
 	@Override
 	public Set<K> keySet() {
 		return Collections.unmodifiableSet(k2v.keySet());
 	}
 
+	@NotNull
 	@Override
 	public Set<V> valueSet() {
 		return Collections.unmodifiableSet(v2k.keySet());
