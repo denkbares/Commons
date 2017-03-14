@@ -23,6 +23,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import com.denkbares.strings.Identifier;
+import com.denkbares.strings.Strings;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -115,8 +116,8 @@ public class IdentifierTest {
 	}
 
 	private void concatParse(String... pathElements) {
-		String concat = Identifier.concatParsable(", ", pathElements);
-		String[] strings = Identifier.parseConcat(", ", concat);
+		String concat = Strings.concatParsable(", ", pathElements);
+		String[] strings = Strings.parseConcat(", ", concat);
 
 		String listOutput = Arrays.asList(pathElements).toString();
 		String listOutPutFromExternalForm = Arrays.asList(strings).toString();
