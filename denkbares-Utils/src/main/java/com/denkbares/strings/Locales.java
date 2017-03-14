@@ -158,11 +158,11 @@ public class Locales {
 	 * guaranteed to return a locale instance out of the available ones. If the preferenceList is
 	 * empty the ROOT locale is matched against the available locales.
 	 *
-	 * @param preferenceList the preferred locales to be used
+	 * @param preferenceList the preferred locales to be used, order by their preference
 	 * @param available the available locales
 	 * @return the best matching locale
 	 */
-	public static Locale findBestLocale(List<Locale> preferenceList, Collection<Locale> available) {
+	public static Locale findBestLocale(Collection<Locale> preferenceList, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
 		if (available.size() == 1) return available.iterator().next();
@@ -175,22 +175,22 @@ public class Locales {
 		}
 
 		// otherwise try normal selection of the first preferred locale
-		Locale first = preferenceList.isEmpty() ? Locale.ROOT : preferenceList.get(0);
+		Locale first = preferenceList.isEmpty() ? Locale.ROOT : preferenceList.iterator().next();
 		return findBestLocale(first, available);
 	}
 
 	/**
-	 * Returns a iterator of the available locales, ordered by their preference
-	 * as specified in the preference list. If the available locales are empty or null, the stream
-	 * will be empty. For the order of the languages in the stream refer to {@link
-	 * #findBestLocale(List, Collection)}, where the next stream element is always the best one, if
-	 * the previous items of the stream where absent.
+	 * Returns a iterator of the available locales, ordered by their preference as specified in the
+	 * preference list. If the available locales are empty or null, the stream will be empty. For
+	 * the order of the languages in the stream refer to {@link #findBestLocale(Collection,
+	 * Collection)}, where the next stream element is always the best one, if the previous items of
+	 * the stream where absent.
 	 *
 	 * @param preferenceList the preferred locales to be used
 	 * @param available the available locales
 	 * @return a sequential {@code Stream} of the available languages
 	 */
-	public static Iterator<Locale> iterateByPreference(List<Locale> preferenceList, Collection<Locale> available) {
+	public static Iterator<Locale> iterateByPreference(Collection<Locale> preferenceList, Collection<Locale> available) {
 		if (available == null) return Collections.emptyIterator();
 		Set<Locale> remaining = new LinkedHashSet<>(available);
 		return new Iterator<Locale>() {
@@ -210,17 +210,17 @@ public class Locales {
 	}
 
 	/**
-	 * Returns a sequential {@code Stream} of the available locales, ordered by their preference
-	 * as specified in the preference list. If the available locales are empty or null, the stream
-	 * will be empty. For the order of the languages in the stream refer to {@link
-	 * #findBestLocale(List, Collection)}, where the next stream element is always the best one, if
-	 * the previous items of the stream where absent.
+	 * Returns a sequential {@code Stream} of the available locales, ordered by their preference as
+	 * specified in the preference list. If the available locales are empty or null, the stream will
+	 * be empty. For the order of the languages in the stream refer to {@link
+	 * #findBestLocale(Collection, Collection)}, where the next stream element is always the best
+	 * one, if the previous items of the stream where absent.
 	 *
 	 * @param preferenceList the preferred locales to be used
 	 * @param available the available locales
 	 * @return a sequential {@code Stream} of the available languages
 	 */
-	Stream<Locale> streamByPreference(List<Locale> preferenceList, Collection<Locale> available) {
+	public static Stream<Locale> streamByPreference(Collection<Locale> preferenceList, Collection<Locale> available) {
 		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
 				iterateByPreference(preferenceList, available),
 				ORDERED | DISTINCT | NONNULL | IMMUTABLE), false);
