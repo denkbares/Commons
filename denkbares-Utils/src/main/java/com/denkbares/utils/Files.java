@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
@@ -145,6 +146,26 @@ public class Files {
 	}
 
 	/**
+	 * Recursively copy a file or directory.
+	 *
+	 * @param source the source file or directory to read from
+	 * @param target the target file or directory
+	 */
+	public static void recursiveCopy(File source, File target) throws IOException {
+		if (source.isDirectory()) {
+			// recursively copy contents
+			//noinspection ConstantConditions
+			for (File innerSource : source.listFiles()) {
+				File innerTarget = new File(target, innerSource.getName());
+				recursiveCopy(innerSource, innerTarget);
+			}
+		}
+		else {
+			copy(source, target);
+		}
+	}
+
+	/**
 	 * Copies the source file to the target file. If the target file already exists it will be
 	 * overwritten. If any of the specified files denote a folder, an IOException is thrown. If the
 	 * path of the target file does not exists, the required parent folders will be created.
@@ -154,10 +175,13 @@ public class Files {
 	 * @throws IOException if the file cannot be copied
 	 */
 	public static void copy(File source, File target) throws IOException {
-		FileInputStream in = new FileInputStream(source);
 		target.getAbsoluteFile().getParentFile().mkdirs();
-		FileOutputStream out = new FileOutputStream(target);
-		Streams.streamAndClose(in, out);
+		try (InputStream in = new FileInputStream(source);
+			 OutputStream out = new FileOutputStream(target)) {
+			Streams.stream(in, out);
+		}
+		//noinspection ResultOfMethodCallIgnored
+		target.setLastModified(source.lastModified());
 	}
 
 	/**
