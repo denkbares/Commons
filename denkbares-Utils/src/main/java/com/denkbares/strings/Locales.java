@@ -358,7 +358,7 @@ public class Locales {
 	}
 
 	/**
-	 * Returns if the specified locale null or the empty ROOT locale. If the locale specifies a
+	 * Returns if the specified locale is null or the empty ROOT locale. If the locale specifies a
 	 * well-defined language (with optional country/variant), false is returned.
 	 *
 	 * @param locale the locale to be checked
