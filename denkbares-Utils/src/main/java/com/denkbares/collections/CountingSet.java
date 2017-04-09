@@ -20,13 +20,13 @@ package com.denkbares.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,23 +52,36 @@ public class CountingSet<E> implements Set<E> {
 		}
 	}
 
-	private final HashMap<E, Count> counters = new HashMap<>();
+	private final Map<E, Count> counters;
 
 	/**
-	 * Constructs a new, empty counting set.
+	 * Creates a new counting set. Based on the specified concurrent parameter the implementation
+	 * is thread-safe (of true) or not (if false). Selecting the concurrent implementation may
+	 * create little overhead for updating the set.
+	 *
+	 * @param concurrent if the implementation
 	 */
-	public CountingSet() {
+	public CountingSet(boolean concurrent) {
+		this.counters = concurrent ? new ConcurrentHashMap<>() : new HashMap<>();
 	}
 
 	/**
-	 * Constructs a new counting set containing the elements in the specified collection. If the
-	 * specified collections contains equal elements multiple times, they are already counted by
-	 * this set.
+	 * Constructs a new (non-concurrent), empty counting set.
+	 */
+	public CountingSet() {
+		this(false);
+	}
+
+	/**
+	 * Constructs a new (non-concurrent) counting set containing the elements in the specified
+	 * collection. If the specified collections contains equal elements multiple times, they are
+	 * already counted by this set.
 	 *
 	 * @param c the collection whose elements are to be placed into this set
 	 * @throws NullPointerException if the specified collection is null
 	 */
 	public CountingSet(Collection<? extends E> c) {
+		this(false);
 		addAll(c);
 	}
 
@@ -80,7 +93,7 @@ public class CountingSet<E> implements Set<E> {
 	 */
 	public Iterator<E> iteratorDescendingOrder() {
 		List<E> list = new ArrayList<>(counters.keySet());
-		Collections.sort(list, (o1, o2) -> Integer.compare(getCount(o2), getCount(o1)));
+		list.sort((o1, o2) -> Integer.compare(getCount(o2), getCount(o1)));
 		return list.iterator();
 	}
 
@@ -211,11 +224,7 @@ public class CountingSet<E> implements Set<E> {
 	 * @created 14.02.2013
 	 */
 	public int inc(E object, int amount) {
-		Count count = counters.get(object);
-		if (count == null) {
-			count = new Count();
-			counters.put(object, count);
-		}
+		Count count = counters.computeIfAbsent(object, k -> new Count());
 		count.count += amount;
 		return count.count;
 	}
