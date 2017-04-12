@@ -185,6 +185,7 @@ public class InitUtils {
 		Plugin[] plugins = PluginManager.getInstance().getPlugins();
 		for (Plugin p : plugins) {
 			if (p.getPluginID().startsWith("KnowWE-Plugin-DenkbaresDialog")
+					|| p.getPluginID().startsWith("KnowWE-Plugin-Dialog")
 					|| p.getPluginID().startsWith("Mobile-Application")) {
 				Resource[] resources = p.getResources();
 				for (Resource r : resources) {
