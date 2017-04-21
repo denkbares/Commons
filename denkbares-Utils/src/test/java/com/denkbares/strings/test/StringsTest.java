@@ -225,6 +225,11 @@ public class StringsTest {
 		assertEquals("ab\\c", Strings.unquote("\"ab\\\\c\""));
 		assertEquals(null, Strings.unquote(null));
 		assertEquals("", Strings.unquote("\""));
+
+		assertEquals("foo", Strings.unquote("\"foo\"", '"', '\''));
+		assertEquals("foo", Strings.unquote("'foo'", '"', '\''));
+		assertEquals("'foo", Strings.unquote("'foo", '"', '\''));
+		assertEquals("'foo'", Strings.unquote("'foo'", '"', '#'));
 	}
 
 	@Test
