@@ -5,17 +5,21 @@
 package com.denkbares.collections;
 
 import java.util.AbstractSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.denkbares.utils.EqualsUtils;
-
 /**
- * HashSet memory optimized for cases where you have a lot of them but most of the time with
- * only one element.
+ * HashSet memory optimized for cases where you have a lot of them but most of the time with only
+ * one element.
+ * <p>
+ * The implementation has a backup set, that is either an empty set or the item itself (not a
+ * singleton, to save memory), or a singleton set (if the item itself was a set), or a HashSet of
+ * the items.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 22.04.2017
@@ -23,109 +27,129 @@ import com.denkbares.utils.EqualsUtils;
 public class MinimizedHashSet<T> extends AbstractSet<T> {
 
 	private static final Object EMPTY = new Object();
-	private Object element = EMPTY;
-	private HashSet<T> backUpSet = null;
+	private Object data = EMPTY;
 
 	@Override
 	public int size() {
-		if (backUpSet != null) return backUpSet.size();
-		if (element != EMPTY) return 1;
-		return 0;
+		return (data == EMPTY) ? 0 : (data instanceof Set) ? ((Set) data).size() : 1;
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		if (backUpSet != null) return backUpSet.contains(o);
-		return element != EMPTY && EqualsUtils.equals(element, o);
+		return (data instanceof Set) ? ((Set) data).contains(o) : Objects.equals(data, o);
 	}
 
 	@NotNull
 	@Override
 	public Iterator<T> iterator() {
+		//noinspection unchecked
 		return new Iterator<T>() {
 
+			private final Iterator<T> delegateIterator =
+					(data == EMPTY) ? Collections.emptyIterator()
+							: (data instanceof Set) ? ((Set) data).iterator()
+							: (Iterator<T>) Collections.singleton(data).iterator();
 			private Object current = EMPTY;
-			boolean removable = false;
-			private final Iterator<T> backupIterator = backUpSet == null ? null : backUpSet.iterator();
 
 			@Override
 			public boolean hasNext() {
-				return (backupIterator != null && backupIterator.hasNext()) || (element != EMPTY && current != element);
+				return delegateIterator.hasNext();
 			}
 
-			@SuppressWarnings("unchecked")
 			@Override
 			public T next() {
-				removable = true;
-				if (backupIterator != null && backupIterator.hasNext()) {
-					current = backupIterator.next();
-					return (T) current;
-				}
-				if (current != element) {
-					current = element;
-					return (T) current;
-				}
-				removable = false;
-				throw new NoSuchElementException();
+				// prepare if next() fails
+				current = EMPTY;
+				// get the next one
+				current = delegateIterator.next();
+				//noinspection unchecked
+				return (T) current;
 			}
 
 			@Override
 			public void remove() {
-				if (!removable) throw new IllegalStateException();
-				removable = false;
-				if (current == element && element != EMPTY) {
-					element = EMPTY;
-					return;
+				if (current == EMPTY) throw new IllegalStateException();
+				if (data instanceof Set) {
+					// if it is still a set, then remove by the iterator and unwarp is possible
+					// because direct removal will lead to ConcurrentModificationException
+					delegateIterator.remove();
+					unwrapDelegate();
 				}
-				if (backupIterator != null) {
-					backupIterator.remove();
-					if (backUpSet.size() == 1) {
-						element = backupIterator.next();
-						backUpSet = null;
-					}
+				else {
+					// but otherwise remove the item directly
+					MinimizedHashSet.this.remove(current);
 				}
+				current = EMPTY;
 			}
 		};
 	}
 
 	@Override
-	public boolean add(T t) {
-		if (backUpSet != null) return backUpSet.add(t);
-		if (element != EMPTY && EqualsUtils.equals(element, t)) {
-			return false;
-		}
-		if (element != EMPTY && !EqualsUtils.equals(element, t)) {
-			backUpSet = new HashSet<>(4);
-			//noinspection unchecked
-			backUpSet.add((T) element);
-			backUpSet.add(t);
-			element = EMPTY;
+	public boolean add(T item) {
+		// if empty set, create singleton for the item
+		if (data == EMPTY) {
+			// we require to wrap a set around, if the item itself is a set, to not confuse this implementation
+			if (item instanceof Set) {
+				warpDelegate(item, 2);
+				return true;
+			}
+			data = item;
 			return true;
 		}
-		element = t;
-		return true;
+		// if we have a single element, test the element (and stop if equal)
+		// but otherwise create a set for the element and continue
+		if (!(data instanceof Set)) {
+			// stop if same item added twice
+			if (Objects.equals(data, item)) return false;
+			// wrap the current item into a new set and continue to add the new item to the set
+			warpDelegate(data, 4);
+		}
+		// when we are here, we have at least one item,
+		// and the items are wrapped in a modifiable hash set in the field delegate
+		//noinspection unchecked
+		return ((Set) data).add(item);
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		if (backUpSet != null) {
-			boolean remove = backUpSet.remove(o);
-			if (backUpSet.size() == 1) {
-				element = backUpSet.iterator().next();
-				backUpSet = null;
-			}
-			return remove;
-		}
-		if (element != EMPTY && EqualsUtils.equals(element, o)) {
-			element = EMPTY;
+		// if set is empty, do nothing
+		if (data == EMPTY) return false;
+		// if we have one element, remove the element if equal
+		if (!(data instanceof Set)) {
+			if (!Objects.equals(data, o)) return false;
+			data = EMPTY;
 			return true;
 		}
-		return false;
+		// otherwise we have a set
+		// so remove the item and potentially fallback to single element or empty
+		boolean removed = ((Set) data).remove(o);
+		unwrapDelegate();
+		return removed;
+	}
+
+	private void warpDelegate(Object item, int capacity) {
+		Set wrapper = new HashSet(capacity);
+		//noinspection unchecked
+		wrapper.add(item);
+		data = wrapper;
+	}
+
+	private void unwrapDelegate() {
+		Set set = (Set) data;
+		if (set.isEmpty()) {
+			data = EMPTY;
+		}
+		else if (set.size() == 1) {
+			Object item = set.iterator().next();
+			// fallback if the item is not a set itself, to not confuse this implementation
+			if (!(item instanceof Set)) {
+				data = item;
+			}
+		}
 	}
 
 	@Override
 	public void clear() {
-		backUpSet = null;
-		element = EMPTY;
+		data = EMPTY;
 	}
 }
