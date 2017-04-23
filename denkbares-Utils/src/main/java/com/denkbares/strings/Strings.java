@@ -119,12 +119,12 @@ public class Strings {
 	 * @return the resulting concatenation
 	 */
 	public static String concat(String separator, Object[] strings) {
+		if (strings == null || strings.length == 0) return "";
+		if (strings.length == 1) return String.valueOf(strings[0]);
 		StringBuilder result = new StringBuilder();
-		if (strings != null) {
-			for (int i = 0; i < strings.length; i++) {
-				if (i > 0) result.append(separator);
-				result.append(strings[i]);
-			}
+		for (int i = 0; i < strings.length; i++) {
+			if (i > 0) result.append(separator);
+			result.append(strings[i]);
 		}
 		return result.toString();
 	}
