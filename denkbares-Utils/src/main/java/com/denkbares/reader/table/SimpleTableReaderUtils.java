@@ -25,7 +25,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.denkbares.strings.Strings;
 import com.denkbares.utils.Log;
 
 /**
@@ -44,7 +43,7 @@ public class SimpleTableReaderUtils {
 	 * @param factory the TableLineFactory to be used to create TableLines
 	 * @param skipFirstLine whether the top line should be skipped from reading, when being header line not content
 	 * @param lineSplitter the splitting sign to be used to separate cells within the text sequence
-	 * @return
+	 * @return a ordered list of TableLines corresponding to the given input
 	 */
 	public static List<TableLine> getData(File input, String encoding, TableLineFactory factory,  boolean skipFirstLine, String lineSplitter) {
 		List<TableLine> data = null;
