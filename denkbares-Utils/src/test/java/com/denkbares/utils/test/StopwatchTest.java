@@ -80,6 +80,29 @@ public class StopwatchTest {
 		assertEquals("0.000s", time.getDisplay(TimeUnit.SECONDS));
 		assertEquals("0:00 min", time.getDisplay(TimeUnit.MINUTES));
 		assertEquals("0:00:00 hours", time.getDisplay(TimeUnit.HOURS));
+		assertEquals("0 days 0:00:00 hours", time.getDisplay(TimeUnit.DAYS));
+
+		long durM1 = TimeUnit.MINUTES.toMillis(2) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("2:01 min", Stopwatch.getDisplay(durM1));
+
+		long durM2 = TimeUnit.MINUTES.toMillis(60) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("60:01 min", Stopwatch.getDisplay(durM2));
+
+		long durM3 = TimeUnit.MINUTES.toMillis(120) + TimeUnit.SECONDS.toMillis(0);
+		assertEquals("120:00 min", Stopwatch.getDisplay(durM3));
+
+		long durM4 = TimeUnit.MINUTES.toMillis(120) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("2:00:01 hours", Stopwatch.getDisplay(durM4));
+
+		long durH1 = TimeUnit.HOURS.toMillis(30) + TimeUnit.MINUTES.toMillis(12) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("30:12:01 hours", Stopwatch.getDisplay(durH1));
+
+		long durH2 = TimeUnit.HOURS.toMillis(49) + TimeUnit.MINUTES.toMillis(2) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("2 days 1:02:01 hours", Stopwatch.getDisplay(durH2));
+
+		long durD1 = TimeUnit.DAYS.toMillis(49) + TimeUnit.MINUTES.toMillis(2) + TimeUnit.SECONDS.toMillis(1);
+		assertEquals("49 days 0:02:01 hours", Stopwatch.getDisplay(durD1));
+
 		assertEquals("Elapsed time: 0ms", time.toString());
 	}
 

@@ -129,10 +129,16 @@ public class Stopwatch {
 	}
 
 	public static String getDisplay(long time) {
-		if (time > 60000) {
+		if (time > TimeUnit.DAYS.toMillis(2)) {
+			return getDisplay(time, TimeUnit.DAYS);
+		}
+		else if (time > TimeUnit.HOURS.toMillis(2)) {
+			return getDisplay(time, TimeUnit.HOURS);
+		}
+		else if (time > TimeUnit.MINUTES.toMillis(1)) {
 			return getDisplay(time, TimeUnit.MINUTES);
 		}
-		else if (time > 1000) {
+		else if (time > TimeUnit.SECONDS.toMillis(1)) {
 			return getDisplay(time, TimeUnit.SECONDS);
 		}
 		return getDisplay(time, TimeUnit.MILLISECONDS);
@@ -156,19 +162,31 @@ public class Stopwatch {
 			case SECONDS:
 				return String.format("%d.%03ds", time / 1000, time % 1000);
 			case MINUTES:
+				return String.format("%d:%02d min",
+						TimeUnit.MINUTES.convert(time, TimeUnit.MILLISECONDS),
+						getRemainingSeconds(time));
 			case HOURS:
+				return String.format("%d:%02d:%02d hours",
+						TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS),
+						getRemainingMinutes(time), getRemainingSeconds(time));
 			case DAYS:
-				long hours = (time) / (60 * 60 * 1000);
-				long minutes = (time % (60 * 60 * 1000)) / (60 * 1000);
-				long seconds = (time % (60 * 1000)) / (1000);
-				if (hours == 0 && unit == TimeUnit.MINUTES) {
-					return String.format("%d:%02d min", minutes, seconds);
-				}
-				else {
-					return String.format("%d:%02d:%02d hours", hours, minutes, seconds);
-				}
+				return String.format("%d days %d:%02d:%02d hours",
+						TimeUnit.DAYS.convert(time, TimeUnit.MILLISECONDS),
+						getRemainingHours(time), getRemainingMinutes(time), getRemainingSeconds(time));
 		}
 		throw new IllegalArgumentException("unexpected time unit: " + unit);
+	}
+
+	private static long getRemainingHours(long time) {
+		return (time % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000);
+	}
+
+	private static long getRemainingSeconds(long time) {
+		return (time % (60 * 1000)) / (1000);
+	}
+
+	private static long getRemainingMinutes(long time) {
+		return (time % (60 * 60 * 1000)) / (60 * 1000);
 	}
 
 	@Override
