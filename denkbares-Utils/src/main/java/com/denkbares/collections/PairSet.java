@@ -1,4 +1,8 @@
-package com.denkbares.util;
+/*
+ * Copyright (C) 2017 denkbares GmbH. All rights reserved.
+ */
+
+package com.denkbares.collections;
 
 import java.util.Collection;
 import java.util.HashSet;
