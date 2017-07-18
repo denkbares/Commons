@@ -200,7 +200,6 @@ public class StringsTest {
 	public void parseLocale() {
 		Locale[] locales = Locale.getAvailableLocales();
 		for (Locale locale : locales) {
-			// TODO: java 6 does not support scripts, so Strings also does not. Remove this skip operation when migrate to java 7
 			if (locale.toString().contains("#")) continue;
 			assertEquals(locale, Strings.parseLocale(locale.toString()));
 		}
@@ -277,6 +276,16 @@ public class StringsTest {
 		assertEquals(10, Strings.indexOf("a\"test\"s\\\"test\"das", unquoted, "test"));
 		assertEquals(0, Strings.indexOf("a\"test\"s\\\"test\"das", unquoted, "test", "a"));
 
+		int skipBraces = Strings.UNBRACED;
+		assertEquals(-1, Strings.indexOf("", skipBraces, "test"));
+		assertEquals(0, Strings.indexOf("test", skipBraces, "test"));
+		assertEquals(-1, Strings.indexOf("tes", skipBraces, "test"));
+		assertEquals(-1, Strings.indexOf("as(test)das", skipBraces, "test"));
+		assertEquals(2, Strings.indexOf("astestdas", skipBraces, "test"));
+		assertEquals(3, Strings.indexOf("as\"test\"das", skipBraces, "test"));
+		assertEquals(9, Strings.indexOf("a(test)s)testdas", skipBraces, "test"));
+		assertEquals(7, Strings.indexOf("b(test)as\\\"test\"das", skipBraces, "test", "a"));
+
 		int skipComments = Strings.SKIP_COMMENTS;
 		assertEquals(-1, Strings.indexOf("", skipComments, "test"));
 		assertEquals(0, Strings.indexOf("test", skipComments, "test"));
@@ -296,29 +305,55 @@ public class StringsTest {
 		assertEquals(21, Strings.indexOf("asasd//testcomment\nasdasdetesthoho", skipComments, "test", "das"));
 		assertEquals(22, Strings.indexOf("asasd//testcomment\na\"sdasdetestho\"ho", skipComments, "test", "das"));
 
-		int both = skipComments | unquoted;
-		assertEquals(-1, Strings.indexOf("", both, "test"));
-		assertEquals(0, Strings.indexOf("test", both, "test"));
-		assertEquals(-1, Strings.indexOf("tes", both, "test"));
-		assertEquals(-1, Strings.indexOf("as\"test\"das", both, "test"));
-		assertEquals(2, Strings.indexOf("astestdas", both, "test"));
-		assertEquals(4, Strings.indexOf("as\\\"test\"das", both, "test"));
-		assertEquals(10, Strings.indexOf("a\"test\"s\\\"test\"das", both, "test"));
-		assertEquals(0, Strings.indexOf("a\"test\"s\\\"test\"das", both, "test", "a"));
 
-		assertEquals(-1, Strings.indexOf("aste//stdas", both, "test"));
-		assertEquals(-1, Strings.indexOf("aste//hitestdas", both, "test"));
-		assertEquals(16, Strings.indexOf("aste//hitest\ndastest", both, "test"));
-		assertEquals(17, Strings.indexOf("asas\"das//comm\"entestdas", both, "test"));
-		assertEquals(34, Strings.indexOf("a\"test\"sasd//comment\nasd\"test\"asdetesthoho", both, "test"));
-		assertEquals(32, Strings.indexOf("a\"test\"sasd//testcomment\nasdasdetesthoho", both, "test"));
+		int skipCommendsAndQuotes = skipComments | unquoted;
+		assertEquals(-1, Strings.indexOf("", skipCommendsAndQuotes, "test"));
+		assertEquals(0, Strings.indexOf("test", skipCommendsAndQuotes, "test"));
+		assertEquals(-1, Strings.indexOf("tes", skipCommendsAndQuotes, "test"));
+		assertEquals(-1, Strings.indexOf("as\"test\"das", skipCommendsAndQuotes, "test"));
+		assertEquals(2, Strings.indexOf("astestdas", skipCommendsAndQuotes, "test"));
+		assertEquals(4, Strings.indexOf("as\\\"test\"das", skipCommendsAndQuotes, "test"));
+		assertEquals(10, Strings.indexOf("a\"test\"s\\\"test\"das", skipCommendsAndQuotes, "test"));
+		assertEquals(0, Strings.indexOf("a\"test\"s\\\"test\"das", skipCommendsAndQuotes, "test", "a"));
+
+		assertEquals(-1, Strings.indexOf("aste//stdas", skipCommendsAndQuotes, "test"));
+		assertEquals(-1, Strings.indexOf("aste//hitestdas", skipCommendsAndQuotes, "test"));
+		assertEquals(16, Strings.indexOf("aste//hitest\ndastest", skipCommendsAndQuotes, "test"));
+		assertEquals(17, Strings.indexOf("asas\"das//comm\"entestdas", skipCommendsAndQuotes, "test"));
+		assertEquals(34, Strings.indexOf("a\"test\"sasd//comment\nasd\"test\"asdetesthoho", skipCommendsAndQuotes, "test"));
+		assertEquals(24, Strings.indexOf("a\"testsasd//comment\nasd\"test\"asdetesthoho", skipCommendsAndQuotes, "test"));
+		assertEquals(32, Strings.indexOf("a\"test\"sasd//testcomment\nasdasdetesthoho", skipCommendsAndQuotes, "test"));
 
 		assertEquals(27, Strings.lastIndexOf("asasd//testcomment\na\"sdasdetestho\"ho", skipComments, "test", "das"));
 		assertEquals(16, Strings.lastIndexOf("a\"test\"s\\\"test\"das", skipComments, "test", "a"));
 		assertEquals(2, Strings.lastIndexOf("a\"test\"s//\"test\"das", skipComments, "test", "a"));
-		assertEquals(14, Strings.lastIndexOf("atests//test\ndas", both, "test", "a"));
-		assertEquals(14, Strings.lastIndexOf("atests//test\ndas\"testatest\"", both, "test", "a"));
-		assertEquals(14, Strings.lastIndexOf("atests//test\ndas//testatest", both, "test", "a"));
+		assertEquals(14, Strings.lastIndexOf("atests//test\ndas", skipCommendsAndQuotes, "test", "a"));
+		assertEquals(14, Strings.lastIndexOf("atests//test\ndas\"testatest\"", skipCommendsAndQuotes, "test", "a"));
+		assertEquals(14, Strings.lastIndexOf("atests//test\ndas//testatest", skipCommendsAndQuotes, "test", "a"));
+
+		int skipCommendQuotesAndBraces = skipComments | unquoted | skipBraces;
+		assertEquals(-1, Strings.indexOf("", skipCommendQuotesAndBraces, "test"));
+		assertEquals(0, Strings.indexOf("test", skipCommendQuotesAndBraces, "test"));
+		assertEquals(-1, Strings.indexOf("tes", skipCommendQuotesAndBraces, "test"));
+		assertEquals(-1, Strings.indexOf("as\"test\"das", skipCommendQuotesAndBraces, "test"));
+		assertEquals(2, Strings.indexOf("astestdas", skipCommendQuotesAndBraces, "test"));
+		assertEquals(4, Strings.indexOf("as\\\"test\"das", skipCommendQuotesAndBraces, "test"));
+		assertEquals(10, Strings.indexOf("a\"test\"s\\\"test\"das", skipCommendQuotesAndBraces, "test"));
+		assertEquals(0, Strings.indexOf("a\"test\"s\\\"test\"das", skipCommendQuotesAndBraces, "test", "a"));
+
+		assertEquals(-1, Strings.indexOf("aste//stdas", skipCommendQuotesAndBraces, "test"));
+		assertEquals(-1, Strings.indexOf("aste//hitestdas", skipCommendQuotesAndBraces, "test"));
+		assertEquals(16, Strings.indexOf("aste//hitest\ndastest", skipCommendQuotesAndBraces, "test"));
+		assertEquals(17, Strings.indexOf("asas\"d(s//co)m\"entestdas", skipCommendQuotesAndBraces, "test"));
+		assertEquals(34, Strings.indexOf("a(test)sasd//comment\nasd\"test\"asdetesthoho", skipCommendQuotesAndBraces, "test"));
+		assertEquals(26, Strings.indexOf("a((testsasd//comment\nasd))test\"asdetesthoho", skipCommendQuotesAndBraces, "test"));
+		assertEquals(32, Strings.indexOf("a\"test\"sasd//testcomment\nasdasdetesthoho", skipCommendQuotesAndBraces, "test"));
+		assertEquals(26, Strings.indexOf("a((testsasd//comment\nasd))test\"asdetesthoho", skipCommendQuotesAndBraces, "test"));
+		assertEquals(34, Strings.indexOf("a\"test\"sasd//test(\"comment\nasdasdetesthoho", skipCommendQuotesAndBraces, "test"));
+
+		assertEquals(15, Strings.lastIndexOf("atests//t(est\ndas", skipCommendQuotesAndBraces, "test", "a"));
+		assertEquals(16, Strings.lastIndexOf("atests//t\"(est\ndas\"testatest\"", skipCommendQuotesAndBraces, "test", "a"));
+		assertEquals(14, Strings.lastIndexOf("atests//test\ndas//testatest", skipCommendQuotesAndBraces, "test", "a"));
 	}
 
 	@Test
