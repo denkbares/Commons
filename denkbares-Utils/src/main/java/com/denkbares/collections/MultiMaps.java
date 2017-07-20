@@ -99,14 +99,20 @@ public class MultiMaps {
 
 	private static final class LinkedHashFactory<T> implements CollectionFactory<T> {
 
+		private final int capacity;
+
+		public LinkedHashFactory(int capacity) {
+			this.capacity = capacity;
+		}
+
 		@Override
 		public Set<T> createSet() {
-			return new LinkedHashSet<>();
+			return new LinkedHashSet<>(capacity);
 		}
 
 		@Override
 		public <E> Map<T, E> createMap() {
-			return new LinkedHashMap<>();
+			return new LinkedHashMap<>(capacity);
 		}
 	}
 
@@ -149,7 +155,10 @@ public class MultiMaps {
 	private static final CollectionFactory HASH_MINIMIZED = new MinimizedHashFactory();
 
 	@SuppressWarnings("rawtypes")
-	private static final CollectionFactory LINKED = new LinkedHashFactory();
+	private static final CollectionFactory LINKED = new LinkedHashFactory(16);
+
+	@SuppressWarnings("rawtypes")
+	private static final CollectionFactory LINKED_MINIMIZED = new LinkedHashFactory(4);
 
 	@SuppressWarnings("rawtypes")
 	private static final CollectionFactory TREE = new TreeFactory();
@@ -214,6 +223,19 @@ public class MultiMaps {
 	@SuppressWarnings("unchecked")
 	public static <T> CollectionFactory<T> linkedFactory() {
 		return (CollectionFactory<T>) LINKED;
+	}
+
+	/**
+	 * Returns a collection factory for hashing the entries in linked sets/maps of minimized size, using {@link
+	 * T#hashCode()} and {@link T#equals(Object)} method. The order of the contained objects will
+	 * remain stable.
+	 *
+	 * @return the collection factory
+	 * @created 09.01.2014
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> CollectionFactory<T> linkedMinimizedFactory() {
+		return (CollectionFactory<T>) LINKED_MINIMIZED;
 	}
 
 	public static <K, V> MultiMap<K, V> synchronizedMultiMap(MultiMap<K, V> map) {
@@ -821,7 +843,7 @@ public class MultiMaps {
 		return new Collector<V, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override
 			public Supplier<MultiMap<K, V>> supplier() {
-				return DefaultMultiMap<K, V>::new;
+				return DefaultMultiMap::new;
 			}
 
 			@Override
