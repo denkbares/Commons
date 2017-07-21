@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
@@ -234,6 +236,16 @@ public class Files {
 			Streams.closeQuietly(in1);
 			Streams.closeQuietly(in2);
 		}
+	}
+
+	/**
+	 * Convenience method to get a reader from a file (using the correct (UTF-8) encoding).
+	 * @param file the file to create the reader for
+	 *
+	 * @return a reader for the given file
+	 */
+	public static Reader getReader(File file) throws FileNotFoundException, UnsupportedEncodingException {
+		return new InputStreamReader(new FileInputStream(file), "UTF-8");
 	}
 
 	/**
