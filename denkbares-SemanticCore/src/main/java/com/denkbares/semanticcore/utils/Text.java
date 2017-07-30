@@ -22,6 +22,7 @@ package com.denkbares.semanticcore.utils;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Value;
 
@@ -40,7 +41,7 @@ public class Text {
 
 	private Text(String string, Locale language) {
 		this.string = string;
-		this.language = language;
+		this.language = (language == null) ? Locale.ROOT : language;
 	}
 
 	public static Text create(String string, Locale language) {
@@ -62,6 +63,7 @@ public class Text {
 		return string;
 	}
 
+	@NotNull
 	public Locale getLanguage() {
 		return language;
 	}
