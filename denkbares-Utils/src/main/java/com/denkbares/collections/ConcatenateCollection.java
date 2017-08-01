@@ -6,10 +6,9 @@ import java.util.Iterator;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Concatenates multiple collections into one large logical collection. This will not copy the elements, but give a logical view over
- * all collections.
- * The ConcatenateCollection itself is immutable, but the collections contained in it are still mutable and the view will always be up to
- * date.
+ * Concatenates multiple collections into one large logical collection. This will not copy the elements, but give a
+ * logical view over  all collections. The ConcatenateCollection itself is immutable, but the collections contained in
+ * it are still mutable and the view will always be up to date.
  * This implementation is not thread safe!
  *
  * @author Albrecht Striffler (denkbares GmbH)
