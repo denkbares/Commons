@@ -43,10 +43,10 @@ import org.jetbrains.annotations.NotNull;
 import com.denkbares.strings.Strings;
 
 /**
- * Utility class for instantiating textual constructor calls using a specific {@link ClassLoader}.
- * The {@link ClassLoader} that shall has to be specified in the constructor. The {@link
- * #newInstance} method does the actual instantiation of constructor calls. The instantiation
- * supports the definition of primitive arguments {@link String}, double, int.
+ * Utility class for instantiating textual constructor calls using a specific {@link ClassLoader}. The {@link
+ * ClassLoader} that shall has to be specified in the constructor. The {@link #newInstance} method does the actual
+ * instantiation of constructor calls. The instantiation supports the definition of primitive arguments {@link String},
+ * double, int.
  *
  * @author Sebastian Furth (denkbares GmbH)
  * @created 08.06.15
@@ -83,20 +83,17 @@ public class Instantiation {
 	private static final Pattern BOOLEAN = Pattern.compile("true|false");
 
 	/**
-	 * Tries to invoke a constructor of the specified constructor call . The arguments are parsed
-	 * from the constructor call expression. If there is no such constructor or if the constructor
-	 * cannot be accessed, null is returned. If the constructor can be called, but fails with an
-	 * exception, an InvocationTargetException is thrown.
+	 * Tries to invoke a constructor of the specified constructor call . The arguments are parsed from the constructor
+	 * call expression. If there is no such constructor or if the constructor cannot be accessed, null is returned. If
+	 * the constructor can be called, but fails with an exception, an InvocationTargetException is thrown.
 	 * <p/>
-	 * Example constructor calls are: <ul> <li>java.util.ArrayList</li>
-	 * <li>java.util.ArrayList(5)</li> </ul>
+	 * Example constructor calls are: <ul> <li>java.util.ArrayList</li> <li>java.util.ArrayList(5)</li> </ul>
 	 *
 	 * @param constructorCall A constructor call that may contain primitive arguments.
 	 * @return the created instance
-	 * @throws FormatException if the constructor syntax of the specified constructorCall is not
-	 * correct
-	 * @throws IllegalArgumentException if the parameters of the constructor call does not match the
-	 * expected arguments valid
+	 * @throws FormatException          if the constructor syntax of the specified constructorCall is not correct
+	 * @throws IllegalArgumentException if the parameters of the constructor call does not match the expected arguments
+	 *                                  valid
 	 */
 	public Object newInstance(String constructorCall) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
@@ -135,6 +132,25 @@ public class Instantiation {
 	}
 
 	/**
+	 * Extracts the class object denoted by the specified constructor call.
+	 *
+	 * @param constructorCall A constructor call that may contain primitive arguments.
+	 * @return the extracted class object
+	 * @throws FormatException        if the constructor syntax of the specified constructorCall is not correct
+	 * @throws ClassNotFoundException if the class could not been found or loaded
+	 */
+	public Class findClass(String constructorCall) throws ClassNotFoundException, FormatException {
+		Matcher matcher = CONSTRUCTOR_CALL.matcher(constructorCall);
+		if (!matcher.find()) {
+			throw new FormatException(context.getOrigin() +
+					": invalid constructor format: " + constructorCall);
+		}
+
+		String className = matcher.group(1);
+		return classLoader.loadClass(className);
+	}
+
+	/**
 	 * Returns the parameters
 	 */
 	@NotNull
@@ -162,8 +178,12 @@ public class Instantiation {
 
 				// create value, if not possible remove executable, otherwise add value
 				Object value = createValue(parameter, type);
-				if (value == null) iterator.remove();
-				else values.put(type, value);
+				if (value == null) {
+					iterator.remove();
+				}
+				else {
+					values.put(type, value);
+				}
 			}
 			if (values.isEmpty()) {
 				throw new IllegalArgumentException(context.getOrigin() +
@@ -175,8 +195,8 @@ public class Instantiation {
 	}
 
 	/**
-	 * Creates a instance of the specified type by parsing / interpreting the specified parameter.
-	 * The method returns null if no value can be created.
+	 * Creates a instance of the specified type by parsing / interpreting the specified parameter. The method returns
+	 * null if no value can be created.
 	 */
 	private Object createValue(String parameter, Class<?> type) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
 		// parse quoted String
@@ -306,11 +326,11 @@ public class Instantiation {
 	}
 
 	/**
-	 * Selects a single value from each collection of the specified list, so that the values fit to
-	 * the arguments of the specified constructor. The first value of the returned list is selected
-	 * from the first collection of the valueSets parameter, matching the first parameter of teh
-	 * constructor, and so on. If multiple values of a collection matches the type, the first one is
-	 * selected. The method returns null if no argument set is matching the constructor.
+	 * Selects a single value from each collection of the specified list, so that the values fit to the arguments of the
+	 * specified constructor. The first value of the returned list is selected from the first collection of the
+	 * valueSets parameter, matching the first parameter of teh constructor, and so on. If multiple values of a
+	 * collection matches the type, the first one is selected. The method returns null if no argument set is matching
+	 * the constructor.
 	 */
 	private Object[] findParameterValues(Executable constructor, List<Collection<Object>> valueSets) {
 		Class[] expectedTypes = constructor.getParameterTypes();
