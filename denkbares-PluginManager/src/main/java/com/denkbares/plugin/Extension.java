@@ -23,21 +23,21 @@ import java.util.List;
 
 /**
  * An interface for Extensions
- * 
+ *
  * @author Markus Friedrich (denkbares GmbH)
  */
 public interface Extension {
 
 	/**
 	 * Creates a new instance of the Class represented by this extension
-	 * 
+	 *
 	 * @return a new instance
 	 */
 	Object getNewInstance();
 
 	/**
 	 * Returns the value of any parameter
-	 * 
+	 *
 	 * @param parameter the name of the parameter, which should be returned
 	 * @return the value of the parameter
 	 */
@@ -45,79 +45,82 @@ public interface Extension {
 
 	/**
 	 * Returns the values of any parameter
-	 * 
+	 *
 	 * @param parameter the name of the parameter, which should be returned
 	 * @return the values of the parameter
 	 */
 	List<String> getParameters(String parameter);
 
 	/**
-	 * Returns an Instance of the Class represented by this extension Each time
-	 * this method is called, it returns the same instance. At the first call,
-	 * an instance is created.
-	 * 
+	 * Returns an Instance of the Class represented by this extension Each time this method is called, it returns the
+	 * same instance. At the first call, an instance is created.
+	 *
 	 * @return a Singleton of the Class
 	 */
 	Object getSingleton();
 
 	/**
+	 * Returns the class of the instances that are denoted by the "class" attribute of the extension's xml definition.
+	 * These are the class that will be instantiated by {@link #getSingleton()} or {@link #getNewInstance()} method.
+	 *
+	 * @return the class of the instances
+	 */
+	Class getInstanceClass();
+
+	/**
 	 * Each Extension has a name, which can be accessed by this method
-	 * 
+	 *
 	 * @return the name of the Extension
 	 */
 	String getName();
 
 	/**
 	 * Each Extension has a version, which can be accessed by this method
-	 * 
+	 *
 	 * @return the version of the Extension
 	 */
 	String getVersion();
 
 	/**
 	 * Each Extension has a description, which can be accessed by this method
-	 * 
+	 *
 	 * @return the description of the Extension
 	 */
 	String getDescription();
 
 	/**
-	 * Each Extension has a priority, which can be accessed by this method
-	 * Higher priorities have lower values
-	 * 
+	 * Each Extension has a priority, which can be accessed by this method Higher priorities have lower values
+	 *
 	 * @return the priority of the Extension
 	 */
 	double getPriority();
 
 	/**
 	 * Each Extension has an ID, which can be accessed by this method
-	 * 
+	 *
 	 * @return the ID of the Extension
 	 */
 	String getID();
 
 	/**
-	 * The ID of the ExtensionPoint extended by this extension can be accessed
-	 * by this method
-	 * 
-	 * @deprecated because of typo, use {@link #getExtendedPointID()} instead
+	 * The ID of the ExtensionPoint extended by this extension can be accessed by this method
+	 *
 	 * @return ID of the ExtensionPoint
+	 * @deprecated because of typo, use {@link #getExtendedPointID()} instead
 	 */
 	@Deprecated
 	String getExtendetPointID();
 
 	/**
-	 * The ID of the ExtensionPoint extended by this extension can be accessed
-	 * by this method
+	 * The ID of the ExtensionPoint extended by this extension can be accessed by this method
 	 *
 	 * @return ID of the ExtensionPoint
 	 */
 	String getExtendedPointID();
 
 	/**
-	 * The ID of the Plugin, containing the ExtensionPoint this extension
-	 * extends can be accessed by this method
-	 * 
+	 * The ID of the Plugin, containing the ExtensionPoint this extension extends can be accessed by this method
+	 *
 	 * @return ID of the extended plugin
 	 */
 	String getExtendedPluginID();
@@ -130,9 +133,9 @@ public interface Extension {
 
 	/**
 	 * Returns the Plugin this Extension is part of
-	 * 
-	 * @created 20.05.2011
+	 *
 	 * @return {@link Plugin} this Extension is part of
+	 * @created 20.05.2011
 	 */
 	Plugin getPlugin();
 }
