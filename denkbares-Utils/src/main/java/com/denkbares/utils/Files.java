@@ -39,8 +39,8 @@ public class Files {
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 
 	/**
-	 * Create a new temporary directory. Use {@link #recursiveDelete(File)} to clean this directory
-	 * up since it isn't deleted automatically
+	 * Create a new temporary directory. Use {@link #recursiveDelete(File)} to clean this directory up since it isn't
+	 * deleted automatically
 	 *
 	 * @return the new directory
 	 * @throws IOException if there is an error creating the temporary directory
@@ -61,7 +61,7 @@ public class Files {
 	/**
 	 * Writes the given string content to a file with the given path.
 	 *
-	 * @param path the path to the file to be written
+	 * @param path    the path to the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
@@ -70,10 +70,9 @@ public class Files {
 	}
 
 	/**
-	 * Writes the given string content to the given file. Creates missing parent directories is
-	 * required.
+	 * Writes the given string content to the given file. Creates missing parent directories is required.
 	 *
-	 * @param file the file to be written
+	 * @param file    the file to be written
 	 * @param content the content of the file to be written
 	 * @throws IOException if writing fails
 	 */
@@ -91,7 +90,7 @@ public class Files {
 	 *
 	 * @param filePath the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException if there was any problem reading the file
+	 * @throws IOException          if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -104,7 +103,7 @@ public class Files {
 	 *
 	 * @param file the file to be loaded
 	 * @return the contents of the file
-	 * @throws IOException if there was any problem reading the file
+	 * @throws IOException          if there was any problem reading the file
 	 * @throws NullPointerException if the argument is null.
 	 * @created 16.09.2012
 	 */
@@ -168,9 +167,9 @@ public class Files {
 	}
 
 	/**
-	 * Copies the source file to the target file. If the target file already exists it will be
-	 * overwritten. If any of the specified files denote a folder, an IOException is thrown. If the
-	 * path of the target file does not exists, the required parent folders will be created.
+	 * Copies the source file to the target file. If the target file already exists it will be overwritten. If any of
+	 * the specified files denote a folder, an IOException is thrown. If the path of the target file does not exists,
+	 * the required parent folders will be created.
 	 *
 	 * @param source the source file to read from
 	 * @param target the target file
@@ -187,13 +186,11 @@ public class Files {
 	}
 
 	/**
-	 * Checks if two files have the same fingerprint, including the timestamp, so it appears that
-	 * they have the same content, without fully reading the files contents! This method is much
-	 * quicker that {#hasEqualContent} but you cannot be sure if the content really differs if the
-	 * method return true.
+	 * Checks if two files have the same fingerprint, including the timestamp, so it appears that they have the same
+	 * content, without fully reading the files contents! This method is much quicker that {#hasEqualContent} but you
+	 * cannot be sure if the content really differs if the method return true.
 	 * <p>
-	 * Returns true if both files exists, both denote a file (not a directory), and the file seems
-	 * to be identical.
+	 * Returns true if both files exists, both denote a file (not a directory), and the file seems to be identical.
 	 *
 	 * @param file1 the first file to compare
 	 * @param file2 the second file to compare
@@ -209,8 +206,8 @@ public class Files {
 	}
 
 	/**
-	 * Checks if two files have the same content. Returns true if both files exists, both denote a
-	 * file (not a directory), and the bytes of each file are identical.
+	 * Checks if two files have the same content. Returns true if both files exists, both denote a file (not a
+	 * directory), and the bytes of each file are identical.
 	 *
 	 * @param file1 the first file to compare
 	 * @param file2 the second file to compare
@@ -240,8 +237,8 @@ public class Files {
 
 	/**
 	 * Convenience method to get a reader from a file (using the correct (UTF-8) encoding).
-	 * @param file the file to create the reader for
 	 *
+	 * @param file the file to create the reader for
 	 * @return a reader for the given file
 	 */
 	public static Reader getReader(File file) throws FileNotFoundException, UnsupportedEncodingException {
@@ -287,8 +284,7 @@ public class Files {
 	}
 
 	/**
-	 * Reads a properties file into a newly created Properties objects and returns the Properties
-	 * objects.
+	 * Reads a properties file into a newly created Properties objects and returns the Properties objects.
 	 *
 	 * @param file the properties file to be read
 	 * @return the loaded file content
@@ -303,14 +299,13 @@ public class Files {
 	}
 
 	/**
-	 * Reads and rewrites the a properties file, adding one entry, overwriting all existing entries
-	 * with the specified key. It preserves all other lines, including comments and the order of the
-	 * lines. Only the lines with the specified key will be modified, where the first one is
-	 * overwritten, and succeeding ones (if there are any) will be deleted. If there is no such line
-	 * contained, the new property will be appended to the end of the file.
+	 * Reads and rewrites the a properties file, adding one entry, overwriting all existing entries with the specified
+	 * key. It preserves all other lines, including comments and the order of the lines. Only the lines with the
+	 * specified key will be modified, where the first one is overwritten, and succeeding ones (if there are any) will
+	 * be deleted. If there is no such line contained, the new property will be appended to the end of the file.
 	 *
-	 * @param file the properties file to be updated
-	 * @param key the key to be overwritten or added
+	 * @param file  the properties file to be updated
+	 * @param key   the key to be overwritten or added
 	 * @param value the (new) value for the key
 	 * @throws IOException if the properties file could not been read or written
 	 */
@@ -319,20 +314,17 @@ public class Files {
 	}
 
 	/**
-	 * Reads and rewrites the a properties file, adding the specified entries, overwriting all
-	 * existing entries that have one of the specified keys. It preserves all other lines, including
-	 * comments and the order of the lines. Only the lines with the specified key will be modified
-	 * (preserving their order), where the first one is overwritten, and succeeding ones (if there
-	 * are any) will be deleted. If there are no such lines contained for some of the specified
-	 * entries, the remaining entries will be appended to the end of the file.
+	 * Reads and rewrites the a properties file, adding the specified entries, overwriting all existing entries that
+	 * have one of the specified keys. It preserves all other lines, including comments and the order of the lines. Only
+	 * the lines with the specified key will be modified (preserving their order), where the first one is overwritten,
+	 * and succeeding ones (if there are any) will be deleted. If there are no such lines contained for some of the
+	 * specified entries, the remaining entries will be appended to the end of the file.
 	 * <p>
-	 * The method is also capable to delete entries, if the key occurs in the specified entries with
-	 * value null.
+	 * The method is also capable to delete entries, if the key occurs in the specified entries with value null.
 	 *
-	 * @param file the properties file to be updated
-	 * @param entries the keys to be overwritten with their (new) values
-	 * @param comments extra comment lines to be added as the topmost lines (prefix '#' will be
-	 * added automatically)
+	 * @param file     the properties file to be updated
+	 * @param entries  the keys to be overwritten with their (new) values
+	 * @param comments extra comment lines to be added as the topmost lines (prefix '#' will be added automatically)
 	 * @throws IOException if the properties file could not been read or written
 	 */
 	public static void updatePropertiesFile(File file, Map<String, String> entries, String... comments) throws IOException {
@@ -444,8 +436,8 @@ public class Files {
 	}
 
 	/**
-	 * Returns the file extension without the leading ".". If the file has no ".", the empty String
-	 * is returned. if the file is null, null is returned.
+	 * Returns the file extension without the leading ".". If the file has no ".", the empty String is returned. if the
+	 * file is null, null is returned.
 	 *
 	 * @param filename the file to get the extension from
 	 * @return the extension of the specified file
@@ -459,8 +451,8 @@ public class Files {
 	}
 
 	/**
-	 * Returns the file extension without the leading ".". If the file has no ".", the empty String
-	 * is returned. if the file is null, null is returned.
+	 * Returns the file extension without the leading ".". If the file has no ".", the empty String is returned. if the
+	 * file is null, null is returned.
 	 *
 	 * @param file the file to get the extension from
 	 * @return the extension of the specified file
@@ -472,11 +464,11 @@ public class Files {
 	}
 
 	/**
-	 * Returns true if the specified file has one of the specified file extensions. The extensions
-	 * are tested case insensitive. The specified extension must contain only the characters after
-	 * the separating ".", not the "." itself. The characters are compared case insensitive.
+	 * Returns true if the specified file has one of the specified file extensions. The extensions are tested case
+	 * insensitive. The specified extension must contain only the characters after the separating ".", not the "."
+	 * itself. The characters are compared case insensitive.
 	 *
-	 * @param fileName the abstract path of the file to be tested
+	 * @param fileName   the abstract path of the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
 	 */
@@ -495,23 +487,22 @@ public class Files {
 	}
 
 	/**
-	 * Returns true if the specified file has one of the specified file extensions. The extensions
-	 * are tested case insensitive. The specified extension must contain only the characters after
-	 * the separating ".", not the "." itself. The characters are compared case insensitive.
+	 * Returns true if the specified file has one of the specified file extensions. The extensions are tested case
+	 * insensitive. The specified extension must contain only the characters after the separating ".", not the "."
+	 * itself. The characters are compared case insensitive.
 	 *
-	 * @param file the file to be tested
+	 * @param file       the file to be tested
 	 * @param extensions the extensions to be tested for
 	 * @return if the file has any of the specified extensions
-	 * @throws NullPointerException if the array of extensions is null or if any of the contained
-	 * extension is null
+	 * @throws NullPointerException if the array of extensions is null or if any of the contained extension is null
 	 */
 	public static boolean hasExtension(File file, String... extensions) {
 		return file != null && hasExtension(file.getName(), extensions);
 	}
 
 	/**
-	 * Returns the file path without its extension and without the "." before the extension. If the
-	 * file has no ".", the original file path is returned. if the file is null, null is returned.
+	 * Returns the file path without its extension and without the "." before the extension. If the file has no ".", the
+	 * original file path is returned. if the file is null, null is returned.
 	 *
 	 * @param filename the file to remove the extension from
 	 * @return the path of the specified file without the extension
@@ -525,8 +516,8 @@ public class Files {
 	}
 
 	/**
-	 * Returns the file path without its extension and without the "." before the extension. If the
-	 * file has no ".", the original file path is returned. if the file is null, null is returned.
+	 * Returns the file path without its extension and without the "." before the extension. If the file has no ".", the
+	 * original file path is returned. if the file is null, null is returned.
 	 *
 	 * @param file the file to remove the extension from
 	 * @return the path of the specified file without the extension
@@ -538,10 +529,12 @@ public class Files {
 	}
 
 	/**
-	 * Recursively gets all files matching the specified {@link FileFilter}. If no filter is
-	 * specified, all files recursively contained in the specified directory are returned.
+	 * Recursively gets all plain files matching the specified {@link FileFilter}. If no filter is specified, all files
+	 * recursively contained in the specified directory are returned. The directories itself are not added to the
+	 * returned files. If the specified root file is not a directory, an empty collection is returned (even if the
+	 * specified root is a file, it is NOT (!) returned).
 	 *
-	 * @param root the root directory
+	 * @param root   the root directory
 	 * @param filter filters the files
 	 * @return all files matching the specified filter in the specified directory (recursively)
 	 */
