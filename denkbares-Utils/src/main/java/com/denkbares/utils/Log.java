@@ -109,7 +109,6 @@ public class Log {
 		 * @created 19.01.2014
 		 */
 		String getMethodName(int stackLevel);
-
 	}
 
 	/**
@@ -245,7 +244,7 @@ public class Log {
 	 *
 	 * @param method the method of class detection to be used for logging
 	 * @throws IllegalStateException if this method will not been supported by the currently used
-	 * virtual machine implementation
+	 *                               virtual machine implementation
 	 * @created 19.01.2014
 	 */
 	public static void init(ClassDetection method) throws IllegalStateException {
@@ -269,6 +268,28 @@ public class Log {
 		}
 	}
 
+	private static String contextName = null;
+
+	/**
+	 * Allows to set an optional context name which will be displayed in the log message. This is helpful in case
+	 * multiple apps write into the same log file, e.g. tomcat web apps. There can only be one context for each JVM or
+	 * class loader.
+	 *
+	 * @param contextName the context name to be set for logging
+	 */
+	public static void setContextName(String contextName) {
+		Log.contextName = contextName;
+	}
+
+	/**
+	 * Gets the currently set context name for logging. Also see {@link #setContextName(String)}.
+	 *
+	 * @return the currently set context name.
+	 */
+	public static String getContextName() {
+		return Log.contextName;
+	}
+
 	/**
 	 * Log a FINEST message.
 	 * <p/>
@@ -290,7 +311,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void finest(String message, Throwable e) {
 		log(1, Level.FINEST, message, e);
@@ -317,7 +338,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void finer(String message, Throwable e) {
 		log(1, Level.FINER, message, e);
@@ -344,7 +365,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void fine(String message, Throwable e) {
 		log(1, Level.FINE, message, e);
@@ -371,7 +392,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void info(String message, Throwable e) {
 		log(1, Level.INFO, message, e);
@@ -399,7 +420,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void warning(String message, Throwable e) {
 		log(1, Level.WARNING, message, e);
@@ -426,7 +447,7 @@ public class Log {
 	 * <p/>
 	 *
 	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception responsible to cause this log message
+	 * @param e       the exception responsible to cause this log message
 	 */
 	public static void severe(String message, Throwable e) {
 		log(1, Level.SEVERE, message, e);
@@ -443,8 +464,8 @@ public class Log {
 	 * <p>
 	 *
 	 * @param framesAbove the number of call stack frames to go up to find the logging originator
-	 * @param level the log level to be used for logging
-	 * @param message The string message (or a key in the message catalog)
+	 * @param level       the log level to be used for logging
+	 * @param message     The string message (or a key in the message catalog)
 	 */
 	public static void mock(int framesAbove, Level level, String message) {
 		if (framesAbove <= 0) throw new IndexOutOfBoundsException();
@@ -462,9 +483,9 @@ public class Log {
 	 * <p>
 	 *
 	 * @param framesAbove the number of call stack frames to go up to find the logging originator
-	 * @param level the log level to be used for logging
-	 * @param message The string message (or a key in the message catalog)
-	 * @param e the exception to be logged
+	 * @param level       the log level to be used for logging
+	 * @param message     The string message (or a key in the message catalog)
+	 * @param e           the exception to be logged
 	 */
 	public static void mock(int framesAbove, Level level, String message, Throwable e) {
 		if (framesAbove <= 0) throw new IndexOutOfBoundsException();
@@ -519,6 +540,9 @@ public class Log {
 		StackFrame source = getSource(stackLevel + 1);
 		String className = source.getClassName(stackLevel + 1);
 		Logger logger = Logger.getLogger(className);
+		if (contextName != null) {
+			message = contextName + " " + message;
+		}
 		if (logger.isLoggable(level)) {
 			logger.logp(level, className, source.getMethodName(stackLevel + 1), message);
 		}
@@ -528,9 +552,12 @@ public class Log {
 		StackFrame source = getSource(stackLevel + 1);
 		String className = source.getClassName(stackLevel + 1);
 		Logger logger = Logger.getLogger(className);
+		String contextName = getContextName();
+		if (contextName != null) {
+			message = contextName + " " + message;
+		}
 		if (logger.isLoggable(level)) {
 			logger.logp(level, className, source.getMethodName(stackLevel + 1), message, e);
 		}
 	}
-
 }
