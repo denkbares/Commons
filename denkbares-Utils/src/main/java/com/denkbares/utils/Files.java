@@ -39,16 +39,33 @@ public class Files {
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 
 	/**
-	 * Create a new temporary directory. Use {@link #recursiveDelete(File)} to clean this directory up since it isn't
-	 * deleted automatically
+	 * Create a new temporary directory in the systems temp directory. Use {@link #recursiveDelete(File)} to clean this
+	 * directory up since it isn't deleted automatically
 	 *
 	 * @return the new directory
 	 * @throws IOException if there is an error creating the temporary directory
 	 */
+	@NotNull
 	public static File createTempDir() throws IOException {
-		File baseDir = getSystemTempDir();
-		String baseName = System.currentTimeMillis() + "-";
+		return findTempDir(getSystemTempDir());
+	}
 
+	/**
+	 * Create a new temporary directory as a sub-directory of the specified base directory. Use {@link
+	 * #recursiveDelete(File)} to clean this directory up since it isn't deleted automatically.
+	 *
+	 * @return the new directory
+	 * @throws IOException if there is an error creating the temporary directory
+	 */
+	@NotNull
+	public static File createTempDir(File baseDir) throws IOException {
+		assertTempDir(baseDir);
+		return findTempDir(baseDir);
+	}
+
+	@NotNull
+	private static File findTempDir(File baseDir) throws IOException {
+		String baseName = System.currentTimeMillis() + "-";
 		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
 			File tempDir = new File(baseDir, baseName + counter);
 			if (tempDir.mkdir()) {
@@ -120,11 +137,15 @@ public class Files {
 	@NotNull
 	public static File getSystemTempDir() throws IOException {
 		File baseDir = new File(System.getProperty("java.io.tmpdir"));
+		assertTempDir(baseDir);
+		return baseDir;
+	}
+
+	private static void assertTempDir(File baseDir) throws IOException {
 		baseDir.mkdirs();
 		if (!baseDir.isDirectory()) {
-			throw new IOException("Failed to access temp directory");
+			throw new IOException("Failed to access temp directory: " + baseDir);
 		}
-		return baseDir;
 	}
 
 	/**
