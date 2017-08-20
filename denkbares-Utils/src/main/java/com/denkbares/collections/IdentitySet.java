@@ -22,6 +22,8 @@ import java.util.AbstractSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * An Set using reference-equality
  * 
@@ -47,6 +49,7 @@ public class IdentitySet<E> extends AbstractSet<E> {
 
 	@Override
 	public boolean contains(Object arg0) {
+		//noinspection SuspiciousMethodCalls
 		return map.containsKey(arg0);
 	}
 
@@ -55,6 +58,7 @@ public class IdentitySet<E> extends AbstractSet<E> {
 		return map.isEmpty();
 	}
 
+	@NotNull
 	@Override
 	public Iterator<E> iterator() {
 		return map.keySet().iterator();
