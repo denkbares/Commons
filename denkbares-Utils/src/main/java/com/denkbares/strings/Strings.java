@@ -1922,7 +1922,7 @@ public class Strings {
 		Files.writeFile(file, content);
 	}
 
-	private static final Pattern LOCALE_PATTERN = Pattern.compile("(\\w\\w)(?:_(\\w\\w)(?:_#([^_]*))?(?:_(\\p{Graph}+))?)?");
+	private static final Pattern LOCALE_PATTERN = Pattern.compile("(\\w\\w)(?:[\\-_](\\w\\w)(?:[\\-_]#([^\\-_]*))?(?:[\\-_](\\p{Graph}+))?)?");
 
 	/**
 	 * Parses a locale from a locale string representation. This is the inverse method to {@link
