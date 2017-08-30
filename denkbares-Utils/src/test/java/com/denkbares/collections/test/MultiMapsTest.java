@@ -52,7 +52,7 @@ public class MultiMapsTest {
 	@Test
 	public void factories() {
 		checkFactory(MultiMaps.hashFactory());
-		checkFactory(MultiMaps.hashMinimizedFactory());
+		checkFactory(MultiMaps.minimizedFactory());
 		checkFactory(MultiMaps.treeFactory());
 		//noinspection RedundantTypeArguments
 		checkFactory(MultiMaps.treeFactory(Comparator.<String>reverseOrder()));
@@ -61,7 +61,7 @@ public class MultiMapsTest {
 
 	@Test
 	public void minimizedHashSet() {
-		Set<String> set = MultiMaps.<String>hashMinimizedFactory().createSet();
+		Set<String> set = MultiMaps.<String>minimizedFactory().createSet();
 		// test empty set
 		assertTrue(set.isEmpty());
 		assertEquals(0, set.size());
@@ -119,26 +119,26 @@ public class MultiMapsTest {
 
 	@Test(expected = NoSuchElementException.class)
 	public void minimizedHashSetException1() {
-		Set<String> set = MultiMaps.<String>hashMinimizedFactory().createSet();
+		Set<String> set = MultiMaps.<String>minimizedFactory().createSet();
 		set.iterator().next();
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void minimizedHashSetException2() {
-		Set<String> set = MultiMaps.<String>hashMinimizedFactory().createSet();
+		Set<String> set = MultiMaps.<String>minimizedFactory().createSet();
 		set.iterator().remove();
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void minimizedHashSetException3() {
-		Set<String> set = MultiMaps.<String>hashMinimizedFactory().createSet();
+		Set<String> set = MultiMaps.<String>minimizedFactory().createSet();
 		set.add("test");
 		set.iterator().remove();
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void minimizedHashSetException4() {
-		Set<String> set = MultiMaps.<String>hashMinimizedFactory().createSet();
+		Set<String> set = MultiMaps.<String>minimizedFactory().createSet();
 		set.add("test");
 		Iterator<String> iterator = set.iterator();
 		iterator.next();

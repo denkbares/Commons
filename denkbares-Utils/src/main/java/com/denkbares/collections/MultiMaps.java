@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -48,8 +49,8 @@ import org.jetbrains.annotations.NotNull;
 public class MultiMaps {
 
 	/**
-	 * Interface to provide factories to create the individual collection instances used by the
-	 * MultiMap implementations to collect the keys and/or values.
+	 * Interface to provide factories to create the individual collection instances used by the MultiMap implementations
+	 * to collect the keys and/or values.
 	 *
 	 * @param <T> the elements to have the collection factory for
 	 * @author Volker Belli (denkbares GmbH)
@@ -148,6 +149,19 @@ public class MultiMaps {
 		}
 	}
 
+	private static final class IdentityFactory<T> implements CollectionFactory<T> {
+
+		@Override
+		public Set<T> createSet() {
+			return Collections.newSetFromMap(new IdentityHashMap<>());
+		}
+
+		@Override
+		public <E> Map<T, E> createMap() {
+			return new IdentityHashMap<>();
+		}
+	}
+
 	@SuppressWarnings("rawtypes")
 	private static final CollectionFactory HASH = new HashFactory(16);
 
@@ -163,9 +177,12 @@ public class MultiMaps {
 	@SuppressWarnings("rawtypes")
 	private static final CollectionFactory TREE = new TreeFactory();
 
+	@SuppressWarnings("rawtypes")
+	private static final CollectionFactory IDENTITY = new IdentityFactory();
+
 	/**
-	 * Returns a collection factory for hashing the entries, using {@link T#hashCode()} and {@link
-	 * T#equals(Object)} method.
+	 * Returns a collection factory for hashing the entries, using {@link T#hashCode()} and {@link T#equals(Object)}
+	 * method.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -176,21 +193,19 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a collection factory for hashing the entries, using {@link T#hashCode()} and {@link
-	 * T#equals(Object)} method. The initial hash tables to be used are kept as minimized as
-	 * possible.
+	 * Returns a collection factory for hashing the entries, using {@link T#hashCode()} and {@link T#equals(Object)}
+	 * method. The initial hash tables to be used are kept as minimized as possible.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> CollectionFactory<T> hashMinimizedFactory() {
+	public static <T> CollectionFactory<T> minimizedFactory() {
 		return (CollectionFactory<T>) HASH_MINIMIZED;
 	}
 
 	/**
-	 * Returns a collection factory for handling the entries as a tree, using {@link
-	 * T#compareTo(Object)) method.
+	 * Returns a collection factory for handling the entries as a tree, using {@link T#compareTo(Object)) method.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -201,8 +216,20 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a collection factory for handling the entries as a tree, using {@link Comparator} to
-	 * sort.
+	 * Returns a collection factory for handling the entries with identity hashing. This means only the same object
+	 * instances are treated to be equal. No {@link Object#equals(Object)} or {@link Object#hashCode()} of the contained
+	 * objects will be used.
+	 *
+	 * @return the collection factory
+	 * @created 09.01.2014
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> CollectionFactory<T> identityFactory() {
+		return (CollectionFactory<T>) IDENTITY;
+	}
+
+	/**
+	 * Returns a collection factory for handling the entries as a tree, using {@link Comparator} to sort.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -213,9 +240,8 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a collection factory for hashing the entries in linked sets/maps, using {@link
-	 * T#hashCode()} and {@link T#equals(Object)} method. The order of the contained objects will
-	 * remain stable.
+	 * Returns a collection factory for hashing the entries in linked sets/maps, using {@link T#hashCode()} and {@link
+	 * T#equals(Object)} method. The order of the contained objects will remain stable.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -227,8 +253,7 @@ public class MultiMaps {
 
 	/**
 	 * Returns a collection factory for hashing the entries in linked sets/maps of minimized size, using {@link
-	 * T#hashCode()} and {@link T#equals(Object)} method. The order of the contained objects will
-	 * remain stable.
+	 * T#hashCode()} and {@link T#equals(Object)} method. The order of the contained objects will remain stable.
 	 *
 	 * @return the collection factory
 	 * @created 09.01.2014
@@ -511,14 +536,13 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a multi map that has the keys and values switched/exchanged. Exactly for each
-	 * key-&gt;value relation of the original map there is a value-&gt;key relation in the returned
-	 * one.
+	 * Returns a multi map that has the keys and values switched/exchanged. Exactly for each key-&gt;value relation of
+	 * the original map there is a value-&gt;key relation in the returned one.
 	 * <p>
 	 * All changes made to the returned map are mapped into the specified map, and vice versa.
 	 *
-	 * @param map the map to get a reversed one
-	 * @param <K> the key type of the map to be reversed, becoming the values type of the new map
+	 * @param map    the map to get a reversed one
+	 * @param <K>    the key type of the map to be reversed, becoming the values type of the new map
 	 * @param <V>the value type of the map to be reversed, becoming the key type of the new map
 	 * @return the reversed map where keys and values are exchanged
 	 */
@@ -820,21 +844,20 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
-	 * {@code V}, grouping elements according to a classification function, and returning the
-	 * results in a {@link MultiMap}, where the keys are extracted by the specified function, and
-	 * the values are the unmodified values of the stream.
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type {@code V}, grouping
+	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
+	 * are extracted by the specified function, and the values are the unmodified values of the stream.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector
-	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
-	 * classification function to the input elements, and whose corresponding values are the input
-	 * elements which map to the associated key under the classification function.
+	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
+	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
+	 * elements, and whose corresponding values are the input elements which map to the associated key under the
+	 * classification function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
-	 * {@code MultiMap} objects returned.
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * objects returned.
 	 *
-	 * @param <V> the type of the input elements
-	 * @param <K> the type of the keys
+	 * @param <V>          the type of the input elements
+	 * @param <K>          the type of the keys
 	 * @param keyExtractor the classifier function mapping input elements to keys
 	 * @return a {@code Collector} implementing the group-by operation
 	 * @see java.util.stream.Collectors#groupingBy(Function)
@@ -872,22 +895,21 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
-	 * {@code V}, grouping elements according to a classification function, and returning the
-	 * results in a {@link MultiMap}, where the keys are extracted by the specified keyExtractor
-	 * function, and the values are the values of the stream mapped through the specified
-	 * valueExtractor function.
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type {@code V}, grouping
+	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
+	 * are extracted by the specified keyExtractor function, and the values are the values of the stream mapped through
+	 * the specified valueExtractor function.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector
-	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
-	 * classification function to the input elements, and whose corresponding values are the mapped
-	 * input elements which map to the associated key under the classification function.
+	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
+	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
+	 * elements, and whose corresponding values are the mapped input elements which map to the associated key under the
+	 * classification function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
-	 * {@code MultiMap} objects returned.
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * objects returned.
 	 *
-	 * @param <V> the type of the input elements
-	 * @param <K> the type of the keys
+	 * @param <V>          the type of the input elements
+	 * @param <K>          the type of the keys
 	 * @param keyExtractor the classifier function mapping input elements to keys
 	 * @return a {@code Collector} implementing the group-by operation
 	 */
@@ -896,22 +918,21 @@ public class MultiMaps {
 	}
 
 	/**
-	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type
-	 * {@code V}, grouping elements according to a classification function, and returning the
-	 * results in a {@link MultiMap}, where the keys are extracted by the specified keyExtractor
-	 * function, and the values are the values of the stream mapped through the specified
-	 * valueExtractor function.
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type {@code V}, grouping
+	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
+	 * are extracted by the specified keyExtractor function, and the values are the values of the stream mapped through
+	 * the specified valueExtractor function.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector
-	 * produces a {@code MultiMap<K, V>} whose keys are the values resulting from applying the
-	 * classification function to the input elements, and whose corresponding values are the mapped
-	 * input elements which map to the associated key under the classification function.
+	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
+	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
+	 * elements, and whose corresponding values are the mapped input elements which map to the associated key under the
+	 * classification function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the
-	 * {@code MultiMap} objects returned.
+	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * objects returned.
 	 *
-	 * @param <V> the type of the input elements
-	 * @param <K> the type of the keys
+	 * @param <V>          the type of the input elements
+	 * @param <K>          the type of the keys
 	 * @param keyExtractor the classifier function mapping input elements to keys
 	 * @return a {@code Collector} implementing the group-by operation
 	 */
