@@ -81,9 +81,8 @@ public class Strings {
 	public static final SimpleDateFormat DATE_FORMAT_COMPATIBILITY = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 
 	/**
-	 * A Comparator that orders <code>String</code> objects as by <code>compareToIgnoreCase</code>.
-	 * The comparator behaves identical to {@link String#CASE_INSENSITIVE_ORDER}, but handles
-	 * <code>null</code> as the lowest string.
+	 * A Comparator that orders <code>String</code> objects as by <code>compareToIgnoreCase</code>. The comparator
+	 * behaves identical to {@link String#CASE_INSENSITIVE_ORDER}, but handles <code>null</code> as the lowest string.
 	 */
 	public static final Comparator<String> CASE_INSENSITIVE_ORDER = (o1, o2) -> {
 		//noinspection StringEquality
@@ -96,9 +95,9 @@ public class Strings {
 	};
 
 	/**
-	 * This method appends the strings or objects and separates them with the specified separation
-	 * string in between (but not at the end). You can specify all types of objects, they will be
-	 * printed as {@link String#valueOf(Object)} would do.
+	 * This method appends the strings or objects and separates them with the specified separation string in between
+	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
+	 * String#valueOf(Object)} would do.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -110,9 +109,9 @@ public class Strings {
 	}
 
 	/**
-	 * This method appends the strings or objects and separates them with the specified separation
-	 * string in between (but not at the end). You can specify all types of objects, they will be
-	 * printed as {@link String#valueOf(Object)} would do.
+	 * This method appends the strings or objects and separates them with the specified separation string in between
+	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
+	 * String#valueOf(Object)} would do.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -138,11 +137,10 @@ public class Strings {
 	 *
 	 * @param text   the text string to be checked
 	 * @param suffix the suffix to be looked for
-	 * @return <code>true</code> if the character sequence represented by the argument is a suffix
-	 * of the character sequence represented by the specified text string; <code>false</code>
-	 * otherwise. Note also that <code>true</code> will be returned if the argument is an empty
-	 * string or is equal to this <code>String</code> object as determined by the {@link
-	 * #equals(Object)} method.
+	 * @return <code>true</code> if the character sequence represented by the argument is a suffix of the character
+	 * sequence represented by the specified text string; <code>false</code> otherwise. Note also that <code>true</code>
+	 * will be returned if the argument is an empty string or is equal to this <code>String</code> object as determined
+	 * by the {@link #equals(Object)} method.
 	 * @throws NullPointerException if any of the specified strings is null
 	 * @created 18.10.2010
 	 */
@@ -159,11 +157,10 @@ public class Strings {
 	}
 
 	/**
-	 * For a given index of an opening symbol (usually brackets) it finds (char index of) the
-	 * corresponding closing bracket/symbol. If there are any opening brackets in between, there
-	 * must be multiple closing brackets until the corresponding one is found. If there is no
-	 * corresponding closing bracket/symbol -1 is returned. If there is no open bracket at the
-	 * specified position -1 is also returned.
+	 * For a given index of an opening symbol (usually brackets) it finds (char index of) the corresponding closing
+	 * bracket/symbol. If there are any opening brackets in between, there must be multiple closing brackets until the
+	 * corresponding one is found. If there is no corresponding closing bracket/symbol -1 is returned. If there is no
+	 * open bracket at the specified position -1 is also returned.
 	 *
 	 * @param text             the text to be searched
 	 * @param openBracketIndex the index of zje bracket
@@ -202,9 +199,9 @@ public class Strings {
 	}
 
 	/**
-	 * Scans the 'text' for occurrences of 'symbol' which are not embraced by (unquoted) brackets
-	 * (opening bracket 'open' and closing bracket 'close') Here the kind of bracket can be passed
-	 * as char, however it will also work with char that are not brackets.. ;-)
+	 * Scans the 'text' for occurrences of 'symbol' which are not embraced by (unquoted) brackets (opening bracket
+	 * 'open' and closing bracket 'close') Here the kind of bracket can be passed as char, however it will also work
+	 * with char that are not brackets.. ;-)
 	 *
 	 * @param text   the text to be searched
 	 * @param symbol the symbol to be matched
@@ -278,8 +275,8 @@ public class Strings {
 	}
 
 	/**
-	 * Returns true if one of the given strings is contained in the given text. The case of the text
-	 * and the strings are ignored. If text is null it is treated as an empty string.
+	 * Returns true if one of the given strings is contained in the given text. The case of the text and the strings are
+	 * ignored. If text is null it is treated as an empty string.
 	 *
 	 * @param text    the text to search in
 	 * @param strings the strings to be searched
@@ -290,9 +287,8 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text. The
-	 * case of the text and the strings are ignored. If text is null it is treated as an empty
-	 * string.
+	 * Finds the index of the first occurrence of one of the given strings in the given text. The case of the text and
+	 * the strings are ignored. If text is null it is treated as an empty string.
 	 *
 	 * @param text    the text to search in
 	 * @param strings the strings to be searched
@@ -303,8 +299,8 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text.
-	 * Occurrences between quotes are ignored. If text is null it is treated as an empty string.
+	 * Finds the index of the first occurrence of one of the given strings in the given text. Occurrences between quotes
+	 * are ignored. If text is null it is treated as an empty string.
 	 *
 	 * @param text    the text to search in
 	 * @param strings the strings to be searched
@@ -315,69 +311,66 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text. If
-	 * text is null it is treated as an empty string.
+	 * Finds the index of the first occurrence of one of the given strings in the given text. If text is null it is
+	 * treated as an empty string.
 	 *
 	 * @param text    the text where we search for the strings
 	 * @param strings the strings for which you want the index in the text
-	 * @return the first index of any of the strings in the text or -1 if none of the strings is
-	 * found
+	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
 	public static int indexOf(String text, String... strings) {
 		return indexOf(text, 0, 0, strings);
 	}
 
 	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text. Use
-	 * the flags for more options. If text is null it is treated as an empty string.
+	 * Finds the index of the first occurrence of one of the given strings in the given text. Use the flags for more
+	 * options. If text is null it is treated as an empty string.
 	 *
 	 * @param text    the text where we search for the strings
 	 * @param flags   the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
-	 * @return the first index of any of the strings in the text or -1 if none of the strings is
-	 * found
+	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
 	public static int indexOf(String text, int flags, String... strings) {
 		return indexOf(text, 0, flags, strings);
 	}
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will
-	 * skip quoted strings.
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will skip quoted
+	 * strings.
 	 */
 	public static final int UNQUOTED = 0x01;
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will
-	 * skip comments (starting with double slash and ending at the end of the line).
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will skip comments
+	 * (starting with double slash and ending at the end of the line).
 	 */
 	public static final int SKIP_COMMENTS = 0x02;
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will
-	 * return the last index instead of the first.
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will return the last
+	 * index instead of the first.
 	 */
 	private static final int LAST_INDEX = 0x04;
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will
-	 * match strings case insensitive.
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will match strings case
+	 * insensitive.
 	 */
 	public static final int CASE_INSENSITIVE = 0x08;
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> If this flag is set,
-	 * the strings will only be matched against the start of the line, ignoring white spaces.<p>
-	 * <b>Example:</b> Consider the following text: "&nbsp;&nbsp;&nbsp;TEXT, MORE TEXT"<br> Using this flag looking
-	 * for the indices of TEXT will return index 3, because there are 3 preceding white spaces. The
-	 * index for the second occurrence of TEXT will be ignored, because it is not at the start of
-	 * the line.
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> If this flag is set, the strings will
+	 * only be matched against the start of the line, ignoring white spaces.<p> <b>Example:</b> Consider the following
+	 * text: "&nbsp;&nbsp;&nbsp;TEXT, MORE TEXT"<br> Using this flag looking for the indices of TEXT will return index
+	 * 3, because there are 3 preceding white spaces. The index for the second occurrence of TEXT will be ignored,
+	 * because it is not at the start of the line.
 	 */
 	public static final int FIRST_IN_LINE = 0x10;
 
 	/**
-	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will
-	 * only return results outside of braces.
+	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will only return results
+	 * outside of braces.
 	 */
 	public static final int UNBRACED = 0x20;
 
@@ -386,17 +379,15 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text after
-	 * the given offset. Use the flags for more options. If text is null it is treated as an empty
-	 * string.
+	 * Finds the index of the first occurrence of one of the given strings in the given text after the given offset. Use
+	 * the flags for more options. If text is null it is treated as an empty string.
 	 *
 	 * @param text    the text where we search for the strings
-	 * @param offset  the offset from where we start to look for the strings (flags like UNQUOTED or
-	 *                FIRST_IN_LINE also consider the text before the offset!)
+	 * @param offset  the offset from where we start to look for the strings (flags like UNQUOTED or FIRST_IN_LINE also
+	 *                consider the text before the offset!)
 	 * @param flags   the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
-	 * @return the first index of any of the strings in the text or -1 if none of the strings is
-	 * found
+	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
 	public static int indexOf(String text, int offset, int flags, String... strings) {
 		if (text == null) text = "";
@@ -501,9 +492,9 @@ public class Strings {
 	/**
 	 * Returns whether the specified {@link String} has at least one non-whitespace.
 	 * <p>
-	 * The method returns as follows: <ul> <li>Strings.isNotBlank(null): false
-	 * <li>Strings.isNotBlank(""): false <li>Strings.isNotBlank(" "): false
-	 * <li>Strings.isNotBlank("\n\r"): false <li>Strings.isNotBlank(" d3web "): true </ul>
+	 * The method returns as follows: <ul> <li>Strings.isNotBlank(null): false <li>Strings.isNotBlank(""): false
+	 * <li>Strings.isNotBlank(" "): false <li>Strings.isNotBlank("\n\r"): false <li>Strings.isNotBlank(" d3web "): true
+	 * </ul>
 	 *
 	 * @param text the string to be checked
 	 * @return <code>true</code> iff the string has any non-whitespace characters
@@ -515,9 +506,8 @@ public class Strings {
 	/**
 	 * Returns whether the specified {@link String} is null or only consists of whitespaces.
 	 * <p>
-	 * The method returns as follows: <ul> <li>Strings.isBlank(null): true <li>Strings.isBlank(""):
-	 * true <li>Strings.isBlank(" "): true <li>Strings.isBlank("\n\r"): true <li>Strings.isBlank("
-	 * d3web "): false </ul>
+	 * The method returns as follows: <ul> <li>Strings.isBlank(null): true <li>Strings.isBlank(""): true
+	 * <li>Strings.isBlank(" "): true <li>Strings.isBlank("\n\r"): true <li>Strings.isBlank(" d3web "): false </ul>
 	 *
 	 * @param text the string to be checked
 	 * @return <code>true</code> iff the string has no non-whitespace character
@@ -540,11 +530,10 @@ public class Strings {
 	}
 
 	/**
-	 * Return whether some index in a string is in quotes or not. The indices of the quote
-	 * characters are considered to also be in quotes.
+	 * Return whether some index in a string is in quotes or not. The indices of the quote characters are considered to
+	 * also be in quotes.
 	 * <p>
-	 * If a index is given which does not fit inside the given text, an {@link
-	 * IllegalArgumentException} is thrown.
+	 * If a index is given which does not fit inside the given text, an {@link IllegalArgumentException} is thrown.
 	 *
 	 * @param text  the text which may contain quotes
 	 * @param index the index or position in the text which will be check if it is in quotes or not
@@ -576,10 +565,10 @@ public class Strings {
 	}
 
 	/**
-	 * Checks whether the given text is correctly and completely quoted with double quotes. This
-	 * means that it starts and ends with a quote that is not escaped and the text does not have any
-	 * other not escaped quotes in between.<br/> An escaped quote is a quote that is preceded by a
-	 * backslash -> \"<br/> The escaping backslash cannot be escaped itself by another backslash.
+	 * Checks whether the given text is correctly and completely quoted with double quotes. This means that it starts
+	 * and ends with a quote that is not escaped and the text does not have any other not escaped quotes in
+	 * between.<br/> An escaped quote is a quote that is preceded by a backslash -> \"<br/> The escaping backslash
+	 * cannot be escaped itself by another backslash.
 	 *
 	 * @param text the text to be checked
 	 * @return whether the given text is quoted
@@ -590,11 +579,10 @@ public class Strings {
 	}
 
 	/**
-	 * Checks whether the given text is correctly and completely quoted with the specified quote
-	 * char. This means that it starts and ends with a quote that is not escaped and the text does
-	 * not have any other not escaped quotes in between.<br/> An escaped quote is a quote that is
-	 * preceded by a backslash -> \"<br/> The escaping backslash cannot be escaped itself by another
-	 * backslash.
+	 * Checks whether the given text is correctly and completely quoted with the specified quote char. This means that
+	 * it starts and ends with a quote that is not escaped and the text does not have any other not escaped quotes in
+	 * between.<br/> An escaped quote is a quote that is preceded by a backslash -> \"<br/> The escaping backslash
+	 * cannot be escaped itself by another backslash.
 	 *
 	 * @param text the text to be checked
 	 * @return whether the given text is quoted
@@ -643,8 +631,8 @@ public class Strings {
 	}
 
 	/**
-	 * Scans the 'text' for the last occurrence of any of the strings, which are not embraced in
-	 * quotes ('"') and returns the start index of the strings.
+	 * Scans the 'text' for the last occurrence of any of the strings, which are not embraced in quotes ('"') and
+	 * returns the start index of the strings.
 	 *
 	 * @param text    the text to be searched
 	 * @param strings the strings to be matched
@@ -655,14 +643,13 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the index of the last occurrence of any of the given strings in the given text. Use the
-	 * flags for more settings.
+	 * Finds the index of the last occurrence of any of the given strings in the given text. Use the flags for more
+	 * settings.
 	 *
 	 * @param text    the text where we search for the strings
 	 * @param flags   the settings flags to influence the behavior of the method
 	 * @param strings the strings for which you want the index in the text
-	 * @return the last index of any of the strings in the text or -1 if none of the strings is
-	 * found
+	 * @return the last index of any of the strings in the text or -1 if none of the strings is found
 	 */
 	public static int lastIndexOf(String text, int flags, String... strings) {
 		return indexOf(text, 0, flags | LAST_INDEX, strings);
@@ -889,11 +876,10 @@ public class Strings {
 	 *
 	 * @param text   the text string to be checked
 	 * @param prefix the prefix to be looked for
-	 * @return <code>true</code> if the character sequence represented by the argument is a prefix
-	 * of the character sequence represented by the specified text string; <code>false</code>
-	 * otherwise. Note also that <code>true</code> will be returned if the argument is an empty
-	 * string or is equal to this <code>String</code> object as determined by the {@link
-	 * #equals(Object)} method.
+	 * @return <code>true</code> if the character sequence represented by the argument is a prefix of the character
+	 * sequence represented by the specified text string; <code>false</code> otherwise. Note also that <code>true</code>
+	 * will be returned if the argument is an empty string or is equal to this <code>String</code> object as determined
+	 * by the {@link #equals(Object)} method.
 	 * @throws NullPointerException if any of the specified strings is null
 	 * @created 18.10.2010
 	 */
@@ -909,15 +895,14 @@ public class Strings {
 	}
 
 	/**
-	 * Compares the specified two {@code String}s, ignoring case considerations. Two strings are
-	 * considered equal if they are of the same length and corresponding characters in the two
-	 * strings are equal ignoring case. If any of the two specified strings is null, it is
-	 * considered to be the empty string ("").
+	 * Compares the specified two {@code String}s, ignoring case considerations. Two strings are considered equal if
+	 * they are of the same length and corresponding characters in the two strings are equal ignoring case. If any of
+	 * the two specified strings is null, it is considered to be the empty string ("").
 	 *
 	 * @param text1 The first {@code String} to be compared
 	 * @param text2 The second {@code String} to be compared
-	 * @return {@code true} if the arguments represents an equivalent {@code String} ignoring case;
-	 * {@code false} otherwise
+	 * @return {@code true} if the arguments represents an equivalent {@code String} ignoring case; {@code false}
+	 * otherwise
 	 * @see String#equalsIgnoreCase(String)
 	 */
 	public static boolean equalsIgnoreCase(String text1, String text2) {
@@ -933,14 +918,13 @@ public class Strings {
 	}
 
 	/**
-	 * Compares the specified two {@code String}s. Two strings are considered equal if they are of
-	 * the same length and corresponding characters in the two strings are equal. If any of the two
-	 * specified strings is null, it is considered to be the empty string ("").
+	 * Compares the specified two {@code String}s. Two strings are considered equal if they are of the same length and
+	 * corresponding characters in the two strings are equal. If any of the two specified strings is null, it is
+	 * considered to be the empty string ("").
 	 *
 	 * @param text1 The first {@code String} to be compared
 	 * @param text2 The second {@code String} to be compared
-	 * @return {@code true} if the arguments represents an equivalent {@code String}; {@code false}
-	 * otherwise
+	 * @return {@code true} if the arguments represents an equivalent {@code String}; {@code false} otherwise
 	 * @see String#equals(Object)
 	 */
 	public static boolean equals(String text1, String text2) {
@@ -957,8 +941,8 @@ public class Strings {
 
 	/**
 	 * Returns a sub-sequence of the source character sequence or string. In contrast to
-	 * <code></code>state.getSource().substring(state.getSourceIndex)</code> the method does not
-	 * copy any character or byte array.
+	 * <code></code>state.getSource().substring(state.getSourceIndex)</code> the method does not copy any character or
+	 * byte array.
 	 *
 	 * @return the sub-sequence of the source text
 	 */
@@ -995,25 +979,20 @@ public class Strings {
 	/**
 	 * Returns a copy of the string, with leading whitespace omitted.
 	 * <p>
-	 * If this <code>String</code> object represents an empty character sequence, or the first
-	 * character of character sequence represented by this <code>String</code> object has a code
-	 * greater than <code>'&#92;u0020'</code> (the space character), then a reference to this
-	 * <code>String</code> object is returned.
+	 * If this <code>String</code> object represents an empty character sequence, or the first character of character
+	 * sequence represented by this <code>String</code> object has a code greater than <code>'&#92;u0020'</code> (the
+	 * space character), then a reference to this <code>String</code> object is returned.
 	 * <p>
-	 * Otherwise, if there is no character with a code greater than <code>'&#92;u0020'</code> in the
-	 * string, then a new <code>String</code> object representing an empty string is created and
-	 * returned.
+	 * Otherwise, if there is no character with a code greater than <code>'&#92;u0020'</code> in the string, then a new
+	 * <code>String</code> object representing an empty string is created and returned.
 	 * <p>
-	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is
-	 * greater than <code>'&#92;u0020'</code>. A new <code>String</code> object is created,
-	 * representing the substring of this string that begins with the character at index <i>k</i>,
-	 * the result of <code>this.substring(<i>k</i>)</code>.
+	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
+	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this string
+	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
-	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a
-	 * string.
+	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
 	 *
-	 * @return A copy of this string with leading white space removed, or this string if it has no
-	 * leading white space.
+	 * @return A copy of this string with leading white space removed, or this string if it has no leading white space.
 	 */
 	public static String trimLeft(String text) {
 		if (text == null) return null;
@@ -1031,8 +1010,7 @@ public class Strings {
 	}
 
 	/**
-	 * Returns a collection containing all the strings from the passed collection being trimmed
-	 * using Strings.trim()
+	 * Returns a collection containing all the strings from the passed collection being trimmed using Strings.trim()
 	 *
 	 * @param strings the strings to be trimmed
 	 * @return the trimmed strings
@@ -1047,9 +1025,8 @@ public class Strings {
 	}
 
 	/**
-	 * Removes all blank lines before or after the specified string. All lines containing
-	 * non-whitespace characters remain unchanged, except the last line, where the trailing line
-	 * break is also removed.
+	 * Removes all blank lines before or after the specified string. All lines containing non-whitespace characters
+	 * remain unchanged, except the last line, where the trailing line break is also removed.
 	 *
 	 * @param text the text to trim the empty lines from
 	 * @return the trimmed text
@@ -1062,8 +1039,8 @@ public class Strings {
 	}
 
 	/**
-	 * Removes all blank lines before or after the specified string. All lines containing
-	 * non-whitespace characters remain unchanged.
+	 * Removes all blank lines before or after the specified string. All lines containing non-whitespace characters
+	 * remain unchanged.
 	 *
 	 * @param text the text to trim the empty lines from
 	 * @return the trimmed text
@@ -1082,25 +1059,20 @@ public class Strings {
 	/**
 	 * Returns a copy of the string, with trailing whitespace omitted.
 	 * <p>
-	 * If this <code>String</code> object represents an empty character sequence, or the first
-	 * character of character sequence represented by this <code>String</code> object has a code
-	 * greater than <code>'&#92;u0020'</code> (the space character), then a reference to this
-	 * <code>String</code> object is returned.
+	 * If this <code>String</code> object represents an empty character sequence, or the first character of character
+	 * sequence represented by this <code>String</code> object has a code greater than <code>'&#92;u0020'</code> (the
+	 * space character), then a reference to this <code>String</code> object is returned.
 	 * <p>
-	 * Otherwise, if there is no character with a code greater than <code>'&#92;u0020'</code> in the
-	 * string, then a new <code>String</code> object representing an empty string is created and
-	 * returned.
+	 * Otherwise, if there is no character with a code greater than <code>'&#92;u0020'</code> in the string, then a new
+	 * <code>String</code> object representing an empty string is created and returned.
 	 * <p>
-	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is
-	 * greater than <code>'&#92;u0020'</code>. A new <code>String</code> object is created,
-	 * representing the substring of this string that begins with the character at index <i>k</i>,
-	 * the result of <code>this.substring(<i>k</i>)</code>.
+	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
+	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this string
+	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
-	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a
-	 * string.
+	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
 	 *
-	 * @return A copy of this string with leading white space removed, or this string if it has no
-	 * leading white space.
+	 * @return A copy of this string with leading white space removed, or this string if it has no leading white space.
 	 */
 	public static String trimRight(String text) {
 		if (text == null) return null;
@@ -1109,9 +1081,8 @@ public class Strings {
 	}
 
 	/**
-	 * Given a text String, a start and a end index, this method will decrement the end index as
-	 * long as the char before the end index is a white space and start < end. If the end can no
-	 * longer be decremented, the end is returned.
+	 * Given a text String, a start and a end index, this method will decrement the end index as long as the char before
+	 * the end index is a white space and start < end. If the end can no longer be decremented, the end is returned.
 	 */
 	public static int trimRight(String text, int start, int end) {
 		if (end > text.length()) return end;
@@ -1124,9 +1095,9 @@ public class Strings {
 	}
 
 	/**
-	 * Given a text String, a start and a end index, this method will increment the start index as
-	 * long as the char at the start index is a white space and start < end. If the start can no
-	 * longer be incremented, the start is returned.
+	 * Given a text String, a start and a end index, this method will increment the start index as long as the char at
+	 * the start index is a white space and start < end. If the start can no longer be incremented, the start is
+	 * returned.
 	 */
 	public static int trimLeft(String text, int start, int end) {
 		while (start >= 0
@@ -1143,8 +1114,8 @@ public class Strings {
 	}
 
 	/**
-	 * Moves the given start and end indices together until they point to the boundaries of a
-	 * trimmed string inside the text.
+	 * Moves the given start and end indices together until they point to the boundaries of a trimmed string inside the
+	 * text.
 	 *
 	 * @return a pair of integers representing start and end of trimmed string inside the given text
 	 */
@@ -1158,8 +1129,7 @@ public class Strings {
 	}
 
 	/**
-	 * Quotes the given String with ". If the String contains ", it will be escaped with the escape
-	 * char \.
+	 * Quotes the given String with ". If the String contains ", it will be escaped with the escape char \.
 	 *
 	 * @param text the string to be quoted
 	 */
@@ -1168,8 +1138,7 @@ public class Strings {
 	}
 
 	/**
-	 * Quotes the given String with '. If the String contains ', it will be escaped with the escape
-	 * char \.
+	 * Quotes the given String with '. If the String contains ', it will be escaped with the escape char \.
 	 *
 	 * @param text the string to be quoted
 	 */
@@ -1178,8 +1147,8 @@ public class Strings {
 	}
 
 	/**
-	 * Quotes the given String with a given quote char. If the String contains the quote char, it
-	 * will be escaped with the escape char \. Don't use \ as the quote char for this reason.
+	 * Quotes the given String with a given quote char. If the String contains the quote char, it will be escaped with
+	 * the escape char \. Don't use \ as the quote char for this reason.
 	 *
 	 * @param text      the string to be quoted
 	 * @param quoteChar the char used to quote
@@ -1200,9 +1169,8 @@ public class Strings {
 	}
 
 	/**
-	 * Unquotes the given String. If the String contains an escaped quote char (\"), it will be
-	 * unescaped. If the specified text ist null, null is returned. If the specified text is not
-	 * quoted the original text is returned.
+	 * Unquotes the given String. If the String contains an escaped quote char (\"), it will be unescaped. If the
+	 * specified text ist null, null is returned. If the specified text is not quoted the original text is returned.
 	 *
 	 * @param text the string to be unquoted
 	 */
@@ -1211,8 +1179,8 @@ public class Strings {
 	}
 
 	/**
-	 * Unquotes the given String from the given quote char. If the String contains an escaped quote
-	 * char (escaped with \), it will be unescaped.
+	 * Unquotes the given String from the given quote char. If the String contains an escaped quote char (escaped with
+	 * \), it will be unescaped.
 	 *
 	 * @param text      the text to be unquoted
 	 * @param quoteChar the char the string was quoted with
@@ -1247,8 +1215,8 @@ public class Strings {
 	}
 
 	/**
-	 * Unquotes the given String from any of the given quote characters. If the String contains an
-	 * escaped quote char (escaped with \), it will be unescaped.
+	 * Unquotes the given String from any of the given quote characters. If the String contains an escaped quote char
+	 * (escaped with \), it will be unescaped.
 	 *
 	 * @param text       the text to be unquoted
 	 * @param quoteChars the characters the string is potentially quoted with
@@ -1268,8 +1236,8 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-encode strings without dealing with {@link UnsupportedEncodingException} of
-	 * {@link URLEncoder#encode(String, String)}. If the specified text is null, null is returned.
+	 * Safe way to url-encode strings without dealing with {@link UnsupportedEncodingException} of {@link
+	 * URLEncoder#encode(String, String)}. If the specified text is null, null is returned.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
@@ -1311,8 +1279,8 @@ public class Strings {
 	private static Map<String, String> NAMED_ENTITIES = null;
 
 	/**
-	 * Decodes the html entities of a given String. Currently the method only supports a little
-	 * number of named entities but all ascii-coded entities. More entities are easy to be added.
+	 * Decodes the html entities of a given String. Currently the method only supports a little number of named entities
+	 * but all ascii-coded entities. More entities are easy to be added.
 	 *
 	 * @param text the text to be decoded
 	 * @return the decoded result
@@ -1635,8 +1603,7 @@ public class Strings {
 	}
 
 	/**
-	 * Util method to get a String from a double, where the decimal point is omitted in case it is
-	 * zero.
+	 * Util method to get a String from a double, where the decimal point is omitted in case it is zero.
 	 *
 	 * @param d is the double to trim
 	 * @return trimmed {@link String} representation of the {@link Double}
@@ -1647,9 +1614,25 @@ public class Strings {
 	}
 
 	/**
-	 * Returns a plain text representation of a html source code. It preserves some basic formatting
-	 * of html, e.g. unordered lists or paragraphs. May be improved in the future, e.g. for tables
-	 * and similar.
+	 * Returns the number of items together with the item name, correctly used in singular or plural case. It assumes
+	 * that the item name is in English language.
+	 * <pre>
+	 *     pluralOf(0, "apple") -> "0 apples"
+	 *     pluralOf(1, "user") -> "1 user"
+	 *     pluralOf(2, "coin") -> "2 coins"
+	 * </pre>
+	 *
+	 * @param itemCount the number of items
+	 * @param itemName  the name of the item in singular case
+	 * @return the item count plus the item name
+	 */
+	public static String pluralOf(int itemCount, String itemName) {
+		return itemCount + " " + ((itemCount == 1) ? itemName : Inflector.pluralOf(itemName));
+	}
+
+	/**
+	 * Returns a plain text representation of a html source code. It preserves some basic formatting of html, e.g.
+	 * unordered lists or paragraphs. May be improved in the future, e.g. for tables and similar.
 	 *
 	 * @param source the html source code
 	 * @return the converted plain text.
@@ -1748,9 +1731,8 @@ public class Strings {
 	}
 
 	/**
-	 * Capitalizes the given string, meaning the first character will be upper case, all following
-	 * are lower case. If there are multiple words, still only the first character of the string
-	 * will be capitalized!
+	 * Capitalizes the given string, meaning the first character will be upper case, all following are lower case. If
+	 * there are multiple words, still only the first character of the string will be capitalized!
 	 *
 	 * @param text the text to capitalize (make the first char upper case, rest lower case)
 	 * @return the capitalized version of the text
@@ -1761,10 +1743,9 @@ public class Strings {
 	}
 
 	/**
-	 * Concatenates an array of Strings in a way, that it can be parsed again without having to
-	 * worry about the separator being present in the concatenated Strings, using the method
-	 * #parseConcat. If necessary, path elements are set in quotes and quotes inside the strings are
-	 * escaped properly.
+	 * Concatenates an array of Strings in a way, that it can be parsed again without having to worry about the
+	 * separator being present in the concatenated Strings, using the method #parseConcat. If necessary, path elements
+	 * are set in quotes and quotes inside the strings are escaped properly.
 	 *
 	 * @param separator the separator used to concatenate
 	 * @param strings   the strings to be concatenated
@@ -1775,15 +1756,14 @@ public class Strings {
 	}
 
 	/**
-	 * Concatenates an array of Strings in a way, that it can be parsed again without having to
-	 * worry about the separator being present in the concatenated Strings, using the method
-	 * #parseConcat. If necessary, path elements are set in quotes and quotes inside the strings are
-	 * escaped properly.
+	 * Concatenates an array of Strings in a way, that it can be parsed again without having to worry about the
+	 * separator being present in the concatenated Strings, using the method #parseConcat. If necessary, path elements
+	 * are set in quotes and quotes inside the strings are escaped properly.
 	 *
 	 * @param separator    the separator used to concatenate
-	 * @param quotePattern optional pattern which will be used to decide, whether quotes should be
-	 *                     added for the different concatenated strings. It should at least contain the separator,
-	 *                     quote, and back slash!
+	 * @param quotePattern optional pattern which will be used to decide, whether quotes should be added for the
+	 *                     different concatenated strings. It should at least contain the separator, quote, and back
+	 *                     slash!
 	 * @param strings      the strings to be concatenated
 	 * @return a concatenated, properly escaped and again parsable string
 	 */
@@ -1804,9 +1784,8 @@ public class Strings {
 	}
 
 	/**
-	 * Parsed a String, that was previously concatenated using the method {@link
-	 * #concatParsable(String, Pattern, String[])}. The returned string elements are unescaped and
-	 * unqouted properly.
+	 * Parsed a String, that was previously concatenated using the method {@link #concatParsable(String, Pattern,
+	 * String[])}. The returned string elements are unescaped and unqouted properly.
 	 *
 	 * @param separator          the separator used to concat the string
 	 * @param concatenatedString the string to parse the elements from
@@ -1841,9 +1820,9 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of
-	 * {@link URLEncoder#encode(String, String)}. The encoding can be specified by this function. In
-	 * most cases UTF-8 encoding works best, see method {@link #decodeURL(String)} for this.
+	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
+	 * URLEncoder#encode(String, String)}. The encoding can be specified by this function. In most cases UTF-8 encoding
+	 * works best, see method {@link #decodeURL(String)} for this.
 	 *
 	 * @param text     the text to be encoded
 	 * @param encoding the encoding to be used for decode
@@ -1861,10 +1840,9 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of
-	 * {@link URLEncoder#encode(String, String)}. It used UTF-8 encoding for decode. If this does
-	 * not work well, try {@link #decodeURL(String, Encoding)} where you can specify a particular
-	 * encoding.
+	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
+	 * URLEncoder#encode(String, String)}. It used UTF-8 encoding for decode. If this does not work well, try {@link
+	 * #decodeURL(String, Encoding)} where you can specify a particular encoding.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
@@ -1926,9 +1904,9 @@ public class Strings {
 
 	/**
 	 * Parses a locale from a locale string representation. This is the inverse method to {@link
-	 * java.util.Locale#toString()}. If the specified text is null or "null" or cannot be parsed,
-	 * null is returned. If the specified text is empty or "ROOT", the root locale is returned.
-	 * Leading or trailing whitespaces will be ignored by this method.
+	 * java.util.Locale#toString()}. If the specified text is null or "null" or cannot be parsed, null is returned. If
+	 * the specified text is empty or "ROOT", the root locale is returned. Leading or trailing whitespaces will be
+	 * ignored by this method.
 	 *
 	 * @param text the locale's text representation to be parsed
 	 * @return the parsed locale
@@ -1955,9 +1933,8 @@ public class Strings {
 	}
 
 	/**
-	 * Parses a percentage or a fraction value. It returns the parsed value. If the specified text
-	 * ends with a % sign, the parsed value before the % sign is divided by 100, so "95%" will
-	 * return as 0.95.
+	 * Parses a percentage or a fraction value. It returns the parsed value. If the specified text ends with a % sign,
+	 * the parsed value before the % sign is divided by 100, so "95%" will return as 0.95.
 	 *
 	 * @param percentage string contains a floating point number or a percentage string
 	 * @return the value of the floating point number, including % interpretation
@@ -1976,10 +1953,9 @@ public class Strings {
 	}
 
 	/**
-	 * Returns the enum constant referenced by the specified enum name. This method is very similar
-	 * to T.value(name), despite that it is case insensitive. If the specified name cannot be
-	 * matched to a enum constant of the specified enum type, null is returned. This method never
-	 * throws an exception.
+	 * Returns the enum constant referenced by the specified enum name. This method is very similar to T.value(name),
+	 * despite that it is case insensitive. If the specified name cannot be matched to a enum constant of the specified
+	 * enum type, null is returned. This method never throws an exception.
 	 *
 	 * @param name     the name of the enum constant
 	 * @param enumType the type of the enum
@@ -1991,18 +1967,16 @@ public class Strings {
 	}
 
 	/**
-	 * Returns the enum constant referenced by the specified enum name. This method is very similar
-	 * to T.value(name), except that it is case insensitive and provides the capability to specify a
-	 * default value. The default value is used every time the specified name cannot be matched to a
-	 * enum constant of the specified enum type. Therefore this method always returns a valid enum
-	 * constant, even if the name is null.
+	 * Returns the enum constant referenced by the specified enum name. This method is very similar to T.value(name),
+	 * except that it is case insensitive and provides the capability to specify a default value. The default value is
+	 * used every time the specified name cannot be matched to a enum constant of the specified enum type. Therefore
+	 * this method always returns a valid enum constant, even if the name is null.
 	 * <p>
-	 * Please not that null as a default value is not allowed. In this case use the method {@link
-	 * #parseEnum(String, Class)}, because this method is not capable to handle null.
+	 * Please not that null as a default value is not allowed. In this case use the method {@link #parseEnum(String,
+	 * Class)}, because this method is not capable to handle null.
 	 *
 	 * @param name         the name of the enum constant
-	 * @param defaultValue the default enum constant to be used if the name does not match a
-	 *                     specific enum constant
+	 * @param defaultValue the default enum constant to be used if the name does not match a specific enum constant
 	 * @return the enum constant found case insensitive
 	 * @throws NullPointerException if the default value is null
 	 * @created 26.01.2014
@@ -2033,8 +2007,7 @@ public class Strings {
 	}
 
 	/**
-	 * Returns the names of the specified enumeration values as an array in the same order as the
-	 * enums are specified.
+	 * Returns the names of the specified enumeration values as an array in the same order as the enums are specified.
 	 *
 	 * @param enums the enum values for which the names shall be returned
 	 * @return the names of the enums
@@ -2050,8 +2023,7 @@ public class Strings {
 	}
 
 	/**
-	 * Determines whether the given string ends with the end character being not escaped by
-	 * backslash.
+	 * Determines whether the given string ends with the end character being not escaped by backslash.
 	 *
 	 * @param text the text to be checked
 	 * @param end  the expected end character
@@ -2065,8 +2037,8 @@ public class Strings {
 	}
 
 	/**
-	 * Returns the stack trace of a specified exception as a newly created String object. If the
-	 * exception is null, null is returned.
+	 * Returns the stack trace of a specified exception as a newly created String object. If the exception is null, null
+	 * is returned.
 	 *
 	 * @param e the exception to get the stack trace for
 	 * @return the stack trace of the exception
@@ -2077,8 +2049,8 @@ public class Strings {
 	}
 
 	/**
-	 * Returns the stack trace of a specified exception as a newly created String object. If the
-	 * exception is null, null is returned.
+	 * Returns the stack trace of a specified exception as a newly created String object. If the exception is null, null
+	 * is returned.
 	 *
 	 * @param e the exception to get the stack trace for
 	 * @return the stack trace of the exception
@@ -2098,8 +2070,8 @@ public class Strings {
 	}
 
 	/**
-	 * Finds the ordinal or nth index of the given string in the given text. Note that the first
-	 * occurrence is found by n = 0. Second occurrence by n = 1 and so on.
+	 * Finds the ordinal or nth index of the given string in the given text. Note that the first occurrence is found by
+	 * n = 0. Second occurrence by n = 1 and so on.
 	 * <p>
 	 * Implementation from user <i>aioobe</i> from <a href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
 	 *
@@ -2143,8 +2115,8 @@ public class Strings {
 	}
 
 	/**
-	 * Serializes a date object into a string using a standardized format. Can be un-serialized
-	 * using {@link #readDate(String)}.
+	 * Serializes a date object into a string using a standardized format. Can be un-serialized using {@link
+	 * #readDate(String)}.
 	 * <p>
 	 * This should be used to write dates for persistence.
 	 *
@@ -2159,10 +2131,9 @@ public class Strings {
 	/**
 	 * Un-serializes a date string created by {@link #writeDate(Date)}.
 	 *
-	 * @param compatibilityFormat allows to provide an additional format which will be applied, if
-	 *                            the default one fails. This allows to support persistence files that were written
-	 *                            before the
-	 *                            date verbalization was standardized.
+	 * @param compatibilityFormat allows to provide an additional format which will be applied, if the default one
+	 *                            fails. This allows to support persistence files that were written before the date
+	 *                            verbalization was standardized.
 	 */
 	public static Date readDate(String dateString, SimpleDateFormat compatibilityFormat) throws ParseException {
 		try {
