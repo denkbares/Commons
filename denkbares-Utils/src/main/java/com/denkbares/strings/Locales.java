@@ -48,14 +48,22 @@ public class Locales {
 		if (o1 == o2) return 0;
 		if (o1 == null) return -1;
 		if (o2 == null) return 1;
-		return String.valueOf(o1).compareTo(String.valueOf(o2));
+
+		// most cases, locale is same for same language, so we take a shortcut here
+		int lang = o1.getLanguage().compareTo(o2.getLanguage());
+		if (lang != 0) return lang;
+		if (o1.equals(o2)) return 0;
+
+		// also check county, if still same use full string representation
+		int country = o1.getCountry().compareTo(o2.getCountry());
+		return (country == 0) ? String.valueOf(o1).compareTo(String.valueOf(o2)) : country;
 	};
 
 	/**
 	 * Parses a locale from a locale string representation. This is the inverse method to {@link
-	 * java.util.Locale#toString()}. If the specified text is null or cannot be parsed, null is
-	 * returned. If the specified text is empty, the root locale is returned. Leading or trailing
-	 * whitespaces will be ignored by this method.
+	 * java.util.Locale#toString()}. If the specified text is null or cannot be parsed, null is returned. If the
+	 * specified text is empty, the root locale is returned. Leading or trailing whitespaces will be ignored by this
+	 * method.
 	 *
 	 * @param text the locale's text representation to be parsed
 	 * @return the parsed locale
@@ -65,10 +73,9 @@ public class Locales {
 	}
 
 	/**
-	 * Returns the best matching locale out of a collection of available locales. It returns the
-	 * ROOT locale if no locales matches the available locales, but the root locales is included. It
-	 * returns the first locale of the specified available locales if neither any locale matches the
-	 * preferred locale, not the ROOT locale is included.
+	 * Returns the best matching locale out of a collection of available locales. It returns the ROOT locale if no
+	 * locales matches the available locales, but the root locales is included. It returns the first locale of the
+	 * specified available locales if neither any locale matches the preferred locale, not the ROOT locale is included.
 	 * <p/>
 	 * If the available locales are null or empty, null is returned.
 	 *
@@ -81,13 +88,12 @@ public class Locales {
 	}
 
 	/**
-	 * Returns the best matching locale out of a collection of available locales. It returns the
-	 * ROOT locale if no locales matches the available locales, but the root locales is included. It
-	 * returns the first locale of the specified available locales if neither any locale matches the
-	 * preferred locale, nor the ROOT locale is included.
+	 * Returns the best matching locale out of a collection of available locales. It returns the ROOT locale if no
+	 * locales matches the available locales, but the root locales is included. It returns the first locale of the
+	 * specified available locales if neither any locale matches the preferred locale, nor the ROOT locale is included.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is
-	 * guaranteed to return a locale instance out of the available ones.
+	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to return a
+	 * locale instance out of the available ones.
 	 *
 	 * @param preferred the preferred locale to be used
 	 * @param available the available locales
@@ -104,18 +110,15 @@ public class Locales {
 	}
 
 	/**
-	 * Returns the best matching locale of the same language out of a collection of available
-	 * locales. It returns the ROOT locale if no locales matches the available locales with at least
-	 * the same language.
+	 * Returns the best matching locale of the same language out of a collection of available locales. It returns the
+	 * ROOT locale if no locales matches the available locales with at least the same language.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is
-	 * guaranteed to return a locale instance out of the available ones with the same language or
-	 * the root locale.
+	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to return a
+	 * locale instance out of the available ones with the same language or the root locale.
 	 *
 	 * @param preferred the preferred locale to be used
 	 * @param available the available locales
-	 * @return the best matching locale, granted to have at least the same language, or the root
-	 * locale
+	 * @return the best matching locale, granted to have at least the same language, or the root locale
 	 */
 	public static Locale findBestLocaleOfLanguage(Locale preferred, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
@@ -147,19 +150,18 @@ public class Locales {
 	}
 
 	/**
-	 * Returns the best matching locale out of a collection of available locales. The best matching
-	 * locale is the first locale of the preferenceList that has at least a language match in the
-	 * available locales; for that locale, the best matching one is selected out of the availables.
-	 * The Method returns the ROOT locale if no locales matches the available locales, but the root
-	 * locales is included. It returns the first locale of the specified available locales if
-	 * neither any locale matches the preferred locale, nor the ROOT locale is included.
+	 * Returns the best matching locale out of a collection of available locales. The best matching locale is the first
+	 * locale of the preferenceList that has at least a language match in the available locales; for that locale, the
+	 * best matching one is selected out of the availables. The Method returns the ROOT locale if no locales matches the
+	 * available locales, but the root locales is included. It returns the first locale of the specified available
+	 * locales if neither any locale matches the preferred locale, nor the ROOT locale is included.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is
-	 * guaranteed to return a locale instance out of the available ones. If the preferenceList is
-	 * empty the ROOT locale is matched against the available locales.
+	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to return a
+	 * locale instance out of the available ones. If the preferenceList is empty the ROOT locale is matched against the
+	 * available locales.
 	 *
 	 * @param preferenceList the preferred locales to be used, order by their preference
-	 * @param available the available locales
+	 * @param available      the available locales
 	 * @return the best matching locale
 	 */
 	public static Locale findBestLocale(Collection<Locale> preferenceList, Collection<Locale> available) {
@@ -180,14 +182,13 @@ public class Locales {
 	}
 
 	/**
-	 * Returns a iterator of the available locales, ordered by their preference as specified in the
-	 * preference list. If the available locales are empty or null, the stream will be empty. For
-	 * the order of the languages in the stream refer to {@link #findBestLocale(Collection,
-	 * Collection)}, where the next stream element is always the best one, if the previous items of
-	 * the stream where absent.
+	 * Returns a iterator of the available locales, ordered by their preference as specified in the preference list. If
+	 * the available locales are empty or null, the stream will be empty. For the order of the languages in the stream
+	 * refer to {@link #findBestLocale(Collection, Collection)}, where the next stream element is always the best one,
+	 * if the previous items of the stream where absent.
 	 *
 	 * @param preferenceList the preferred locales to be used
-	 * @param available the available locales
+	 * @param available      the available locales
 	 * @return a sequential {@code Stream} of the available languages
 	 */
 	public static Iterator<Locale> iterateByPreference(Collection<Locale> preferenceList, Collection<Locale> available) {
@@ -210,14 +211,13 @@ public class Locales {
 	}
 
 	/**
-	 * Returns a sequential {@code Stream} of the available locales, ordered by their preference as
-	 * specified in the preference list. If the available locales are empty or null, the stream will
-	 * be empty. For the order of the languages in the stream refer to {@link
-	 * #findBestLocale(Collection, Collection)}, where the next stream element is always the best
-	 * one, if the previous items of the stream where absent.
+	 * Returns a sequential {@code Stream} of the available locales, ordered by their preference as specified in the
+	 * preference list. If the available locales are empty or null, the stream will be empty. For the order of the
+	 * languages in the stream refer to {@link #findBestLocale(Collection, Collection)}, where the next stream element
+	 * is always the best one, if the previous items of the stream where absent.
 	 *
 	 * @param preferenceList the preferred locales to be used
-	 * @param available the available locales
+	 * @param available      the available locales
 	 * @return a sequential {@code Stream} of the available languages
 	 */
 	public static Stream<Locale> streamByPreference(Collection<Locale> preferenceList, Collection<Locale> available) {
@@ -235,33 +235,45 @@ public class Locales {
 		// score if same language or both empty language or available is more common (empty)
 		String p1 = preferred.getLanguage();
 		String a1 = available.getLanguage();
-		if (p1.equals(a1)) score += 100;
-		else if (a1.isEmpty()) score += 10;
-		else return score;
+		if (p1.equals(a1)) {
+			score += 100;
+		}
+		else if (a1.isEmpty()) {
+			score += 10;
+		}
+		else {
+			return score;
+		}
 
 		// score if same country or available is more common (empty country)
 		String p2 = preferred.getCountry();
 		String a2 = available.getCountry();
-		if (!p2.isEmpty() && p2.equals(a2)) score += 50;
-		else if (a2.isEmpty()) score += 5;
-		else return score;
+		if (!p2.isEmpty() && p2.equals(a2)) {
+			score += 50;
+		}
+		else if (a2.isEmpty()) {
+			score += 5;
+		}
+		else {
+			return score;
+		}
 
 		// score if same variant or available is more common (empty variant)
 		String p3 = preferred.getVariant();
 		String a3 = available.getVariant();
-		if (p3.equals(a3)) score += 20;
+		if (p3.equals(a3)) {
+			score += 20;
+		}
 		else if (a3.isEmpty()) score += 2;
 
 		return score;
 	}
 
 	/**
-	 * Creates a String representation for a specified locale that can later on be parsed by the
-	 * #parseLocale method.
+	 * Creates a String representation for a specified locale that can later on be parsed by the #parseLocale method.
 	 * <p/>
-	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty
-	 * string for the default locale, instead "ROOT" is returned. Additionally, null is returned as
-	 * "null".
+	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty string for the default
+	 * locale, instead "ROOT" is returned. Additionally, null is returned as "null".
 	 *
 	 * @param locale if the specified languages shall be sorted
 	 * @return the parsable string
@@ -274,9 +286,8 @@ public class Locales {
 	/**
 	 * Creates a list of the languages that can later on be parsed by the #parseList method.
 	 * <p/>
-	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty
-	 * string for the default locale, instead "ROOT" is returned. Additionally, null locales in the
-	 * collection are returned as "null".
+	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty string for the default
+	 * locale, instead "ROOT" is returned. Additionally, null locales in the collection are returned as "null".
 	 *
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
@@ -288,9 +299,8 @@ public class Locales {
 	/**
 	 * Creates a list of the languages that can later on be parsed by the #parseList method.
 	 * <p/>
-	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty
-	 * string for the default locale, instead "ROOT" is returned. Additionally, null locales in the
-	 * collection are returned as "null".
+	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty string for the default
+	 * locale, instead "ROOT" is returned. Additionally, null locales in the collection are returned as "null".
 	 *
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
@@ -308,11 +318,10 @@ public class Locales {
 	/**
 	 * Creates a list of the languages that can later on be parsed by the #parseList method.
 	 * <p/>
-	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty
-	 * string for the default locale, instead "ROOT" is returned. Additionally, null locales in the
-	 * collection are returned as "null".
+	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty string for the default
+	 * locale, instead "ROOT" is returned. Additionally, null locales in the collection are returned as "null".
 	 *
-	 * @param sorted if the specified languages shall be sorted
+	 * @param sorted    if the specified languages shall be sorted
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
@@ -328,11 +337,10 @@ public class Locales {
 	/**
 	 * Creates a list of the languages that can later on be parsed by the #parseList method.
 	 * <p/>
-	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty
-	 * string for the default locale, instead "ROOT" is returned. Additionally, null locales in the
-	 * collection are returned as "null".
+	 * It is very similar to the {@link Locale#toString()} method, but does not produce an empty string for the default
+	 * locale, instead "ROOT" is returned. Additionally, null locales in the collection are returned as "null".
 	 *
-	 * @param sorted if the specified languages shall be sorted
+	 * @param sorted    if the specified languages shall be sorted
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
@@ -341,9 +349,8 @@ public class Locales {
 	}
 
 	/**
-	 * Reads a representation of a set/list of languages. Each language is separated by ',' or ';'.
-	 * The root language shall be represented by "ROOT". The returned set preserves the order of the
-	 * entries read from the string.
+	 * Reads a representation of a set/list of languages. Each language is separated by ',' or ';'. The root language
+	 * shall be represented by "ROOT". The returned set preserves the order of the entries read from the string.
 	 *
 	 * @param languages the string representation ot be read
 	 * @return the languages read from the string representation
@@ -358,8 +365,8 @@ public class Locales {
 	}
 
 	/**
-	 * Returns if the specified locale is null or the empty ROOT locale. If the locale specifies a
-	 * well-defined language (with optional country/variant), false is returned.
+	 * Returns if the specified locale is null or the empty ROOT locale. If the locale specifies a well-defined language
+	 * (with optional country/variant), false is returned.
 	 *
 	 * @param locale the locale to be checked
 	 * @return if the locale does not denote a specific language
