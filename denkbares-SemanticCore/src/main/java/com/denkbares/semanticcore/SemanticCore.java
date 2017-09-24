@@ -486,12 +486,18 @@ public final class SemanticCore {
 
 	private void addDataFromFile(File file, RDFFormat format) throws IOException, RDFParseException,
 			RepositoryException {
-		this.getConnection().add(file, DEFAULT_NAMESPACE, format);
+		try (RepositoryConnection connection = this.getConnection()) {
+			connection.add(file, DEFAULT_NAMESPACE, format);
+			connection.commit();
+		}
 	}
 
 	private void addDataFromInputStream(InputStream is, RDFFormat format)
 			throws IOException, RDFParseException, RepositoryException {
-		this.getConnection().add(is, DEFAULT_NAMESPACE, format);
+		try (RepositoryConnection connection = this.getConnection()) {
+			connection.add(is, DEFAULT_NAMESPACE, format);
+			connection.commit();
+		}
 	}
 
 	private RDFFormat getRdfFormat(String fileName) {
