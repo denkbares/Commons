@@ -85,6 +85,9 @@ public class InstantiationTest {
 		assertEquals(null, objects[2]);
 		assertEquals("text", objects[3]);
 		assertEquals(null, objects[4]);
+
+		// also test empty varargs (not default constructor is provided)
+		assertEquals(0, newMyClass("MyClass()").myEnumVarArgs.length);
 	}
 
 	@Test
