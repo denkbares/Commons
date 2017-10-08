@@ -18,6 +18,7 @@
  */
 package com.denkbares.utils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
@@ -26,10 +27,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,8 +37,10 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.strings.Strings;
 
@@ -107,19 +109,12 @@ public class Instantiation {
 		Class<?> clazz = classLoader.loadClass(className);
 		List<String> parameters = splitParameterList(matcher.group(2));
 
-		// create a subset of constructors with the expected number of arguments
-		List<Constructor> constructors = Arrays.stream(clazz.getConstructors())
-				.filter(c -> c.getParameterCount() == parameters.size())
-				.collect(Collectors.toCollection(LinkedList::new)); // grants mutability
-
 		try {
-			// in the remaining constructors, search for the matching ones
-			List<Collection<Object>> valueSets = getParameterValues(parameters, constructors);
-			for (Constructor constructor : constructors) {
-				Object[] values = findParameterValues(constructor, valueSets);
-				if (values != null) {
-					return constructor.newInstance(values);
-				}
+			Stream<Constructor> constructors = Arrays.stream(clazz.getConstructors());
+			ParameterValueFactory<Constructor> factory = new ParameterValueFactory<>(parameters, constructors);
+			// in the constructors, search for the matching ones
+			if (factory.detect()) {
+				return factory.getExecutable().newInstance(factory.getParameterValues());
 			}
 		}
 		catch (NoSuchFieldException e) {
@@ -148,222 +143,6 @@ public class Instantiation {
 
 		String className = matcher.group(1);
 		return classLoader.loadClass(className);
-	}
-
-	/**
-	 * Returns the parameters
-	 */
-	@NotNull
-	private List<Collection<Object>> getParameterValues(List<String> parameters, List<? extends Executable> executables) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-		// for each parameter, create a set of possible values that matches a constructor parameter
-		List<Collection<Object>> valueSets = new ArrayList<>(parameters.size());
-		for (int i = 0; i < parameters.size(); i++) {
-			// if parameter is "null", add a singleton set
-			// and remove all executables with primitive types at that position
-			String parameter = parameters.get(i);
-			if (Strings.equals(parameter, "null")) {
-				valueSets.add(Collections.singleton(null));
-				int index = i;
-				executables.removeIf(c -> c.getParameterTypes()[index].isPrimitive());
-				continue;
-			}
-
-			// create all values for the parameters (but only one per type)
-			Map<Class, Object> values = new LinkedHashMap<>();
-			Iterator<? extends Executable> iterator = executables.iterator();
-			while (iterator.hasNext()) {
-				Executable executable = iterator.next();
-				Class type = executable.getParameterTypes()[i];
-				if (values.containsKey(type)) continue;
-
-				// create value, if not possible remove executable, otherwise add value
-				Object value = createValue(parameter, type);
-				if (value == null) {
-					iterator.remove();
-				}
-				else {
-					values.put(type, value);
-				}
-			}
-			if (values.isEmpty()) {
-				throw new IllegalArgumentException(context.getOrigin() +
-						": parameter does not match the expected constructor parameter: " + parameter);
-			}
-			valueSets.add(values.values());
-		}
-		return valueSets;
-	}
-
-	/**
-	 * Creates a instance of the specified type by parsing / interpreting the specified parameter. The method returns
-	 * null if no value can be created.
-	 */
-	private Object createValue(String parameter, Class<?> type) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-		// parse quoted String
-		if (Strings.isQuoted(parameter)) {
-			return (type.isAssignableFrom(String.class)) ? Strings.unquote(parameter) : null;
-		}
-
-		// parse character constant
-		if (Strings.isQuoted(parameter, Strings.QUOTE_SINGLE)) {
-			String unquoted = Strings.unquote(parameter, Strings.QUOTE_SINGLE);
-			if (unquoted.length() != 1) {
-				throw new FormatException("character constant does not contain exactly one character");
-			}
-			return (type == Character.TYPE || type.isAssignableFrom(Character.class)) ? unquoted.charAt(0) : null;
-		}
-
-		// parse boolean constant
-		if (BOOLEAN.matcher(parameter).matches()) {
-			return (type == Boolean.TYPE || type.isAssignableFrom(Boolean.class))
-					? Strings.equalsIgnoreCase(parameter, "true") : null;
-		}
-
-		// test for java field reference (enum or constant)
-		Matcher constantReference = CONSTANT_REFERENCE.matcher(parameter);
-		if (constantReference.matches()) {
-			String className = constantReference.group(1);
-			String constantName = constantReference.group(2);
-
-			// full qualified enums or public static fields
-			if (!Strings.isBlank(className)) {
-				Class<?> enclosingClass = classLoader.loadClass(className);
-				Field field = enclosingClass.getField(constantName);
-				if (Modifier.isStatic(field.getModifiers())) {
-					return field.get(null);
-				}
-			}
-			// enum names without qualified name
-			else if (Enum.class.isAssignableFrom(type)) {
-				// find constant by name
-				return Strings.parseEnum(constantName, (Class) type);
-			}
-
-			// referenced a constant, but not found
-			return null;
-		}
-
-		// test for java method call
-		Matcher methodCall = METHOD_CALL.matcher(parameter);
-		if (methodCall.matches()) {
-			String className = methodCall.group(1);
-			String methodName = methodCall.group(2);
-			List<String> methodParameters = splitParameterList(methodCall.group(3));
-
-			// carefully load class, because if no such class exists,
-			// we can still use it as a constructor call later on
-			Class<?> enclosingClass = classLoader.loadClass(className);
-			List<Method> methods = Arrays.stream(enclosingClass.getMethods())
-					.filter(m -> Strings.equals(methodName, m.getName()))
-					.filter(m -> Modifier.isStatic(m.getModifiers()))
-					.collect(Collectors.toList());
-			if (methods.isEmpty()) {
-				throw new NoSuchMethodException(context.getOrigin() +
-						": no public static method matches the specified method name: " + parameter);
-			}
-
-			// in the remaining constructors, search for the matching ones
-			List<Collection<Object>> valueSets = getParameterValues(methodParameters, methods);
-			for (Method method : methods) {
-				Object[] values = findParameterValues(method, valueSets);
-				if (values != null) {
-					return method.invoke(null, values);
-				}
-			}
-
-			// if no constructor remains, throw an exception
-			throw new NoSuchMethodException(context.getOrigin() +
-					": no public static method matches the specified parameters: " + parameter);
-		}
-
-		// parse integer number constants
-		Number number = null;
-		try {
-			number = Long.decode(parameter.replaceAll("[lL]$", ""));
-			if (type == Long.TYPE || type == Long.class) return number.longValue();
-			if (type == Integer.TYPE || type == Integer.class) return number.intValue();
-			if (type == Short.TYPE || type == Short.class) return number.shortValue();
-			if (type == Byte.TYPE || type == Byte.class) return number.byteValue();
-			if (type == Character.TYPE || type == Character.class) return (char) number.intValue();
-			// if not matched here, ignore, because it may be a floating point number
-		}
-		catch (NumberFormatException ignore) {
-			// if no number format, continue
-		}
-
-		// parse floating number constants
-		try {
-			// only parse if not already successfully parsed as a integer
-			if (number == null) {
-				number = Double.parseDouble(parameter.replaceAll("[fFdD]$", ""));
-			}
-			if (type == Double.TYPE || type == Double.class) return number.doubleValue();
-			if (type == Float.TYPE || type == Float.class) return number.floatValue();
-
-			// if Object or Number is expected, use best matching one, where int and double are the java defaults
-			if (type.isAssignableFrom(Number.class)) {
-				if (Strings.endsWithIgnoreCase(parameter, "f")) return number.floatValue();
-				if (Strings.endsWithIgnoreCase(parameter, "d")) return number.doubleValue();
-				if (Strings.endsWithIgnoreCase(parameter, "l")) return number.longValue();
-				return (number instanceof Long) ? new Integer(number.intValue()) : number;
-			}
-
-			// if we reach here, a number format could be parsed, but no number is expected, so return null
-			return null;
-		}
-		catch (NumberFormatException ignored) {
-			// if no number format, continue
-		}
-
-		// an other (recursive) constructor call
-		if (CONSTRUCTOR_CALL.matcher(parameter).matches()) {
-			Object value = newInstance(parameter);
-			return (type.isInstance(value)) ? value : null;
-		}
-
-		// nothing above matched
-		return null;
-	}
-
-	/**
-	 * Selects a single value from each collection of the specified list, so that the values fit to the arguments of the
-	 * specified constructor. The first value of the returned list is selected from the first collection of the
-	 * valueSets parameter, matching the first parameter of teh constructor, and so on. If multiple values of a
-	 * collection matches the type, the first one is selected. The method returns null if no argument set is matching
-	 * the constructor.
-	 */
-	private Object[] findParameterValues(Executable constructor, List<Collection<Object>> valueSets) {
-		Class[] expectedTypes = constructor.getParameterTypes();
-		Object[] result = new Object[expectedTypes.length];
-
-		nextParam:
-		for (int i = 0; i < expectedTypes.length; i++) {
-			Class expectedType = expectedTypes[i];
-			for (Object value : valueSets.get(i)) {
-				if (isMatchingParameter(value, expectedType)) {
-					result[i] = value;
-					continue nextParam;
-				}
-			}
-			// if the previous value iteration not found any match, we are here
-			return null;
-		}
-
-		// we found a parameter value for each parameter
-		return result;
-	}
-
-	private boolean isMatchingParameter(Object value, Class type) {
-		return type.isInstance(value) ||
-				(!type.isPrimitive() && (value == null)) ||
-				(type == Boolean.TYPE && (value instanceof Boolean)) ||
-				(type == Double.TYPE && (value instanceof Double)) ||
-				(type == Float.TYPE && (value instanceof Float)) ||
-				(type == Long.TYPE && (value instanceof Long)) ||
-				(type == Integer.TYPE && (value instanceof Integer)) ||
-				(type == Character.TYPE && (value instanceof Character)) ||
-				(type == Short.TYPE && (value instanceof Short)) ||
-				(type == Byte.TYPE && (value instanceof Byte));
 	}
 
 	private static List<String> splitParameterList(String parameters) throws FormatException {
@@ -478,8 +257,296 @@ public class Instantiation {
 	}
 
 	public static class FormatException extends InstantiationException {
+		private static final long serialVersionUID = 2068803705860670941L;
+
 		public FormatException(String message) {
 			super(message);
+		}
+	}
+
+	/**
+	 * Class to parse a (already split) list of parameter and create parameter objects to match any of a set of
+	 * executables.
+	 */
+	private class ParameterValueFactory<T extends Executable> {
+
+		private final List<String> parameters;
+		private final List<T> executables;
+
+		private final Map<Pair<String, Class>, Object> valueCache = new HashMap<>();
+		private final Object NULL_VALUE = new Object();
+		private final Object CANNOT_CREATE = new Object();
+
+		private T detectedExecutable = null;
+		private Object[] detectedParameterValues = null;
+
+		private ParameterValueFactory(List<String> parameters, Stream<? extends T> executables) {
+			this.parameters = parameters;
+			Comparator<T> varArgsLast = Comparator.comparing(m ->
+					m.getParameterCount() >= 1 && m.getParameters()[m.getParameterCount() - 1].isVarArgs());
+			this.executables = executables
+					.filter(this::hasMatchingParameterCount)
+					.sorted(varArgsLast).collect(Collectors.toList());
+		}
+
+		public boolean detect() throws NoSuchFieldException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+			if (detectedExecutable != null) return true;
+			for (T executable : executables) {
+				Object[] parameterValues = createParameterValues(executable);
+				if (parameterValues != null) {
+					detectedExecutable = executable;
+					detectedParameterValues = parameterValues;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public T getExecutable() {
+			if (detectedExecutable == null) {
+				throw new IllegalStateException("not detected");
+			}
+			return detectedExecutable;
+		}
+
+		public Object[] getParameterValues() {
+			if (detectedExecutable == null) {
+				throw new IllegalStateException("not detected");
+			}
+			return detectedParameterValues;
+		}
+
+		private boolean hasMatchingParameterCount(Executable method) {
+			int paramCount = parameters.size();
+			int expectedCount = method.getParameterCount();
+			if (expectedCount == paramCount) return true;
+			if (paramCount < expectedCount - 1) return false;
+
+			// if the last method parameter is a varagrs,
+			// paramCount can be one less (empty varargs), or more
+			return expectedCount >= 1 && method.getParameters()[expectedCount - 1].isVarArgs();
+		}
+
+		/**
+		 * Returns the parameters values for the executable, or null if the value strings cannot be converted into
+		 * matching parameter values.
+		 */
+		private Object[] createParameterValues(Executable executable) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+			int parameterCount = executable.getParameterCount();
+			Object[] values = new Object[parameterCount];
+
+			for (int i = 0; i < parameterCount; i++) {
+				boolean isVarArgs = executable.getParameters()[i].isVarArgs();
+				Class type = executable.getParameterTypes()[i];
+
+				// if we are at the varargs parameter, use the rest list of parameters
+				Object value = isVarArgs
+						? createVarArgValue(parameters.subList(i, parameters.size()), type)
+						: createValue(parameters.get(i), type);
+
+				if (value == CANNOT_CREATE) return null;
+				values[i] = (value == NULL_VALUE) ? null : value;
+			}
+			return values;
+		}
+
+		private Object createVarArgValue(List<String> parameters, Class<?> arrayType) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchFieldException, NoSuchMethodException, ClassNotFoundException {
+			Class<?> itemType = arrayType.getComponentType();
+			Object array = Array.newInstance(itemType, parameters.size());
+			for (int i = 0; i < parameters.size(); i++) {
+				String parameter = parameters.get(i);
+				// if not explicitly null, try to create value for that parameter
+				Object value = createValue(parameter, itemType);
+				if (value == CANNOT_CREATE) return CANNOT_CREATE;
+				if (value == NULL_VALUE) {
+					if (itemType.isPrimitive()) return CANNOT_CREATE;
+					value = null;
+				}
+				Array.set(array, i, value);
+			}
+			return array;
+		}
+
+		/**
+		 * Creates a instance of the specified type by parsing / interpreting the specified parameter. The method
+		 * returns CANNOT_CREATE if no value can be created, and NULL_VALUE if value is null. It uses the cache to avoid
+		 * duplicate creations.
+		 */
+		@NotNull
+		private Object createValue(String parameter, Class<?> type) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+			// check if value is already cached
+			Pair<String, Class> key = new Pair<>(parameter, type);
+			Object result = valueCache.get(key);
+			if (result == null) {
+				result = evalValue(parameter, type);
+				if (result == null) result = NULL_VALUE;
+				valueCache.put(key, result);
+			}
+			return result;
+		}
+
+		/**
+		 * Creates a instance of the specified type by parsing / interpreting the specified parameter. The method
+		 * returns null if no value can be created.
+		 */
+		private Object evalValue(String parameter, Class<?> type) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+
+			// test for null constant
+			if (Strings.equals(parameter, "null")) return null;
+
+			// parse quoted String
+			if (Strings.isQuoted(parameter)) {
+				return (type.isAssignableFrom(String.class)) ? Strings.unquote(parameter) : CANNOT_CREATE;
+			}
+
+			// parse character constant
+			if (Strings.isQuoted(parameter, Strings.QUOTE_SINGLE)) {
+				String unquoted = Strings.unquote(parameter, Strings.QUOTE_SINGLE);
+				if (unquoted.length() != 1) {
+					throw new FormatException("character constant does not contain exactly one character");
+				}
+				return (type == Character.TYPE || type.isAssignableFrom(Character.class)) ? unquoted.charAt(0) : CANNOT_CREATE;
+			}
+
+			// parse boolean constant
+			if (BOOLEAN.matcher(parameter).matches()) {
+				return (type == Boolean.TYPE || type.isAssignableFrom(Boolean.class))
+						? Strings.equalsIgnoreCase(parameter, "true") : CANNOT_CREATE;
+			}
+
+			// test for java field reference (enum or constant)
+			Matcher constantReference = CONSTANT_REFERENCE.matcher(parameter);
+			if (constantReference.matches()) {
+				String className = constantReference.group(1);
+				String constantName = constantReference.group(2);
+				return evalConstant(type, className, constantName);
+			}
+
+			// test for java method call
+			Matcher methodCall = METHOD_CALL.matcher(parameter);
+			if (methodCall.matches()) {
+				String className = methodCall.group(1);
+				String methodName = methodCall.group(2);
+				List<String> methodParameters = splitParameterList(methodCall.group(3));
+				Object value = evalStaticMethod(className, methodName, methodParameters);
+				if (value == CANNOT_CREATE) {
+					// if no method call matches, throw an exception
+					throw new NoSuchMethodException(context.getOrigin() +
+							": no public static method matches the specified parameters: " + parameter);
+				}
+				return ((value == null) || type.isInstance(value)) ? value : CANNOT_CREATE;
+			}
+
+			// parse integer number constants
+			Object number = evalNumber(type, parameter);
+			if (number != CANNOT_CREATE) return number;
+
+			// an other (recursive) constructor call
+			if (CONSTRUCTOR_CALL.matcher(parameter).matches()) {
+				Object value = newInstance(parameter);
+				return (type.isInstance(value)) ? value : CANNOT_CREATE;
+			}
+
+			// nothing above matched
+			return CANNOT_CREATE;
+		}
+
+		private Object evalConstant(Class<?> expectedType, String className, String constantName) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+			// full qualified enums or public static fields
+			if (!Strings.isBlank(className)) {
+				Class<?> enclosingClass = classLoader.loadClass(className);
+				Field field = enclosingClass.getField(constantName);
+				if (Modifier.isStatic(field.getModifiers())) {
+					Object value = field.get(null);
+					return isMatchingParameter(value, expectedType) ? value : CANNOT_CREATE;
+				}
+			}
+			// enum names without qualified name
+			else if (Enum.class.isAssignableFrom(expectedType)) {
+				// find constant by name
+				//noinspection unchecked
+				return Strings.parseEnum(constantName, (Class) expectedType);
+			}
+
+			// referenced a constant, but not found
+			return CANNOT_CREATE;
+		}
+
+		private Object evalStaticMethod(String className, String methodName, List<String> methodParameters) throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException, InstantiationException, IllegalAccessException {
+			// carefully load class, because if no such class exists,
+			// we can still use it as a constructor call later on
+			Class<?> enclosingClass = classLoader.loadClass(className);
+			Stream<Method> methods = Arrays.stream(enclosingClass.getMethods())
+					.filter(m -> Strings.equals(methodName, m.getName()))
+					.filter(m -> Modifier.isStatic(m.getModifiers()));
+
+			// in the remaining constructors, search for the matching ones
+			ParameterValueFactory<Method> factory = new ParameterValueFactory<>(methodParameters, methods);
+			if (factory.executables.isEmpty()) {
+				throw new NoSuchMethodException(context.getOrigin() +
+						": no public static method matches the specified method name: " + className + "#" + methodName);
+			}
+
+			if (factory.detect()) {
+				// if (static) method is found, call the method and use value
+				return factory.getExecutable().invoke(null, factory.getParameterValues());
+			}
+			// if no method call matches
+			return CANNOT_CREATE;
+		}
+
+		@Nullable
+		private Object evalNumber(Class<?> expectedType, String numString) {
+			Number number = null;
+			try {
+				number = Long.decode(numString.replaceAll("[lL]$", ""));
+				if (expectedType == Long.TYPE || expectedType == Long.class) return number.longValue();
+				if (expectedType == Integer.TYPE || expectedType == Integer.class) return number.intValue();
+				if (expectedType == Short.TYPE || expectedType == Short.class) return number.shortValue();
+				if (expectedType == Byte.TYPE || expectedType == Byte.class) return number.byteValue();
+				if (expectedType == Character.TYPE || expectedType == Character.class) return (char) number.intValue();
+				// if not matched here, ignore, because it may be a floating point number
+			}
+			catch (NumberFormatException ignore) {
+				// if no number format, continue
+			}
+
+			// parse floating number constants
+			try {
+				// only parse if not already successfully parsed as a integer
+				if (number == null) {
+					number = Double.parseDouble(numString.replaceAll("[fFdD]$", ""));
+				}
+				if (expectedType == Double.TYPE || expectedType == Double.class) return number.doubleValue();
+				if (expectedType == Float.TYPE || expectedType == Float.class) return number.floatValue();
+
+				// if Object or Number is expected, use best matching one, where int and double are the java defaults
+				if (expectedType.isAssignableFrom(Number.class)) {
+					if (Strings.endsWithIgnoreCase(numString, "f")) return number.floatValue();
+					if (Strings.endsWithIgnoreCase(numString, "d")) return number.doubleValue();
+					if (Strings.endsWithIgnoreCase(numString, "l")) return number.longValue();
+					return (number instanceof Long) ? new Integer(number.intValue()) : number;
+				}
+			}
+			catch (NumberFormatException ignored) {
+				// if no number format, continue
+			}
+
+			// if we reach here, a number format could be parsed, but no number is expected, so return CANNOT_CREATE
+			return CANNOT_CREATE;
+		}
+
+		private boolean isMatchingParameter(Object value, Class type) {
+			return type.isInstance(value) ||
+					(!type.isPrimitive() && (value == null)) ||
+					(type == Boolean.TYPE && (value instanceof Boolean)) ||
+					(type == Double.TYPE && (value instanceof Double)) ||
+					(type == Float.TYPE && (value instanceof Float)) ||
+					(type == Long.TYPE && (value instanceof Long)) ||
+					(type == Integer.TYPE && (value instanceof Integer)) ||
+					(type == Character.TYPE && (value instanceof Character)) ||
+					(type == Short.TYPE && (value instanceof Short)) ||
+					(type == Byte.TYPE && (value instanceof Byte));
 		}
 	}
 }

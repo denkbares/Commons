@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.denkbares.utils.Instantiation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Volker Belli (denkbares GmbH)
@@ -51,6 +52,8 @@ public class InstantiationTest {
 		assertEquals(14.5, instance.f, 0.0001);
 		assertEquals(24.0, instance.d, 0.0001);
 		assertEquals(999L, instance.o);
+		assertNotNull(instance.myObjectVarArgs);
+		assertEquals(0, instance.myObjectVarArgs.length);
 
 		assertEquals('c', newMyClass("MyClass('c', 999)").c.charValue());
 		assertEquals(999, newMyClass("MyClass('c', 999)").o);
@@ -59,6 +62,29 @@ public class InstantiationTest {
 		assertEquals(Boolean.TRUE, newMyClass("MyClass('c', true)").o);
 		assertEquals(Boolean.FALSE, newMyClass("MyClass('c', false)").o);
 		assertEquals(null, newMyClass("MyClass('c', null)").o);
+	}
+
+	@Test
+	public void varArgs() throws Exception {
+		int[] ints = newMyClass("MyClass(\"foo\", 1,3,5)").myIntVarArgs;
+		assertEquals(3, ints.length);
+		assertEquals(1, ints[0]);
+		assertEquals(3, ints[1]);
+		assertEquals(5, ints[2]);
+
+		MyEnum[] enums = newMyClass("MyClass(my, value, my)").myEnumVarArgs;
+		assertEquals(3, enums.length);
+		assertEquals(MyEnum.my, enums[0]);
+		assertEquals(MyEnum.value, enums[1]);
+		assertEquals(MyEnum.my, enums[2]);
+
+		Object[] objects = newMyClass("MyClass(1,1f,1d, null, null, 2, null, \"text\", null)").myObjectVarArgs;
+		assertEquals(5, objects.length);
+		assertEquals(null, objects[0]);
+		assertEquals(2, objects[1]);
+		assertEquals(null, objects[2]);
+		assertEquals("text", objects[3]);
+		assertEquals(null, objects[4]);
 	}
 
 	@Test
@@ -129,10 +155,21 @@ public class InstantiationTest {
 		private double d;
 		private Character c;
 		private Object o;
+		private MyEnum[] myEnumVarArgs;
+		private Object[] myObjectVarArgs;
+		private int[] myIntVarArgs;
 
 		@SuppressWarnings("unused") // constructor used by reflections
 		public MyClass(MyEnum myValue) {
 			this.myValue = myValue;
+		}
+
+		public MyClass(MyEnum... myEnumVarArgs) {
+			this.myEnumVarArgs = myEnumVarArgs;
+		}
+
+		public MyClass(String foo, int... myIntVarArgs) {
+			this.myIntVarArgs = myIntVarArgs;
 		}
 
 		@SuppressWarnings("unused") // constructor used by reflections
@@ -142,11 +179,12 @@ public class InstantiationTest {
 		}
 
 		@SuppressWarnings("unused") // constructor used by reflections
-		public MyClass(int i, float f, double d, Object o) {
+		public MyClass(int i, float f, double d, Object o, Object... myObjectVarArgs) {
 			this.i = i;
 			this.f = f;
 			this.d = d;
 			this.o = o;
+			this.myObjectVarArgs = myObjectVarArgs;
 		}
 	}
 
