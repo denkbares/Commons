@@ -510,13 +510,29 @@ public class Strings {
 	 * <li>Strings.isBlank(" "): true <li>Strings.isBlank("\n\r"): true <li>Strings.isBlank(" d3web "): false </ul>
 	 *
 	 * @param text the string to be checked
-	 * @return <code>true</code> iff the string has no non-whitespace character
+	 * @return <code>true</code> iff the string has only whitespace character or is empty or null
 	 */
 	@Contract("null -> true")
 	public static boolean isBlank(String text) {
 		if (text == null) return true;
 		// matches against "[\\s\\xA0]*"
 		return PATTERN_BLANK.matcher(text).matches();
+	}
+
+	/**
+	 * Returns whether the specified {@link String} is neither null, nor it only consists of whitespaces. It returns
+	 * true if the string contains any displayable characters. This is the same result as <code>!isBlank(...)</code>
+	 * would return, but might be useful as a stream filter predicate.
+	 * <p>
+	 * The method returns as follows: <ul> <li>Strings.isBlank(null): false <li>Strings.isBlank(""): false
+	 * <li>Strings.isBlank(" "): false <li>Strings.isBlank("\n\r"): false <li>Strings.isBlank(" d3web "): true </ul>
+	 *
+	 * @param text the string to be checked
+	 * @return <code>true</code> iff the string has any non-whitespace character
+	 */
+	@Contract("null -> false")
+	public static boolean nonBlank(String text) {
+		return !isBlank(text);
 	}
 
 	/**
