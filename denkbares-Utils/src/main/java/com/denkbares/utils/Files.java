@@ -502,13 +502,18 @@ public class Files {
 		if (extensions == null) return false;
 		for (String extension : extensions) {
 			if (extension == null) continue;
-			if (fileName.length() <= extension.length()) continue;
-			if (fileName.toLowerCase().endsWith(extension.toLowerCase())
-					&& fileName.charAt(fileName.length() - extension.length() - 1) == '.') {
+			if (fileName.length() <= extension.length() + 1) continue;
+			if (Strings.endsWithIgnoreCase(fileName, extension)
+					&& fileName.charAt(fileName.length() - extension.length() - 1) == '.'
+					&& !isSeparatorChar(fileName.charAt(fileName.length() - extension.length() - 2))) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private static boolean isSeparatorChar(char c) {
+		return (c == '/' || c == '\\');
 	}
 
 	/**
@@ -535,9 +540,16 @@ public class Files {
 	 */
 	public static String stripExtension(String filename) {
 		if (filename == null) return null;
-		int index = filename.lastIndexOf('.');
-		if (index == -1) return filename;
-		return filename.substring(0, index);
+		// files starting with "." are no extensions, so iterate i>0 only
+		for (int i = filename.length() - 1; i > 0; i--) {
+			char c = filename.charAt(i);
+			if (isSeparatorChar(c)) break;
+			if (c == '.') {
+				if (isSeparatorChar(filename.charAt(i - 1))) break; // we can do this, as i > 0 in the loop
+				return filename.substring(0, i);
+			}
+		}
+		return filename;
 	}
 
 	/**
@@ -551,6 +563,37 @@ public class Files {
 	public static String stripExtension(File file) {
 		if (file == null) return null;
 		return stripExtension(file.getPath());
+	}
+
+	/**
+	 * Returns the specified file without its original extension but with the specified new extension. If the file has
+	 * no ".", the original file path is appended by the extension. if the file is null, null is returned. If the
+	 * extension is null, the original extension is removed.
+	 *
+	 * @param file      the file to remove the extension from
+	 * @param extension the new extension to be used (without a leading ".")
+	 * @return the path of the specified file with the replaced the extension
+	 * @created 29.11.2017
+	 */
+	public static File replaceExtension(File file, String extension) {
+		if (file == null) return null;
+		return new File(replaceExtension(file.getPath(), extension));
+	}
+
+	/**
+	 * Returns the specified filename without its original extension but with the specified new extension. If the file
+	 * has no ".", the original file path is appended by the extension. if the filename is null, null is returned. If
+	 * the extension is null, the original extension is removed.
+	 *
+	 * @param filename  the file to remove the extension from
+	 * @param extension the new extension to be used (without a leading ".")
+	 * @return the path of the specified file with the replaced the extension
+	 * @created 29.11.2017
+	 */
+	public static String replaceExtension(String filename, String extension) {
+		if (filename == null) return null;
+		String name = stripExtension(filename);
+		return (extension == null) ? name : (name + "." + extension);
 	}
 
 	/**

@@ -170,6 +170,30 @@ public class FilesTest {
 		assertFalse(Files.hasExtension(txtFile, "foo", "bla"));
 		assertFalse(Files.hasExtension(txtFileName, (String) null));
 		assertFalse(Files.hasExtension(txtFile, (String[]) null));
+
+		assertFalse(Files.hasExtension("txt", "txt"));
+		assertFalse(Files.hasExtension(".txt", "txt"));
+		assertFalse(Files.hasExtension("/.txt", "txt"));
+		assertFalse(Files.hasExtension("\\.txt", "txt"));
+		assertFalse(Files.hasExtension("foo/.txt", "txt"));
+		assertFalse(Files.hasExtension("foo\\.txt", "txt"));
+		assertTrue(Files.hasExtension("foo.txt", "txt"));
+		assertTrue(Files.hasExtension("/foo.txt", "txt"));
+		assertTrue(Files.hasExtension("\\foo.txt", "txt"));
+		assertTrue(Files.hasExtension("foo/foo.txt", "txt"));
+		assertTrue(Files.hasExtension("foo\\foo.txt", "txt"));
+
+		assertEquals(Files.stripExtension("txt"), "txt");
+		assertEquals(Files.stripExtension(".txt"), ".txt");
+		assertEquals(Files.stripExtension("/.txt"), "/.txt");
+		assertEquals(Files.stripExtension("\\.txt"), "\\.txt");
+		assertEquals(Files.stripExtension("foo/.txt"), "foo/.txt");
+		assertEquals(Files.stripExtension("foo\\.txt"), "foo\\.txt");
+		assertEquals(Files.stripExtension("foo.txt"), "foo");
+		assertEquals(Files.stripExtension("/foo.txt"), "/foo");
+		assertEquals(Files.stripExtension("\\foo.txt"), "\\foo");
+		assertEquals(Files.stripExtension("foo/foo.txt"), "foo/foo");
+		assertEquals(Files.stripExtension("foo\\foo.txt"), "foo\\foo");
 	}
 
 	@Test
