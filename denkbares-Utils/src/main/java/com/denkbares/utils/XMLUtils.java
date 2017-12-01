@@ -52,8 +52,8 @@ import org.xml.sax.SAXException;
 public class XMLUtils {
 
 	/**
-	 * Creates a new {@link XPath} instance using the default {@link XPathFactory} and sets a
-	 * matching {@link NamespaceContext} that resolves namespaces
+	 * Creates a new {@link XPath} instance using the default {@link XPathFactory} and sets a matching {@link
+	 * NamespaceContext} that resolves namespaces
 	 *
 	 * @param namespaceMap Map of identifier -> URI namespaces to use
 	 * @return {@link XPath} aware of given namespaces
@@ -100,12 +100,10 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Get the children of a document element as a normal {@link List}, filtered by the
-	 * given <tt>tagName</tt>.
+	 * Get the children of a document element as a normal {@link List}, filtered by the given <tt>tagName</tt>.
 	 *
 	 * @param element the element to get the children from
-	 * @return the children of the given element with the given <tt>tagName</tt> as a normal {@link
-	 * List}
+	 * @return the children of the given element with the given <tt>tagName</tt> as a normal {@link List}
 	 */
 	public static List<Element> getChildren(Element element, String... tagName) {
 		return getElementList(element.getChildNodes(), tagName);
@@ -122,8 +120,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Get the first child element of a document element. The method returns null if no child
-	 * element is available or if the specified element is null.
+	 * Get the first child element of a document element. The method returns null if no child element is available or if
+	 * the specified element is null.
 	 *
 	 * @param element the element to get the child element from
 	 * @return the first child element of the given element
@@ -143,8 +141,7 @@ public class XMLUtils {
 	 * Filters all elements of a NodeList and returns them in a collection.
 	 *
 	 * @param list Nodelist containing all types of nodes (text nodes etc.)
-	 * @return a list containing all elements from nodeist, but not containing other nodes such as
-	 * text nodes etc.
+	 * @return a list containing all elements from nodeist, but not containing other nodes such as text nodes etc.
 	 */
 	public static List<Element> getElementList(NodeList list) {
 		List<Element> col = new ArrayList<>(list.getLength());
@@ -157,14 +154,12 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Filters all elements of a NodeList and returns them in a collection. The
-	 * list will only contain that elements of the NodeList that match the
-	 * specified node name. The name selection is case insensitive.
+	 * Filters all elements of a NodeList and returns them in a collection. The list will only contain that elements of
+	 * the NodeList that match the specified node name. The name selection is case insensitive.
 	 *
 	 * @param list      Nodelist containing all types of nodes (text nodes etc.)
 	 * @param nodeNames the name of the elements to be selected (case insensitive)
-	 * @return a list containing all elements from nodelist, but not containing other nodes such as
-	 * text nodes etc.
+	 * @return a list containing all elements from nodelist, but not containing other nodes such as text nodes etc.
 	 */
 	public static List<Element> getElementList(NodeList list, String... nodeNames) {
 		List<Element> col = new ArrayList<>();
@@ -198,8 +193,8 @@ public class XMLUtils {
 	 *
 	 * @param stream the XML input stream
 	 * @return Document the document created from the stream
-	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 *                     the XML parser cannot be configured
+	 * @throws IOException if the stream cannot be read or does not contains valid XML content or the XML parser cannot
+	 *                     be configured
 	 */
 	public static Document streamToDocument(InputStream stream) throws IOException {
 		return streamToDocument(stream, null);
@@ -209,11 +204,11 @@ public class XMLUtils {
 	 * Creates an XML {@link Document} from the given {@link InputStream}.
 	 *
 	 * @param stream   the XML input stream
-	 * @param resolver is a {@link EntityResolver} to specify how entities given in the {@link
-	 *                 Document} should be resolved
+	 * @param resolver is a {@link EntityResolver} to specify how entities given in the {@link Document} should be
+	 *                 resolved
 	 * @return Document the document created from the stream
-	 * @throws IOException if the stream cannot be read or does not contains valid XML content or
-	 *                     the XML parser cannot be configured
+	 * @throws IOException if the stream cannot be read or does not contains valid XML content or the XML parser cannot
+	 *                     be configured
 	 */
 	public static Document streamToDocument(InputStream stream, EntityResolver resolver) throws IOException {
 		DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
@@ -242,9 +237,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Writes a number of Strings to the specified element with a specified tag
-	 * name. Each specified string will create its own element with the
-	 * specified tag name.
+	 * Writes a number of Strings to the specified element with a specified tag name. Each specified string will create
+	 * its own element with the specified tag name.
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
@@ -261,9 +255,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Writes a number of enum values to the specified element with a specified
-	 * tag name. Each specified string will create its own element with the
-	 * specified tag name.
+	 * Writes a number of enum values to the specified element with a specified tag name. Each specified string will
+	 * create its own element with the specified tag name.
 	 *
 	 * @param element the element to add the tag(s) to
 	 * @param tagName the name of the tag(s) to be created
@@ -280,8 +273,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Reads a all elements with the specified tag name that are children of the
-	 * specified element and return their text contents as a string array.
+	 * Reads a all elements with the specified tag name that are children of the specified element and return their text
+	 * contents as a string array.
 	 *
 	 * @param element the element to get the tag's text contents for
 	 * @param tagName the tag name of the child elements to get the text contents for
@@ -298,9 +291,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Reads a all elements with the specified tag name that are children of the
-	 * specified element and return their text contents as an array of enum
-	 * values of the specified enum class.
+	 * Reads a all elements with the specified tag name that are children of the specified element and return their text
+	 * contents as an array of enum values of the specified enum class.
 	 *
 	 * @param element the element to get the tag's text contents for
 	 * @param tagName the tag name of the child elements to get the text contents for
@@ -390,7 +382,9 @@ public class XMLUtils {
 	 * @param outputFile output stream to write the document to
 	 */
 	public static void documentToFile(Document document, File outputFile) throws IOException {
-		documentToStream(document, new FileOutputStream(outputFile));
+		try (FileOutputStream out = new FileOutputStream(outputFile)) {
+			documentToStream(document, out);
+		}
 	}
 
 	/**
