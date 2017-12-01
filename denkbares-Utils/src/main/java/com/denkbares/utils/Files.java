@@ -600,7 +600,7 @@ public class Files {
 	 * Recursively gets all plain files matching the specified {@link FileFilter}. If no filter is specified, all files
 	 * recursively contained in the specified directory are returned. The directories itself are not added to the
 	 * returned files. If the specified root file is not a directory, an empty collection is returned (even if the
-	 * specified root is a file, it is NOT (!) returned).
+	 * specified root is a file, it is NOT (!) returned). The filter may be null to get all files found.
 	 *
 	 * @param root   the root directory
 	 * @param filter filters the files
