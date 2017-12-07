@@ -2199,4 +2199,14 @@ public class Strings {
 		}
 		return builder.toString();
 	}
+
+	/**
+	 * Checks whether a string contains only of numerals.
+	 *
+	 * @param string string to check
+	 * @return true, iff the given string contains only numerals
+	 */
+	public static boolean isNumeral(String string) {
+		return string.matches("^\\d+$");
+	}
 }
