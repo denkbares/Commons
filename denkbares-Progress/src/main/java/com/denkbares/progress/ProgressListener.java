@@ -29,6 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A class can implement this interface, so that other classes can inform it about their progress
@@ -39,12 +40,48 @@ import org.jetbrains.annotations.NotNull;
 public interface ProgressListener {
 
 	/**
-	 * Updates this ProgressListener to a new completion value. The percent must be between 0.0 and 1.0.
+	 * Updates this ProgressListener to a new completion percentage. The specified percent value must be between 0.0 and
+	 * 1.0. The message string is not updated, and the previous message will remain valid.
+	 *
+	 * @param percent the actual percentage of the progress
+	 * @apiNote implementors should retain the recently updated message, if possible
+	 */
+	default void updateProgress(double percent) {
+		updateProgress((float) percent);
+	}
+
+	/**
+	 * Updates this ProgressListener to a new completion percentage. The specified percent value must be between 0.0 and
+	 * 1.0. The message string is optional and may be null if the previous message is still valid.
 	 *
 	 * @param percent the actual percentage of the progress
 	 * @param message a message containing information about the actual state
+	 * @apiNote if message is null, implementors should retain the recently updated message, if possible
 	 */
-	void updateProgress(float percent, String message);
+	default void updateProgress(double percent, @Nullable String message) {
+		updateProgress((float) percent, message);
+	}
+
+	/**
+	 * Updates this ProgressListener to a new completion percentage. The specified percent value must be between 0.0 and
+	 * 1.0. The message string is not updated, and the previous message will remain valid.
+	 *
+	 * @param percent the actual percentage of the progress
+	 * @apiNote implementors should retain the recently updated message, if possible
+	 */
+	default void updateProgress(float percent) {
+		updateProgress(percent, null);
+	}
+
+	/**
+	 * Updates this ProgressListener to a new completion percentage. The specified percent value must be between 0.0 and
+	 * 1.0. The message string is optional and may be null if the previous message is still valid.
+	 *
+	 * @param percent the actual percentage of the progress
+	 * @param message a message containing information about the actual state
+	 * @apiNote if message is null, implementors should retain the recently updated message, if possible
+	 */
+	void updateProgress(float percent, @Nullable String message);
 
 	/**
 	 * Returns a (new) progress listener that maps its 0%..100% into the defined span of this progress listener. This is
@@ -63,9 +100,24 @@ public interface ProgressListener {
 	}
 
 	/**
+	 * Returns a (new) progress listener that maps its 0%..100% into the defined span of this progress listener. This is
+	 * useful to provide some progress for a partial activity that takes a well-defined part of the total progress.
+	 *
+	 * @param startPercent the percentage of this progress listener to start with, when the returned progress listener
+	 *                     is updated to 0%
+	 * @param endPercent   the percentage of this progress listener to end at, when the returned progress listener is
+	 *                     updated to 100%
+	 * @return the new progress listener that maps into the span
+	 */
+	@NotNull
+	default ProgressListener span(double startPercent, double endPercent) {
+		return span((float) startPercent, (float) endPercent);
+	}
+
+	/**
 	 * When iterating over the returned iterable, the progress is automatically updated fom 0% for the first item to
-	 * 100% minus 1 item, when iterating over the last item. As the progress message, the toString verbalization of the
-	 * iterated items are used. Usually you use this in the following manner:
+	 * 100% minus 1 item, when iterating over the last item. The progress is updated without updating the progress
+	 * message. Usually you use this in the following manner:
 	 * <p>
 	 * <pre>
 	 * for (T item : progress.iterate(arrayOfT)) { ... }
@@ -100,8 +152,8 @@ public interface ProgressListener {
 
 	/**
 	 * When iterating over the returned iterable, the progress is automatically updated fom 0% for the first item to
-	 * 100% minus 1 item, when iterating over the last item. As the progress message, the toString verbalization of the
-	 * iterated items are used. Usually you use this in the following manner:
+	 * 100% minus 1 item, when iterating over the last item. The progress is updated without updating the progress
+	 * message. Usually you use this in the following manner:
 	 * <p>
 	 * <pre>
 	 * for (T item : progress.iterate(myCollectionOfT)) { ... }

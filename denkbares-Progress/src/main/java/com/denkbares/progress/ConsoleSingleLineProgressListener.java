@@ -24,11 +24,15 @@ public class ConsoleSingleLineProgressListener implements ProgressListener {
 		if (previousStep == step) return;
 
 		// print the newly reached step
+		if (step == 0 && message != null) System.out.println(message);
 		if (previousStep >= 0) System.out.print(" .. ");
 		System.out.print((int) (percent * 100) + "%");
 		previousStep = step;
 
 		// and add line break if the process has finished
-		if (step == STEPS) System.out.println();
+		if (step == STEPS) {
+			System.out.println();
+			if (message != null) System.out.println(message);
+		}
 	}
 }

@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2012 denkbares GmbH, Germany
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -23,9 +23,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Class that decorates a progress and allows to split it into a set of multiple
- * progresses. Each of that multiple progresses may be continued independently.
- * If all of them reaches 100%, the original one is also progressed to 100%.
+ * Class that decorates a progress and allows to split it into a set of multiple progresses. Each of that multiple
+ * progresses may be continued independently. If all of them reaches 100%, the original one is also progressed to 100%.
  *
  * @author volker_belli
  * @created 09.09.2012
@@ -39,10 +38,9 @@ public class ParallelProgress implements ExtendedProgressListener {
 	private String lastMessage = "";
 
 	/**
-	 * Creates a new {@link ParallelProgress} for a specified delegate listener.
-	 * If is divided into several sub-tasks (and a progress listener for each).
-	 * The number of sub-tasks is specified by the size of partSizes. The
-	 * percentage 0%..100% is split according to the specified partSizes.
+	 * Creates a new {@link ParallelProgress} for a specified delegate listener. If is divided into several sub-tasks
+	 * (and a progress listener for each). The number of sub-tasks is specified by the size of partSizes. The percentage
+	 * 0%..100% is split according to the specified partSizes.
 	 *
 	 * @param delegate     the progress listener to delegate the update to
 	 * @param subTaskSizes the relative size of the individual sub-tasks
@@ -62,9 +60,8 @@ public class ParallelProgress implements ExtendedProgressListener {
 	}
 
 	/**
-	 * Creates a new {@link ParallelProgress} for a specified delegate listener.
-	 * If is divided into several sub-tasks (and a progress listener for each).
-	 * The number of sub-tasks is specified by the parameter subTaskCount. The
+	 * Creates a new {@link ParallelProgress} for a specified delegate listener. If is divided into several sub-tasks
+	 * (and a progress listener for each). The number of sub-tasks is specified by the parameter subTaskCount. The
 	 * percentage 0%..100% is split into identical parts for each sub-task.
 	 *
 	 * @param delegate     the progress listener to delegate the update to
@@ -105,9 +102,7 @@ public class ParallelProgress implements ExtendedProgressListener {
 		else if (activeListeners.size() > 1) {
 			// must be multiple, concat them
 			Iterator<String> messages = activeListeners.keySet().stream()
-					.sorted()
-					.map(PartListener::getMessage).distinct()
-					.iterator();
+					.sorted().map(PartListener::getMessage).distinct().iterator();
 			StringBuilder messageBuilder = new StringBuilder();
 			while (messages.hasNext()) {
 				messageBuilder.append(messages.next());
@@ -134,8 +129,7 @@ public class ParallelProgress implements ExtendedProgressListener {
 	}
 
 	/**
-	 * Utility method to easily increment a progress of a special sub-task.
-	 * The previously set message is reused.
+	 * Utility method to easily increment a progress of a special sub-task. The previously set message is reused.
 	 *
 	 * @param subTaskIndex the index of the sub-task
 	 * @param percent      the fraction of the progress of this sub-task (1.0 for 100%)
@@ -201,5 +195,4 @@ public class ParallelProgress implements ExtendedProgressListener {
 			return Float.compare(partCurrent, o.partCurrent);
 		}
 	}
-
 }

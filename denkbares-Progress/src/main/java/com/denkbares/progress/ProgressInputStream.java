@@ -10,6 +10,10 @@ public class ProgressInputStream extends FilterInputStream {
 	private final String message;
 	private long processed = 0;
 
+	public ProgressInputStream(InputStream in, ProgressListener listener) {
+		this(in, listener, null);
+	}
+
 	public ProgressInputStream(InputStream in, ProgressListener listener, String message) {
 		super(in);
 		this.listener = listener;
