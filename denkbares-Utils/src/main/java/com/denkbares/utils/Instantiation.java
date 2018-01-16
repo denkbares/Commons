@@ -282,8 +282,11 @@ public class Instantiation {
 
 		private ParameterValueFactory(List<String> parameters, Stream<? extends T> executables) {
 			this.parameters = parameters;
-			Comparator<T> varArgsLast = Comparator.comparing(m ->
-					m.getParameterCount() >= 1 && m.getParameters()[m.getParameterCount() - 1].isVarArgs());
+			// prefer non-vararg methods, and if varargs, prefer the methods with more (non-vararg) parameters,
+			// so that the varargs will be filled last with the remaining parameters only
+			Comparator<T> varArgsLast = Comparator
+					.comparing((T m) -> m.getParameterCount() >= 1 && m.getParameters()[m.getParameterCount() - 1].isVarArgs())
+					.thenComparing(Comparator.comparing(Executable::getParameterCount).reversed());
 			this.executables = executables
 					.filter(this::hasMatchingParameterCount)
 					.sorted(varArgsLast).collect(Collectors.toList());
@@ -464,8 +467,9 @@ public class Instantiation {
 			// enum names without qualified name
 			else if (Enum.class.isAssignableFrom(expectedType)) {
 				// find constant by name
-				//noinspection unchecked
-				return Strings.parseEnum(constantName, (Class) expectedType);
+				@SuppressWarnings("unchecked")
+				Enum enumValue = Strings.parseEnum(constantName, (Class) expectedType);
+				return (enumValue == null) ? CANNOT_CREATE : enumValue;
 			}
 
 			// referenced a constant, but not found
