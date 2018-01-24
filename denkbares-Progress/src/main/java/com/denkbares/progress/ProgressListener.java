@@ -129,7 +129,7 @@ public interface ProgressListener {
 	 */
 	@NotNull
 	default <T> Iterable<T> iterate(T[] items) {
-		return iterate(items, String::valueOf);
+		return iterate(items, item -> null);
 	}
 
 	/**
@@ -165,7 +165,7 @@ public interface ProgressListener {
 	 */
 	@NotNull
 	default <T> Iterable<T> iterate(Collection<T> items) {
-		return iterate(items, String::valueOf);
+		return iterate(items, item -> null);
 	}
 
 	/**
