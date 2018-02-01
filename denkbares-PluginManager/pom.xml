@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>com.denkbares</groupId>
 			<artifactId>denkbares-Utils</artifactId>
-			<version>${denkbares.version}</version>
+			<version>12.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
