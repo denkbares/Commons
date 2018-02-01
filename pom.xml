@@ -9,7 +9,7 @@
 	<description>denkbares open source common utilities</description>
 
 	<properties>
-		<denkbares.version>12.0-SNAPSHOT</denkbares.version>
+		<denkbares.version>${project.version}</denkbares.version>
 	</properties>
 
 	<modules>
