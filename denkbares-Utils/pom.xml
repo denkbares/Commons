@@ -8,6 +8,6 @@
 	</parent>
 
 	<artifactId>denkbares-Utils</artifactId>
-	<description>General helpful code that is not related to KR and reasoning.</description>
+	<description>Small assembly of helpful tools and utilities.</description>
 
 </project>

@@ -23,6 +23,14 @@
 		<module>denkbares-TestUtils</module>
 	</modules>
 
+	<licenses>
+		<license>
+			<name>The GNU Lesser General Public License, Version 3.0</name>
+			<url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<build>
 		<defaultGoal>package</defaultGoal>
 		<plugins>
@@ -194,7 +202,7 @@
 			<dependency>
 				<groupId>io.dropwizard.metrics</groupId>
 				<artifactId>metrics-core</artifactId>
-				<version>3.1.2-java7</version>
+				<version>3.1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.trove4j</groupId>
@@ -233,7 +241,6 @@
 				<artifactId>denkbares-SemanticCore-Plugin-ExtensionPoints</artifactId>
 				<version>${denkbares.version}</version>
 			</dependency>
-
 		</dependencies>
 	</dependencyManagement>
 
