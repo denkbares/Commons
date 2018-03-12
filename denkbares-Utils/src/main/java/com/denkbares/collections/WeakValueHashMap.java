@@ -31,9 +31,9 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Implementation of a Map that will remove entries when the value in the map has been cleaned from
- * garbage collection – in contrast to WeakHashMap, which will remove the entries if the key is
- * garbage collected.
+ * Implementation of a Map that will remove entries when the value in the map has been cleaned from garbage collection –
+ * in contrast to WeakHashMap, which will remove the entries if the key is garbage collected. You should not use this
+ * implementation for caching, only for canonial mapping, beacuse weak references are removed very frequently.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 15.12.14.
@@ -41,23 +41,22 @@ import org.jetbrains.annotations.NotNull;
 public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
 	/* Hash table mapping keys to it weak values references */
-	private final Map<K, WeakValueRef<K, V>> hash;
+	private final Map<K, ValueRef<K, V>> hash;
 
 	/* Reference queue for cleared weak values references */
-	private final ReferenceQueue<V> queue = new ReferenceQueue<>();
+	protected final ReferenceQueue<V> queue = new ReferenceQueue<>();
 
 	/**
-	 * This method does the trick. It removes all invalidated entries from the map, by removing
-	 * those entries whose values have been discarded. We must be a little careful here, because the
-	 * key's value might be already overwritten by some other (newer) value. In this case the key
-	 * must remain in the hash table.
+	 * This method does the trick. It removes all invalidated entries from the map, by removing those entries whose
+	 * values have been discarded. We must be a little careful here, because the key's value might be already
+	 * overwritten by some other (newer) value. In this case the key must remain in the hash table.
 	 */
 	private void processQueue() {
 		while (true) {
-			WeakValueRef reference = (WeakValueRef) queue.poll();
+			ValueRef reference = (ValueRef) queue.poll();
 			if (reference == null) break;
 			// only remove if the stored value in the hash-table is still the queued one
-			@SuppressWarnings("unchecked") K key = (K) reference.key;
+			@SuppressWarnings("unchecked") K key = (K) reference.getKey();
 			if (reference == hash.get(key)) {
 				hash.remove(key);
 			}
@@ -65,21 +64,19 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	/**
-	 * Constructs a new, empty <code>WeakValueHashMap</code> with the given initial capacity and the
-	 * given load factor.
+	 * Constructs a new, empty <code>WeakValueHashMap</code> with the given initial capacity and the given load factor.
 	 *
 	 * @param initialCapacity The initial capacity of the <code>WeakHashMap</code>
-	 * @param loadFactor The load factor of the <code>WeakHashMap</code>
-	 * @throws IllegalArgumentException If the initial capacity is less than zero, or if the load
-	 * factor is nonpositive
+	 * @param loadFactor      The load factor of the <code>WeakHashMap</code>
+	 * @throws IllegalArgumentException If the initial capacity is less than zero, or if the load factor is nonpositive
 	 */
 	public WeakValueHashMap(int initialCapacity, float loadFactor) {
 		hash = new HashMap<>(initialCapacity, loadFactor);
 	}
 
 	/**
-	 * Constructs a new, empty <code>WeakValueHashMap</code> with the given initial capacity and the
-	 * default load factor, which is <code>0.75</code>.
+	 * Constructs a new, empty <code>WeakValueHashMap</code> with the given initial capacity and the default load
+	 * factor, which is <code>0.75</code>.
 	 *
 	 * @param initialCapacity The initial capacity of the <code>WeakHashMap</code>
 	 * @throws IllegalArgumentException If the initial capacity is less than zero
@@ -89,20 +86,19 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	/**
-	 * Constructs a new, empty <code>WeakValueHashMap</code> with the default initial capacity and
-	 * the default load factor, which is <code>0.75</code>.
+	 * Constructs a new, empty <code>WeakValueHashMap</code> with the default initial capacity and the default load
+	 * factor, which is <code>0.75</code>.
 	 */
 	public WeakValueHashMap() {
 		this(16);
 	}
 
 	/**
-	 * Constructs a new <code>WeakValueHashMap</code> with the same mappings as the specified
-	 * <tt>Map</tt>.  The <tt>HashMap</tt> is created with default load factor (0.75) and an initial
-	 * capacity sufficient to hold the mappings in the specified <tt>Map</tt>.
+	 * Constructs a new <code>WeakValueHashMap</code> with the same mappings as the specified <tt>Map</tt>.  The
+	 * <tt>HashMap</tt> is created with default load factor (0.75) and an initial capacity sufficient to hold the
+	 * mappings in the specified <tt>Map</tt>.
 	 *
 	 * @param map the map whose mappings are to be placed in this map
-	 * @since 1.3
 	 */
 	public WeakValueHashMap(Map<? extends K, ? extends V> map) {
 		this(Math.max(2 * map.size(), 11), 0.75f);
@@ -113,12 +109,12 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	@Override
 	public Set<Entry<K, V>> entrySet() {
 		processQueue();
-		final Set<Entry<K, WeakValueRef<K, V>>> entries = hash.entrySet();
+		final Set<Entry<K, ValueRef<K, V>>> entries = hash.entrySet();
 		return new AbstractSet<Entry<K, V>>() {
 			@NotNull
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
-				final Iterator<Entry<K, WeakValueRef<K, V>>> iterator = entries.iterator();
+				final Iterator<Entry<K, ValueRef<K, V>>> iterator = entries.iterator();
 				return new Iterator<Entry<K, V>>() {
 					@Override
 					public boolean hasNext() {
@@ -127,7 +123,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 
 					@Override
 					public Entry<K, V> next() {
-						final Entry<K, WeakValueRef<K, V>> next = iterator.next();
+						final Entry<K, ValueRef<K, V>> next = iterator.next();
 						return new Entry<K, V>() {
 							@Override
 							public K getKey() {
@@ -161,9 +157,9 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	/**
-	 * Returns the number of key-value mappings in this map. <strong>Note:</strong> <em>In contrast
-	 * with most implementations of the <code>Map</code> interface, the time required by this
-	 * operation is linear in the size of the map.</em>
+	 * Returns the number of key-value mappings in this map. <strong>Note:</strong> <em>In contrast with most
+	 * implementations of the <code>Map</code> interface, the time required by this operation is linear in the size of
+	 * the map.</em>
 	 */
 	@Override
 	public int size() {
@@ -192,8 +188,8 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	/**
-	 * Returns the value to which this map maps the specified <code>key</code>. If this map does not
-	 * contain a value for this key, then return <code>null</code>.
+	 * Returns the value to which this map maps the specified <code>key</code>. If this map does not contain a value for
+	 * this key, then return <code>null</code>.
 	 *
 	 * @param key The key whose associated value, if any, is to be returned
 	 */
@@ -204,14 +200,13 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	/**
-	 * Updates this map so that the given <code>key</code> maps to the given <code>value</code>.  If
-	 * the map previously contained a mapping for <code>key</code> then that mapping is replaced and
-	 * the previous value is returned.
+	 * Updates this map so that the given <code>key</code> maps to the given <code>value</code>.  If the map previously
+	 * contained a mapping for <code>key</code> then that mapping is replaced and the previous value is returned.
 	 *
-	 * @param key The key that is to be mapped to the given <code>value</code>
+	 * @param key   The key that is to be mapped to the given <code>value</code>
 	 * @param value The value to which the given <code>key</code> is to be mapped
-	 * @return The previous value to which this key was mapped, or <code>null</code> if if there was
-	 * no mapping for the key
+	 * @return The previous value to which this key was mapped, or <code>null</code> if if there was no mapping for the
+	 * key
 	 */
 	@Override
 	public V put(K key, V value) {
@@ -223,8 +218,7 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 	 * Removes the mapping for the given <code>key</code> from this map, if present.
 	 *
 	 * @param key The key whose mapping is to be removed
-	 * @return The value to which this key was mapped, or <code>null</code> if there was no mapping
-	 * for the key
+	 * @return The value to which this key was mapped, or <code>null</code> if there was no mapping for the key
 	 */
 	@Override
 	public V remove(Object key) {
@@ -241,33 +235,48 @@ public class WeakValueHashMap<K, V> extends AbstractMap<K, V> {
 		hash.clear();
 	}
 
+	protected interface ValueRef<K, V> {
+		K getKey();
+
+		V getValue();
+	}
+
 	/**
-	 * This enclosing map implementation stores only weak references to the values. Thus the values
-	 * can be garbage collected. To be able to also remove the entries from the map after the value
-	 * has been discarded, we use a trick: We derive our own weak reference that also knows the key
-	 * this reference is stored for. By garbage collecting the value, the garbage collector adds
-	 * this extended weak references to a queue. When processing the queue (see method
+	 * This enclosing map implementation stores only weak references to the values. Thus the values can be garbage
+	 * collected. To be able to also remove the entries from the map after the value has been discarded, we use a trick:
+	 * We derive our own weak reference that also knows the key this reference is stored for. By garbage collecting the
+	 * value, the garbage collector adds this extended weak references to a queue. When processing the queue (see method
 	 * processQueue), we can remove these keys from the map.
 	 *
 	 * @param <K> the key type stored in the enclosing map
 	 * @param <V> the value type stored in the enclosing map
 	 * @see #processQueue()
 	 */
-	private static class WeakValueRef<K, V> extends WeakReference<V> {
+	private static class WeakValueRef<K, V> extends WeakReference<V> implements ValueRef<K, V> {
 		public final K key;
 
 		public WeakValueRef(K key, V val, ReferenceQueue<V> q) {
 			super(val, q);
 			this.key = key;
 		}
+
+		@Override
+		public K getKey() {
+			return key;
+		}
+
+		@Override
+		public V getValue() {
+			return get();
+		}
 	}
 
-	private WeakValueRef<K, V> wrap(K key, V value) {
+	protected ValueRef<K, V> wrap(K key, V value) {
 		if (value == null) return null;
 		return new WeakValueRef<>(key, value, queue);
 	}
 
-	private V unwrap(WeakValueRef<K, V> reference) {
-		return (reference == null) ? null : reference.get();
+	private V unwrap(ValueRef<K, V> reference) {
+		return (reference == null) ? null : reference.getValue();
 	}
 }
