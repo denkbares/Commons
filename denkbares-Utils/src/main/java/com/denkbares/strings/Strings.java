@@ -1,17 +1,17 @@
 /*
  * Copyright (C) 2010 Chair of Artificial Intelligence and Applied Informatics
  * Computer Science VI, University of Wuerzburg
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -1268,6 +1268,26 @@ public class Strings {
 			Log.warning("Unsupported encoding UTF-8", e);
 			return text;
 		}
+	}
+
+	/**
+	 * Safe way to modify strings that they can used as path segments in any known file system. All critical characters
+	 * will be replaced. If the specified text is null, null is returned.
+	 * <p>
+	 * Note: This method will return the smae string for multiple input strings, so uniqueness of the filename is not
+	 * (!) preserved.
+	 *
+	 * @param text the text to be as a file name
+	 * @return the encoded string, potentially clashing with other strings that will produce the same filename
+	 * @created 03.05.2012
+	 */
+	public static String encodeFileName(String text) {
+		if (text == null) return null;
+		return trim(text.replaceAll("[\u0000-\001F]+", " "))
+				.replaceAll("[\\\\/|;:<>?*]+", "_")
+				.replaceAll("^(CON|PRN|AUX|NUL|(COM\\d)|(LPT\\d))$", "$1_")
+				.replaceAll("\\.$", "_")
+				.replace('"', '\'');
 	}
 
 	/**
