@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
@@ -246,7 +247,6 @@ public class StringsTest {
 		assertEquals(testString, Strings.readStream(new FileInputStream(filePath)));
 	}
 
-
 	@Test
 	public void writeReadFile2() throws IOException {
 		String testString = "abcdefghijklmnopqrstuvwqyzöäüß";
@@ -305,7 +305,6 @@ public class StringsTest {
 		assertEquals(21, Strings.indexOf("asasd//testcomment\nasdasdetesthoho", skipComments, "test", "das"));
 		assertEquals(22, Strings.indexOf("asasd//testcomment\na\"sdasdetestho\"ho", skipComments, "test", "das"));
 
-
 		int skipCommendsAndQuotes = skipComments | unquoted;
 		assertEquals(-1, Strings.indexOf("", skipCommendsAndQuotes, "test"));
 		assertEquals(0, Strings.indexOf("test", skipCommendsAndQuotes, "test"));
@@ -354,6 +353,15 @@ public class StringsTest {
 		assertEquals(15, Strings.lastIndexOf("atests//t(est\ndas", skipCommendQuotesAndBraces, "test", "a"));
 		assertEquals(16, Strings.lastIndexOf("atests//t\"(est\ndas\"testatest\"", skipCommendQuotesAndBraces, "test", "a"));
 		assertEquals(14, Strings.lastIndexOf("atests//test\ndas//testatest", skipCommendQuotesAndBraces, "test", "a"));
+	}
+
+	@Test
+	public void nestedQuotes() {
+		List<StringFragment> fragments = Strings.splitUnquoted("\"\"\"Hi \"there \"stranger\"\"\"\"\";\"how are you\"", ";",
+				true, QuoteSet.TRIPLE_QUOTES, new QuoteSet('"'));
+		assertEquals(2, fragments.size());
+		assertEquals("\"\"\"Hi \"there \"stranger\"\"\"\"\"", fragments.get(0).getContent());
+		assertEquals("\"how are you\"", fragments.get(1).getContent());
 	}
 
 	@Test

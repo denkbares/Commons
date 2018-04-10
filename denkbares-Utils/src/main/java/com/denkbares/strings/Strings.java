@@ -795,7 +795,10 @@ public class Strings {
 						if (quoteSet == QuoteSet.TRIPLE_QUOTES
 								// triple quotes cannot be escaped, so just try a match
 								&& text.length() >= i + 3
-								&& text.substring(i, i + 3).equals(TRIPLE_QUOTES)) {
+								&& text.substring(i, i + 3).equals(TRIPLE_QUOTES)
+								// don't match closing triple quotes at the start, but at the end of
+								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
+								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES.charAt(0))) {
 
 							toggleQuoteState(quoteStates, q);
 
