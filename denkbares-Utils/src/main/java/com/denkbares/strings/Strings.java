@@ -1734,6 +1734,7 @@ public class Strings {
 		result = result.replaceAll("(?i)>", ">");
 		result = result.replaceAll("(?i)©", "(c)");
 		result = result.replaceAll("(?i)®", "(r)");
+		result = result.replaceAll("(?i)&nbsp;", " ");
 		// Remove all others. More can be added, see
 		// http://hotwired.lycos.com/webmonkey/reference/special_characters/
 		result = result.replaceAll("(?i)&(.{2,6});", "");
