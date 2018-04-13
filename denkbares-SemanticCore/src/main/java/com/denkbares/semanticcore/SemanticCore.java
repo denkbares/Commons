@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -182,7 +183,6 @@ public final class SemanticCore {
 			throw new IOException("Cannot initialize repository", e);
 		}
 		initConnectionDaemon();
-
 	}
 
 	private void initializeLazy(String tmpFolder) throws IOException {
@@ -435,10 +435,25 @@ public final class SemanticCore {
 		addData(tempFile);
 	}
 
-	public void addData(InputStream is, RDFFormat format) throws RDFParseException, RepositoryException, IOException {
+	public void addData(InputStream is, RDFFormat format) throws RepositoryException {
 		org.openrdf.repository.RepositoryConnection connection = this.getConnection();
 		try {
 			connection.add(is, DEFAULT_NAMESPACE, format);
+		}
+		catch (Exception e) {
+			Log.severe("Exception while adding data to semantic core.", e);
+		}
+		finally {
+			//noinspection ThrowFromFinallyBlock
+			connection.close();
+			// throwing inside finally should be ok with logging of exception above
+		}
+	}
+
+	public void addData(Reader reader, RDFFormat format) throws RepositoryException {
+		org.openrdf.repository.RepositoryConnection connection = this.getConnection();
+		try {
+			connection.add(reader, DEFAULT_NAMESPACE, format);
 		}
 		catch (Exception e) {
 			Log.severe("Exception while adding data to semantic core.", e);
