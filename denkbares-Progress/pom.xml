@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>denkbares-Commons</artifactId>
 		<groupId>com.denkbares</groupId>
-		<version>12.0-SNAPSHOT</version>
+		<version>12.0-rc4</version>
 	</parent>
 
 	<artifactId>denkbares-Progress</artifactId>
