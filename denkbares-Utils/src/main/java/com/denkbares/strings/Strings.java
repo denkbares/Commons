@@ -798,7 +798,8 @@ public class Strings {
 								&& text.substring(i, i + 3).equals(TRIPLE_QUOTES)
 								// don't match closing triple quotes at the start, but at the end of
 								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
-								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES.charAt(0))) {
+								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
+								.charAt(0))) {
 
 							toggleQuoteState(quoteStates, q);
 
@@ -996,6 +997,26 @@ public class Strings {
 	}
 
 	/**
+	 * Returns the beginning of specified text. If the text does not exceed the specified maxLength, the original text
+	 * is returned unmodified. Otherwise the text is truncated, and an ellipsis "..." is appended, so that the total
+	 * length is maxLength. The returned string never contains more characters as the specified maxLength.
+	 * <p>
+	 * If null is specified as text, null is returned.
+	 *
+	 * @param text      the text to be truncated
+	 * @param maxLength the maximum character of the returned text
+	 * @return the text, or truncated text with ellipsis
+	 * @throws IllegalArgumentException if maxLength is below 3 and the text exceeds the maxLength
+	 */
+	public static String ellipsis(String text, int maxLength) {
+		if (text == null) return null;
+		if (text.length() <= maxLength) return text;
+
+		if (maxLength < 3) throw new IllegalArgumentException("maxLength must be at least 3: " + maxLength);
+		return text.substring(0, maxLength - 3) + "...";
+	}
+
+	/**
 	 * Returns a copy of the string, with leading whitespace omitted.
 	 * <p>
 	 * If this <code>String</code> object represents an empty character sequence, or the first character of character
@@ -1006,7 +1027,8 @@ public class Strings {
 	 * <code>String</code> object representing an empty string is created and returned.
 	 * <p>
 	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
-	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this string
+	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this
+	 * string
 	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
 	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
@@ -1086,7 +1108,8 @@ public class Strings {
 	 * <code>String</code> object representing an empty string is created and returned.
 	 * <p>
 	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
-	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this string
+	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this
+	 * string
 	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
 	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
