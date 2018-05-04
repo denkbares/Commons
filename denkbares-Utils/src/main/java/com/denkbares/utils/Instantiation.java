@@ -417,7 +417,7 @@ public class Instantiation {
 						? Strings.equalsIgnoreCase(parameter, "true") : CANNOT_CREATE;
 			}
 
-			// test for java field reference (enum or constant)
+			// test for java field reference (enum or constant or ".class")
 			Matcher constantReference = CONSTANT_REFERENCE.matcher(parameter);
 			if (constantReference.matches()) {
 				String className = constantReference.group(1);
@@ -458,6 +458,9 @@ public class Instantiation {
 			// full qualified enums or public static fields
 			if (!Strings.isBlank(className)) {
 				Class<?> enclosingClass = classLoader.loadClass(className);
+				if ("class".equals(constantName)) {
+					return enclosingClass;
+				}
 				Field field = enclosingClass.getField(constantName);
 				if (Modifier.isStatic(field.getModifiers())) {
 					Object value = field.get(null);
