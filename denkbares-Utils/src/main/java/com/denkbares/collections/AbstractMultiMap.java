@@ -24,13 +24,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class provides some basic implementation for a {@link MultiMap}s for easier
- * implementation of the actual multi-maps:
+ * This class provides some basic implementation for a {@link MultiMap}s for easier implementation of the actual
+ * multi-maps:
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 07.01.2014
@@ -65,12 +67,13 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 	public Set<Entry<K, V>> entrySet() {
 		return new AbstractSet<Entry<K, V>>() {
 
+			@NotNull
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
 				return new Iterator<Entry<K, V>>() {
 
 					final Iterator<K> keyIter = keySet().iterator();
-					Iterator<V> valIter = Collections.<V> emptySet().iterator();
+					Iterator<V> valIter = Collections.<V>emptySet().iterator();
 					K currentKey = null;
 					V currentVal = null;
 
@@ -163,43 +166,74 @@ public abstract class AbstractMultiMap<K, V> implements MultiMap<K, V> {
 	@NotNull
 	@Override
 	public Map<K, Set<V>> toMap() {
-		return new AbstractMap<K, Set<V>>() {
+		return new Mapping<>(this::getValues);
+	}
 
-			@Override
-			public Set<Entry<K, Set<V>>> entrySet() {
+	@NotNull
+	@Override
+	public Map<K, V> toAnyMap() {
+		return new Mapping<>(this::getAnyValue);
+	}
 
-				return new AbstractSet<Entry<K, Set<V>>>() {
+	private class Mapping<O> extends AbstractMap<K, O> {
 
-					@Override
-					public Iterator<Entry<K, Set<V>>> iterator() {
-						final Iterator<K> keyIter = AbstractMultiMap.this.keySet().iterator();
-						return new Iterator<Entry<K, Set<V>>>() {
+		private final Function<K, O> valueAccessor;
 
-							@Override
-							public boolean hasNext() {
-								return keyIter.hasNext();
-							}
+		private Mapping(Function<K, O> valueAccessor) {
+			this.valueAccessor = valueAccessor;
+		}
 
-							@Override
-							public Entry<K, Set<V>> next() {
-								K key = keyIter.next();
-								Set<V> values = getValues(key);
-								return new SimpleImmutableEntry<>(key, values);
-							}
+		@Override
+		public O get(Object key) {
+			//noinspection unchecked
+			return valueAccessor.apply((K) key);
+		}
 
-							@Override
-							public void remove() {
-								throw new UnsupportedOperationException();
-							}
-						};
-					}
+		@Override
+		public boolean containsKey(Object key) {
+			return AbstractMultiMap.this.containsKey(key);
+		}
 
-					@Override
-					public int size() {
-						return AbstractMultiMap.this.keySet().size();
-					}
-				};
-			}
-		};
+		@Override
+		public boolean containsValue(Object value) {
+			return AbstractMultiMap.this.getKeys(value).stream().anyMatch(key -> Objects.equals(value, get(key)));
+		}
+
+		@NotNull
+		@Override
+		public Set<Entry<K, O>> entrySet() {
+
+			return new AbstractSet<Entry<K, O>>() {
+
+				@NotNull
+				@Override
+				public Iterator<Entry<K, O>> iterator() {
+					final Iterator<K> keyIter = AbstractMultiMap.this.keySet().iterator();
+					return new Iterator<Entry<K, O>>() {
+
+						@Override
+						public boolean hasNext() {
+							return keyIter.hasNext();
+						}
+
+						@Override
+						public Entry<K, O> next() {
+							K key = keyIter.next();
+							return new SimpleImmutableEntry<>(key, get(key));
+						}
+
+						@Override
+						public void remove() {
+							throw new UnsupportedOperationException();
+						}
+					};
+				}
+
+				@Override
+				public int size() {
+					return AbstractMultiMap.this.keySet().size();
+				}
+			};
+		}
 	}
 }

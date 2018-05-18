@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2014 denkbares GmbH
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -310,7 +310,8 @@ public interface MultiMap<K, V> {
 	/**
 	 * Copies all of the mappings from the specified map to this map (optional operation). The effect of this call is
 	 * equivalent to that of calling {@link #put(Object, Object) put(k, v)} on this map once for each mapping from key
-	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the specified
+	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the
+	 * specified
 	 * map is modified while the operation is in progress.
 	 *
 	 * @param m mappings to be stored in this map
@@ -328,7 +329,8 @@ public interface MultiMap<K, V> {
 	/**
 	 * Copies all of the mappings from the specified map to this map (optional operation). The effect of this call is
 	 * equivalent to that of calling {@link #put(Object, Object) put(k, v)} on this map once for each mapping from key
-	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the specified
+	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the
+	 * specified
 	 * map is modified while the operation is in progress.
 	 *
 	 * @param m mappings to be stored in this map
@@ -511,6 +513,17 @@ public interface MultiMap<K, V> {
 	 */
 	@NotNull
 	Map<K, Set<V>> toMap();
+
+	/**
+	 * Returns an immutable {@link Map} that represents the contents of this MultiMap, but only one (any) value for each
+	 * key, usually without copying the contents of this map. If this map will be changed, the returned map will also
+	 * change.
+	 *
+	 * @return a map representation of the contents of this multi map, with any value for each key
+	 * @created 09.01.2014
+	 */
+	@NotNull
+	Map<K, V> toAnyMap();
 
 	/**
 	 * Returns a multi map that has the keys and values switched/exchanged. Exactly for each key-&gt;value relation of

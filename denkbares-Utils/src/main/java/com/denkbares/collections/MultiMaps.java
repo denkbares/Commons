@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2014 denkbares GmbH
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -416,6 +416,14 @@ public class MultiMaps {
 				return map.toMap();
 			}
 		}
+
+		@NotNull
+		@Override
+		public Map<K, V> toAnyMap() {
+			synchronized (mutex) {
+				return map.toAnyMap();
+			}
+		}
 	}
 
 	public static <K, V> MultiMap<K, V> unmodifiableMultiMap(MultiMap<K, V> map) {
@@ -532,6 +540,12 @@ public class MultiMaps {
 		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.unmodifiableMap(map.toMap());
+		}
+
+		@NotNull
+		@Override
+		public Map<K, V> toAnyMap() {
+			return Collections.unmodifiableMap(map.toAnyMap());
 		}
 	}
 
@@ -733,6 +747,12 @@ public class MultiMaps {
 		public Map<K, Set<V>> toMap() {
 			return Collections.emptyMap();
 		}
+
+		@NotNull
+		@Override
+		public Map<K, V> toAnyMap() {
+			return Collections.emptyMap();
+		}
 	}
 
 	public static <K, V> MultiMap<K, V> singletonMultiMap(K key, V value) {
@@ -840,6 +860,12 @@ public class MultiMaps {
 		@Override
 		public Map<K, Set<V>> toMap() {
 			return Collections.singletonMap(key, valueSet());
+		}
+
+		@NotNull
+		@Override
+		public Map<K, V> toAnyMap() {
+			return Collections.singletonMap(key, value);
 		}
 	}
 
