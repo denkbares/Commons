@@ -37,6 +37,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -755,8 +756,30 @@ public class MultiMaps {
 		}
 	}
 
+	/**
+	 * Returns a MultiMap that contains the specified key mapped to the specified value.
+	 *
+	 * @param key   the key of the returned multi map
+	 * @param value the value that is mapped to the key
+	 * @return the multi map, mapping the key to the value
+	 */
 	public static <K, V> MultiMap<K, V> singletonMultiMap(K key, V value) {
 		return new SingletonMultiMap<>(key, value);
+	}
+
+	/**
+	 * Returns a MultiMap that contains the specified key mapped to the specified values. If the set contains only one
+	 * element the method behaves as {@link #singletonMultiMap(Object, Object)} for the one set value. If the set is
+	 * empty, an empty MultiMap is returned.
+	 *
+	 * @param key    the key of the returned multi map
+	 * @param values the values that are mapped to the key
+	 * @return the multi map, mapping the key to each value
+	 */
+	public static <K, V> MultiMap<K, V> singletonMultiMap(K key, Set<V> values) {
+		return values.isEmpty() ? emptyMultiMap()
+				: (values.size() > 1) ? new SingleKeyMultiMap<>(key, values)
+				: singletonMultiMap(key, values.iterator().next());
 	}
 
 	private static class SingletonMultiMap<K, V> extends AbstractMultiMap<K, V> {
@@ -866,6 +889,118 @@ public class MultiMaps {
 		@Override
 		public Map<K, V> toAnyMap() {
 			return Collections.singletonMap(key, value);
+		}
+	}
+
+	private static class SingleKeyMultiMap<K, V> extends AbstractMultiMap<K, V> {
+
+		private final K key;
+		private final Set<V> values;
+
+		public SingleKeyMultiMap(K key, Set<V> values) {
+			this.key = key;
+			this.values = values;
+		}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		public boolean containsKey(Object key) {
+			return Objects.equals(key, this.key);
+		}
+
+		@Override
+		public boolean containsValue(Object value) {
+			//noinspection SuspiciousMethodCalls
+			return values.contains(value);
+		}
+
+		@Override
+		public boolean contains(Object key, Object value) {
+			return containsKey(key) && containsValue(value);
+		}
+
+		@NotNull
+		@Override
+		public Set<V> getValues(Object key) {
+			return containsKey(key) ? valueSet() : Collections.emptySet();
+		}
+
+		@NotNull
+		@Override
+		public Set<K> getKeys(Object value) {
+			return containsValue(value) ? keySet() : Collections.emptySet();
+		}
+
+		@Override
+		public boolean put(K key, V value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@NotNull
+		@Override
+		public Set<V> removeKey(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		@NotNull
+		@Override
+		public Set<K> removeValue(Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean remove(Object key, Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean putAll(Map<? extends K, ? extends V> m) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean putAll(MultiMap<? extends K, ? extends V> m) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		@NotNull
+		@Override
+		public Set<K> keySet() {
+			return Collections.singleton(key);
+		}
+
+		@NotNull
+		@Override
+		public Set<V> valueSet() {
+			return Collections.unmodifiableSet(values);
+		}
+
+		@NotNull
+		@Override
+		public Set<Entry<K, V>> entrySet() {
+			return values.stream().map(value -> new AbstractMap.SimpleImmutableEntry<>(key, value))
+					.collect(Collectors.toSet());
+		}
+
+		@NotNull
+		@Override
+		public Map<K, Set<V>> toMap() {
+			return Collections.singletonMap(key, valueSet());
+		}
+
+		@NotNull
+		@Override
+		public Map<K, V> toAnyMap() {
+			return Collections.singletonMap(key, values.iterator().next());
 		}
 	}
 
