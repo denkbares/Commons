@@ -74,7 +74,7 @@ public class Tokenizer {
 	 * @created 09.11.2013
 	 */
 	public static boolean isWordChar(char c) {
-		return Character.isLetterOrDigit(c);
+		return Character.isLetterOrDigit(c) || c == '-';
 	}
 
 }
