@@ -116,7 +116,7 @@ public class Files {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(String filePath) throws IOException {
-		return readFile(readFile(filePath, "UTF-8"));
+		return readFile(filePath, "UTF-8");
 	}
 
 	/**
