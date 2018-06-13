@@ -116,7 +116,20 @@ public class Files {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(String filePath) throws IOException {
-		return readFile(new File(filePath));
+		return readFile(readFile(filePath, "UTF-8"));
+	}
+
+	/**
+	 * Reads the contents of a file into a String and return the string.
+	 *
+	 * @param file the file to be loaded
+	 * @return the contents of the file
+	 * @throws IOException          if there was any problem reading the file
+	 * @throws NullPointerException if the argument is null.
+	 * @created 13.06.2018
+	 */
+	public static String readFile(String file, String charset) throws IOException {
+		return readFile(new File(file), charset);
 	}
 
 	/**
@@ -129,7 +142,20 @@ public class Files {
 	 * @created 16.09.2012
 	 */
 	public static String readFile(File file) throws IOException {
-		return Streams.readStream(new FileInputStream(file));
+		return readFile(file, "UTF-8");
+	}
+
+	/**
+	 * Reads the contents of a file into a String and return the string.
+	 *
+	 * @param file the file to be loaded
+	 * @return the contents of the file
+	 * @throws IOException          if there was any problem reading the file
+	 * @throws NullPointerException if the argument is null.
+	 * @created 13.06.2018
+	 */
+	public static String readFile(File file, String charset) throws IOException {
+		return Streams.readStream(new FileInputStream(file), charset);
 	}
 
 	/**
@@ -291,6 +317,18 @@ public class Files {
 	 * @created 01.10.2013
 	 */
 	public static String getText(File file) throws IOException {
+		return getText(file, "UTF-8");
+	}
+
+	/**
+	 * Returns the contents of the specified file as a String.
+	 *
+	 * @param file the input file to read from
+	 * @return the content of the file
+	 * @throws IOException if the specified file cannot be read completely
+	 * @created 13.06.2018
+	 */
+	public static String getText(File file, String charset) throws IOException {
 		return Streams.getTextAndClose(new FileInputStream(file));
 	}
 

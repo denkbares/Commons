@@ -150,7 +150,18 @@ public class Streams {
 	 * @created 01.10.2013
 	 */
 	public static String getText(InputStream input) {
-		return readStream(input);
+		return getText(input, "UTF-8");
+	}
+
+	/**
+	 * Returns the contents of the specified input stream as a String. The stream is not closed!
+	 *
+	 * @param input the input stream to read from
+	 * @return the content of the stream
+	 * @created 13.06.2018
+	 */
+	public static String getText(InputStream input, String charset) {
+		return readStream(input, charset);
 	}
 
 	/**
@@ -162,10 +173,14 @@ public class Streams {
 	 * @created 20.06.2015
 	 */
 	public static String readStream(InputStream inputStream) {
+		return readStream(inputStream, "UTF-8");
+	}
+
+	public static String readStream(InputStream inputStream, String charset) {
 		// The reason it works is because Scanner iterates over tokens in the stream,
 		// and in this case we separate tokens using "beginning of the input boundary"
 		// (\A) thus giving us only one token for the entire contents of the stream.
-		Scanner scanner = new Scanner(inputStream, "UTF-8").useDelimiter("\\A");
+		Scanner scanner = new Scanner(inputStream, charset).useDelimiter("\\A");
 		return scanner.hasNext() ? scanner.next() : "";
 	}
 
@@ -179,8 +194,21 @@ public class Streams {
 	 * @created 01.10.2013
 	 */
 	public static String getTextAndClose(InputStream input) throws IOException {
+		return getTextAndClose(input, "UTF-8");
+	}
+
+	/**
+	 * Returns the contents of the specified input stream as a String. The
+	 * method closes the specified stream before it returns the contents.
+	 *
+	 * @param input the input stream to read from
+	 * @return the content of the stream
+	 * @throws IOException if the specified streams cannot be read completely
+	 * @created 01.10.2013
+	 */
+	public static String getTextAndClose(InputStream input, String charset) throws IOException {
 		try {
-			return getText(input);
+			return getText(input, charset);
 		}
 		finally {
 			closeQuietly(input);
