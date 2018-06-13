@@ -21,11 +21,13 @@ package com.denkbares.plugin.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.denkbares.plugin.JPFPluginManager;
 import com.denkbares.strings.Strings;
+import com.denkbares.utils.Log;
 
 /**
  * Provides a static method to initialize the JPF-PluginManager by using a classpath file generated
@@ -71,6 +73,9 @@ public final class InitPluginManager {
 	 * @throws IOException if the classpath file or references plugins could not been read
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
+		if (!Files.exists(classpathFile.toPath())) {
+			Log.severe("Dependency information file does not exist: " + classpathFile.getAbsolutePath());
+		}
 		init(Strings.readFile(classpathFile).split(";"), pluginFilterPattern);
 	}
 
