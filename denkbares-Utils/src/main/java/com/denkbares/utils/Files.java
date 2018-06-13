@@ -329,7 +329,7 @@ public class Files {
 	 * @created 13.06.2018
 	 */
 	public static String getText(File file, String charset) throws IOException {
-		return Streams.getTextAndClose(new FileInputStream(file));
+		return Streams.getTextAndClose(new FileInputStream(file), charset);
 	}
 
 	/**
