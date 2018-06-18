@@ -22,7 +22,7 @@ public class Streams {
 	 * returns after the stream has completely been written. Before the method
 	 * returns, both stream will be closed.
 	 *
-	 * @param inputStream the source stream to read the data from
+	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
@@ -57,7 +57,7 @@ public class Streams {
 	 * Streams the specified inputStream to the specified outputStream and
 	 * returns after the stream has completely been written.
 	 *
-	 * @param inputStream the source stream to read the data from
+	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
@@ -70,9 +70,9 @@ public class Streams {
 	 * Streams the specified inputStream to the specified outputStream and
 	 * returns after the stream has completely been written.
 	 *
-	 * @param inputStream the source stream to read the data from
+	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
-	 * @param chunkSize the size of the particular chunks to be copied
+	 * @param chunkSize    the size of the particular chunks to be copied
 	 * @throws IOException if any of the streams has an error
 	 * @created 09.09.2013
 	 */
@@ -88,7 +88,7 @@ public class Streams {
 	 * Creates a asynchronous streaming task from the specified source
 	 * {@link InputStream} to the specified target {@link OutputStream}.
 	 *
-	 * @param inputStream the source stream
+	 * @param inputStream  the source stream
 	 * @param outputStream the target stream
 	 * @created 27.04.2011
 	 */
@@ -156,7 +156,8 @@ public class Streams {
 	/**
 	 * Returns the contents of the specified input stream as a String. The stream is not closed!
 	 *
-	 * @param input the input stream to read from
+	 * @param input   the input stream to read from
+	 * @param charset the charset to use when reading the stream
 	 * @return the content of the stream
 	 * @created 13.06.2018
 	 */
@@ -165,8 +166,8 @@ public class Streams {
 	}
 
 	/**
-	 * Reads the contents of a stream into a String and return the string. The InputStream is not
-	 * closed!
+	 * Reads the contents of a stream into a String and return the string it. The InputStream is
+	 * not closed!
 	 *
 	 * @param inputStream the stream to load from
 	 * @return the contents of the file
@@ -176,6 +177,15 @@ public class Streams {
 		return readStream(inputStream, "UTF-8");
 	}
 
+	/**
+	 * Reads the contents of a stream into a String and return the string it (using the given charset). The InputStream
+	 * is not closed!
+	 *
+	 * @param inputStream the stream to load from
+	 * @param charset     the charset to use when reading the stream
+	 * @return the contents of the file
+	 * @created 20.06.2015
+	 */
 	public static String readStream(InputStream inputStream, String charset) {
 		// The reason it works is because Scanner iterates over tokens in the stream,
 		// and in this case we separate tokens using "beginning of the input boundary"
@@ -190,10 +200,9 @@ public class Streams {
 	 *
 	 * @param input the input stream to read from
 	 * @return the content of the stream
-	 * @throws IOException if the specified streams cannot be read completely
 	 * @created 01.10.2013
 	 */
-	public static String getTextAndClose(InputStream input) throws IOException {
+	public static String getTextAndClose(InputStream input) {
 		return getTextAndClose(input, "UTF-8");
 	}
 
@@ -201,12 +210,12 @@ public class Streams {
 	 * Returns the contents of the specified input stream as a String. The
 	 * method closes the specified stream before it returns the contents.
 	 *
-	 * @param input the input stream to read from
+	 * @param input   the input stream to read from
+	 * @param charset the charset to use when reading the stream
 	 * @return the content of the stream
-	 * @throws IOException if the specified streams cannot be read completely
 	 * @created 01.10.2013
 	 */
-	public static String getTextAndClose(InputStream input, String charset) throws IOException {
+	public static String getTextAndClose(InputStream input, String charset) {
 		try {
 			return getText(input, charset);
 		}
