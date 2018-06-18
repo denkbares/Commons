@@ -190,6 +190,7 @@ public class Streams {
 		// The reason it works is because Scanner iterates over tokens in the stream,
 		// and in this case we separate tokens using "beginning of the input boundary"
 		// (\A) thus giving us only one token for the entire contents of the stream.
+		if (charset == null) charset = "UTF-8";
 		Scanner scanner = new Scanner(inputStream, charset).useDelimiter("\\A");
 		return scanner.hasNext() ? scanner.next() : "";
 	}
