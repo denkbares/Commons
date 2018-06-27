@@ -435,13 +435,18 @@ public final class SemanticCore {
 		addData(tempFile);
 	}
 
-	public void addData(InputStream is, RDFFormat format) throws RepositoryException {
+	public void addData(InputStream is, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
+		addData(connection -> connection.add(is, DEFAULT_NAMESPACE, format));
+	}
+
+	public void addData(Reader reader, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
+		addData(connection -> connection.add(reader, DEFAULT_NAMESPACE, format));
+	}
+
+	public void addData(DataAdder adder) throws RepositoryException, RDFParseException, IOException {
 		org.openrdf.repository.RepositoryConnection connection = this.getConnection();
 		try {
-			connection.add(is, DEFAULT_NAMESPACE, format);
-		}
-		catch (Exception e) {
-			Log.severe("Exception while adding data to semantic core.", e);
+			adder.run(connection);
 		}
 		finally {
 			//noinspection ThrowFromFinallyBlock
@@ -450,19 +455,19 @@ public final class SemanticCore {
 		}
 	}
 
-	public void addData(Reader reader, RDFFormat format) throws RepositoryException {
-		org.openrdf.repository.RepositoryConnection connection = this.getConnection();
-		try {
-			connection.add(reader, DEFAULT_NAMESPACE, format);
+	/**
+	 * Reads an UPDATE query from a file and executes it
+	 *
+	 * @param sparqlFile   Input File
+	 * @param replacements String arrays of replacements to run on the query
+	 * @created 09.01.2015
+	 */
+	public void update(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, UpdateExecutionException {
+		String queryString = SPARQLLoader.load(sparqlFile, getClass());
+		for (String[] replacement : replacements) {
+			queryString = queryString.replaceAll(replacement[0], replacement[1]);
 		}
-		catch (Exception e) {
-			Log.severe("Exception while adding data to semantic core.", e);
-		}
-		finally {
-			//noinspection ThrowFromFinallyBlock
-			connection.close();
-			// throwing inside finally should be ok with logging of exception above
-		}
+		update(queryString);
 	}
 
 	public void addData(File file) throws RDFParseException, RepositoryException, IOException {
@@ -597,19 +602,9 @@ public final class SemanticCore {
 		}
 	}
 
-	/**
-	 * Reads an UPDATE query from a file and executes it
-	 *
-	 * @param sparqlFile   Input File
-	 * @param replacements String arrays of replacements to run on the query
-	 * @created 09.01.2015
-	 */
-	public void update(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UpdateExecutionException {
-		String queryString = SPARQLLoader.load(sparqlFile, getClass());
-		for (String[] replacement : replacements) {
-			queryString = queryString.replaceAll(replacement[0], replacement[1]);
-		}
-		update(queryString);
+	private interface DataAdder {
+
+		void run(org.openrdf.repository.RepositoryConnection connection) throws IOException, RDFParseException, RepositoryException;
 	}
 
 	/**

@@ -33,6 +33,7 @@ import java.util.Collections;
 
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
+import org.openrdf.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.utils.Streams;
@@ -125,7 +126,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 			}
 			setConnection(sc.getConnection());
 		}
-		catch (RepositoryException e) {
+		catch (RepositoryException | RDFParseException e) {
 			throw new IOException("cannot initialize ontology from resource stream", e);
 		}
 		finally {
