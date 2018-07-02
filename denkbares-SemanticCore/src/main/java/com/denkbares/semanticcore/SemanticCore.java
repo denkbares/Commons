@@ -436,7 +436,12 @@ public final class SemanticCore {
 	}
 
 	public void addData(InputStream is, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
-		addData(connection -> connection.add(is, DEFAULT_NAMESPACE, format));
+		try {
+			addData(connection -> connection.add(is, DEFAULT_NAMESPACE, format));
+		}
+		finally {
+			is.close();
+		}
 	}
 
 	public void addData(Reader reader, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
