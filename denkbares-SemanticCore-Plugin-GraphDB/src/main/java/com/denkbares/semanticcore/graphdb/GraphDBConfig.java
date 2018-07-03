@@ -85,7 +85,9 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		}
 		else {
 			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
-					+ ", but was " + rootLogger.getClass().getName());
+					+ ", but was " + rootLogger.getClass().getName() + ".\nTo fix this, remove (e.g. by excluding) "
+					+ "the dependency to the second logger from the class path, also see "
+					+ "https://www.slf4j.org/codes.html#multiple_bindings.");
 		}
 
 		// prepare rule set
