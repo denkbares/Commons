@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.qos.logback.classic.Level;
 import com.ontotext.trree.config.OWLIMSailSchema;
 import com.ontotext.trree.statistics.StatisticsSettings;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,8 @@ import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.StatementCollector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.utils.Files;
@@ -76,14 +79,14 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		}
 
 		// Configure logging
-//		Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-//		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
-//			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
-//		}
-//		else {
-//			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
-//					+ ", but was " + rootLogger.getClass().getName());
-//		}
+		Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
+			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
+		}
+		else {
+			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
+					+ ", but was " + rootLogger.getClass().getName());
+		}
 
 		// prepare rule set
 		if (ruleSet == null) {
