@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2009 denkbares GmbH
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -71,16 +71,14 @@ public final class JPFPluginManager extends PluginManager {
 					locations.add(location);
 				}
 				else {
-					Log.warning("File '" + pluginFile
-							+ "' is not a plugin. It will be ignored.");
+					Log.warning("File '" + pluginFile + "' is not a plugin. It will be ignored.");
 				}
 			}
 			catch (MalformedURLException e) {
-				Log.severe("error initializing plugin '" + pluginFile + "': " + e);
+				Log.severe("Error initializing plugin '" + pluginFile + "'", e);
 			}
 		}
-		Map<String, Identity> map = manager.publishPlugins(locations.toArray(new PluginLocation[locations
-				.size()]));
+		Map<String, Identity> map = manager.publishPlugins(locations.toArray(new PluginLocation[locations.size()]));
 		// activate all plugins
 		for (Identity i : map.values()) {
 			String id = i.getId();
@@ -111,7 +109,7 @@ public final class JPFPluginManager extends PluginManager {
 	 * Checks whether the given pluginName matches any of the given pluginFilterPatterns. If no
 	 * patterns are given, we always return true.
 	 *
-	 * @param pluginName the name of the plugin to be checked
+	 * @param pluginName           the name of the plugin to be checked
 	 * @param pluginFilterPatterns a set of regex pattern to either accept or decline a plugin name
 	 */
 	public static boolean isPlugin(String pluginName, String... pluginFilterPatterns) {
@@ -134,12 +132,18 @@ public final class JPFPluginManager extends PluginManager {
 	 * If the manager could not be initialized with the specified directory (for any reason), an
 	 * IllegalArgumentException is thrown.
 	 *
-	 * @param directory directory of the plugins
+	 * @param directory           directory of the plugins
 	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 * manager. If no patterns are given, we try to load every file.
+	 *                            manager. If no patterns are given, we use a sensible set of default patterns.
 	 * @throws IllegalArgumentException the directory could not be used for initialization
 	 */
 	public static void init(String directory, String... pluginFilterPattern) {
+		String[] patterns;
+		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
+			patterns = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+", "^SemanticAnalytics.*" };
+		} else {
+			patterns = pluginFilterPattern;
+		}
 		if (instance != null) {
 			Log.warning("PluginManager already initialised.");
 			return;
@@ -149,7 +153,7 @@ public final class JPFPluginManager extends PluginManager {
 		File[] pluginFiles = pluginsDir.listFiles();
 		if (pluginFiles != null) {
 			pluginFiles = Arrays.stream(pluginFiles)
-					.filter(file -> isPlugin(file.getName(), pluginFilterPattern))
+					.filter(file -> isPlugin(file.getName(), patterns))
 					.toArray(File[]::new);
 		}
 		init(pluginFiles);
