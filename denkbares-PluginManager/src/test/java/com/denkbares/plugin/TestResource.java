@@ -29,14 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import com.denkbares.plugin.JPFPluginManager;
-import com.denkbares.plugin.Plugin;
-import com.denkbares.plugin.PluginManager;
-import com.denkbares.plugin.Resource;
 
 /**
  * A test for plugin resources
@@ -48,7 +42,7 @@ public class TestResource {
 
 	@Before
 	public void initPluginManager() {
-		JPFPluginManager.init("src/test/resources");
+		JPFPluginManager.init("src/test/resources", ".*");
 	}
 
 	@Test
