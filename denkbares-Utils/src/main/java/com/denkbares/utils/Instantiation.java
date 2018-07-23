@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.strings.Strings;
 
@@ -467,12 +466,27 @@ public class Instantiation {
 					return isMatchingParameter(value, expectedType) ? value : CANNOT_CREATE;
 				}
 			}
+
 			// enum names without qualified name
-			else if (Enum.class.isAssignableFrom(expectedType)) {
+			if (Enum.class.isAssignableFrom(expectedType)) {
 				// find constant by name
 				@SuppressWarnings("unchecked")
 				Enum enumValue = Strings.parseEnum(constantName, (Class) expectedType);
-				return (enumValue == null) ? CANNOT_CREATE : enumValue;
+				if (enumValue != null) return enumValue;
+			}
+
+			// static public fields of the expected type without qualified name ("pseudo enums")
+			if (Strings.isBlank(className)) {
+				try {
+					Field field = expectedType.getField(constantName);
+					if (Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+						Object value = field.get(null);
+						if (expectedType.isInstance(value)) return value;
+					}
+				}
+				catch (NoSuchFieldException ignore) {
+					// ignore
+				}
 			}
 
 			// referenced a constant, but not found
@@ -502,7 +516,7 @@ public class Instantiation {
 			return CANNOT_CREATE;
 		}
 
-		@Nullable
+		@NotNull
 		private Object evalNumber(Class<?> expectedType, String numString) {
 			Number number = null;
 			try {
