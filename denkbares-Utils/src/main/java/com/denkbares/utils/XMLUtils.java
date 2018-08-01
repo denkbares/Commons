@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +32,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -402,6 +405,31 @@ public class XMLUtils {
 			throw new IOException(e.getMessage());
 		}
 		return builder.newDocument();
+	}
+
+	/**
+	 * Pretty formats the specified XML file.
+	 *
+	 * @param input an XML file
+	 * @throws IOException if the specified file does not exist
+	 */
+	public static void prettyFormat(File input) throws IOException {
+		Source xmlInput = new StreamSource(new FileReader(input));
+		File temp = File.createTempFile(Files.stripExtension(input.getName()), "xml");
+		try (FileWriter xmlOutput = new FileWriter(temp)) {
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
+			transformer.transform(xmlInput, new StreamResult(xmlOutput));
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		Files.copy(temp, input);
+		//noinspection ResultOfMethodCallIgnored
+		temp.delete();
 	}
 
 	private static class SimpleNamespaceContext implements NamespaceContext {
