@@ -1028,8 +1028,7 @@ public class Strings {
 	 * <p>
 	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
 	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this
-	 * string
-	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
+	 * string that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
 	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
 	 *
@@ -1109,8 +1108,7 @@ public class Strings {
 	 * <p>
 	 * Otherwise, let <i>k</i> be the index of the first character in the string whose code is greater than
 	 * <code>'&#92;u0020'</code>. A new <code>String</code> object is created, representing the substring of this
-	 * string
-	 * that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
+	 * string that begins with the character at index <i>k</i>, the result of <code>this.substring(<i>k</i>)</code>.
 	 * <p>
 	 * This method may be used to trim whitespace (as defined above) from the beginning and end of a string.
 	 *
@@ -2255,5 +2253,51 @@ public class Strings {
 	 */
 	public static boolean isNumeral(String string) {
 		return string.matches("^\\d+$");
+	}
+
+	/* Returns a string that contains the specified character "count" times.
+	 *
+	 * @param character     the char to be replicated
+	 * @param count the number of times to replicate
+	 * @return the replicated char
+	 */
+	public static String nTimes(char character, int count) {
+		return nTimes(String.valueOf(character), count);
+	}
+
+	/**
+	 * Returns a string that contains the specified text "count" times. If count is "0" or negative, or the specified
+	 * text is null, an empty string is returned.
+	 *
+	 * @param text  the text to be replicated
+	 * @param count the number of times to replicate
+	 * @return the replicated text
+	 */
+	public static String nTimes(String text, int count) {
+		if (count <= 0 || text == null) return "";
+		if (count == 1) return text;
+
+		StringBuilder builder = new StringBuilder(text.length() * count);
+		for (int i = 0; i < count; i++) {
+			builder.append(text);
+		}
+		return builder.toString();
+	}
+
+	;
+
+	/**
+	 * Returns a string of the specified text, that has been filled the specified char at its left side, unit the
+	 * specified target length is reached. If the string already reached or exceeds the specified target length, the
+	 * original string is returned.
+	 *
+	 * @param text         the right-side text to be filled on its left side
+	 * @param fillChar     the char to be filled
+	 * @param targetLength the target length to be filled
+	 * @return the filled string of at least the specified target length
+	 */
+	public static String fillLeft(String text, char fillChar, int targetLength) {
+		if (text.length() >= targetLength) return text;
+		return nTimes(fillChar, targetLength - text.length()) + text;
 	}
 }
