@@ -126,9 +126,10 @@ public interface Extension {
 	String getExtendedPluginID();
 
 	/**
-	 * @deprecated because of renaming, use {@link #getExtendedPluginID()}
+	 * Returns the id of the plugin, short for getPlugin().getID().
+	 *
+	 * @return the id of the plugin
 	 */
-	@Deprecated
 	String getPluginID();
 
 	/**
