@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.java.plugin.JpfException;
 import org.java.plugin.ObjectFactory;
@@ -52,7 +53,7 @@ public final class JPFPluginManager extends PluginManager {
 
 	private final org.java.plugin.PluginManager manager;
 
-	private final Map<org.java.plugin.registry.Extension, Extension> cachedExtension = new HashMap<>();
+	private final Map<org.java.plugin.registry.Extension, Extension> cachedExtension = new ConcurrentHashMap<>();
 
 	/**
 	 * Contains the registered Plugins. The field will be initialized lazy by the {@link
@@ -141,7 +142,8 @@ public final class JPFPluginManager extends PluginManager {
 		String[] patterns;
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
 			patterns = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+", "^SemanticAnalytics.*" };
-		} else {
+		}
+		else {
 			patterns = pluginFilterPattern;
 		}
 		if (instance != null) {
@@ -195,8 +197,7 @@ public final class JPFPluginManager extends PluginManager {
 		List<Extension> result = new ArrayList<>();
 		ExtensionPoint toolExtPoint = manager.getRegistry().getExtensionPoint(
 				extendedPluginID, extendedPointID);
-		Collection<org.java.plugin.registry.Extension> connectedExtensions = toolExtPoint
-				.getConnectedExtensions();
+		Collection<org.java.plugin.registry.Extension> connectedExtensions = toolExtPoint.getConnectedExtensions();
 		for (org.java.plugin.registry.Extension e : connectedExtensions) {
 			Extension extension = cachedExtension.computeIfAbsent(e, k -> new JPFExtension(e, manager));
 			result.add(extension);
