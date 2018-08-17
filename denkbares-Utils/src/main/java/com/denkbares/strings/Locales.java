@@ -19,18 +19,17 @@
 
 package com.denkbares.strings;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Spliterators;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -328,8 +327,7 @@ public class Locales {
 	public static String toParsableList(boolean sorted, Collection<Locale> languages) {
 		if (languages == null) return "";
 		if (sorted) {
-			languages = new ArrayList<>(languages);
-			Collections.sort((List) languages, ASCENDING);
+			languages = languages.stream().sorted(ASCENDING).collect(Collectors.toList());
 		}
 		return toParsableList(languages);
 	}
