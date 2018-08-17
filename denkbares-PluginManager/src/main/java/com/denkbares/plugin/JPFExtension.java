@@ -124,7 +124,7 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 							"The plugin uses code that cannot be found or linked. " +
 							"This is a strong evidence for out-dated plugin code.",
 					e);
-			throw new InstantiationError(e.getMessage());
+			throw new InstantiationError(e.toString());
 		}
 	}
 
