@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -331,9 +332,12 @@ public class Strings {
 	 * @param strings the strings for which you want the index in the text
 	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
-	public static int indexOf(String text, int flags, String... strings) {
+	public static int indexOf(String text, @IndexOfFlags int flags, String... strings) {
 		return indexOf(text, 0, flags, strings);
 	}
+
+	@MagicConstant(flags={UNQUOTED, SKIP_COMMENTS, LAST_INDEX, CASE_INSENSITIVE, FIRST_IN_LINE, UNBRACED})
+	@interface IndexOfFlags {}
 
 	/**
 	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will skip quoted
@@ -351,7 +355,7 @@ public class Strings {
 	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will return the last
 	 * index instead of the first.
 	 */
-	private static final int LAST_INDEX = 0x04;
+	public static final int LAST_INDEX = 0x04;
 
 	/**
 	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will match strings case
@@ -389,7 +393,7 @@ public class Strings {
 	 * @param strings the strings for which you want the index in the text
 	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
-	public static int indexOf(String text, int offset, int flags, String... strings) {
+	public static int indexOf(String text, int offset, @IndexOfFlags int flags, String... strings) {
 		if (text == null) text = "";
 		boolean unquoted = has(flags, UNQUOTED);
 		boolean skipComments = has(flags, SKIP_COMMENTS);
@@ -667,7 +671,7 @@ public class Strings {
 	 * @param strings the strings for which you want the index in the text
 	 * @return the last index of any of the strings in the text or -1 if none of the strings is found
 	 */
-	public static int lastIndexOf(String text, int flags, String... strings) {
+	public static int lastIndexOf(String text, @IndexOfFlags int flags, String... strings) {
 		return indexOf(text, 0, flags | LAST_INDEX, strings);
 	}
 
@@ -773,7 +777,7 @@ public class Strings {
 				}
 				else {
 					// no more candidates, rest of the string is one fragment
-					actualPart.append(text.substring(i, text.length()));
+					actualPart.append(text.substring(i));
 					break;
 				}
 			}
@@ -1619,7 +1623,7 @@ public class Strings {
 			int end = matcher.end();
 
 			// first append chars to next match
-			result.append(text.substring(pos, start));
+			result.append(text, pos, start);
 
 			// then try to decode
 			try {
@@ -2142,7 +2146,7 @@ public class Strings {
 	 * @return the index of the nth occurrence of the given string in the given text
 	 */
 	public static int ordinalIndexOf(String text, String string, int n) {
-		int pos = text.indexOf(string, 0);
+		int pos = text.indexOf(string);
 		while (n-- > 0 && pos != -1) {
 			pos = text.indexOf(string, pos + 1);
 		}
@@ -2283,8 +2287,6 @@ public class Strings {
 		}
 		return builder.toString();
 	}
-
-	;
 
 	/**
 	 * Returns a string of the specified text, that has been filled the specified char at its left side, unit the
