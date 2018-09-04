@@ -19,7 +19,10 @@
 package com.denkbares.strings;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Data structure to identify and match terms in d3web.
@@ -49,7 +52,7 @@ public class Identifier implements Comparable<Identifier> {
 	 * Creates a new identifier with the given path elements.
 	 *
 	 * @param caseSensitive decides whether the identifier should match case sensitive or not
-	 * @param pathElements the elements used
+	 * @param pathElements  the elements used
 	 */
 	public Identifier(boolean caseSensitive, String... pathElements) {
 		this.caseSensitive = caseSensitive;
@@ -60,10 +63,19 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Creates a new Identifier based on an existing identifier by appending additional path
-	 * elements.
+	 * Creates a new identifier with the given path elements.
 	 *
-	 * @param parent the existing parent identifier
+	 * @param caseSensitive decides whether the identifier should match case sensitive or not
+	 * @param pathElements  the elements used
+	 */
+	public Identifier(boolean caseSensitive, List<String> pathElements) {
+		this(caseSensitive, pathElements.toArray(new String[0]));
+	}
+
+	/**
+	 * Creates a new Identifier based on an existing identifier by appending additional path elements.
+	 *
+	 * @param parent                 the existing parent identifier
 	 * @param additionalPathElements the additional path elements
 	 */
 	public Identifier(Identifier parent, String... additionalPathElements) {
@@ -102,7 +114,8 @@ public class Identifier implements Comparable<Identifier> {
 	public int hashCode() {
 		if (isCaseSensitive()) {
 			return toExternalForm().hashCode();
-		} else {
+		}
+		else {
 			return toExternalFormLowerCase().hashCode();
 		}
 	}
@@ -115,7 +128,8 @@ public class Identifier implements Comparable<Identifier> {
 		Identifier other = (Identifier) obj;
 		if (isCaseSensitive()) {
 			return this.toExternalForm().equals(other.toExternalForm());
-		} else {
+		}
+		else {
 			return this.toExternalFormLowerCase().equals(other.toExternalFormLowerCase());
 		}
 	}
@@ -146,7 +160,7 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	@Override
-	public int compareTo(Identifier o) {
+	public int compareTo(@NotNull Identifier o) {
 		int len1 = this.pathElements.length;
 		int len2 = o.pathElements.length;
 		int len = Math.min(len1, len2);
@@ -204,8 +218,19 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Returns a new {@link Identifier} consisting of the identifier elements of the given {@link
-	 * Identifier} appended to the identifier elements of this {@link Identifier}.
+	 * Returns the parent identifier of this identifier. It is the identifier with the same path elements except the
+	 * last past element. If this identifier is already empty / root, the method returns null.
+	 *
+	 * @return the parent identifier
+	 */
+	public Identifier getParent() {
+		if (this.pathElements.length == 0) return null;
+		return new Identifier(caseSensitive, Arrays.copyOf(this.pathElements, this.pathElements.length - 1));
+	}
+
+	/**
+	 * Returns a new {@link Identifier} consisting of the identifier elements of the given {@link Identifier} appended
+	 * to the identifier elements of this {@link Identifier}.
 	 *
 	 * @param termIdentifier the {@link Identifier} to append
 	 * @created 23.04.2012
@@ -220,11 +245,10 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Generates and returns the external representation or form of this {@link Identifier}. It is a
-	 * String that can be transformed back into an identical {@link Identifier} as the originating
-	 * one by using {@link Identifier#fromExternalForm(String)}.<br/> Basically the external form is
-	 * the path elements connected with a separator and proper quoting if the separator icon is
-	 * contained in one of the path elements.
+	 * Generates and returns the external representation or form of this {@link Identifier}. It is a String that can be
+	 * transformed back into an identical {@link Identifier} as the originating one by using {@link
+	 * Identifier#fromExternalForm(String)}.<br/> Basically the external form is the path elements connected with a
+	 * separator and proper quoting if the separator icon is contained in one of the path elements.
 	 *
 	 * @created 07.05.2012
 	 */
@@ -243,17 +267,16 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Returns the {@link Identifier} of this identifier that represents the rest of the path
-	 * defined by the specified parameter "startIdentifier". The method checks if the specified
-	 * "startIdentifier" is the beginning of this identifier, otherwise null is returned. If the
-	 * startIdentifier is an accepted starting of this identifier, a new identifier is created that
-	 * represents the rest of this identifier. Thus <code>a.append(b).rest(a)</code> will result to
+	 * Returns the {@link Identifier} of this identifier that represents the rest of the path defined by the specified
+	 * parameter "startIdentifier". The method checks if the specified "startIdentifier" is the beginning of this
+	 * identifier, otherwise null is returned. If the startIdentifier is an accepted starting of this identifier, a new
+	 * identifier is created that represents the rest of this identifier. Thus <code>a.append(b).rest(a)</code> will
+	 * result to
 	 * <code>b</code>.
 	 *
 	 * @param startIdentifier the prefix identifier to be skipped
-	 * @return the {@link Identifier} appended to the specified startIdentifier that will together
-	 * make this identifier, or null if not possible (because this identifier does not start with
-	 * parameter startIdentifier)
+	 * @return the {@link Identifier} appended to the specified startIdentifier that will together make this identifier,
+	 * or null if not possible (because this identifier does not start with parameter startIdentifier)
 	 * @created 15.05.2012
 	 */
 	public Identifier rest(Identifier startIdentifier) {
@@ -263,12 +286,12 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Returns the {@link Identifier} of this identifier that represents the rest of the path
-	 * defined by the specified index parameter "fromIndex". A new identifier is created that
-	 * represents the rest of this identifier, from the specified index, inclusively.
+	 * Returns the {@link Identifier} of this identifier that represents the rest of the path defined by the specified
+	 * index parameter "fromIndex". A new identifier is created that represents the rest of this identifier, from the
+	 * specified index, inclusively.
 	 * <p/>
-	 * If the fromIndex is greater than the number of path elements this identifier contains, an an
-	 * {@link java.lang.IndexOutOfBoundsException}
+	 * If the fromIndex is greater than the number of path elements this identifier contains, an an {@link
+	 * java.lang.IndexOutOfBoundsException}
 	 *
 	 * @param fromIndex the path element index to start from
 	 * @return the {@link Identifier} the rest identifier
@@ -291,14 +314,13 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Generates a {@link Identifier} from the external form of a {@link Identifier}. Do not confuse
-	 * this with creating a {@link Identifier} with the constructor using the path of identifier
-	 * Strings.<br/> Per definition, if you have a {@link Identifier} and generate the external form
-	 * for that {@link Identifier} and then generate another {@link Identifier} from that external
-	 * form, both TermIdentifiers will be equal.
+	 * Generates a {@link Identifier} from the external form of a {@link Identifier}. Do not confuse this with creating
+	 * a {@link Identifier} with the constructor using the path of identifier Strings.<br/> Per definition, if you have
+	 * a {@link Identifier} and generate the external form for that {@link Identifier} and then generate another {@link
+	 * Identifier} from that external form, both TermIdentifiers will be equal.
 	 *
 	 * @param externalForm the external form of a {@link Identifier} created by using {@link
-	 * Identifier#toExternalForm()}
+	 *                     Identifier#toExternalForm()}
 	 * @return a {@link Identifier} representing the given external form
 	 * @created 07.05.2012
 	 */
