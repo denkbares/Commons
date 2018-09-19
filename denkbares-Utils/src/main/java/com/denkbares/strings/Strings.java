@@ -164,7 +164,7 @@ public class Strings {
 	 * open bracket at the specified position -1 is also returned.
 	 *
 	 * @param text             the text to be searched
-	 * @param openBracketIndex the index of zje bracket
+	 * @param openBracketIndex the index of the bracket
 	 * @param open             the open bracket character
 	 * @param close            the closing bracket character
 	 * @return the index of the corresponding closing bracket character
