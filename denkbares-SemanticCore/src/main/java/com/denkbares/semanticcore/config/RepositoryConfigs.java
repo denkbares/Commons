@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.plugin.Extension;
 import com.denkbares.plugin.PluginManager;
+import com.denkbares.utils.Log;
 
 /**
  * Util class for repository configs.
@@ -86,8 +87,13 @@ public class RepositoryConfigs {
 					.getExtensions("denkbares-SemanticCore-Plugin-ExtensionPoints",
 							"RepositoryConfig");
 			for (Extension reasoningExtension : reasoningExtensions) {
-				RepositoryConfig singleton = (RepositoryConfig) reasoningExtension.getSingleton();
-				cache.put(singleton.getClass(), singleton);
+				try {
+					RepositoryConfig singleton = (RepositoryConfig) reasoningExtension.getSingleton();
+					cache.put(singleton.getClass(), singleton);
+				}
+				catch (NoClassDefFoundError e) {
+					Log.severe("Extension " + reasoningExtension.getID() + " was listed as a dependency, but not available in the class path. Skipping.");
+				}
 			}
 		}
 	}
