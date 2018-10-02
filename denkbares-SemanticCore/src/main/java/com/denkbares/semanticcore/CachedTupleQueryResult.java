@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.QueryEvaluationException;
@@ -68,6 +69,13 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	@Override
 	public Iterator<BindingSet> iterator() {
 		return getBindingSets().iterator();
+	}
+
+	/**
+	 * Returns a sequential {@code Stream} with the binding sets of this query result.
+	 */
+	public Stream<BindingSet> stream() {
+		return getBindingSets().stream();
 	}
 
 	@Override

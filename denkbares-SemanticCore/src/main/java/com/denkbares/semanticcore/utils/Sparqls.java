@@ -45,11 +45,11 @@ import com.denkbares.utils.Log;
 public class Sparqls {
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a language-tagged
-	 * text. If no language is specified, the root language is returned. If the column does not
-	 * exists or no value is available, null is returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as a language-tagged text. If no language
+	 * is specified, the root language is returned. If the column does not exists or no value is available, null is
+	 * returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
+	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the text or null
 	 */
@@ -58,8 +58,8 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as a language-tagged text. If no language is
-	 * specified, the root language is returned. If the binding is null, null is returned.
+	 * Reads a value from a binding and returns it as a language-tagged text. If no language is specified, the root
+	 * language is returned. If the binding is null, null is returned.
 	 *
 	 * @param binding the binding of the sparql result row
 	 * @return the text or null
@@ -71,10 +71,10 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a plain string. If
-	 * the column does not exists or no value is available, null is returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as a plain string. If the column does not
+	 * exists or no value is available, null is returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
+	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the plain string or null
 	 */
@@ -83,8 +83,7 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as a plain string. If
-	 * the binding is null, null is returned.
+	 * Reads a value from a binding and returns it as a plain string. If the binding is null, null is returned.
 	 *
 	 * @param binding the binding of the sparql result row
 	 * @return the plain string or null
@@ -97,11 +96,11 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a float number. If
-	 * the column does not exists or no value is available, null is returned. If there is a value,
-	 * but it cannot be parsed as a number null is returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as a float number. If the column does not
+	 * exists or no value is available, null is returned. If there is a value, but it cannot be parsed as a number null
+	 * is returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
+	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the number value or null
 	 */
@@ -110,9 +109,8 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as a float number. If
-	 * the binding is null, null is returned. If there is a value,
-	 * but it cannot be parsed as a number null is returned.
+	 * Reads a value from a binding and returns it as a float number. If the binding is null, null is returned. If there
+	 * is a value, but it cannot be parsed as a number null is returned.
 	 *
 	 * @param binding the bindings of the sparql result row
 	 * @return the number value or null
@@ -138,13 +136,12 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a float number. If
-	 * the column does not exists or no value is available, the specified default value is returned.
-	 * If there is a value, but it cannot be parsed as a number the specified default value is
-	 * returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as a float number. If the column does not
+	 * exists or no value is available, the specified default value is returned. If there is a value, but it cannot be
+	 * parsed as a number the specified default value is returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
-	 * @param columnName the column name to read from
+	 * @param bindings     the bindings of the sparql result row
+	 * @param columnName   the column name to read from
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -154,12 +151,10 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding returns it as a float number. If
-	 * the binding is null, the specified default value is returned.
-	 * If there is a value, but it cannot be parsed as a number the specified default value is
-	 * returned.
+	 * Reads a value from a binding returns it as a float number. If the binding is null, the specified default value is
+	 * returned. If there is a value, but it cannot be parsed as a number the specified default value is returned.
 	 *
-	 * @param binding the binding of the sparql result row
+	 * @param binding      the binding of the sparql result row
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -169,11 +164,11 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as an integer number.
-	 * If the column does not exists or no value is available, null is returned. If there is a
-	 * value, but it cannot be parsed as a number null is returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as an integer number. If the column does
+	 * not exists or no value is available, null is returned. If there is a value, but it cannot be parsed as a number
+	 * null is returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
+	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the number value or null
 	 */
@@ -183,9 +178,8 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as an integer number. If
-	 * the binding is null, null is returned. If there is a value,
-	 * but it cannot be parsed as a number null is returned.
+	 * Reads a value from a binding and returns it as an integer number. If the binding is null, null is returned. If
+	 * there is a value, but it cannot be parsed as a number null is returned.
 	 *
 	 * @param binding the bindings of the sparql result row
 	 * @return the number value or null
@@ -211,13 +205,12 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a integer number.
-	 * If the column does not exists or no value is available, the specified default value is
-	 * returned. If there is a value, but it cannot be parsed as a number the specified default
-	 * value is returned.
+	 * Reads a value from a binding set of a sparql result row and returns it as a integer number. If the column does
+	 * not exists or no value is available, the specified default value is returned. If there is a value, but it cannot
+	 * be parsed as a number the specified default value is returned.
 	 *
-	 * @param bindings the bindings of the sparql result row
-	 * @param columnName the column name to read from
+	 * @param bindings     the bindings of the sparql result row
+	 * @param columnName   the column name to read from
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -227,12 +220,10 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding returns it as an integer number. If
-	 * the binding is null, the specified default value is returned.
-	 * If there is a value, but it cannot be parsed as a number the specified default value is
-	 * returned.
+	 * Reads a value from a binding returns it as an integer number. If the binding is null, the specified default value
+	 * is returned. If there is a value, but it cannot be parsed as a number the specified default value is returned.
 	 *
-	 * @param binding the binding of the sparql result row
+	 * @param binding      the binding of the sparql result row
 	 * @param defaultValue the default value
 	 * @return the number value or null
 	 */
@@ -242,11 +233,11 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a uri. If the
-	 * column does not exists or no value is available, null is returned. If there is a value, but
-	 * it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
+	 * Reads a value from a binding set of a sparql result row and returns it as a uri. If the column does not exists or
+	 * no value is available, null is returned. If there is a value, but it cannot be parsed as a, uri, a synthetic uri
+	 * is created form the string of the value.
 	 *
-	 * @param bindings the bindings of the sparql result row
+	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
 	 * @return the uri value or null
 	 */
@@ -255,9 +246,8 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as a uri. If the
-	 * binding is null, null is returned. If there is a value, but
-	 * it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
+	 * Reads a value from a binding and returns it as a uri. If the binding is null, null is returned. If there is a
+	 * value, but it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
 	 *
 	 * @param binding the binding of the sparql result row
 	 * @return the uri value or null
@@ -286,22 +276,37 @@ public class Sparqls {
 	}
 
 	/**
-	 * Iterates the complete query result and collects the bindings as a multi-map. The specified
-	 * SPARQLQueryResult ist not (!) automatically closed.
+	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
+	 * (!) automatically closed.
 	 *
-	 * @param queryResult the query result to be iterated
-	 * @param keyExtractor the function to extract the keys
+	 * @param queryResult    the query result to be iterated
+	 * @param keyExtractor   the function to extract the keys
 	 * @param valueExtractor the function to extract the values
-	 * @param <K> the key type
-	 * @param <V> the value type
+	 * @param <K>            the key type
+	 * @param <V>            the value type
 	 * @return a multi-map of the key-value-pairs
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
 	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, Function<BindingSet, K> keyExtractor, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
+		return toMultiMap(queryResult.getResult(), keyExtractor, valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
+	 * (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param keyExtractor   the function to extract the keys
+	 * @param valueExtractor the function to extract the values
+	 * @param <K>            the key type
+	 * @param <V>            the value type
+	 * @return a multi-map of the key-value-pairs
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <K, V> MultiMap<K, V> toMultiMap(ClosableTupleQueryResult queryResult, Function<BindingSet, K> keyExtractor, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
 		MultiMap<K, V> map = new DefaultMultiMap<>();
-		ClosableTupleQueryResult iterator = queryResult.getResult();
-		while (iterator.hasNext()) {
-			BindingSet bindingSet = iterator.next();
+		while (queryResult.hasNext()) {
+			BindingSet bindingSet = queryResult.next();
 			K key = keyExtractor.apply(bindingSet);
 			V value = valueExtractor.apply(bindingSet);
 			map.put(key, value);
@@ -310,42 +315,75 @@ public class Sparqls {
 	}
 
 	/**
-	 * Iterates the complete query result and collects the bindings as a multi-map. The specified
-	 * SPARQLQueryResult ist not (!) automatically closed.
+	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
+	 * (!) automatically closed.
 	 *
-	 * @param queryResult the query result to be iterated
-	 * @param keyName the name of the binding to be used for the keys (sparql variable name without
-	 * the leading "?")
-	 * @param keyExtractor the function to convert the key bindings into a keys
-	 * @param valueName the name of the binding to be used for the values (sparql variable name
-	 * without the leading "?")
+	 * @param queryResult    the query result to be iterated
+	 * @param keyName        the name of the binding to be used for the keys (sparql variable name without the leading
+	 *                       "?")
+	 * @param keyExtractor   the function to convert the key bindings into a keys
+	 * @param valueName      the name of the binding to be used for the values (sparql variable name without the leading
+	 *                       "?")
 	 * @param valueExtractor the function to convert the value bindings into a values
-	 * @param <K> the key type
-	 * @param <V> the value type
+	 * @param <K>            the key type
+	 * @param <V>            the value type
 	 * @return a multi-map of the key-value-pairs
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
 	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, String keyName, Function<Binding, K> keyExtractor, String valueName, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
+		return toMultiMap(queryResult.getResult(), keyName, keyExtractor, valueName, valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
+	 * (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param keyName        the name of the binding to be used for the keys (sparql variable name without the leading
+	 *                       "?")
+	 * @param keyExtractor   the function to convert the key bindings into a keys
+	 * @param valueName      the name of the binding to be used for the values (sparql variable name without the leading
+	 *                       "?")
+	 * @param valueExtractor the function to convert the value bindings into a values
+	 * @param <K>            the key type
+	 * @param <V>            the value type
+	 * @return a multi-map of the key-value-pairs
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <K, V> MultiMap<K, V> toMultiMap(ClosableTupleQueryResult queryResult, String keyName, Function<Binding, K> keyExtractor, String valueName, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
 		return toMultiMap(queryResult,
 				b -> keyExtractor.apply(b.getBinding(keyName)),
 				b -> valueExtractor.apply(b.getBinding(valueName)));
 	}
 
 	/**
-	 * Iterates the complete query result and collects a particular value of each binding set (row)
-	 * into a set. The specified SPARQLQueryResult ist not (!) automatically closed.
+	 * Iterates the complete query result and collects a particular value of each binding set (row) into a set. The
+	 * specified queryResult ist not (!) automatically closed.
 	 *
-	 * @param queryResult the query result to be iterated
+	 * @param queryResult    the query result to be iterated
 	 * @param valueExtractor the function to extract the value of each binding set
-	 * @param <V> the value type
+	 * @param <V>            the value type
 	 * @return a set of the extracted values
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
 	public static <V> Set<V> toSet(SPARQLQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
-		Set<V> set = new HashSet<V>();
-		ClosableTupleQueryResult iterator = queryResult.getResult();
-		while (iterator.hasNext()) {
-			BindingSet bindingSet = iterator.next();
+		return toSet(queryResult.getResult(), valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects a particular value of each binding set (row) into a set. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param valueExtractor the function to extract the value of each binding set
+	 * @param <V>            the value type
+	 * @return a set of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
+		Set<V> set = new HashSet<>();
+		while (queryResult.hasNext()) {
+			BindingSet bindingSet = queryResult.next();
 			V value = valueExtractor.apply(bindingSet);
 			set.add(value);
 		}
@@ -353,18 +391,32 @@ public class Sparqls {
 	}
 
 	/**
-	 * Iterates the complete query result and collects the binding of the specified variable name as
-	 * a set. The specified SPARQLQueryResult ist not (!) automatically closed.
+	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
+	 * specified queryResult ist not (!) automatically closed.
 	 *
-	 * @param queryResult the query result to be iterated
-	 * @param variable the name of the binding to be used (sparql variable name without the leading
-	 * "?")
+	 * @param queryResult    the query result to be iterated
+	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
 	 * @param valueExtractor the function to convert each value binding into a value
-	 * @param <V> the value type
+	 * @param <V>            the value type
 	 * @return a set of the extracted values
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
 	public static <V> Set<V> toSet(SPARQLQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
+		return toSet(queryResult.getResult(), variable, valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
+	 * @param valueExtractor the function to convert each value binding into a value
+	 * @param <V>            the value type
+	 * @return a set of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
 		return toSet(queryResult,
 				b -> valueExtractor.apply(b.getBinding(variable)));
 	}
