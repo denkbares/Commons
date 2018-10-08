@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -628,9 +629,8 @@ public final class SemanticCore {
 	}
 
 	public void export(File file) throws IOException, RepositoryException, RDFHandlerException {
-		try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+		try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
 			export(writer);
-			writer.close();
 		}
 	}
 

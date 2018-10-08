@@ -106,12 +106,7 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// Register the listener for the event's class
-			WeakHashMap<EventListener, Object> list = listeners.get(eventClass);
-			if (list == null) {
-				list = new WeakHashMap<>();
-				listeners.put(eventClass, list);
-			}
-			list.put(listener, null);
+			listeners.computeIfAbsent(eventClass, k -> new WeakHashMap<>()).put(listener, null);
 			if (registrationType == RegistrationType.PERSISTENT) {
 				persistentListeners.add(listener);
 			}
@@ -129,8 +124,7 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// unregister the listener for the event's class
-			WeakHashMap<EventListener, Object> list = listeners.get(eventClass);
-			list.remove(listener);
+			listeners.get(eventClass).remove(listener);
 		}
 		persistentListeners.remove(listener);
 	}
