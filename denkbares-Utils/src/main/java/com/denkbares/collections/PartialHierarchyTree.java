@@ -61,6 +61,12 @@ public class PartialHierarchyTree<T> {
 		root.children = new ArrayList<>();
 	}
 
+	public PartialHierarchyTree(PartialHierarchy<T> h, T rootData) {
+		this.hierarchy = h;
+		root = new Node<>(rootData);
+		root.children = new ArrayList<>();
+	}
+
 	/**
 	 * Returns the root node of this tree. WARNING: This root node is a
 	 * convenience node containing NO data. It is NOT part of the data inserted
@@ -432,7 +438,7 @@ public class PartialHierarchyTree<T> {
 		 * @created 26.11.2013
 		 */
 		public Node<T> getParent() {
-			if (parent.data == null) return null;
+			if (parent == null || parent.data == null) return null;
 			return parent;
 		}
 
