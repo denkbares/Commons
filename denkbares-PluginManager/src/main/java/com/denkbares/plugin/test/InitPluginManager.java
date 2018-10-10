@@ -107,7 +107,7 @@ public final class InitPluginManager {
 				filteredJars.add(jarFile);
 			}
 		}
-		JPFPluginManager.init(filteredJars.toArray(new File[filteredJars.size()]));
+		JPFPluginManager.init(filteredJars.toArray(new File[0]));
 	}
 
 	private static boolean checkIfPlugin(File file, String... pluginFilterPattern) {
