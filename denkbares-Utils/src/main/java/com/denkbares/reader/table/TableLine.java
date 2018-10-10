@@ -111,6 +111,7 @@ public class TableLine {
 	 */
 	public double getValueDouble(Field field, Function<String, String> preformatter) {
 		String numberDeliveredString = getValue(field);
+		numberDeliveredString = Strings.unquote(numberDeliveredString);
 		double result = 0;
 		String cleanDoubleString = preformatter.apply(numberDeliveredString).replace("-", "").trim();
 		if (Strings.isBlank(cleanDoubleString)) {
