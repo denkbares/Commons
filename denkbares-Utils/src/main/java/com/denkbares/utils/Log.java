@@ -45,8 +45,8 @@ public class Log {
 				for (Handler handler : logger.getHandlers()) {
 					handler.setLevel(level);
 				}
-
-			} catch (IllegalArgumentException e) {
+			}
+			catch (IllegalArgumentException e) {
 				Log.warning("Unable to set log level form system property", e);
 			}
 		}
@@ -281,7 +281,12 @@ public class Log {
 		}
 		catch (Exception e) {
 			String message = "method " + method + " cannot be initialized. " + e.getMessage();
-			Logger.getLogger(Log.class.getName()).log(Level.WARNING, message);
+
+			if (!(method == ClassDetection.sun
+					&& System.getProperty("java.vm.name").toLowerCase().contains("openjdk"))) {
+				Logger.getLogger(Log.class.getName()).log(Level.WARNING, message);
+			}
+
 			throw new IllegalStateException(message, e);
 		}
 	}
