@@ -24,9 +24,6 @@ import static org.junit.Assert.*;
 
 public class SoftValueHashMapTest {
 
-	@Rule
-	public RetryRule retry = new RetryRule(3);
-
 	@Test
 	public void basic() {
 		Map<Key, Value> map = new SoftValueHashMap<>();
@@ -39,8 +36,8 @@ public class SoftValueHashMapTest {
 		assertFalse(map.containsKey(key1));
 		assertFalse(map.containsKey(key2));
 		assertFalse(map.containsKey(key2b));
-		assertEquals(null, map.get(key1));
-		assertEquals(null, map.get(key2));
+		assertNull(map.get(key1));
+		assertNull(map.get(key2));
 
 		// add some entries
 		Value value1 = new Value("value1");
@@ -143,6 +140,7 @@ public class SoftValueHashMapTest {
 		assertEquals(1, map.size());
 		value = null;
 		performSecureGC();
+		performSecureGC();
 		assertEquals(0, map.size());
 
 		// add value for null that is garbage collected
@@ -153,6 +151,7 @@ public class SoftValueHashMapTest {
 		map.put(null, null);
 		assertNull(map.get(null));
 		value = null;
+		performSecureGC();
 		performSecureGC();
 		assertEquals(1, map.size());
 
@@ -226,47 +225,4 @@ public class SoftValueHashMapTest {
 		}
 	}
 
-	public static class RetryRule implements TestRule {
-
-		private final int retryCount;
-
-		public RetryRule(int retryCount) {
-			this.retryCount = retryCount;
-		}
-
-		@Override
-		public Statement apply(Statement base, Description description) {
-			return statement(base, description);
-		}
-
-		private Statement statement(final Statement base, final Description description) {
-
-			return new Statement() {
-				@Override
-				public void evaluate() throws Throwable {
-					Throwable caughtThrowable = null;
-					Stopwatch timer = new Stopwatch().reset();
-					for (int i = 0; i < retryCount; i++) {
-						timer.start();
-						try {
-							base.evaluate();
-							Log.info("Retry number " + i + 1 + ": " + timer.getDisplay());
-							timer.reset();
-							return;
-						}
-						catch (Throwable t) {
-							timer.reset();
-							caughtThrowable = t;
-							Log.severe("Run " + (i + 1) + "/" + retryCount + " of '" + description.getDisplayName() + "' failed", t);
-						}
-
-					}
-					Log.severe("Giving up after " + retryCount + " failures of '" + description.getDisplayName() + "'");
-					if (caughtThrowable != null) {
-						throw caughtThrowable;
-					}
-				}
-			};
-		}
-	}
 }
