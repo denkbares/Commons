@@ -10,13 +10,22 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import com.denkbares.collections.SoftValueHashMap;
+import com.denkbares.utils.Log;
+import com.denkbares.utils.Stopwatch;
 
 import static org.junit.Assert.*;
 
 public class SoftValueHashMapTest {
+
+	@Rule
+	public RetryRule retry = new RetryRule(3);
 
 	@Test
 	public void basic() {
@@ -116,7 +125,7 @@ public class SoftValueHashMapTest {
 		assertFalse(map.containsKey(key1));
 		assertTrue(map.containsKey(key2));
 		assertTrue(map.containsKey(key2b));
-		assertEquals(null, map.get(key1));
+		assertNull(map.get(key1));
 		assertEquals(value3, map.get(key2));
 	}
 
@@ -142,7 +151,7 @@ public class SoftValueHashMapTest {
 		map.put(null, value);
 		assertEquals(value, map.get(null));
 		map.put(null, null);
-		assertEquals(null, map.get(null));
+		assertNull(map.get(null));
 		value = null;
 		performSecureGC();
 		assertEquals(1, map.size());
@@ -162,12 +171,13 @@ public class SoftValueHashMapTest {
 			int blockSize = 1024 * 1024 * 1024; // 1 GB
 			// force out of memory (by adding blocks or memory to a list)
 			// --> all soft references are granted to be cleared
+			//noinspection EndlessStream
 			Stream.iterate(0, i -> i + 1).map(i -> new byte[blockSize]).collect(Collectors.toList());
 			throw new IllegalStateException();
 		}
 		catch (OutOfMemoryError e) {
 			// Ignore, we are fine now
-			System.out.println("memory cleared");
+			Log.info("memory cleared");
 			System.gc();
 		}
 	}
@@ -213,6 +223,50 @@ public class SoftValueHashMapTest {
 	static class Value extends Item {
 		Value(String value) {
 			super(value);
+		}
+	}
+
+	public static class RetryRule implements TestRule {
+
+		private final int retryCount;
+
+		public RetryRule(int retryCount) {
+			this.retryCount = retryCount;
+		}
+
+		@Override
+		public Statement apply(Statement base, Description description) {
+			return statement(base, description);
+		}
+
+		private Statement statement(final Statement base, final Description description) {
+
+			return new Statement() {
+				@Override
+				public void evaluate() throws Throwable {
+					Throwable caughtThrowable = null;
+					Stopwatch timer = new Stopwatch().reset();
+					for (int i = 0; i < retryCount; i++) {
+						timer.start();
+						try {
+							base.evaluate();
+							Log.info("Retry number " + i + 1 + ": " + timer.getDisplay());
+							timer.reset();
+							return;
+						}
+						catch (Throwable t) {
+							timer.reset();
+							caughtThrowable = t;
+							Log.severe("Run " + (i + 1) + "/" + retryCount + " of '" + description.getDisplayName() + "' failed", t);
+						}
+
+					}
+					Log.severe("Giving up after " + retryCount + " failures of '" + description.getDisplayName() + "'");
+					if (caughtThrowable != null) {
+						throw caughtThrowable;
+					}
+				}
+			};
 		}
 	}
 }
