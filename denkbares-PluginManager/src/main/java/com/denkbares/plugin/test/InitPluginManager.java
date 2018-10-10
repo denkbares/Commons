@@ -36,6 +36,15 @@ import com.denkbares.utils.Log;
  * @author Markus Friedrich (denkbares GmbH)
  */
 public final class InitPluginManager {
+	/**
+	 * The filter patterns applied by default if none are specified
+	 */
+	private static final String[] DEFAULT_FILTER_PATTERNS = new String[] {
+			"^d3web-Plugin.*",
+			"^KnowWE-Plugin.*",
+			"^denkbares-(.+-)?Plugin-.+",
+			"^SemanticAnalytics.*"
+	};
 
 	/**
 	 * Avoids the creation of an instance for this class.
@@ -50,10 +59,9 @@ public final class InitPluginManager {
 	 * <p>
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
-	 *                            exclusively
-	 *                            loaded.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager.
+	 *                            If no specific patterns are given, the default patterns
+	 *                            ({@link InitPluginManager#DEFAULT_FILTER_PATTERNS}) are used.
 	 * @throws IOException if the dependencies file or references plugins could not been read
 	 */
 	public static void init(String... pluginFilterPattern) throws IOException {
@@ -66,10 +74,9 @@ public final class InitPluginManager {
 	 * If the plugin manager is already initialized, the method does nothing. <p> Important: Tests
 	 * using this function must run maven install after each dependency update
 	 *
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
-	 *                            exclusively
-	 *                            loaded.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager.
+	 *                            If no specific patterns are given, the default patterns
+	 *                            ({@link InitPluginManager#DEFAULT_FILTER_PATTERNS}) are used.
 	 * @throws IOException if the classpath file or references plugins could not been read
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
@@ -86,14 +93,13 @@ public final class InitPluginManager {
 	 * <p>
 	 * Important: Tests using this function must run maven install after each dependency update
 	 *
-	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin
-	 *                            manager. If no specific patterns are given, d3web-Plugins and KnowWE-Plugins are
-	 *                            exclusively
-	 *                            loaded.
+	 * @param pluginFilterPattern specifies patterns to filter plugins to be loaded by the plugin manager.
+	 *                            If no specific patterns are given, the default patterns
+	 *                            ({@link InitPluginManager#DEFAULT_FILTER_PATTERNS}) are used.
 	 */
 	public static void init(String[] jarFiles, String... pluginFilterPattern) {
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
-			pluginFilterPattern = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+", "^SemanticAnalytics.*" };
+			pluginFilterPattern = DEFAULT_FILTER_PATTERNS;
 		}
 		List<File> filteredJars = new ArrayList<>();
 		// adding the plugin itself
