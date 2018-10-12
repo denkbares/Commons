@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.denkbares.utils.EqualsUtils;
 
 /**
@@ -46,7 +48,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 		}
 	}
 
-	public static class Group<P, E> {
+	public static class Group<P, E> implements Iterable<E> {
 
 		private final P priority;
 		private final List<E> elements;
@@ -67,6 +69,12 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 		@Override
 		public String toString() {
 			return priority + "=" + elements;
+		}
+
+		@NotNull
+		@Override
+		public Iterator<E> iterator() {
+			return elements.iterator();
 		}
 	}
 
