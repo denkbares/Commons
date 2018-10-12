@@ -155,18 +155,18 @@ public final class InitPluginManager {
 	 * @return Array of plugins to load, or null if no external classpath was supplied.
 	 */
 	private static String[] checkForExternalClasspath() {
-		// Check environment and properties. Use environment value as fallback for easier handling afterwards.
 		final String envValue = System.getenv(ENV);
-		final String propertyValue = System.getProperty(PROPERTY, envValue);
+		final String propertyValue = System.getProperty(PROPERTY);
 
 		if (!Strings.isBlank(envValue) && !Strings.isBlank(propertyValue)) {
 			throw new IllegalStateException("Both environment and Java properties define JPF classpath.");
 		}
 
 		// If no external classpath was specified, we're done.
-		if (Strings.isBlank(propertyValue)) return null;
+		if (Strings.isBlank(propertyValue) && Strings.isBlank(envValue)) return null;
 
-		final File directory = new File(propertyValue);
+		final String value = Strings.isBlank(envValue) ? propertyValue : envValue;
+		final File directory = new File(value);
 
 		if (!directory.isDirectory()) {
 			throw new IllegalStateException("JPF classpath directory specified via environment or Java property is not a directory.");
