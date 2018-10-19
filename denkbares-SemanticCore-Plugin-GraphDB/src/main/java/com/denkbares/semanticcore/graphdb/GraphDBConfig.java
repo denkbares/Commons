@@ -11,30 +11,29 @@ import java.util.Map;
 import ch.qos.logback.classic.Level;
 import com.ontotext.trree.config.OWLIMSailSchema;
 import com.ontotext.trree.statistics.StatisticsSettings;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.impl.TreeModel;
+import org.eclipse.rdf4j.model.util.Models;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigSchema;
+import org.eclipse.rdf4j.repository.sail.config.SailRepositorySchema;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
+import org.eclipse.rdf4j.rio.RDFParser;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.StatementCollector;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Model;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.TreeModel;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.RDFS;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryConfigSchema;
-import org.openrdf.repository.sail.config.SailRepositorySchema;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
-import org.openrdf.rio.RDFParser;
-import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.StatementCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
-import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Streams;
 
@@ -62,21 +61,21 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		// fix to avoid weird exception log with graphdb-free-runtime 7.0.3
 		// ERROR com.ontotext.GraphDBConfigParameters - Exception when trying to find the plugins/ folder
 		// com.ontotext.graphdb.ConfigException: graphdb.dist must be set to the GraphDB distribution directory...
-		if (System.getProperty("graphdb.dist") == null) {
-			try {
-				// try static, unchanging directory first
-				File tempDir = new File(Files.getSystemTempDir(), "graphdb-dist-mock-dir");
-				tempDir.mkdirs();
-				if (!tempDir.isDirectory() || !tempDir.canRead()) {
-					tempDir = Files.createTempDir();
-					tempDir.deleteOnExit();
-				}
-				System.setProperty("graphdb.dist", tempDir.getAbsolutePath());
-			}
-			catch (IOException e) {
-				Log.warning("Exception while creating workaround graphdb dist folder.");
-			}
-		}
+//		if (System.getProperty("graphdb.dist") == null) {
+//			try {
+//				// try static, unchanging directory first
+//				File tempDir = new File(Files.getSystemTempDir(), "graphdb-dist-mock-dir");
+//				tempDir.mkdirs();
+//				if (!tempDir.isDirectory() || !tempDir.canRead()) {
+//					tempDir = Files.createTempDir();
+//					tempDir.deleteOnExit();
+//				}
+//				System.setProperty("graphdb.dist", tempDir.getAbsolutePath());
+//			}
+//			catch (IOException e) {
+//				Log.warning("Exception while creating workaround graphdb dist folder.");
+//			}
+//		}
 
 		// Configure logging
 		Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
@@ -117,7 +116,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	}
 
 	@Override
-	public org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
+	public org.eclipse.rdf4j.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
 		try {
 			return createGraphDBConfig(repositoryId, repositoryLabel, overrides);
 		}
@@ -127,32 +126,35 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	}
 
 	@NotNull
-	private org.openrdf.repository.config.RepositoryConfig createGraphDBConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RDFParseException, RDFHandlerException, IOException, RepositoryConfigException {
+	private org.eclipse.rdf4j.repository.config.RepositoryConfig createGraphDBConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RDFParseException, RDFHandlerException, IOException, RepositoryConfigException {
 		Model graph = parseConfigFile(getConfigFile(), RDFFormat.TURTLE, DEFAULT_NAMESPACE);
 
-		Resource repositoryNode = graph.filter(null, RDF.TYPE, RepositoryConfigSchema.REPOSITORY).subjectResource();
+		Resource repositoryNode = Models.subject(graph.filter(null, RDF.TYPE, RepositoryConfigSchema.REPOSITORY))
+				.orElseThrow(() -> new RepositoryConfigException("Unable to retrieve repository node"));
 
-		graph.add(repositoryNode, RepositoryConfigSchema.REPOSITORYID, new LiteralImpl(repositoryId));
+		SimpleValueFactory factory = SimpleValueFactory.getInstance();
+		graph.add(repositoryNode, RepositoryConfigSchema.REPOSITORYID, factory.createLiteral(repositoryId));
 
 		if (repositoryLabel != null) {
-			graph.add(repositoryNode, RDFS.LABEL, new LiteralImpl(repositoryLabel));
+			graph.add(repositoryNode, RDFS.LABEL, factory.createLiteral(repositoryLabel));
 		}
 
 		if (overrides == null) {
 			overrides = new HashMap<>();
 		}
 		overrides.putIfAbsent("ruleset", getRuleSet());
-		Resource configNode = graph.filter(null, SailRepositorySchema.SAILIMPL, null).objectResource();
+		Resource configNode = Models.objectResource(graph.filter(null, SailRepositorySchema.SAILIMPL, null))
+				.orElseThrow(() -> new RepositoryConfigException("Unable to retrieve config node"));
 		for (Map.Entry<String, String> entry : overrides.entrySet()) {
-			URI key = new URIImpl(OWLIMSailSchema.NAMESPACE + entry.getKey());
-			Literal value = new LiteralImpl(entry.getValue());
+			IRI key = factory.createIRI(OWLIMSailSchema.NAMESPACE + entry.getKey());
+			Literal value = factory.createLiteral(entry.getValue());
 			graph.remove(configNode, key, null);
 			graph.add(configNode, key, value);
 		}
 
 		// Create a configuration object from the configuration graph
 		// and add it to the repositoryManager
-		return org.openrdf.repository.config.RepositoryConfig.create(graph, repositoryNode);
+		return org.eclipse.rdf4j.repository.config.RepositoryConfig.create(graph, repositoryNode);
 	}
 
 	public String getRuleSet() {

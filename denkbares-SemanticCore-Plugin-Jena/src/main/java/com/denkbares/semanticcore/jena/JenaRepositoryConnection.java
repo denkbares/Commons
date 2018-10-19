@@ -5,32 +5,33 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import info.aduna.iteration.CloseableIteratorIteration;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.eclipse.rdf4j.common.iteration.CloseableIteratorIteration;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleNamespace;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.Query;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.base.AbstractRepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.NamespaceImpl;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.Update;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.repository.base.RepositoryConnectionBase;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
 
 import static com.denkbares.semanticcore.jena.JenaUtils.sesame2Jena;
 import static com.denkbares.semanticcore.jena.JenaUtils.toStatement;
@@ -40,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 31.05.16
  */
-public class JenaRepositoryConnection extends RepositoryConnectionBase {
+public class JenaRepositoryConnection extends AbstractRepositoryConnection {
 
 	private final Model model;
 	private List<org.apache.jena.rdf.model.Statement> transactionAdd = new ArrayList<>();
@@ -58,7 +59,7 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 	}
 
 	@Override
-	protected void addWithoutCommit(Resource subject, URI predicate, Value object, Resource... contexts) throws RepositoryException {
+	protected void addWithoutCommit(Resource subject, IRI predicate, Value object, Resource... contexts) throws RepositoryException {
 		checkContexts(contexts);
 		checkIsActive();
 		transactionAdd.add(toStatement(model, subject, predicate, object));
@@ -71,11 +72,12 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 	}
 
 	@Override
-	protected void removeWithoutCommit(Resource subject, URI predicate, Value object, Resource... contexts) throws RepositoryException {
+	protected void removeWithoutCommit(Resource subject, IRI predicate, Value object, Resource... contexts) throws RepositoryException {
 		checkIsActive();
 		checkContexts(contexts);
 		transactionRemove.add(toStatement(model, subject, predicate, object));
 	}
+
 
 	@Override
 	public Query prepareQuery(QueryLanguage ql, String queryString, String baseURI) throws RepositoryException, MalformedQueryException {
@@ -126,7 +128,7 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 	}
 
 	@Override
-	public RepositoryResult<Statement> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws RepositoryException {
+	public RepositoryResult<Statement> getStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, Resource... contexts) throws RepositoryException {
 		checkContexts(contexts);
 		checkIncludeInferred(includeInferred);
 		StmtIterator stmtIterator = model.listStatements(sesame2Jena(model, subj), sesame2Jena(model, pred), sesame2Jena(model, obj));
@@ -144,7 +146,7 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 	}
 
 	@Override
-	public void exportStatements(Resource subj, URI pred, Value obj, boolean includeInferred, RDFHandler handler, Resource... contexts) throws RepositoryException, RDFHandlerException {
+	public void exportStatements(Resource subj, IRI pred, Value obj, boolean includeInferred, RDFHandler handler, Resource... contexts) throws RepositoryException, RDFHandlerException {
 		RepositoryResult<Statement> statements = getStatements(subj, pred, obj, includeInferred, contexts);
 		handler.startRDF();
 		while (statements.hasNext()) {
@@ -165,7 +167,7 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 	}
 
 	private void checkContexts(Resource[] contexts) {
-		if (Arrays.stream(contexts).filter(context -> context != null).count() > 0) {
+		if (Arrays.stream(contexts).anyMatch(Objects::nonNull)) {
 			throw getContextsNotSupportedException();
 		}
 	}
@@ -218,7 +220,7 @@ public class JenaRepositoryConnection extends RepositoryConnectionBase {
 		// TODO: this can be done better, e.g. create iterator creating namespaces on call of next(), use caching...
 		List<Namespace> namespaces = nsPrefixMap.entrySet()
 				.stream()
-				.map(entry -> new NamespaceImpl(entry.getKey(), entry.getValue()))
+				.map(entry -> new SimpleNamespace(entry.getKey(), entry.getValue()))
 				.collect(toList());
 		return new RepositoryResult<>(new CloseableIteratorIteration<>(namespaces.iterator()));
 	}

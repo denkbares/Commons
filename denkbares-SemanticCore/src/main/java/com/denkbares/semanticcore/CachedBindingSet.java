@@ -5,18 +5,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.query.AbstractBindingSet;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.impl.BindingImpl;
-import org.openrdf.util.iterators.ConvertingIterator;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleBNode;
+import org.eclipse.rdf4j.model.impl.SimpleIRI;
+import org.eclipse.rdf4j.model.impl.SimpleLiteral;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.query.AbstractBindingSet;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.impl.SimpleBinding;
+import org.eclipse.rdf4j.util.iterators.ConvertingIterator;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Cached version of a binding set, making sure there are no references to any repository or connection.
@@ -40,34 +42,19 @@ public class CachedBindingSet extends AbstractBindingSet {
 	 * connection to be closed after caching.
 	 */
 	private Value convertValue(Value value) {
-		if (value instanceof URI) {
-			if (value instanceof URIImpl) {
-				return value;
-			}
-			else {
-				return new URIImpl(value.stringValue());
-			}
+		if (value instanceof IRI) {
+			return new CachedIRI(value.stringValue());
 		}
 		else if (value instanceof Literal) {
-			if (value instanceof LiteralImpl) {
-				return value;
-			}
-			else {
-				Literal literal = (Literal) value;
-				CachedLiteralImpl cachedLiteral = new CachedLiteralImpl();
-				cachedLiteral.setLabel(literal.getLabel());
-				cachedLiteral.setDatatype(literal.getDatatype());
-				cachedLiteral.setLanguage(literal.getLanguage());
-				return cachedLiteral;
-			}
+			Literal literal = (Literal) value;
+			CachedLiteral cachedLiteral = new CachedLiteral();
+			cachedLiteral.setLabel(literal.getLabel());
+			cachedLiteral.setDatatype(literal.getDatatype());
+			literal.getLanguage().ifPresent(cachedLiteral::setLanguage);
+			return cachedLiteral;
 		}
 		else if (value instanceof BNode) {
-			if (value instanceof BNodeImpl) {
-				return value;
-			}
-			else {
-				return new BNodeImpl(((BNode) value).getID());
-			}
+			return new CachedBNode(((BNode) value).getID());
 		}
 		throw new UnsupportedOperationException("Unable to cache value of type " + value.getClass());
 	}
@@ -81,7 +68,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	public Binding getBinding(String bindingName) {
 		Value value = getValue(bindingName);
 		if (value != null) {
-			return new BindingImpl(bindingName, value);
+			return new SimpleBinding(bindingName, value);
 		}
 
 		return null;
@@ -97,6 +84,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 		return bindings.containsKey(bindingName);
 	}
 
+	@NotNull
 	@Override
 	public Iterator<Binding> iterator() {
 		Iterator<Map.Entry<String, Value>> entries = bindings.entrySet().iterator();
@@ -105,7 +93,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 
 			@Override
 			protected Binding convert(Map.Entry<String, Value> entry) {
-				return new BindingImpl(entry.getKey(), entry.getValue());
+				return new SimpleBinding(entry.getKey(), entry.getValue());
 			}
 		};
 	}
@@ -115,10 +103,11 @@ public class CachedBindingSet extends AbstractBindingSet {
 		return bindings.size();
 	}
 
-	private static final class CachedLiteralImpl extends LiteralImpl {
+	private static final class CachedLiteral extends SimpleLiteral {
+
 		@Override
-		public void setDatatype(URI datatype) {
-			super.setDatatype(datatype);
+		public void setDatatype(IRI datatype) {
+			super.setDatatype(SimpleValueFactory.getInstance().createIRI(datatype.stringValue()));
 		}
 
 		@Override
@@ -131,6 +120,20 @@ public class CachedBindingSet extends AbstractBindingSet {
 			if (language != null) {
 				super.setLanguage(language);
 			}
+		}
+	}
+
+	private static class CachedBNode extends SimpleBNode {
+
+		public CachedBNode(String id) {
+			super(id);
+		}
+	}
+
+	private static class CachedIRI extends SimpleIRI {
+
+		public CachedIRI(String id) {
+			super(id);
 		}
 	}
 

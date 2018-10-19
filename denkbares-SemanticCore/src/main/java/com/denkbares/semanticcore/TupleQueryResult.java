@@ -23,15 +23,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.denkbares.utils.Log;
 
 /**
- * This is a delegate for the ordinary {@link org.openrdf.query.TupleQueryResult}.
+ * This is a delegate for the ordinary {@link org.eclipse.rdf4j.query.TupleQueryResult}.
  * Tries to close delegate query result when garbage collected. Since we cannot guaranty garbage collection of the
  * object, we still need to use <tt>try(ClosingQueryResult result = getResult(..)) { code }</tt>
  *
@@ -41,11 +41,11 @@ import com.denkbares.utils.Log;
 public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<BindingSet> {
 
 	private RepositoryConnection connection;
-	private org.openrdf.query.TupleQueryResult delegate;
+	private org.eclipse.rdf4j.query.TupleQueryResult delegate;
 	private CachedTupleQueryResult cache = null;
 	private boolean calledNext = false;
 
-	public TupleQueryResult(RepositoryConnection connection, org.openrdf.query.TupleQueryResult delegate) {
+	public TupleQueryResult(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQueryResult delegate) {
 		this.connection = connection;
 		this.delegate = delegate;
 	}

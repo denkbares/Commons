@@ -1,6 +1,6 @@
 package com.denkbares.semanticcore;
 
-import org.openrdf.repository.Repository;
+import org.eclipse.rdf4j.repository.Repository;
 
 import com.denkbares.events.Event;
 import com.denkbares.semanticcore.config.RepositoryConfig;

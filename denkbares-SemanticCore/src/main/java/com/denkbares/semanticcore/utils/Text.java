@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Value;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Value;
 
 import com.denkbares.strings.Strings;
 
@@ -50,13 +50,11 @@ public class Text {
 
 	public static Text create(Value value) {
 		if (value == null) return null;
+		Locale locale = Locale.ROOT;
 		if (value instanceof Literal) {
-			Locale locale = Strings.parseLocale(((Literal) value).getLanguage());
-			if (locale != null) {
-				return new Text(value.stringValue(), locale);
-			}
+			locale = ((Literal) value).getLanguage().map(Strings::parseLocale).orElse(Locale.ROOT);
 		}
-		return new Text(value.stringValue(), Locale.ROOT);
+		return new Text(value.stringValue(), locale);
 	}
 
 	public String getString() {

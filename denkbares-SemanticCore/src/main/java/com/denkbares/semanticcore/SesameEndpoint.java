@@ -23,16 +23,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
 
 import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
@@ -55,7 +55,7 @@ public class SesameEndpoint implements SPARQLEndpoint {
 	 *
 	 * @param connection the connection to build the queries on
 	 */
-	public SesameEndpoint(org.openrdf.repository.RepositoryConnection connection) {
+	public SesameEndpoint(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		Objects.requireNonNull(connection);
 		this.setConnection(connection);
 	}
@@ -66,7 +66,7 @@ public class SesameEndpoint implements SPARQLEndpoint {
 	protected SesameEndpoint() {
 	}
 
-	protected void setConnection(org.openrdf.repository.RepositoryConnection connection) {
+	protected void setConnection(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		if (!(connection instanceof RepositoryConnection)) {
 			connection = new RepositoryConnection(connection);
 		}

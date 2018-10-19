@@ -19,7 +19,7 @@
 
 package com.denkbares.semanticcore.sparql;
 
-import org.openrdf.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 
 import com.denkbares.semanticcore.TupleQueryResult;
 import com.denkbares.semanticcore.ClosableTupleQueryResult;

@@ -17,57 +17,6 @@
 		<dependency>
 			<groupId>com.ontotext.graphdb</groupId>
 			<artifactId>graphdb-free-runtime</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-databind</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-annotations</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openrdf.sesame</groupId>
-					<artifactId>sesame-sail-lucene</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.openrdf.sesame</groupId>
-					<artifactId>sesame-sail-lucene4</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>io.dropwizard.metrics</groupId>
-					<artifactId>metrics-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.sf.trove4j</groupId>
-					<artifactId>trove4j</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.dropwizard.metrics</groupId>
-			<artifactId>metrics-core</artifactId>
-		</dependency>
-		<!--
-		We use this renamed version of trove4j to be able to have it in parallel to version 3.x
-		Since the packages were renamed between version 2.x and 3.x, there shouldn't be additional
-		compatibility issues.
-		-->
-		<dependency>
-			<groupId>net.sf.trove4j</groupId>
-			<artifactId>trove4jDES</artifactId>
 		</dependency>
 	</dependencies>
 

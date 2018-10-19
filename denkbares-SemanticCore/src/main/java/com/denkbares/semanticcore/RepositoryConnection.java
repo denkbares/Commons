@@ -26,55 +26,57 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.List;
 
-import info.aduna.iteration.Iteration;
+import org.eclipse.rdf4j.common.iteration.Iteration;
+import org.eclipse.rdf4j.model.IRI;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.IsolationLevel;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.Dataset;
-import org.openrdf.query.GraphQuery;
-import org.openrdf.query.MalformedQueryException;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.QueryResultHandlerException;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.TupleQueryResultHandler;
-import org.openrdf.query.TupleQueryResultHandlerException;
-import org.openrdf.query.Update;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.ParserConfig;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFHandler;
-import org.openrdf.rio.RDFHandlerException;
-import org.openrdf.rio.RDFParseException;
+import org.eclipse.rdf4j.IsolationLevel;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.Dataset;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.MalformedQueryException;
+import org.eclipse.rdf4j.query.Query;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.QueryResultHandlerException;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.TupleQueryResultHandler;
+import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
+import org.eclipse.rdf4j.query.Update;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryException;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.rio.ParserConfig;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFParseException;
 
 import com.denkbares.utils.Log;
 
 /**
- * This is a delegate for the ordinary {@link org.openrdf.repository.RepositoryException}.
+ * This is a delegate for the ordinary {@link org.eclipse.rdf4j.repository.RepositoryException}.
  * Tries to close delegate query result when garbage collected. Since we cannot guaranty garbage collection of the
  * object, we still need to use <tt>try(ClosingQueryResult result = getResult(..)) { code }</tt>
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 28.01.16
  */
-public class RepositoryConnection implements org.openrdf.repository.RepositoryConnection, AutoCloseable {
+@SuppressWarnings("deprecation")
+public class RepositoryConnection implements org.eclipse.rdf4j.repository.RepositoryConnection {
 
-	private final org.openrdf.repository.RepositoryConnection connection;
+	private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
 
 	private static final ThreadLocal<Integer> queryCounter = ThreadLocal.withInitial(() -> 0);
 
-	public RepositoryConnection(org.openrdf.repository.RepositoryConnection connection) {
+	public RepositoryConnection(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		this.connection = connection;
 	}
 
@@ -169,6 +171,16 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	}
 
 	@Override
+	public RepositoryResult<Statement> getStatements(Resource resource, IRI iri, Value value, boolean b, Resource... resources) throws RepositoryException {
+		return connection.getStatements(resource, iri, value, b, resources);
+	}
+
+	@Override
+	public boolean hasStatement(Resource resource, IRI iri, Value value, boolean b, Resource... resources) throws RepositoryException {
+		return connection.hasStatement(resource, iri, value, b, resources);
+	}
+
+	@Override
 	public boolean hasStatement(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws RepositoryException {
 		return connection.hasStatement(subj, pred, obj, includeInferred, contexts);
 	}
@@ -179,8 +191,8 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	}
 
 	@Override
-	public void exportStatements(Resource subj, URI pred, Value obj, boolean includeInferred, RDFHandler handler, Resource... contexts) throws RepositoryException, RDFHandlerException {
-		connection.exportStatements(subj, pred, obj, includeInferred, handler, contexts);
+	public void exportStatements(Resource resource, IRI iri, Value value, boolean b, RDFHandler rdfHandler, Resource... resources) throws RepositoryException, RDFHandlerException {
+		connection.exportStatements(resource, iri, value, b, rdfHandler, resources);
 	}
 
 	@Override
@@ -276,6 +288,13 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	}
 
 	@Override
+	public void add(Resource resource, IRI iri, Value value, Resource... resources) throws RepositoryException {
+		increaseQueryCounter();
+		connection.add(resource, iri, value, resources);
+		decreaseQueryCounter();
+	}
+
+	@Override
 	public void add(Resource subject, URI predicate, Value object, Resource... contexts) throws RepositoryException {
 		increaseQueryCounter();
 		connection.add(subject, predicate, object, contexts);
@@ -300,6 +319,13 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 	public <E extends Exception> void add(Iteration<? extends Statement, E> statements, Resource... contexts) throws RepositoryException, E {
 		increaseQueryCounter();
 		connection.add(statements, contexts);
+		decreaseQueryCounter();
+	}
+
+	@Override
+	public void remove(Resource resource, IRI iri, Value value, Resource... resources) throws RepositoryException {
+		increaseQueryCounter();
+		connection.remove(resource, iri, value, resources);
 		decreaseQueryCounter();
 	}
 
@@ -361,7 +387,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 		connection.clearNamespaces();
 	}
 
-	public static void closeQuietly(@NotNull org.openrdf.repository.RepositoryConnection connection) {
+	public static void closeQuietly(@NotNull org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		try {
 			connection.close();
 		}
@@ -369,7 +395,6 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 			Log.severe("Exception during close()", e);
 		}
 	}
-
 
 	@Override
 	protected void finalize() throws Throwable {
@@ -408,7 +433,7 @@ public class RepositoryConnection implements org.openrdf.repository.RepositoryCo
 		}
 
 		@Override
-		public org.openrdf.query.TupleQueryResult evaluate() throws QueryEvaluationException {
+		public org.eclipse.rdf4j.query.TupleQueryResult evaluate() throws QueryEvaluationException {
 			increaseQueryCounter();
 			return new CountingTupleQueryResult(query.evaluate());
 		}

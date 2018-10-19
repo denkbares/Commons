@@ -22,9 +22,9 @@ package com.denkbares.semanticcore.sparql;
 import java.util.Collections;
 import java.util.Map;
 
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.repository.RepositoryException;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.repository.RepositoryException;
 
 /**
  * Interface to describe an sparql endpoint that is also capable to directly execute sparql

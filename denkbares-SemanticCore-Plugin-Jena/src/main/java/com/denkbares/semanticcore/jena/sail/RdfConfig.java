@@ -2,9 +2,9 @@ package com.denkbares.semanticcore.jena.sail;
 
 import java.util.Map;
 
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryImplConfig;
-import org.openrdf.repository.sail.config.SailRepositoryConfig;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.config.RepositoryImplConfig;
+import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 
@@ -17,13 +17,13 @@ import com.denkbares.semanticcore.config.RepositoryConfig;
 public class RdfConfig implements RepositoryConfig {
 
 	@Override
-	public org.openrdf.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
+	public org.eclipse.rdf4j.repository.config.RepositoryConfig createRepositoryConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RepositoryConfigException {
 		// create a configuration for the SAIL stack
 		JenaSailConfig backendConfig = new JenaSailConfig();
 
 		// create a configuration for the repository implementation
 		RepositoryImplConfig repositoryTypeSpec = new SailRepositoryConfig(backendConfig);
-		return new org.openrdf.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
+		return new org.eclipse.rdf4j.repository.config.RepositoryConfig(repositoryId, repositoryTypeSpec);
 	}
 
 	@Override

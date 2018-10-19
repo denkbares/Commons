@@ -19,9 +19,9 @@
 
 package com.denkbares.semanticcore.sparql;
 
-import org.openrdf.query.BooleanQuery;
-import org.openrdf.query.Query;
-import org.openrdf.query.QueryEvaluationException;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.Query;
+import org.eclipse.rdf4j.query.QueryEvaluationException;
 
 import com.denkbares.utils.Log;
 

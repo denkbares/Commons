@@ -11,17 +11,17 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
 import org.jetbrains.annotations.NotNull;
-import org.openrdf.model.BNode;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.ValueFactory;
-import org.openrdf.query.AbstractBindingSet;
-import org.openrdf.query.Binding;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.impl.BindingImpl;
+import org.eclipse.rdf4j.model.BNode;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.AbstractBindingSet;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.impl.BindingImpl;
 
 /**
  * Some util methods for handling Jena repositories.
@@ -36,7 +36,7 @@ public class JenaUtils {
 		if (value instanceof Literal) {
 			Literal literal = (Literal) value;
 			String label = literal.getLabel();
-			String language = literal.getLanguage();
+			String language = literal.getLanguage().orElse(null);
 			URI dataType = literal.getDatatype();
 			if (dataType != null) {
 				return model.createTypedLiteral(label, dataType.stringValue());
@@ -95,6 +95,7 @@ public class JenaUtils {
 		return new AbstractBindingSet() {
 			Set<String> names = null;
 
+			@NotNull
 			@Override
 			public Iterator<Binding> iterator() {
 				Iterator<String> names = solution.varNames();
