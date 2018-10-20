@@ -378,7 +378,7 @@ public final class SemanticCore {
 			FileUtils.deleteDirectory(repositoryFolder);
 		}
 		File tempFolder = new File(repositoryPath);
-		repositoryManager = new LocalRepositoryManager(tempFolder);
+		repositoryManager = new SyncedLocalRepositoryManager(tempFolder);
 		Log.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
 		try {
 			repositoryManager.initialize();
@@ -666,6 +666,22 @@ public final class SemanticCore {
 			StackTraceElement[] stackTrace = new Exception().getStackTrace();
 			this.stackTrace = Arrays.copyOfRange(stackTrace, 2, stackTrace.length);
 			this.stopWatch = new Stopwatch();
+		}
+	}
+
+	/**
+	 * Overriding {@link LocalRepositoryManager}, which has a potential dead lock when creating and removing
+	 * repositories asynchronously.
+	 */
+	private static class SyncedLocalRepositoryManager extends LocalRepositoryManager {
+
+		public SyncedLocalRepositoryManager(File baseDir) {
+			super(baseDir);
+		}
+
+		@Override
+		public synchronized Repository getRepository(String identity) throws RepositoryConfigException, RepositoryException {
+			return super.getRepository(identity);
 		}
 	}
 }
