@@ -19,17 +19,24 @@
 
 package com.denkbares.collections;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 
+import com.denkbares.strings.Strings;
 import com.denkbares.utils.Pair;
 
 /**
- * Utility collection class that provides a two-dimensional array that dynamically expands in both
- * dimensions as values are added. Both dimensions have indices starting from 0, as usual for
- * arrays.
+ * Utility collection class that provides a two-dimensional array that dynamically expands in both dimensions as values
+ * are added. Both dimensions have indices starting from 0, as usual for arrays.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 28.03.2014
@@ -41,12 +48,11 @@ public class Matrix<E> {
 	private int cols = 0;
 
 	/**
-	 * Replaces the element at the specified position in this matrix with the specified element. If
-	 * the current matrix is not big enough for the specified indices, it will be expanded in any
-	 * direction to fit the indices.
+	 * Replaces the element at the specified position in this matrix with the specified element. If the current matrix
+	 * is not big enough for the specified indices, it will be expanded in any direction to fit the indices.
 	 *
-	 * @param row row of the element to replace
-	 * @param col col of the element to replace
+	 * @param row     row of the element to replace
+	 * @param col     col of the element to replace
 	 * @param element element to be stored at the specified position
 	 * @return the element previously at the specified position
 	 * @throws IndexOutOfBoundsException if any of the indices is negative
@@ -58,8 +64,8 @@ public class Matrix<E> {
 	}
 
 	/**
-	 * Returns the element that is stored at the specified position in this matrix. If the current
-	 * matrix does not hold an element at the specified indices, null is returned.
+	 * Returns the element that is stored at the specified position in this matrix. If the current matrix does not hold
+	 * an element at the specified indices, null is returned.
 	 *
 	 * @param row row of the element to replace
 	 * @param col col of the element to replace
@@ -71,8 +77,8 @@ public class Matrix<E> {
 	}
 
 	/**
-	 * Returns the number of rows this matrix has. Therefore the valid row indices range from 0
-	 * inclusively to the returned value exclusively.
+	 * Returns the number of rows this matrix has. Therefore the valid row indices range from 0 inclusively to the
+	 * returned value exclusively.
 	 *
 	 * @return the number of rows of this matrix
 	 */
@@ -81,8 +87,8 @@ public class Matrix<E> {
 	}
 
 	/**
-	 * Returns the number of columns this matrix has. Therefore the valid column indices range from
-	 * 0 inclusively to the returned value exclusively.
+	 * Returns the number of columns this matrix has. Therefore the valid column indices range from 0 inclusively to the
+	 * returned value exclusively.
 	 *
 	 * @return the number of columns of this matrix
 	 */
@@ -91,9 +97,8 @@ public class Matrix<E> {
 	}
 
 	/**
-	 * Returns the entire row of this matrix as a list. The list has always the size returned by
-	 * #getColSize(). If any elements are not set in the specified row, the items are encountered as
-	 * null.
+	 * Returns the entire row of this matrix as a list. The list has always the size returned by #getColSize(). If any
+	 * elements are not set in the specified row, the items are encountered as null.
 	 *
 	 * @param row the row to return from this matrix
 	 * @return the entire row as an array
@@ -101,16 +106,15 @@ public class Matrix<E> {
 	public List<E> getRow(int row) {
 		int size = getColSize();
 		List<E> result = new ArrayList<>(size);
-		for (int col=0; col<size; col++) {
+		for (int col = 0; col < size; col++) {
 			result.add(get(row, col));
 		}
 		return result;
 	}
 
 	/**
-	 * Returns the entire col of this matrix as a list. The list has always the size returned by
-	 * #getRowSize(). If any elements are not set in the specified col, the items are encountered as
-	 * null.
+	 * Returns the entire col of this matrix as a list. The list has always the size returned by #getRowSize(). If any
+	 * elements are not set in the specified col, the items are encountered as null.
 	 *
 	 * @param col the column to return from this matrix
 	 * @return the entire column as an array
@@ -118,7 +122,7 @@ public class Matrix<E> {
 	public List<E> getColumn(int col) {
 		int size = getRowSize();
 		List<E> result = new ArrayList<>(size);
-		for (int row=0; row<size; row++) {
+		for (int row = 0; row < size; row++) {
 			result.add(get(row, col));
 		}
 		return result;
@@ -128,5 +132,118 @@ public class Matrix<E> {
 		if (row < 0) throw new IndexOutOfBoundsException("row must not be negative");
 		if (col < 0) throw new IndexOutOfBoundsException("col must not be negative");
 		return new Pair<>(row, col);
+	}
+
+	/**
+	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The first row is
+	 * assumed to contain the headings of the table, the column widths are adjusted to the content of each column.
+	 */
+	public void dumpTable() {
+		dumpTable((List<String>) null);
+	}
+
+	/**
+	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
+	 * as column headings.
+	 *
+	 * @param headings the column names
+	 */
+	public void dumpTable(String... headings) {
+		dumpTable((headings == null) ? null : Arrays.asList(headings));
+	}
+
+	/**
+	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
+	 * as column headings.
+	 *
+	 * @param headings the column names
+	 */
+	@SuppressWarnings({ "UseOfSystemOutOrSystemErr", "unused" })
+	public void dumpTable(List<String> headings) {
+		dump(headings, Integer.MAX_VALUE, System.out);
+	}
+
+	private void dump(List<String> headings, int maxRows, PrintStream out) {
+		int firstRow = (headings == null) ? 0 : -1;
+		int lastRow = Math.min(rows, maxRows); // excluding
+
+		String[] cache = new String[lastRow * cols];
+		BiFunction<Integer, Integer, String> textFun = (row, col) -> {
+			if (row == -1 && headings != null) return (col < headings.size()) ? headings.get(col) : "";
+			int index = row * cols + col;
+			if (cache[index] == null) cache[index] = String.valueOf(get(row, col));
+			return cache[index];
+		};
+
+		// prepare column lengths
+		int[] lengths = new int[cols];
+		for (int row = firstRow; row < lastRow; row++) {
+			for (int col = 0; col < cols; col++) {
+				lengths[col] = Math.max(lengths[col], textFun.apply(row, col).length());
+			}
+		}
+
+		// dump the matrix
+		out.println();
+		for (int row = firstRow; row < lastRow; row++) {
+			for (int col = 0; col < cols; col++) {
+				if (col > 0) out.print(" | ");
+				String value = textFun.apply(row, col);
+				out.print(value);
+				out.print(Strings.nTimes(' ', lengths[col] - value.length()));
+			}
+			out.println();
+			if (row == firstRow) {
+				int len = IntStream.of(lengths).map(x -> x + 3).sum() - 3;
+				out.println(Strings.nTimes('=', len));
+			}
+		}
+		if (lastRow < rows) {
+			out.println("... (" + Strings.pluralOf(rows - lastRow, "more row") + ")");
+		}
+	}
+
+	@Override
+	public String toString() {
+		return toString(5);
+	}
+
+	public String toString(int maxRows) {
+		return toString(null, maxRows);
+	}
+
+	/**
+	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
+	 * as column headings.
+	 *
+	 * @param headings the column names
+	 */
+	public String toString(String... headings) {
+		return toString((headings == null) ? null : Arrays.asList(headings));
+	}
+
+	/**
+	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
+	 * as column headings.
+	 *
+	 * @param headings the column names
+	 */
+	public String toString(List<String> headings) {
+		return toString(headings, Integer.MAX_VALUE);
+	}
+
+	private String toString(List<String> headings, int maxRows) {
+		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		try (PrintStream out = new PrintStream(buffer, true, "UTF-8")) {
+			dump(headings, maxRows, out);
+		}
+		catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
+		return new String(buffer.toByteArray(), StandardCharsets.UTF_8);
 	}
 }

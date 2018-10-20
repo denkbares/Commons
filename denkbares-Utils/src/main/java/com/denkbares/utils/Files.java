@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -99,7 +100,36 @@ public class Files {
 	 */
 	public static void writeFile(File file, String content) throws IOException {
 		file.getParentFile().mkdirs();
-		try (Writer stream = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+		try (Writer stream = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+			BufferedWriter out = new BufferedWriter(stream);
+			out.write(content);
+			out.close();
+		}
+	}
+
+	/**
+	 * Writes the given string content to a file with the given path. If the file already exists, the specified content
+	 * is appended.
+	 *
+	 * @param path    the path to the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void appendFile(String path, String content) throws IOException {
+		appendFile(new File(path), content);
+	}
+
+	/**
+	 * Writes the given string content to the given file. Creates missing parent directories is required. If the file
+	 * already exists, the specified content is appended.
+	 *
+	 * @param file    the file to be written
+	 * @param content the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void appendFile(File file, String content) throws IOException {
+		file.getParentFile().mkdirs();
+		try (Writer stream = new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8)) {
 			BufferedWriter out = new BufferedWriter(stream);
 			out.write(content);
 			out.close();
