@@ -1,12 +1,12 @@
 package com.denkbares.semanticcore.jena;
 
 import org.apache.jena.shared.ConfigException;
-import org.jetbrains.annotations.NotNull;
 import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.config.AbstractRepositoryImplConfig;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
 import org.eclipse.rdf4j.repository.config.RepositoryFactory;
 import org.eclipse.rdf4j.repository.config.RepositoryImplConfig;
-import org.eclipse.rdf4j.repository.config.RepositoryImplConfigBase;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Albrecht Striffler (denkbares GmbH)
@@ -27,7 +27,7 @@ public abstract class AbstractJenaRepositoryFactory implements RepositoryFactory
 
 	@Override
 	public RepositoryImplConfig getConfig() {
-		return new RepositoryImplConfigBase(repositoryType);
+		return new AbstractRepositoryImplConfig(repositoryType);
 	}
 
 	@Override

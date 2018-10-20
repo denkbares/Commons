@@ -2,6 +2,7 @@ package com.denkbares.semanticcore.jena;
 
 import java.util.Map;
 
+import org.eclipse.rdf4j.repository.config.AbstractRepositoryImplConfig;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
 import org.eclipse.rdf4j.repository.config.RepositoryImplConfigBase;
 
@@ -20,7 +21,7 @@ public class RdfConfig implements RepositoryConfig {
 
 		// create a configuration for the repository implementation
 		return new org.eclipse.rdf4j.repository.config.RepositoryConfig(repositoryId,
-				new RepositoryImplConfigBase(RdfJenaRepositoryFactory.TYPE));
+				new AbstractRepositoryImplConfig(RdfJenaRepositoryFactory.TYPE));
 	}
 
 	@Override
