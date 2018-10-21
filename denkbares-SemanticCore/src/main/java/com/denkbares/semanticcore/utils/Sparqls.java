@@ -309,7 +309,7 @@ public class Sparqls {
 			BindingSet bindingSet = queryResult.next();
 			K key = keyExtractor.apply(bindingSet);
 			V value = valueExtractor.apply(bindingSet);
-			map.put(key, value);
+			if (value != null) map.put(key, value);
 		}
 		return map;
 	}
@@ -385,7 +385,7 @@ public class Sparqls {
 		while (queryResult.hasNext()) {
 			BindingSet bindingSet = queryResult.next();
 			V value = valueExtractor.apply(bindingSet);
-			set.add(value);
+			if (value != null) set.add(value);
 		}
 		return set;
 	}
