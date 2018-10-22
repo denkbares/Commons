@@ -53,5 +53,17 @@
 			<groupId>com.denkbares</groupId>
 			<artifactId>denkbares-SemanticCore-Plugin-ExtensionPoints</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-sail-memory</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-sail-nativerdf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-sail-spin</artifactId>
+		</dependency>
 	</dependencies>
 </project>
