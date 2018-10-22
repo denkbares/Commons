@@ -39,10 +39,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rdf4j</groupId>
-			<artifactId>rdf4j-storage</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.rdf4j</groupId>
 			<artifactId>rdf4j-repository-api</artifactId>
 		</dependency>
 		<dependency>
