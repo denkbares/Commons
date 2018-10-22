@@ -167,6 +167,16 @@
 				<version>${rdf4j.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.eclipse.rdf4j</groupId>
+				<artifactId>rdf4j-rio-rdfxml</artifactId>
+				<version>${rdf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.rdf4j</groupId>
+				<artifactId>rdf4j-rio-turtle</artifactId>
+				<version>${rdf4j.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.ontotext.graphdb</groupId>
 				<artifactId>graphdb-free-runtime</artifactId>
 				<version>${graphdb.version}</version>
