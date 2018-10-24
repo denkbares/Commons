@@ -619,6 +619,23 @@ public class Strings {
 		return true;
 	}
 
+	/**
+	 * Returns the number of unescaped quote characters in this string
+	 *
+	 * @param text string to be examined
+	 * @param quoteChar quote character, for example '"'
+	 * @return the number of unescaped quote characters in this string
+	 */
+	public static int countUnescapedQuotes(String text, char quoteChar) {
+		int count = 0;
+		for (int i = 0; i < text.length(); i++) {
+			if(text.charAt(i) == quoteChar && isUnEscapedQuote(text, i)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
 	public static boolean isUnEscapedQuote(String text, int i, char quoteChar) {
 		return text.length() > i && text.charAt(i) == quoteChar
 				&& getNumberOfDirectlyPrecedingBackSlashes(text, i) % 2 == 0;
