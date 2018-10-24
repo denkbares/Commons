@@ -364,7 +364,21 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 	@Override
 	public RepositoryResult<Namespace> getNamespaces() throws RepositoryException {
-		return connection.getNamespaces();
+		return new RepositoryResult<Namespace>(connection.getNamespaces()) {
+			@Override
+			public boolean hasNext() throws RepositoryException {
+
+				try {
+					return super.hasNext();
+				}
+				catch (NullPointerException e) {
+					// this is a hotfix for a bug in GraphDB 8.7
+					// remove this anonymous class when fixed
+					Log.severe("Exception while checking 'hasNext' for namespace query");
+					return false;
+				}
+			}
+		};
 	}
 
 	@Override
@@ -534,7 +548,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 			catch (NullPointerException e) {
 				// this is a hotfix for a bug in GraphDB 8.7
 				// remove this try/catch when fixed
-				Log.severe("Exception while checking 'hasNext' for tuple query", e);
+				Log.severe("Exception while checking 'hasNext' for tuple query");
 				return false;
 			}
 		}
