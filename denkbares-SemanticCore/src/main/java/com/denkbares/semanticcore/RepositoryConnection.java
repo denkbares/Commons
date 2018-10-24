@@ -26,10 +26,9 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.rdf4j.IsolationLevel;
 import org.eclipse.rdf4j.common.iteration.Iteration;
 import org.eclipse.rdf4j.model.IRI;
-import org.jetbrains.annotations.NotNull;
-import org.eclipse.rdf4j.IsolationLevel;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
@@ -58,6 +57,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.utils.Log;
 
@@ -528,7 +528,15 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 		@Override
 		public boolean hasNext() throws QueryEvaluationException {
-			return tupleQueryResult.hasNext();
+			try {
+				return tupleQueryResult.hasNext();
+			}
+			catch (NullPointerException e) {
+				// this is a hotfix for a bug in GraphDB 8.7
+				// remove this try/catch when fixed
+				Log.severe("Exception while checking 'hasNext' for tuple query", e);
+				return false;
+			}
 		}
 
 		@Override
