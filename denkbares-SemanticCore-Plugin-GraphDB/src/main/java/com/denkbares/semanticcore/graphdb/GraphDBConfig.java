@@ -33,6 +33,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.denkbares.events.EventManager;
+import com.denkbares.semanticcore.RepositoryConfigCreatedEvent;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Streams;
@@ -49,9 +51,15 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 
 	private final String configFile;
 	private final String ruleSet;
+	private final Map<String, String> defaultOverrides = new HashMap<>();
 
 	public GraphDBConfig(String ruleSet) {
 		this(ruleSet, null);
+		EventManager.getInstance().fireEvent(new RepositoryConfigCreatedEvent(this));
+	}
+
+	public void setDefaultOverride(String key, String value) {
+		defaultOverrides.put(key, value);
 	}
 
 	public GraphDBConfig(String ruleSet, String configFile) {
@@ -142,11 +150,21 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		if (overrides == null) {
 			overrides = new HashMap<>();
 		}
-		overrides.putIfAbsent("ruleset", getRuleSet());
+		overrides.putAll(defaultOverrides);
+		overrides.putIfAbsent(OWLIMSailSchema.NAMESPACE + "ruleset", getRuleSet());
+		String overriddenType = overrides.remove(RepositoryConfigSchema.REPOSITORYTYPE.toString());
+		if (overriddenType != null) {
+			Resource implNode = Models.object(graph.filter(repositoryNode, RepositoryConfigSchema.REPOSITORYIMPL, null))
+					.map(v -> (Resource) v)
+					.orElseThrow(() -> new RepositoryConfigException("Unable to retrieve repository impl node"));
+			graph.remove(implNode, RepositoryConfigSchema.REPOSITORYTYPE, null);
+			graph.add(implNode, RepositoryConfigSchema.REPOSITORYTYPE, factory.createLiteral(overriddenType));
+		}
+
 		Resource configNode = Models.objectResource(graph.filter(null, SailRepositorySchema.SAILIMPL, null))
 				.orElseThrow(() -> new RepositoryConfigException("Unable to retrieve config node"));
 		for (Map.Entry<String, String> entry : overrides.entrySet()) {
-			IRI key = factory.createIRI(OWLIMSailSchema.NAMESPACE + entry.getKey());
+			IRI key = factory.createIRI(entry.getKey());
 			Literal value = factory.createLiteral(entry.getValue());
 			graph.remove(configNode, key, null);
 			graph.add(configNode, key, value);
