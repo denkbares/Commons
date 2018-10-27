@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +31,10 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -49,6 +53,7 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.jetbrains.annotations.NotNull;
 
+import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
 import com.denkbares.plugin.Extension;
@@ -253,10 +258,9 @@ public final class SemanticCore {
 	}
 
 	/**
-	 * Releases a previously allocated core. If the core has been released as many times as it has
-	 * been allocated, the underlying repository is shut down and the core is removed from the
-	 * internal SemanticCore caches. You must make sure that for every time allocate is called there
-	 * is exactly one call to release as well.
+	 * Releases a previously allocated core. If the core has been released as many times as it has been allocated, the
+	 * underlying repository is shut down and the core is removed from the internal SemanticCore caches. You must make
+	 * sure that for every time allocate is called there is exactly one call to release as well.
 	 */
 	public void release() {
 		long counter = allocationCounter.decrementAndGet();
@@ -266,9 +270,9 @@ public final class SemanticCore {
 	}
 
 	/**
-	 * Shuts down this semantic core, if it is not allocated. In this case destroys this instance so
-	 * that is should not be used any longer. It is also removed from the internal SemanticCore
-	 * caches. If this instance is allocated at least once, the method does nothing.
+	 * Shuts down this semantic core, if it is not allocated. In this case destroys this instance so that is should not
+	 * be used any longer. It is also removed from the internal SemanticCore caches. If this instance is allocated at
+	 * least once, the method does nothing.
 	 *
 	 * @see #allocate()
 	 * @see #release()
@@ -289,9 +293,8 @@ public final class SemanticCore {
 	}
 
 	/**
-	 * Shuts down this semantic core, independently from any allocation / release state. It destroys
-	 * this instance so that is should not be used any longer. It is also removed from the internal
-	 * SemanticCore caches.
+	 * Shuts down this semantic core, independently from any allocation / release state. It destroys this instance so
+	 * that is should not be used any longer. It is also removed from the internal SemanticCore caches.
 	 *
 	 * @see #allocate()
 	 * @see #release()
@@ -570,8 +573,16 @@ public final class SemanticCore {
 	 */
 	public TupleQueryResult query(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
 		RepositoryConnection connection = getConnection();
-		TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-		return new TupleQueryResult(connection, query.evaluate());
+		try {
+			TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+			return new TupleQueryResult(connection, query.evaluate());
+		}
+		catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
+			// if an exception occurs preparing the result instance, but after the connection has been created,
+			// we have to close the connection manually, otherwise nobody would close
+			connection.close();
+			throw e;
+		}
 	}
 
 	/**
@@ -610,8 +621,7 @@ public final class SemanticCore {
 	/**
 	 * Performs an UPDATE query.
 	 * <p>
-	 * Please be aware that this actually updates the content of the SemanticCore, i.e. adds or
-	 * deletes statements!
+	 * Please be aware that this actually updates the content of the SemanticCore, i.e. adds or deletes statements!
 	 *
 	 * @param queryString the query to update the contents
 	 * @created 09.01.2015
@@ -652,6 +662,38 @@ public final class SemanticCore {
 		RDFWriter rdfWriter = Rio.createWriter(format, out);
 		export(rdfWriter);
 		out.flush();
+	}
+
+	/**
+	 * Executes the sparql query, and dumps the result to the console, as a human-readable ascii formatted table. The
+	 * bound variables are in the title of the table, the column widths are adjusted to the content of each column. URI
+	 * references are abbreviated as the namespace is known to this core.
+	 *
+	 * @param query the sparql query to be executed
+	 */
+	@SuppressWarnings("unused")
+	public void dump(String query) {
+		Matrix<String> matrix = new Matrix<>();
+		try (TupleQueryResult result = query(query).cachedAndClosed(true)) {
+			// prepare headings and column length
+			List<String> names = result.getBindingNames();
+
+			// prepare values and update column lengths
+			int row = 0;
+			while (result.hasNext()) {
+				BindingSet bindings = result.next();
+				for (int col = 0; col < names.size(); col++) {
+					Value value = bindings.getValue(names.get(col));
+					if (value instanceof IRI) value = result.toShortIRI((IRI) value);
+					String text = (value == null) ? "null" : value.stringValue();
+					matrix.set(row, col, text);
+				}
+				row++;
+			}
+
+			// dump the matrix
+			matrix.dumpTable(names);
+		}
 	}
 
 	private static class ConnectionInfo {
