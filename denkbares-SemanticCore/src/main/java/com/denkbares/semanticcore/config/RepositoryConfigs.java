@@ -81,7 +81,6 @@ public class RepositoryConfigs {
 	 */
 	@Nullable
 	public static RepositoryConfig get(String name) {
-		Objects.requireNonNull(name);
 		initExtensions();
 		return cache.values().stream().filter(reasoning -> reasoning.getName().equals(name)).findFirst().orElse(null);
 	}
