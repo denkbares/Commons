@@ -54,10 +54,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.Matrix;
-import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
-import com.denkbares.plugin.Extension;
-import com.denkbares.plugin.PluginManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
@@ -196,22 +193,7 @@ public final class SemanticCore {
 			synchronized (lazyInitializationMutex) {
 				if (!lazyInitializationDone) {
 					initializeRepositoryManagerLazy(tmpFolder);
-					initEventListenerLazy();
 					lazyInitializationDone = true;
-				}
-			}
-		}
-	}
-
-	private static void initEventListenerLazy() {
-		Extension[] extensions = PluginManager.getInstance().getExtensions(
-				"denkbares-SemanticCore-Plugin-ExtensionPoints", "EventListener");
-		for (Extension extension : extensions) {
-			Object listener = extension.getSingleton();
-			if (listener instanceof EventListener) {
-				synchronized (EventManager.getInstance()) {
-					EventManager.getInstance()
-							.registerListener(((EventListener) listener), EventManager.RegistrationType.WEAK);
 				}
 			}
 		}

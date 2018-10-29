@@ -9,6 +9,8 @@ import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.denkbares.events.EventListener;
+import com.denkbares.events.EventManager;
 import com.denkbares.plugin.Extension;
 import com.denkbares.plugin.PluginManager;
 import com.denkbares.utils.Log;
@@ -22,6 +24,9 @@ import com.denkbares.utils.Log;
 public class RepositoryConfigs {
 
 	private static final Map<Class<? extends RepositoryConfig>, RepositoryConfig> cache = new LinkedHashMap<>();
+	public static final String PLUGIN_ID = "denkbares-SemanticCore-Plugin-ExtensionPoints";
+	public static final String POINT_ID_CONFIG = "RepositoryConfig";
+	public static final String POINT_ID_EVENT_LISTENER = "EventListener";
 
 	/**
 	 * Get an instance for the given repository config class. It will be a singleton retrieved from the PluginManger.
@@ -76,23 +81,41 @@ public class RepositoryConfigs {
 	 */
 	@Nullable
 	public static RepositoryConfig get(String name) {
-		Objects.nonNull(null);
+		Objects.requireNonNull(name);
 		initExtensions();
 		return cache.values().stream().filter(reasoning -> reasoning.getName().equals(name)).findFirst().orElse(null);
 	}
 
 	public static void initExtensions() {
 		if (cache.isEmpty()) {
-			Extension[] reasoningExtensions = PluginManager.getInstance()
-					.getExtensions("denkbares-SemanticCore-Plugin-ExtensionPoints",
-							"RepositoryConfig");
-			for (Extension reasoningExtension : reasoningExtensions) {
-				try {
-					RepositoryConfig singleton = (RepositoryConfig) reasoningExtension.getSingleton();
-					cache.put(singleton.getClass(), singleton);
-				}
-				catch (NoClassDefFoundError e) {
-					Log.severe("Extension " + reasoningExtension.getID() + " was listed as a dependency, but not available in the class path. Skipping.");
+			initEventListener();
+			initConfigs();
+		}
+	}
+
+	private static void initConfigs() {
+		Extension[] reasoningExtensions = PluginManager.getInstance()
+				.getExtensions(PLUGIN_ID, POINT_ID_CONFIG);
+		for (Extension reasoningExtension : reasoningExtensions) {
+			try {
+				RepositoryConfig singleton = (RepositoryConfig) reasoningExtension.getSingleton();
+				cache.put(singleton.getClass(), singleton);
+			}
+			catch (NoClassDefFoundError e) {
+				Log.severe("Extension " + reasoningExtension.getID() + " was listed as a dependency, but not available in the class path. Skipping.");
+			}
+		}
+	}
+
+	private static void initEventListener() {
+		Extension[] extensions = PluginManager.getInstance().getExtensions(
+				PLUGIN_ID, POINT_ID_EVENT_LISTENER);
+		for (Extension extension : extensions) {
+			Object listener = extension.getSingleton();
+			if (listener instanceof EventListener) {
+				synchronized (EventManager.getInstance()) {
+					EventManager.getInstance()
+							.registerListener(((EventListener) listener));
 				}
 			}
 		}
