@@ -18,7 +18,6 @@
  */
 package com.denkbares.utils.test;
 
-import java.util.logging.Filter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -73,7 +72,6 @@ public class LogTest {
 
 	@Test
 	public void log() {
-		Log.init(ClassDetection.sun);
 		Log.logger().setLevel(Level.WARNING);
 
 		// check methods for levels logged
@@ -210,16 +208,10 @@ public class LogTest {
 	 * @param args will be ignored
 	 */
 	public static void main(String[] args) {
-		Log.logger().setFilter(new Filter() {
+		Log.logger().setFilter(record -> false);
 
-			@Override
-			public boolean isLoggable(LogRecord record) {
-				return false;
-			}
-		});
-
-		// to enable jut for both
-		measureLogPerformance(false);
+		// to enable jit for both
+		measureLogPerformance(true);
 
 		// measure different stack sizes
 		System.out.println("\nStack size: 1");
@@ -244,7 +236,7 @@ public class LogTest {
 	}
 
 	private static void measureLogPerformance(boolean showResults) {
-		final int TEST_SIZE = 10000000;
+		final int TEST_SIZE = 1000000;
 
 		// classic logging, turned off
 		long start = System.currentTimeMillis();
