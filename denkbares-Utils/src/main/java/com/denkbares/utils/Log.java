@@ -626,7 +626,7 @@ public class Log {
 		String className = source.getClassName(stackLevel + 1);
 		Logger logger = Logger.getLogger(className);
 		if (contextName != null) {
-			message = contextName + " " + message;
+			className = "[" + contextName + "] " + className;
 		}
 		if (logger.isLoggable(level)) {
 			logger.logp(level, className, source.getMethodName(stackLevel + 1), message);
@@ -639,7 +639,7 @@ public class Log {
 		Logger logger = Logger.getLogger(className);
 		String contextName = getContextName();
 		if (contextName != null) {
-			message = contextName + " " + message;
+			className = "[" + contextName + "] " + className;
 		}
 		if (logger.isLoggable(level)) {
 			logger.logp(level, className, source.getMethodName(stackLevel + 1), message, e);
