@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,8 +40,8 @@ import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.utils.Streams;
 
 /**
- * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the
- * SemanticCore and handles its allocation/release well.
+ * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the SemanticCore and
+ * handles its allocation/release well.
  */
 public class TurtleFileEndpoint extends SesameEndpoint {
 	private final String ontologyName;
@@ -55,13 +56,12 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
 	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, File tempFolder) throws IOException {
-		this(sourceFile, reasoning, createOntologyName(sourceFile), tempFolder);
+		this(sourceFile, reasoning, createOntologyName(sourceFile.getPath()), tempFolder);
 	}
 
 	/**
-	 * Creates a new endpoint by loading the turtle file into a newly created semantic core. The
-	 * ontologyName should be unique otherwise a semantic core with that id will be reused, if there
-	 * is any.
+	 * Creates a new endpoint by loading the turtle file into a newly created semantic core. The ontologyName should be
+	 * unique otherwise a semantic core with that id will be reused, if there is any.
 	 *
 	 * @param sourceFile   the turtle file to be loaded
 	 * @param reasoning    the reasoning config to be used by this endpoint
@@ -70,14 +70,26 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
 	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
-		this(Collections.singleton(new InputStreamReader(sourceFile.openStream(), "UTF-8")),
+		this(Collections.singleton(new InputStreamReader(sourceFile.openStream(), StandardCharsets.UTF_8)),
 				reasoning, true, ontologyName, tempFolder);
 	}
 
 	/**
-	 * Creates a new endpoint by loading the turtle stream into a newly created semantic core. The
-	 * ontologyName should be unique otherwise a semantic core with that id will be reused, if there
-	 * is any.
+	 * Creates a new endpoint by loading the turtle stream into a newly created semantic core, or reused core, if there
+	 * is already any for the ontology file.
+	 *
+	 * @param source     turtle file to be loaded
+	 * @param reasoning  the reasoning config to be used by this endpoint
+	 * @param tempFolder the folder to eventually create the repository in
+	 * @throws IOException if the turtle could not be loaded or the repository could not be created
+	 */
+	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, File tempFolder) throws IOException {
+		this(source, reasoning, createOntologyName(source.toRealPath().toString()), tempFolder);
+	}
+
+	/**
+	 * Creates a new endpoint by loading the turtle stream into a newly created semantic core. The ontologyName should
+	 * be unique otherwise a semantic core with that id will be reused, if there is any.
 	 *
 	 * @param source       turtle file to be loaded
 	 * @param reasoning    the reasoning config to be used by this endpoint
@@ -86,14 +98,13 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
 	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
-		this(Collections.singleton(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), "UTF-8"))),
+		this(Collections.singleton(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8))),
 				reasoning, true, ontologyName, tempFolder);
 	}
 
 	/**
-	 * Creates a new endpoint by loading the turtle file into a newly created semantic core. The
-	 * ontologyName should be unique otherwise a semantic core with that id will be reused, if there
-	 * is any.
+	 * Creates a new endpoint by loading the turtle file into a newly created semantic core. The ontologyName should be
+	 * unique otherwise a semantic core with that id will be reused, if there is any.
 	 *
 	 * @param source       streamed turtle content to be loaded
 	 * @param reasoning    the reasoning config to be used by this endpoint
@@ -106,9 +117,8 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	}
 
 	/**
-	 * Creates a new endpoint by loading the turtle stream into a newly created semantic core. The
-	 * ontologyName should be unique otherwise a semantic core with that id will be reused, if there
-	 * is any.
+	 * Creates a new endpoint by loading the turtle stream into a newly created semantic core. The ontologyName should
+	 * be unique otherwise a semantic core with that id will be reused, if there is any.
 	 *
 	 * @param sources      streamed turtle contents to be loaded sequentially
 	 * @param reasoning    the reasoning config to be used by this endpoint
@@ -141,9 +151,8 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	}
 
 	/**
-	 * Creates a new endpoint by loading the turtle files into a newly created semantic core. The
-	 * ontologyName should be unique otherwise a semantic core with that id will be reused, if there
-	 * is any.
+	 * Creates a new endpoint by loading the turtle files into a newly created semantic core. The ontologyName should be
+	 * unique otherwise a semantic core with that id will be reused, if there is any.
 	 *
 	 * @param sources      turtle files to be loaded
 	 * @param reasoning    the reasoning config to be used by this endpoint
@@ -154,15 +163,15 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	public static TurtleFileEndpoint fromPaths(Collection<Path> sources, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
 		Collection<Reader> streams = new ArrayList<>(sources.size());
 		for (Path source : sources) {
-			streams.add(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), "UTF-8")));
+			streams.add(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8)));
 		}
 		return new TurtleFileEndpoint(streams, reasoning, true, ontologyName, tempFolder);
 	}
 
-	private static String createOntologyName(URL sourceFile) {
-		return sourceFile.getPath().replaceFirst("^.*/[^/]+]", "")
+	private static String createOntologyName(String sourcePath) {
+		return sourcePath.replaceFirst("^.*/[^/]+]", "")
 				.replaceAll("[^\\w\\d_\\-.()=+#]+", "-") + "-#" +
-				String.format("%08x", (0xFFFFFFFFL & sourceFile.hashCode())).toUpperCase();
+				String.format("%08x", (0xFFFFFFFFL & sourcePath.hashCode())).toUpperCase();
 	}
 
 	public String getOntologyName() {
