@@ -338,9 +338,4 @@ public class Identifier implements Comparable<Identifier> {
 		return this.pathElements.length;
 	}
 
-	public static Identifier matchCompatibilityForm(Identifier termIdentifier) {
-		return (termIdentifier.countPathElements() == 2 && termIdentifier.getPathElementAt(0).isEmpty())
-				? new Identifier(termIdentifier.isCaseSensitive(), "lns", termIdentifier.getLastPathElement())
-				: termIdentifier;
-	}
 }
