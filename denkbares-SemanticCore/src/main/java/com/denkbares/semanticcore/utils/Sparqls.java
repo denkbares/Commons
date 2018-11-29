@@ -21,10 +21,13 @@ package com.denkbares.semanticcore.utils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.Binding;
@@ -119,9 +122,9 @@ public class Sparqls {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		if (value == null) return null;
-		if (binding instanceof Literal) {
+		if (value instanceof Literal) {
 			try {
-				return ((Literal) binding).floatValue();
+				return ((Literal) value).floatValue();
 			}
 			catch (NumberFormatException ignore) {
 			}
@@ -133,6 +136,31 @@ public class Sparqls {
 			Log.warning("cannot parse binding of '" + binding + "' as float");
 			return null;
 		}
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as a Date if
+	 * it is a date literal.
+	 *
+	 * @param binding the value binding
+	 * @return the LocalDate or null
+	 */
+	public static LocalDate asDate(Binding binding) {
+		if (binding == null) return null;
+		Value value = binding.getValue();
+		if (value == null) return null;
+		if (value instanceof Literal) {
+			final String valueString = ((Literal) value).getLabel();
+			final IRI datatype = ((Literal) value).getDatatype();
+			if("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
+				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+			} else {
+				// we still try to parse...
+				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+			}
+
+		}
+		return null;
 	}
 
 	/**
@@ -188,9 +216,9 @@ public class Sparqls {
 		if (binding == null) return null;
 		Value value = binding.getValue();
 		if (value == null) return null;
-		if (binding instanceof Literal) {
+		if (value instanceof Literal) {
 			try {
-				return ((Literal) binding).intValue();
+				return ((Literal) value).intValue();
 			}
 			catch (NumberFormatException ignore) {
 			}
