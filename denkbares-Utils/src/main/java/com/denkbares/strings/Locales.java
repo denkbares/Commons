@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
@@ -126,6 +127,18 @@ public class Locales {
 		if (preferred == null) return Locale.ROOT;
 		// otherwise select best, at least with same language
 		return findBestLocale(preferred, available, 100, Locale.ROOT);
+	}
+
+	/**
+	 * Returns true if the specified locales are both null, or share the same language.
+	 *
+	 * @param locale1 the first locale to compare the language
+	 * @param locale2 the second locale to compare the language
+	 * @return if the languages of the two locales are equal
+	 */
+	public static boolean hasSameLanguage(Locale locale1, Locale locale2) {
+		return locale1 == locale2 ||
+				(locale1 != null && locale2 != null && Objects.equals(locale1.getLanguage(), locale2.getLanguage()));
 	}
 
 	private static Locale findBestLocale(Locale preferred, Collection<Locale> available, int minScore, Locale defaultLocale) {
