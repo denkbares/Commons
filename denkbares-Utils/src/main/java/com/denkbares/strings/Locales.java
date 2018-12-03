@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -384,5 +385,18 @@ public class Locales {
 	 */
 	public static boolean isEmpty(Locale locale) {
 		return locale == null || Strings.isBlank(locale.getLanguage());
+	}
+
+	/**
+	 * Searches the best matching language within the specified map, and returns the associated value. If the map is
+	 * empty, null is returned. If the map is not empty, it is granted that any of the map's values is returned (which
+	 * may be null, if there are any null values in the map).
+	 *
+	 * @param map      the map of possible values
+	 * @param language the preferred language to get the value for
+	 * @return the value of the best matching language
+	 */
+	public static <E> E getBestValue(Map<Locale, ? extends E> map, Locale language) {
+		return map.get(findBestLocale(language, map.keySet()));
 	}
 }
