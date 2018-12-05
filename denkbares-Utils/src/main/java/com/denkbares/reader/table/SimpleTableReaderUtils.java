@@ -96,7 +96,7 @@ public class SimpleTableReaderUtils {
 	}
 
 	public static List<TableLine> getData(File txt, String encoding, TableLineFactory factory, boolean skipFirstLine) {
-		return getData(txt, encoding, factory, skipFirstLine, "\\r?\\n");
+		return getData(txt, encoding, factory, skipFirstLine, "(\\r\\n|\\r|\\n)");
 	}
 
 	/**
