@@ -106,6 +106,19 @@ public class InitUtils {
 			}
 		}
 
+		// if still not initialized: use dependency file, running in IDE debugger's war server
+		if (rootDirectory == null) {
+			File classpathFile = new File("WEB-INF/classes/output.txt");
+			if (!classpathFile.exists()) {
+				classpathFile = new File("WEB-INF/dependencies/output.txt");
+			}
+			if (classpathFile.exists()) {
+				Log.info("start from debugger detected: dependencies file used");
+				InitPluginManager.init(classpathFile, pluginFilterPatterns);
+				rootDirectory = new File(".");
+			}
+		}
+
 		// Find web app
 		if (rootDirectory == null) {
 			File classFile = getClassFile();
@@ -128,19 +141,6 @@ public class InitUtils {
 			File source = new File("src/main/resources/webapp");
 			if (source.exists()) {
 				copyDir(source, new File("target/webapp/"));
-			}
-		}
-
-		// if still not initialized: use dependency file, running in IDE debugger's war server
-		if (rootDirectory == null) {
-			File classpathFile = new File("WEB-INF/classes/output.txt");
-			if (!classpathFile.exists()) {
-				classpathFile = new File("WEB-INF/dependencies/output.txt");
-			}
-			if (classpathFile.exists()) {
-				Log.info("start from debugger detected: dependencies file used");
-				InitPluginManager.init(classpathFile, pluginFilterPatterns);
-				rootDirectory = new File(".");
 			}
 		}
 
