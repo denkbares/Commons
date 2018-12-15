@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2014 denkbares GmbH
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -26,10 +26,9 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class provides an implementation for a {@link MultiMap} that only uses a single hash map for
- * the underlying representation. Therefore accessing the values by the keys is efficient (O(1)),
- * but accessing the keys for values or the set of values or removing a value for all keys is O(n)
- * in the worst case:
+ * This class provides an implementation for a {@link MultiMap} that only uses a single hash map for the underlying
+ * representation. Therefore accessing the values by the keys is efficient (O(1)), but accessing the keys for values or
+ * the set of values or removing a value for all keys is O(n) in the worst case:
  * <p/>
  * <ul> <li>{@link #containsValue(Object)} <li>{@link #removeValue(Object)} <li>{@link
  * #getKeys(Object)} <li> {@link #valueSet()} </ul>
@@ -57,17 +56,26 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
 	}
 
 	/**
-	 * Creates a new N2MMap using the specified collection factories to manage the keys and values
-	 * to be added. The {@link MultiMaps.CollectionFactory} can be accessed by the {@link MultiMaps} class
-	 * through some utility methods provided.
+	 * Creates a new N2MMap using the specified collection factories to manage the keys and values to be added. The
+	 * {@link MultiMaps.CollectionFactory} can be accessed by the {@link MultiMaps} class through some utility methods
+	 * provided.
 	 *
-	 * @param keyFactory the collection factory used to manage the keys
+	 * @param keyFactory   the collection factory used to manage the keys
 	 * @param valueFactory the collection factory used to manage the values
 	 */
 	public DefaultMultiMap(MultiMaps.CollectionFactory<K> keyFactory, MultiMaps.CollectionFactory<V> valueFactory) {
 		this.keyFactory = keyFactory;
 		this.valueFactory = valueFactory;
 		this.k2v = keyFactory.createMap();
+	}
+
+	/**
+	 * Convenience constructor method that creates a multi-map with keys and values are linked hash sets.
+	 *
+	 * @return a newly created, empty multi map that preserves the order of their elements
+	 */
+	public static <K, V> DefaultMultiMap<K, V> newLinked() {
+		return new DefaultMultiMap<>(MultiMaps.linkedFactory(), MultiMaps.linkedFactory());
 	}
 
 	@Override

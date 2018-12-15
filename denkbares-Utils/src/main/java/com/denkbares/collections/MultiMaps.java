@@ -1009,12 +1009,12 @@ public class MultiMaps {
 	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
 	 * are extracted by the specified function, and the values are the unmodified values of the stream.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
-	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
-	 * elements, and whose corresponding values are the input elements which map to the associated key under the
-	 * classification function.
+	 * The classification function maps elements to some key type {@code K}. The collector produces a {@code MultiMap<K,
+	 * V>} whose keys are the values resulting from applying the classification function to the input elements, and
+	 * whose corresponding values are the input elements which map to the associated key under the classification
+	 * function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
 	 * objects returned.
 	 *
 	 * @param <V>          the type of the input elements
@@ -1024,10 +1024,34 @@ public class MultiMaps {
 	 * @see java.util.stream.Collectors#groupingBy(Function)
 	 */
 	public static <K, V> Collector<V, ?, MultiMap<K, V>> toMultiMap(Function<V, K> keyExtractor) {
+		return toMultiMap(keyExtractor, DefaultMultiMap::new);
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type {@code V}, grouping
+	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
+	 * are extracted by the specified function, and the values are the unmodified values of the stream.
+	 * <p>
+	 * The classification function maps elements to some key type {@code K}. The collector produces a {@code MultiMap<K,
+	 * V>} whose keys are the values resulting from applying the classification function to the input elements, and
+	 * whose corresponding values are the input elements which map to the associated key under the classification
+	 * function.
+	 * <p>
+	 * There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * objects returned.
+	 *
+	 * @param <V>          the type of the input elements
+	 * @param <K>          the type of the keys
+	 * @param keyExtractor the classifier function mapping input elements to keys
+	 * @param supplier     the factory method to supply the map to put the items into
+	 * @return a {@code Collector} implementing the group-by operation
+	 * @see java.util.stream.Collectors#groupingBy(Function)
+	 */
+	public static <K, V> Collector<V, ?, MultiMap<K, V>> toMultiMap(Function<V, K> keyExtractor, Supplier<MultiMap<K, V>> supplier) {
 		return new Collector<V, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override
 			public Supplier<MultiMap<K, V>> supplier() {
-				return DefaultMultiMap::new;
+				return supplier;
 			}
 
 			@Override
@@ -1061,12 +1085,12 @@ public class MultiMaps {
 	 * are extracted by the specified keyExtractor function, and the values are the values of the stream mapped through
 	 * the specified valueExtractor function.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
-	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
-	 * elements, and whose corresponding values are the mapped input elements which map to the associated key under the
-	 * classification function.
+	 * The classification function maps elements to some key type {@code K}. The collector produces a {@code MultiMap<K,
+	 * V>} whose keys are the values resulting from applying the classification function to the input elements, and
+	 * whose corresponding values are the mapped input elements which map to the associated key under the classification
+	 * function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
 	 * objects returned.
 	 *
 	 * @param <V>          the type of the input elements
@@ -1084,24 +1108,47 @@ public class MultiMaps {
 	 * are extracted by the specified keyExtractor function, and the values are the values of the stream mapped through
 	 * the specified valueExtractor function.
 	 * <p>
-	 * <p>The classification function maps elements to some key type {@code K}. The collector produces a {@code
-	 * MultiMap<K, V>} whose keys are the values resulting from applying the classification function to the input
-	 * elements, and whose corresponding values are the mapped input elements which map to the associated key under the
-	 * classification function.
+	 * The classification function maps elements to some key type {@code K}. The collector produces a {@code MultiMap<K,
+	 * V>} whose keys are the values resulting from applying the classification function to the input elements, and
+	 * whose corresponding values are the mapped input elements which map to the associated key under the classification
+	 * function.
 	 * <p>
-	 * <p>There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
+	 * There are no guarantees on the type, mutability, serializability, or thread-safety of the {@code MultiMap}
 	 * objects returned.
 	 *
-	 * @param <V>          the type of the input elements
-	 * @param <K>          the type of the keys
-	 * @param keyExtractor the classifier function mapping input elements to keys
+	 * @param <V>            the type of the input elements
+	 * @param <K>            the type of the keys
+	 * @param keyExtractor   the classifier function mapping input elements to keys
+	 * @param valueExtractor the classifier function mapping input elements to values
 	 * @return a {@code Collector} implementing the group-by operation
 	 */
 	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor, MultiMaps.CollectionFactory<K> keyFactory, MultiMaps.CollectionFactory<V> valueFactory) {
+		return toMultiMap(keyExtractor, valueExtractor, () -> new DefaultMultiMap<>(keyFactory, valueFactory));
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a "group by" operation on input elements of type {@code V}, grouping
+	 * elements according to a classification function, and returning the results in a {@link MultiMap}, where the keys
+	 * are extracted by the specified keyExtractor function, and the values are the values of the stream mapped through
+	 * the specified valueExtractor function.
+	 * <p>
+	 * The classification function maps elements to some key type {@code K}. The collector produces a {@code MultiMap<K,
+	 * V>} whose keys are the values resulting from applying the classification function to the input elements, and
+	 * whose corresponding values are the mapped input elements which map to the associated key under the classification
+	 * function.
+	 *
+	 * @param <V>            the type of the input elements
+	 * @param <K>            the type of the keys
+	 * @param keyExtractor   the classifier function mapping input elements to keys
+	 * @param valueExtractor the classifier function mapping input elements to values
+	 * @param supplier       the factory method to supply the map to put the items into
+	 * @return a {@code Collector} implementing the group-by operation
+	 */
+	public static <E, K, V> Collector<E, ?, MultiMap<K, V>> toMultiMap(Function<E, K> keyExtractor, Function<E, V> valueExtractor, Supplier<MultiMap<K, V>> supplier) {
 		return new Collector<E, MultiMap<K, V>, MultiMap<K, V>>() {
 			@Override
 			public Supplier<MultiMap<K, V>> supplier() {
-				return () -> new DefaultMultiMap<>(keyFactory, valueFactory);
+				return supplier;
 			}
 
 			@Override
