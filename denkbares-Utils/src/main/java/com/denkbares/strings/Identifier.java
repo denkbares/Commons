@@ -230,18 +230,29 @@ public class Identifier implements Comparable<Identifier> {
 
 	/**
 	 * Returns a new {@link Identifier} consisting of the identifier elements of the given {@link Identifier} appended
-	 * to the identifier elements of this {@link Identifier}.
+	 * to the identifier elements of this {@link Identifier}. The case sensitivity flag of this instance is preserved,
+	 * regardless of the case sensitivity of the specified termIdentifier.
 	 *
 	 * @param termIdentifier the {@link Identifier} to append
 	 * @created 23.04.2012
 	 */
 	public Identifier append(Identifier termIdentifier) {
-		int newLength = this.pathElements.length + termIdentifier.pathElements.length;
+		return append(termIdentifier.pathElements);
+	}
+
+	/**
+	 * Returns a new {@link Identifier} consisting of the identifier elements of the given pathElements appended to the
+	 * identifier elements of this {@link Identifier}. The case sensitivity flag of this instance is preserved.
+	 *
+	 * @param pathElements the path elements to append
+	 * @created 23.04.2012
+	 */
+	public Identifier append(String... pathElements) {
+		int newLength = this.pathElements.length + pathElements.length;
 		String[] newIdentifierElements = new String[newLength];
 		System.arraycopy(this.pathElements, 0, newIdentifierElements, 0, this.pathElements.length);
-		System.arraycopy(termIdentifier.pathElements, 0, newIdentifierElements,
-				this.pathElements.length, termIdentifier.pathElements.length);
-		return new Identifier(newIdentifierElements);
+		System.arraycopy(pathElements, 0, newIdentifierElements, this.pathElements.length, pathElements.length);
+		return new Identifier(this.caseSensitive, newIdentifierElements);
 	}
 
 	/**
@@ -337,5 +348,4 @@ public class Identifier implements Comparable<Identifier> {
 	public int countPathElements() {
 		return this.pathElements.length;
 	}
-
 }
