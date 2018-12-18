@@ -2319,4 +2319,29 @@ public class Strings {
 		if (text.length() >= targetLength) return text;
 		return nTimes(fillChar, targetLength - text.length()) + text;
 	}
+
+	/**
+	 * Returns a clean string which can be parsed as a decimal number. Removes all irregular dots and commas without
+	 * losing the decimal part.
+	 *
+	 * @param s the String which should be cleaned
+	 * @return the cleaned String, which could be parsed as decimal
+	 */
+	public static String cleanNumeral(String s) {
+		if (s == null || s.length() < 4) {
+			return s;
+		}
+		int commaIndex = s.length() - 3;
+		String comma = String.valueOf(s.charAt(commaIndex));
+		String decimal = "";
+		if (Strings.isNumeral(comma)) {
+			commaIndex = s.length();
+		}
+		else {
+			decimal = "." + s.substring(commaIndex + 1);
+		}
+		String integer = s.substring(0, commaIndex);
+		String integerCleaned = integer.replaceAll("\\.|\\,", "");
+		return integerCleaned + decimal;
+	}
 }

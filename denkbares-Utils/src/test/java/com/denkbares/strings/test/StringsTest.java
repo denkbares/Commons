@@ -429,4 +429,22 @@ public class StringsTest {
 		assertEquals(4, stringFragment.length());
 		assertEquals("aTest", stringFragment.getFatherString());
 	}
+
+	@Test
+	public void cleanNumeralTest(){
+		String s = Strings.cleanNumeral("1.012,12");
+		assertEquals("1012.12", s);
+
+		String s1 = Strings.cleanNumeral("1,012,12");
+		assertEquals("1012.12", s1);
+
+		String s2 = Strings.cleanNumeral("1.012.12");
+		assertEquals("1012.12", s2);
+
+		String s3 = Strings.cleanNumeral("101.212");
+		assertEquals("101212", s3);
+
+		String s4 = Strings.cleanNumeral("101,212");
+		assertEquals("101212", s4);
+	}
 }
