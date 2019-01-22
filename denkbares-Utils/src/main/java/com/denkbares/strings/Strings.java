@@ -336,8 +336,11 @@ public class Strings {
 		return indexOf(text, 0, flags, strings);
 	}
 
-	@MagicConstant(flags={UNQUOTED, SKIP_COMMENTS, LAST_INDEX, CASE_INSENSITIVE, FIRST_IN_LINE, UNBRACED})
-	@interface IndexOfFlags {}
+	/**
+	 * When checking for unquoted indices, this flag will consider single quotes instead of normal double quotes as the
+	 * quote character.
+	 */
+	public static final int SINGLE_QUOTED = 0x40;
 
 	/**
 	 * Flag to be used with {@link Strings#indexOf(String, int, String...)}<p> Using this flag will skip quoted
@@ -378,10 +381,6 @@ public class Strings {
 	 */
 	public static final int UNBRACED = 0x20;
 
-	private static boolean has(int flags, int flag) {
-		return (flags & flag) != 0;
-	}
-
 	/**
 	 * Finds the index of the first occurrence of one of the given strings in the given text after the given offset. Use
 	 * the flags for more options. If text is null it is treated as an empty string.
@@ -401,6 +400,7 @@ public class Strings {
 		boolean caseInsensitive = has(flags, CASE_INSENSITIVE);
 		boolean firstInLine = has(flags, FIRST_IN_LINE);
 		boolean unbraced = has(flags, UNBRACED);
+		char quoteChar = has(flags, SINGLE_QUOTED) ? '\'' : '"';
 
 		boolean quoted = false;
 		boolean comment = false;
@@ -440,7 +440,14 @@ public class Strings {
 			// if we only want indexes outside quotes, check quote status
 			if (unquoted) {
 				// toggle quote state
-				if (isUnEscapedQuote(text, i)) {
+				if (isUnEscapedQuote(text, i, quoteChar)) {
+
+					// special case, we look for quotes!
+					if (i >= offset && stringsContainChar(strings, quoteChar)) {
+						return i;
+					}
+
+					// set quoted status
 					quoted = !quoted;
 				}
 				// ignore indexes in quotes, also ignore comment start and braces
@@ -493,6 +500,32 @@ public class Strings {
 		return lastIndex;
 	}
 
+	private static boolean has(int flags, int flag) {
+		return (flags & flag) != 0;
+	}
+
+	private static boolean stringsContainChar(String[] strings, char quoteChar) {
+		for (String string : strings) {
+			if (string.length() == 1 && string.equals(quoteChar + "")) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns whether the specified {@link String} is null or only consists of whitespaces.
+	 * <p>
+	 * The method returns as follows: <ul> <li>Strings.isBlank(null): true <li>Strings.isBlank(""): true
+	 * <li>Strings.isBlank(" "): true <li>Strings.isBlank("\n\r"): true <li>Strings.isBlank(" d3web "): false </ul>
+	 *
+	 * @param text the string to be checked
+	 * @return <code>true</code> iff the string has only whitespace character or is empty or null
+	 */
+	@Contract("null -> true")
+	public static boolean isBlank(String text) {
+		return text == null || PATTERN_BLANK.matcher(text).matches();
+		// matches against "[\\s\\xA0]*"
+	}
+
 	/**
 	 * Returns whether the specified {@link String} has at least one non-whitespace.
 	 * <p>
@@ -508,19 +541,20 @@ public class Strings {
 	}
 
 	/**
-	 * Returns whether the specified {@link String} is null or only consists of whitespaces.
-	 * <p>
-	 * The method returns as follows: <ul> <li>Strings.isBlank(null): true <li>Strings.isBlank(""): true
-	 * <li>Strings.isBlank(" "): true <li>Strings.isBlank("\n\r"): true <li>Strings.isBlank(" d3web "): false </ul>
+	 * Returns the number of unescaped quote characters in this string
 	 *
-	 * @param text the string to be checked
-	 * @return <code>true</code> iff the string has only whitespace character or is empty or null
+	 * @param text      string to be examined
+	 * @param quoteChar quote character, for example '"'
+	 * @return the number of unescaped quote characters in this string
 	 */
-	@Contract("null -> true")
-	public static boolean isBlank(String text) {
-		if (text == null) return true;
-		// matches against "[\\s\\xA0]*"
-		return PATTERN_BLANK.matcher(text).matches();
+	public static int countUnescapedQuotes(String text, char quoteChar) {
+		int count = 0;
+		for (int i = 0; i < text.length(); i++) {
+			if (text.charAt(i) == quoteChar && isUnEscapedQuote(text, i)) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	/**
@@ -619,21 +653,8 @@ public class Strings {
 		return true;
 	}
 
-	/**
-	 * Returns the number of unescaped quote characters in this string
-	 *
-	 * @param text string to be examined
-	 * @param quoteChar quote character, for example '"'
-	 * @return the number of unescaped quote characters in this string
-	 */
-	public static int countUnescapedQuotes(String text, char quoteChar) {
-		int count = 0;
-		for (int i = 0; i < text.length(); i++) {
-			if(text.charAt(i) == quoteChar && isUnEscapedQuote(text, i)) {
-				count++;
-			}
-		}
-		return count;
+	@MagicConstant(flags = { UNQUOTED, SKIP_COMMENTS, LAST_INDEX, CASE_INSENSITIVE, FIRST_IN_LINE, UNBRACED, SINGLE_QUOTED })
+	@interface IndexOfFlags {
 	}
 
 	public static boolean isUnEscapedQuote(String text, int i, char quoteChar) {

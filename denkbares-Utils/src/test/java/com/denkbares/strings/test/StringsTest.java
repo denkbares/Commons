@@ -256,6 +256,21 @@ public class StringsTest {
 	}
 
 	@Test
+	public void indexOfQuotes() {
+		assertEquals(0, Strings.indexOf("\"test\"", Strings.UNQUOTED, "\""));
+		assertEquals(5, Strings.indexOf("\"test\"", 1, Strings.UNQUOTED, "\""));
+		assertEquals(7, Strings.indexOf("\"test\\\"\"", 1, Strings.UNQUOTED, "\""));
+		assertEquals(7, Strings.indexOf("\"test\\\"\"", 6, Strings.UNQUOTED, "\""));
+
+		int singleQuoteUnQuoted = Strings.UNQUOTED + Strings.SINGLE_QUOTED;
+		assertEquals(-1, Strings.indexOf("\"test\"", singleQuoteUnQuoted, "'"));
+		assertEquals(0, Strings.indexOf("'test'", singleQuoteUnQuoted, "'"));
+		assertEquals(5, Strings.indexOf("'test'", 1, singleQuoteUnQuoted, "'"));
+		assertEquals(7, Strings.indexOf("'test\\''", 1, singleQuoteUnQuoted, "'"));
+		assertEquals(7, Strings.indexOf("'test\\''", 6, singleQuoteUnQuoted, "'"));
+	}
+
+	@Test
 	public void indexOf() {
 		assertEquals(-1, Strings.indexOf("", "test"));
 		assertEquals(0, Strings.indexOf("test", "test"));
@@ -431,7 +446,7 @@ public class StringsTest {
 	}
 
 	@Test
-	public void cleanNumeralTest(){
+	public void cleanNumeralTest() {
 		String s = Strings.cleanNumeral("1.012,12");
 		assertEquals("1012.12", s);
 
