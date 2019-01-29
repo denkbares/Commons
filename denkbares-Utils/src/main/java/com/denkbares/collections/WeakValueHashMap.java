@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Implementation of a Map that will remove entries when the value in the map has been cleaned from garbage collection –
  * in contrast to WeakHashMap, which will remove the entries if the key is garbage collected. You should not use this
- * implementation for caching, only for canonial mapping, beacuse weak references are removed very frequently.
+ * implementation for caching, only for canonial mapping, because weak references are removed very frequently.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 15.12.14.
