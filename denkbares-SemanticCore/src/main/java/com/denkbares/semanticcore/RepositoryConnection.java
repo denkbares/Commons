@@ -121,6 +121,11 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	@Override
+	public com.denkbares.semanticcore.TupleQuery prepareTupleQuery(String query) throws RepositoryException, MalformedQueryException {
+		return new com.denkbares.semanticcore.TupleQuery(new CounterTupleQuery(connection.prepareTupleQuery(query)));
+	}
+
+	@Override
 	public com.denkbares.semanticcore.TupleQuery prepareTupleQuery(QueryLanguage ql, String query) throws RepositoryException, MalformedQueryException {
 		return new com.denkbares.semanticcore.TupleQuery(new CounterTupleQuery(connection.prepareTupleQuery(ql, query)));
 	}
