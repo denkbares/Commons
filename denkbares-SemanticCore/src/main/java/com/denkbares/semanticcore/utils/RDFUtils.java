@@ -24,10 +24,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.jetbrains.annotations.NotNull;
 
+import com.denkbares.semanticcore.RepositoryConnection;
+import com.denkbares.semanticcore.TupleQuery;
 import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
@@ -66,5 +71,38 @@ public class RDFUtils {
 			Log.severe("Exception while getting classes.", e);
 		}
 		return resultCollection;
+	}
+
+	/**
+	 * Returns all instance of the given classes.
+	 *
+	 * @param core repository to scan for instances
+	 * @param uris classes that instances are detected of
+	 * @return all instances of all the given classes
+	 */
+	public static Collection<IRI> getInstances(RepositoryConnection core, List<URI> uris) {
+		String query = createQueryForGetInstances(uris);
+		List<IRI> resultCollection = new ArrayList<>();
+		TupleQuery tupleQuery = core.prepareTupleQuery(query);
+		com.denkbares.semanticcore.TupleQueryResult result = tupleQuery.evaluate();
+		while (result.hasNext()) {
+			BindingSet row = result.next();
+			Value instanceNode = row.getValue("instance");
+			IRI uri = (IRI) instanceNode;
+			resultCollection.add(uri);
+		}
+		return resultCollection;
+	}
+
+	@NotNull
+	public static String createQueryForGetInstances(List<URI> uris) {
+		String query = "SELECT ?instance WHERE { " +
+				"{?instance rdf:type <" + uris.get(0) + "> .}";
+		for (int i = 1; i < uris.size(); i++) {
+			query += "UNION ";
+			query += "{?instance rdf:type <" + uris.get(i) + "> .}";
+		}
+		query += "}";
+		return query;
 	}
 }

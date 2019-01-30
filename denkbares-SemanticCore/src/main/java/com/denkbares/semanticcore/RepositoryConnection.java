@@ -146,6 +146,11 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	@Override
+	public BooleanQuery prepareBooleanQuery(String query) throws RepositoryException, MalformedQueryException {
+		return connection.prepareBooleanQuery(query);
+	}
+
+	@Override
 	public BooleanQuery prepareBooleanQuery(QueryLanguage ql, String query) throws RepositoryException, MalformedQueryException {
 		return connection.prepareBooleanQuery(ql, query);
 	}
