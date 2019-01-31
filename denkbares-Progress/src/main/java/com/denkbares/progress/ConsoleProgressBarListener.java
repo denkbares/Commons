@@ -18,6 +18,8 @@
  */
 package com.denkbares.progress;
 
+import java.util.Locale;
+
 /**
  * A simple ProgressListener that prints the progress to the console
  *
@@ -58,7 +60,7 @@ public class ConsoleProgressBarListener implements ProgressListener {
 			System.out.print(i <= barSize ? "=" : " ");
 		}
 		System.out.print("| ");
-		System.out.format("%3.1f%% ", this.percent * 100);
+		System.out.format(Locale.ENGLISH, "%5.1f%% ", this.percent * 100);
 		if (message != null) System.out.print(message);
 		if (this.percent >= 1f) {
 			if (message == null || message.isEmpty()) System.out.print("done");
