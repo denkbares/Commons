@@ -12,6 +12,7 @@
 		<denkbares.version>${project.version}</denkbares.version>
 		<graphdb.version>8.7.2</graphdb.version>
 		<rdf4j.version>2.3.2</rdf4j.version>
+		<d3web.version>12.1-SNAPSHOT</d3web.version>
 	</properties>
 
 	<modules>
@@ -208,6 +209,11 @@
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-csv</artifactId>
+				<version>1.4</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.denkbares</groupId>
@@ -228,6 +234,11 @@
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-SemanticCore-Plugin-ExtensionPoints</artifactId>
 				<version>${denkbares.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniwue.d3web</groupId>
+				<artifactId>d3web-Plugin-TestingFramework</artifactId>
+				<version>${d3web.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
