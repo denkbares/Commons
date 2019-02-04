@@ -85,11 +85,8 @@ public final class SemanticCore {
 	private final AtomicLong allocationCounter = new AtomicLong(0);
 	private final Set<ConnectionInfo> connections = new HashSet<>();
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
-	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor(r -> {
-		Thread thread = new Thread("SemanticCore-Connection-Daemon");
-		thread.setDaemon(true);
-		return thread;
-	});
+
+	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor();
 
 	public static SemanticCore getInstance(String key) {
 		return instances.get(key);
@@ -202,28 +199,31 @@ public final class SemanticCore {
 	private void initConnectionDaemon() {
 		// checks every 2 min for open connections and warns about them...
 		// noinspection CodeBlock2Expr
-		daemon.scheduleAtFixedRate(() -> {
+		daemon.scheduleWithFixedDelay(() -> {
 			synchronized (connectionsMutex) {
-				connections.forEach(connectionInfo -> {
-					if (connectionInfo.stopWatch.getTime() < THRESHOLD_TIME) return;
+				connections.removeIf(connectionInfo -> {
 					try {
-						if (connectionInfo.connection.isOpen()) {
-							Log.warning("There is an connection that is open since "
-									+ connectionInfo.stopWatch.getDisplay()
-									+ ". If these messages continue, it might be an indication that something "
-									+ "went wrong in the code.\n"
-									+ Strings.concat("\n\t", connectionInfo.stackTrace));
+						if (connectionInfo.connection.isOpen()){
+							if(connectionInfo.stopWatch.getTime() > THRESHOLD_TIME) {
+								Log.warning("There is an connection that is open since "
+										+ connectionInfo.stopWatch.getDisplay()
+										+ ". If these messages continue, it might be an indication that something "
+										+ "went wrong in the code.\n"
+										+ Strings.concat("\n\t", connectionInfo.stackTrace));
+							}
+							return false;
 						}
 						else {
-							connections.remove(connectionInfo);
+							return true; // remove connection if closed
 						}
 					}
 					catch (RepositoryException e) {
 						Log.severe("Exception while checking connection status", e);
 					}
+					return false;
 				});
 			}
-		}, 0, 120, TimeUnit.SECONDS);
+		}, 0, THRESHOLD_TIME, TimeUnit.MILLISECONDS);
 	}
 
 	public String getRepositoryId() {
