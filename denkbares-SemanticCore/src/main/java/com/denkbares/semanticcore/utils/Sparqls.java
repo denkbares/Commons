@@ -24,8 +24,11 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -33,6 +36,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.collections.MultiMap;
@@ -152,13 +156,13 @@ public class Sparqls {
 		if (value instanceof Literal) {
 			final String valueString = ((Literal) value).getLabel();
 			final IRI datatype = ((Literal) value).getDatatype();
-			if("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
+			if ("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
 				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
-			} else {
+			}
+			else {
 				// we still try to parse...
 				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
 			}
-
 		}
 		return null;
 	}
@@ -447,5 +451,22 @@ public class Sparqls {
 	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
 		return toSet(queryResult,
 				b -> valueExtractor.apply(b.getBinding(variable)));
+	}
+
+	/**
+	 * Iterates the complete query result and collects the binding of the specified variable name. The variable is
+	 * expected to contain a literal and the map will contain the literal mapped by locale. If there are multiple
+	 * literals for the same locale, the shorter value will be contained, the longer one discarded.
+	 *
+	 * @param queryResult the query result to be iterated
+	 * @param variable    the name of the binding to be used (sparql variable name without the leading "?")
+	 * @return the values for the given variable mapped by locale
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static Map<@NotNull Locale, String> toMapByLocale(ClosableTupleQueryResult queryResult, String variable) throws QueryEvaluationException {
+		return Sparqls.toSet(queryResult, variable, Sparqls::asText)
+				.stream()
+				.collect(Collectors.toMap(
+						Text::getLanguage, Text::getString, (a, b) -> a.length() <= b.length() ? a : b));
 	}
 }
