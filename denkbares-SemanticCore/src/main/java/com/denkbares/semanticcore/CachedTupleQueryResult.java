@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Cached version of the {@link TupleQueryResult}. No exceptions are thrown, no references to any {@link Repository} or
@@ -72,9 +73,18 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 		return this;
 	}
 
+	@NotNull
 	@Override
 	public Iterator<BindingSet> iterator() {
 		return getBindingSets().iterator();
+	}
+
+	/**
+	 * Resets this results iterator so {@link #next()} and {@link #hasNext()} behave exactly like the first time
+	 * iterating this result.
+	 */
+	public void resetIterator() {
+		cachedIterator = null;
 	}
 
 	/**
