@@ -297,12 +297,9 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Returns the {@link Identifier} of this identifier that represents the rest of the path defined by the specified
+	 * Returns the {@link Identifier} that represents the rest of the path defined by the specified
 	 * index parameter "fromIndex". A new identifier is created that represents the rest of this identifier, from the
 	 * specified index, inclusively.
-	 * <p/>
-	 * If the fromIndex is greater than the number of path elements this identifier contains, an an {@link
-	 * java.lang.IndexOutOfBoundsException}
 	 *
 	 * @param fromIndex the path element index to start from
 	 * @return the {@link Identifier} the rest identifier
@@ -311,6 +308,21 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	public Identifier rest(int fromIndex) {
 		String newPath[] = Arrays.copyOfRange(this.pathElements, fromIndex, this.pathElements.length);
+		return new Identifier(newPath);
+	}
+
+	/**
+	 * Returns the {@link Identifier} that represents the sub range of the path defined by the specified
+	 * index parameter "fromIndex" to "toIndex". A new identifier is created that represents the range of this
+	 * identifier, from the specified fromIndex inclusively, to the specified toIndex, exclusively.
+	 *
+	 * @param fromIndex the path element index to start from
+	 * @return the {@link Identifier} the rest identifier
+	 * @throws java.lang.IndexOutOfBoundsException if the indices are not in the range of elements of this identifier
+	 * @created 01.09.2014
+	 */
+	public Identifier sub(int fromIndex, int toIndex) {
+		String newPath[] = Arrays.copyOfRange(this.pathElements, fromIndex, toIndex);
 		return new Identifier(newPath);
 	}
 
