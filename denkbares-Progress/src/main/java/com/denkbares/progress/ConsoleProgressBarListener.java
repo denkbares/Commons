@@ -36,6 +36,7 @@ public class ConsoleProgressBarListener implements ProgressListener {
 	@Override
 	public void updateProgress(float percent, String message) {
 		if (Float.isNaN(this.percent)) {
+			// the progress bar is not yet initialized, so print initialization
 			System.out.println();
 			System.out.println(message);
 			System.out.print("| 0 % ");
@@ -50,6 +51,11 @@ public class ConsoleProgressBarListener implements ProgressListener {
 			message = null;
 		}
 		else if (percent < 1f && (percent <= this.percent + UPDATE_DELTA)) {
+			// no update required
+			return;
+		}
+		else if (this.percent >= 1f) {
+			// we already completed the progress bar (with return) and cannot update any longer
 			return;
 		}
 
