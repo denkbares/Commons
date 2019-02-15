@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -464,9 +465,22 @@ public class Sparqls {
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
 	public static Map<@NotNull Locale, String> toMapByLocale(ClosableTupleQueryResult queryResult, String variable) throws QueryEvaluationException {
-		return Sparqls.toSet(queryResult, variable, Sparqls::asText)
-				.stream()
-				.collect(Collectors.toMap(
-						Text::getLanguage, Text::getString, (a, b) -> a.length() <= b.length() ? a : b));
+		Set<Text> textsSet = Sparqls.toSet(queryResult, variable, Sparqls::asText);
+		return toMapByLocale(textsSet);
+	}
+
+	/**
+	 * Transforms the given collection of Texts to a map, where the locale of the text will be the key and the string
+	 * will be the label. If there are multiple strings for the same locale, the shorter value will be contained, the
+	 * longer one discarded.
+	 *
+	 * @param texts a collection of texts to be transformed to a map
+	 * @return the values for the given variable mapped by locale
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	@NotNull
+	public static Map<@NotNull Locale, String> toMapByLocale(Collection<Text> texts) {
+		return texts.stream().collect(
+				Collectors.toMap(Text::getLanguage, Text::getString, (a, b) -> a.length() <= b.length() ? a : b));
 	}
 }
