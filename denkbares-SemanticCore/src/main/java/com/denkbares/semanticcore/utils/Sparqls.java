@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -144,8 +146,7 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a Date if
-	 * it is a date literal.
+	 * Reads a value from a binding set of a sparql result row and returns it as a Date if it is a date literal.
 	 *
 	 * @param binding the value binding
 	 * @return the LocalDate or null
@@ -415,11 +416,7 @@ public class Sparqls {
 	 */
 	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
 		Set<V> set = new HashSet<>();
-		while (queryResult.hasNext()) {
-			BindingSet bindingSet = queryResult.next();
-			V value = valueExtractor.apply(bindingSet);
-			if (value != null) set.add(value);
-		}
+		collect(queryResult, valueExtractor, set);
 		return set;
 	}
 
@@ -452,6 +449,75 @@ public class Sparqls {
 	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
 		return toSet(queryResult,
 				b -> valueExtractor.apply(b.getBinding(variable)));
+	}
+
+	/**
+	 * Iterates the complete query result and collects a particular value of each binding set (row) into a list. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param valueExtractor the function to extract the value of each binding set
+	 * @param <V>            the value type
+	 * @return a list of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> List<V> toList(SPARQLQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
+		return toList(queryResult.getResult(), valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects a particular value of each binding set (row) into a list. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param valueExtractor the function to extract the value of each binding set
+	 * @param <V>            the value type
+	 * @return a list of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> List<V> toList(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
+		List<V> list = new LinkedList<>();
+		collect(queryResult, valueExtractor, list);
+		return list;
+	}
+
+	/**
+	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
+	 * @param valueExtractor the function to convert each value binding into a value
+	 * @param <V>            the value type
+	 * @return a list of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> List<V> toList(SPARQLQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
+		return toList(queryResult.getResult(), variable, valueExtractor);
+	}
+
+	/**
+	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
+	 * specified queryResult ist not (!) automatically closed.
+	 *
+	 * @param queryResult    the query result to be iterated
+	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
+	 * @param valueExtractor the function to convert each value binding into a value
+	 * @param <V>            the value type
+	 * @return a list of the extracted values
+	 * @throws QueryEvaluationException if the query could not been iterated correctly
+	 */
+	public static <V> List<V> toList(ClosableTupleQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
+		return toList(queryResult,
+				b -> valueExtractor.apply(b.getBinding(variable)));
+	}
+
+	private static <V> void collect(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor, Collection<V> result) {
+		while (queryResult.hasNext()) {
+			BindingSet bindingSet = queryResult.next();
+			V value = valueExtractor.apply(bindingSet);
+			if (value != null) result.add(value);
+		}
 	}
 
 	/**
