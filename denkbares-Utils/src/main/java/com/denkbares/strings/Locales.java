@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jetbrains.annotations.Nullable;
+
 import static java.util.Spliterator.*;
 
 /**
@@ -140,6 +142,26 @@ public class Locales {
 	public static boolean hasSameLanguage(Locale locale1, Locale locale2) {
 		return locale1 == locale2 ||
 				(locale1 != null && locale2 != null && Objects.equals(locale1.getLanguage(), locale2.getLanguage()));
+	}
+
+	/**
+	 * Returns true of the language of the specified locale is the german language, false otherwise.
+	 *
+	 * @param locale the locale to be tested
+	 * @return if the locale is any kind of german
+	 */
+	public static boolean isGerman(@Nullable Locale locale) {
+		return hasSameLanguage(locale, Locale.GERMAN);
+	}
+
+	/**
+	 * Returns true of the language of the specified locale is the english language, false otherwise.
+	 *
+	 * @param locale the locale to be tested
+	 * @return if the locale is any kind of english
+	 */
+	public static boolean isEnglish(@Nullable Locale locale) {
+		return hasSameLanguage(locale, Locale.ENGLISH);
 	}
 
 	private static Locale findBestLocale(Locale preferred, Collection<Locale> available, int minScore, Locale defaultLocale) {

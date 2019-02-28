@@ -1925,7 +1925,7 @@ public class Strings {
 	/**
 	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
 	 * URLEncoder#encode(String, String)}. The encoding can be specified by this function. In most cases UTF-8 encoding
-	 * works best, see method {@link #decodeURL(String)} for this.
+	 * works best, see method {@link #decodeURL(String)} for this. If the specified text is null, null is returned.
 	 *
 	 * @param text     the text to be encoded
 	 * @param encoding the encoding to be used for decode
@@ -1933,6 +1933,7 @@ public class Strings {
 	 * @created 03.05.2012
 	 */
 	public static String decodeURL(String text, Encoding encoding) {
+		if (text == null) return null;
 		try {
 			return URLDecoder.decode(text, encoding.encoding());
 		}
@@ -1945,7 +1946,8 @@ public class Strings {
 	/**
 	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
 	 * URLEncoder#encode(String, String)}. It used UTF-8 encoding for decode. If this does not work well, try {@link
-	 * #decodeURL(String, Encoding)} where you can specify a particular encoding.
+	 * #decodeURL(String, Encoding)} where you can specify a particular encoding. If the specified text is null, null is
+	 * returned.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
