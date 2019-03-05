@@ -43,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.collections.MultiMap;
+import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.semanticcore.ClosableTupleQueryResult;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 import com.denkbares.strings.Strings;
@@ -513,6 +514,9 @@ public class Sparqls {
 	}
 
 	private static <V> void collect(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor, Collection<V> result) {
+		if (queryResult instanceof CachedTupleQueryResult) {
+			((CachedTupleQueryResult) queryResult).resetIterator();
+		}
 		while (queryResult.hasNext()) {
 			BindingSet bindingSet = queryResult.next();
 			V value = valueExtractor.apply(bindingSet);
