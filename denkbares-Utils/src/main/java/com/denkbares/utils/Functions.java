@@ -6,6 +6,7 @@ package com.denkbares.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -22,6 +23,21 @@ import org.jetbrains.annotations.Nullable;
 public class Functions {
 
 	private static final Object NULL = new Object();
+
+	/**
+	 * Returns a new predicate instance that applies the key extractor function for each item and accept only those
+	 * items that have a key that the predicate has not seen before. The method is useful e.g. to filter {@link
+	 * java.util.stream.Stream}s so that for each key only one element occurs.
+	 * <p>
+	 * Note that even if the same object is tested a second time, it will be rejected.
+	 *
+	 * @param keyExtractor the key extractor
+	 * @return the predicate to accept only one element for each key
+	 */
+	public static <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+		Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
 
 	/**
 	 * Returns a cached version of the specified function, where the specified functions is invoked only once for each
