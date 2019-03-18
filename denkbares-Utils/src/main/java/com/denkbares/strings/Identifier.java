@@ -174,6 +174,20 @@ public class Identifier implements Comparable<Identifier> {
 		return toExternalFormLowerCase().compareTo(o.toExternalFormLowerCase());
 	}
 
+	public int compareToNumberAware(@NotNull Identifier o) {
+		int len1 = this.pathElements.length;
+		int len2 = o.pathElements.length;
+		int len = Math.min(len1, len2);
+		for (int i = 0; i < len; i++) {
+			int comp = NumberAwareComparator.CASE_INSENSITIVE.compare(this.pathElements[i], o.pathElements[i]);
+			if (comp != 0) return comp;
+		}
+		if (len1 < len2) return -1;
+		if (len1 > len2) return 1;
+		// both are case sensitive equal, so use compare of external form
+		return toExternalFormLowerCase().compareTo(o.toExternalFormLowerCase());
+	}
+
 	/**
 	 * Returns whether this {@link Identifier} starts with the given {@link Identifier}'s path.
 	 *
