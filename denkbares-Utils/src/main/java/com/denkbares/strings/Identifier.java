@@ -189,6 +189,19 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
+	 * Returns whether the specified {@link Identifier} starts with this {@link Identifier}'s path.
+	 * <p>
+	 * Note: This is the inverse method of {@link #startsWith(Identifier)}:<br>
+	 * <code>a.startsWith(b) === b.isPrefixOf(a)</code>
+	 *
+	 * @param identifier the identifier to check
+	 * @created 23.04.2012
+	 */
+	public boolean isPrefixOf(Identifier identifier) {
+		return identifier.startsWith(this);
+	}
+
+	/**
 	 * Returns the last element of the path given to create this {@link Identifier}.
 	 *
 	 * @created 23.04.2012
@@ -297,9 +310,9 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	/**
-	 * Returns the {@link Identifier} that represents the rest of the path defined by the specified
-	 * index parameter "fromIndex". A new identifier is created that represents the rest of this identifier, from the
-	 * specified index, inclusively.
+	 * Returns the {@link Identifier} that represents the rest of the path defined by the specified index parameter
+	 * "fromIndex". A new identifier is created that represents the rest of this identifier, from the specified index,
+	 * inclusively.
 	 *
 	 * @param fromIndex the path element index to start from
 	 * @return the {@link Identifier} the rest identifier
@@ -307,14 +320,14 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 01.09.2014
 	 */
 	public Identifier rest(int fromIndex) {
-		String newPath[] = Arrays.copyOfRange(this.pathElements, fromIndex, this.pathElements.length);
+		String[] newPath = Arrays.copyOfRange(this.pathElements, fromIndex, this.pathElements.length);
 		return new Identifier(newPath);
 	}
 
 	/**
-	 * Returns the {@link Identifier} that represents the sub range of the path defined by the specified
-	 * index parameter "fromIndex" to "toIndex". A new identifier is created that represents the range of this
-	 * identifier, from the specified fromIndex inclusively, to the specified toIndex, exclusively.
+	 * Returns the {@link Identifier} that represents the sub range of the path defined by the specified index parameter
+	 * "fromIndex" to "toIndex". A new identifier is created that represents the range of this identifier, from the
+	 * specified fromIndex inclusively, to the specified toIndex, exclusively.
 	 *
 	 * @param fromIndex the path element index to start from
 	 * @return the {@link Identifier} the rest identifier
@@ -322,7 +335,7 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 01.09.2014
 	 */
 	public Identifier sub(int fromIndex, int toIndex) {
-		String newPath[] = Arrays.copyOfRange(this.pathElements, fromIndex, toIndex);
+		String[] newPath = Arrays.copyOfRange(this.pathElements, fromIndex, toIndex);
 		return new Identifier(newPath);
 	}
 
