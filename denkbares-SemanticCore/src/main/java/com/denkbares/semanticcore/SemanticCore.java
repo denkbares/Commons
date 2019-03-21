@@ -84,7 +84,12 @@ public final class SemanticCore {
 	private final Repository repository;
 	private final AtomicLong allocationCounter = new AtomicLong(0);
 	private final Set<ConnectionInfo> connections = new HashSet<>();
+	private final static boolean rememberConnectionOpeningStack = "true".equals(System.getProperty("semanticcore.connection.debug.stacktrace", "false"));
 	//	private AtomicLong connectionCounter = new AtomicLong(0);
+
+	static {
+		Log.info("Connection debugging with stack traces: " + rememberConnectionOpeningStack);
+	}
 
 	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor();
 
@@ -203,13 +208,13 @@ public final class SemanticCore {
 			synchronized (connectionsMutex) {
 				connections.removeIf(connectionInfo -> {
 					try {
-						if (connectionInfo.connection.isOpen()){
-							if(connectionInfo.stopWatch.getTime() > THRESHOLD_TIME) {
+						if (connectionInfo.connection.isOpen()) {
+							if (connectionInfo.stopWatch.getTime() > THRESHOLD_TIME) {
 								String message = "There is an connection that is open since "
 										+ connectionInfo.stopWatch.getDisplay()
 										+ ". If these messages continue, it might be an indication that something "
 										+ "went wrong in the code.";
-								if (connectionInfo.stopWatch.getTime() > THRESHOLD_TIME * 5) {
+								if (connectionInfo.stackTrace != null) {
 									message += "\n" + Strings.concat("\n\t", connectionInfo.stackTrace);
 								}
 								Log.warning(message);
@@ -315,14 +320,12 @@ public final class SemanticCore {
 					try {
 						connectionInfo.connection.close();
 
-						StringBuilder traceBuilder = new StringBuilder();
-						for (StackTraceElement traceElement : connectionInfo.stackTrace) {
-							traceBuilder.append("at ").append(traceElement).append("\n");
+						String message = "Shutting down repository connection by force, this might cause subsequent exceptions.";
+						if (connectionInfo.stackTrace != null) {
+							String trace = Strings.concat("\n\t", connectionInfo.stackTrace);
+							message += "\nConnection was opened with the following trace:\n" + trace;
 						}
-
-						Log.severe("Shutting down repository connection by force, this might cause subsequent exceptions.\n"
-								+ "Connection was opened with the following trace:\n"
-								+ traceBuilder);
+						Log.severe(message);
 					}
 					catch (RepositoryException e) {
 						Log.info("Unable to shutdown connection", e);
@@ -690,8 +693,13 @@ public final class SemanticCore {
 		ConnectionInfo(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 			this.connection = connection;
 			// for debugging purposes....
-			StackTraceElement[] stackTrace = new Exception().getStackTrace();
-			this.stackTrace = Arrays.copyOfRange(stackTrace, 2, stackTrace.length);
+			if (rememberConnectionOpeningStack) {
+				StackTraceElement[] stackTrace = new Exception().getStackTrace();
+				this.stackTrace = Arrays.copyOfRange(stackTrace, 2, stackTrace.length);
+			}
+			else {
+				this.stackTrace = null;
+			}
 			this.stopWatch = new Stopwatch();
 		}
 	}
