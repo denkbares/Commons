@@ -48,4 +48,14 @@ public class Functions {
 	private static <T> T unwrap(@NotNull T notNull) {
 		return (notNull == NULL) ? null : notNull;
 	}
+
+	/**
+	 * Returns a "constant" Function, that always returns the specified value, for each parameter to be specified.
+	 *
+	 * @param value the value to be returned by the returned function
+	 * @return the constant function with the specified return value
+	 */
+	public static <T, R> Function<T, R> constant(R value) {
+		return (T t) -> value;
+	}
 }

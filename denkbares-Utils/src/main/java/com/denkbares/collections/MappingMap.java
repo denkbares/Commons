@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 /**
  * Implements a map that is located on top of an existing map but mapping the values through a
- * mapping functional interface. For convenience, null values are nor mapped with the mapping
+ * mapping functional interface. For convenience, null values are not mapped with the mapping
  * function. The mapping function will never be called with a null value. Instead, null is assumed
  * to be mapped to null in every case.
  * <p/>

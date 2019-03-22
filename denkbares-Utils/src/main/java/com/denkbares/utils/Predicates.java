@@ -48,4 +48,18 @@ public class Predicates {
 		Map<T, Boolean> cache = new HashMap<>();
 		return value -> cache.computeIfAbsent(value, v -> predicate.test(value));
 	}
+
+	/**
+	 * Returns a predicate that is always true.
+	 */
+	public static <T> Predicate<T> TRUE() {
+		return (T t) -> true;
+	}
+
+	/**
+	 * Returns a predicate that is always false.
+	 */
+	public static <T> Predicate<T> FALSE() {
+		return (T t) -> false;
+	}
 }
