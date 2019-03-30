@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -323,7 +324,7 @@ public class Files {
 	 * @return a reader for the given file
 	 */
 	public static Reader getReader(File file) throws FileNotFoundException, UnsupportedEncodingException {
-		return new InputStreamReader(new FileInputStream(file), "UTF-8");
+		return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -371,7 +372,7 @@ public class Files {
 	 * @created 01.10.2013
 	 */
 	public static List<String> getLines(File file) throws IOException {
-		try (Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
+		try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
 			return getLines(reader);
 		}
 	}
@@ -485,7 +486,7 @@ public class Files {
 
 		// and finally write the lines back to disc
 		try (FileOutputStream out = new FileOutputStream(file)) {
-			out.write(Strings.concat("\n", modifiedLines).getBytes("UTF-8"));
+			out.write(Strings.concat("\n", modifiedLines).getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
@@ -724,9 +725,89 @@ public class Files {
 			// skip all files that are not accepted by the filter
 			if (filter != null && !filter.accept(file)) continue;
 
+			// if directory, create it an skip to next entry
+			if (next.isDirectory()) {
+				file.mkdirs();
+				continue;
+			}
+
 			// otherwise create folder and extract
 			file.getParentFile().mkdirs();
 			Streams.streamAndClose(zippy.getInputStream(next), new FileOutputStream(file));
 		}
+	}
+
+	public static void zip(File sourceFolder, File zipFile) throws IOException {
+		zip(sourceFolder, zipFile, false);
+	}
+
+	public static void zip(File sourceFolder, File zipFile, boolean includeHiddenFiles) throws IOException {
+		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
+		zipDir(sourceFolder, sourceFolder, zos, includeHiddenFiles);
+		zos.flush();
+		zos.close();
+	}
+
+	/**
+	 * Zips a folder
+	 *
+	 * @param folder2zip the folder to be zipped
+	 * @param file       the current file or folder to add to the zip
+	 * @param zos        the zip output stream to zip the directory
+	 */
+	private static void zipDir(File folder2zip, File file, ZipOutputStream zos, boolean includeHiddenFiles) throws IOException {
+		if (file.isFile()) {
+			// relativize the savepath of the file against the savepath
+			// of the parentfolder of the actual wiki-folder
+			String relativePath = folder2zip.toURI().relativize(file.toURI()).getPath();
+			addZipEntry(file, relativePath, zos);
+		}
+		else {
+			//noinspection ConstantConditions
+			for (File child : file.listFiles()) {
+				if (includeHiddenFiles || !isHidden(child)) {
+					zipDir(folder2zip, child, zos, includeHiddenFiles);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Adds a entry to the zip file
+	 *
+	 * @param file         the file to be add to the zip file
+	 * @param relativePath the relative path of the file
+	 * @param zos          the zip output stream to zip the files
+	 */
+	private static void addZipEntry(File file, String relativePath, ZipOutputStream zos) throws IOException {
+		// if we reached here, the File object wiki was not
+		// a directory
+		FileInputStream fis = new FileInputStream(file);
+		// create a new zip entry
+		ZipEntry zip = new ZipEntry(relativePath);
+		// place the zip entry in the ZipOutputStream object
+		zos.putNextEntry(zip);
+		// write the content of the file to the ZipOutputStream
+		Streams.stream(fis, zos);
+		// close the Stream
+		fis.close();
+	}
+
+	/**
+	 * Returns true if a specified file or folder is suspected to be hidden. In contrast to Files#isHidden, the
+	 * implementation additionally using a platform-independent heuristic to determine hidden files. This is necessary
+	 * when copying folders among different operating systems, also copying the hidden files of the host system to the
+	 * target system, or when using a alternative file system, e.g. for zipped folders.
+	 * <p>
+	 * The path is hidden if the Files#isHidden is true or if it is a "__MACOSX" folder or if the file starts with a "."
+	 * in its name.
+	 *
+	 * @param file the file to examine to be hidden
+	 * @return true if the specified path appears to be hidden
+	 */
+	public static boolean isHidden(File file) throws IOException {
+		String name = file.getName();
+		return name.endsWith("__MACOSX") || name.startsWith(".")
+				|| java.nio.file.Files.isHidden(file.toPath());
 	}
 }
