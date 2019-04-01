@@ -20,7 +20,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +29,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.jetbrains.annotations.NotNull;
@@ -716,10 +715,39 @@ public class Files {
 	 * @throws IOException if the zip could not be read correctly or the target files/folders could not been created
 	 */
 	public static void unzip(File zipFile, File targetFolder, @Nullable FileFilter filter) throws IOException {
-		ZipFile zippy = new ZipFile(zipFile);
-		Enumeration<? extends ZipEntry> all = zippy.entries();
-		while (all.hasMoreElements()) {
-			ZipEntry next = all.nextElement();
+		try (FileInputStream in = new FileInputStream(zipFile)) {
+			unzip(in, targetFolder, filter);
+		}
+	}
+
+	/**
+	 * Unzips the specified zip file stream into the specified target folder. The directory structure of the zip file is
+	 * reproduced in the directory structure, maybe with some file system specialities (if special characters are not
+	 * supported in the file system).
+	 *
+	 * @param zipFileStream the source zip file's content
+	 * @param targetFolder  the target folder to unzip into
+	 * @throws IOException if the zip could not be read correctly or the target files/folders could not been created
+	 */
+	public static void unzip(InputStream zipFileStream, File targetFolder) throws IOException {
+		unzip(zipFileStream, targetFolder, null);
+	}
+
+	/**
+	 * Unzips the specified zip file stream into the specified target folder. The directory structure of the zip file is
+	 * reproduced in the directory structure, maybe with some file system specialities (if special characters are not
+	 * supported in the file system). If a filter is specified, only the files matching the filter will be unzipped (the
+	 * filter is given the target file object, before the file content is expanded).
+	 *
+	 * @param zipFileStream the source zip file's content
+	 * @param targetFolder  the target folder to unzip into
+	 * @param filter        the file filter or the target files
+	 * @throws IOException if the zip could not be read correctly or the target files/folders could not been created
+	 */
+	public static void unzip(InputStream zipFileStream, File targetFolder, @Nullable FileFilter filter) throws IOException {
+		ZipInputStream zippy = new ZipInputStream(zipFileStream);
+		ZipEntry next;
+		while ((next = zippy.getNextEntry()) != null) {
 			File file = new File(targetFolder, next.getName());
 
 			// skip all files that are not accepted by the filter
@@ -731,9 +759,11 @@ public class Files {
 				continue;
 			}
 
-			// otherwise create folder and extract
+			// otherwise create folder and extract the entry to a new file
 			file.getParentFile().mkdirs();
-			Streams.streamAndClose(zippy.getInputStream(next), new FileOutputStream(file));
+			try (FileOutputStream out = new FileOutputStream(file)) {
+				Streams.stream(zippy, out);
+			}
 		}
 	}
 
