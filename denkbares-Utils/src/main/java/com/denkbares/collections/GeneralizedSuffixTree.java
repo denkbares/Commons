@@ -169,7 +169,7 @@ public class GeneralizedSuffixTree<E> extends DefaultMultiMap<String, E> {
 	}
 
 	/**
-	 * Creates all suffixes for a given phrase. The phrase is splitted by
+	 * Creates all suffixes for a given phrase. The phrase is split by
 	 * whitespaces and each resulting token is indexed separately.
 	 * 
 	 * @param phrase the phrase to get the suffixes for
