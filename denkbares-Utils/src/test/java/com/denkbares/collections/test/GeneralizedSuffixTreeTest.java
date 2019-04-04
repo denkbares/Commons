@@ -82,13 +82,13 @@ public class GeneralizedSuffixTreeTest {
 	}
 
 	@SafeVarargs
-	private static <E> void assertSearch(GeneralizedSuffixTree<E> gst, String phrase, E... items) {
+	private static <E extends Comparable<E>> void assertSearch(GeneralizedSuffixTree<E> gst, String phrase, E... items) {
 		Set<E> expected = new TreeSet<>(Arrays.asList(items));
 		Set<E> actual = search(gst, phrase);
 		assertEquals(expected, actual);
 	}
 
-	private static <E> Set<E> search(GeneralizedSuffixTree<E> gst, String phrase) {
+	private static <E extends Comparable<E>> Set<E> search(GeneralizedSuffixTree<E> gst, String phrase) {
 		Set<E> actual = new TreeSet<>();
 		for (E item : gst.search(phrase)) {
 			actual.add(item);
