@@ -1,16 +1,16 @@
 /*
  * Copyright (C) 2013 denkbares GmbH, Germany
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 3 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -31,11 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Utility class to count occurrences of particular objects. For each object a counter is created.
- * It will be counted how often the particular objects has been added.
+ * Utility class to count occurrences of particular objects. For each object a counter is created. It will be counted
+ * how often the particular objects has been added.
  * <p>
- * In contrast to an ordinary set, if an object has been added multiple times, it remains in the set
- * even on removal, until if has been removed as often as it has been added.
+ * In contrast to an ordinary set, if an object has been added multiple times, it remains in the set even on removal,
+ * until if has been removed as often as it has been added.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 14.02.2013
@@ -55,9 +55,9 @@ public class CountingSet<E> implements Set<E> {
 	private final Map<E, Count> counters;
 
 	/**
-	 * Creates a new counting set. Based on the specified concurrent parameter the implementation
-	 * is thread-safe (of true) or not (if false). Selecting the concurrent implementation may
-	 * create little overhead for updating the set.
+	 * Creates a new counting set. Based on the specified concurrent parameter the implementation is thread-safe (of
+	 * true) or not (if false). Selecting the concurrent implementation may create little overhead for updating the
+	 * set.
 	 *
 	 * @param concurrent if the implementation
 	 */
@@ -73,9 +73,8 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * Constructs a new (non-concurrent) counting set containing the elements in the specified
-	 * collection. If the specified collections contains equal elements multiple times, they are
-	 * already counted by this set.
+	 * Constructs a new (non-concurrent) counting set containing the elements in the specified collection. If the
+	 * specified collections contains equal elements multiple times, they are already counted by this set.
 	 *
 	 * @param c the collection whose elements are to be placed into this set
 	 * @throws NullPointerException if the specified collection is null
@@ -86,8 +85,8 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * Returns an iterator for the elements of this set ordered by element count.
-	 * The first element of this iterator, if existing, is the element with max count.
+	 * Returns an iterator for the elements of this set ordered by element count. The first element of this iterator, if
+	 * existing, is the element with max count.
 	 *
 	 * @return iterator with descending count order
 	 */
@@ -138,9 +137,9 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * Removes an object from the set. If the object has been added multiple times, the object still
-	 * remains in the set, but its counter will be decreased by 1 instead. The method returns true
-	 * if the object has been removed from the set.
+	 * Removes an object from the set. If the object has been added multiple times, the object still remains in the set,
+	 * but its counter will be decreased by 1 instead. The method returns true if the object has been removed from the
+	 * set.
 	 */
 	@Override
 	public boolean remove(Object object) {
@@ -201,9 +200,9 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * The method is similar to {@link #add(Object)}, which also adds the object to the set. The
-	 * only difference is that the method returns the number of occurrences of the specified object
-	 * after it has been added (instead of a flag if the set has been changed).
+	 * The method is similar to {@link #add(Object)}, which also adds the object to the set. The only difference is that
+	 * the method returns the number of occurrences of the specified object after it has been added (instead of a flag
+	 * if the set has been changed).
 	 *
 	 * @param object the object to add / increase the counter for
 	 * @return the actual counter of that object
@@ -214,9 +213,9 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * The method is similar to {@link #inc(Object)}, which also adds the object to the set and
-	 * return the number of occurrences of the specified object after it has been added. But this
-	 * method adds the object multiple times, specified by the amount parameter.
+	 * The method is similar to {@link #inc(Object)}, which also adds the object to the set and return the number of
+	 * occurrences of the specified object after it has been added. But this method adds the object multiple times,
+	 * specified by the amount parameter.
 	 *
 	 * @param object the object to add / increase the counter for
 	 * @param amount how often the object shall be added
@@ -224,19 +223,19 @@ public class CountingSet<E> implements Set<E> {
 	 * @created 14.02.2013
 	 */
 	public int inc(E object, int amount) {
+		if (amount <= 0) return dec(object, -amount);
 		Count count = counters.computeIfAbsent(object, k -> new Count());
 		count.count += amount;
 		return count.count;
 	}
 
 	/**
-	 * The method is similar to {@link #remove(Object)}, which also removes the object form the set
-	 * or decrease its counter by 1. The only difference is that the method returns the number of
-	 * occurrences of the specified object after it has been removed (instead of a flag if the set
-	 * has been changed).
+	 * The method is similar to {@link #remove(Object)}, which also removes the object form the set or decrease its
+	 * counter by 1. The only difference is that the method returns the number of occurrences of the specified object
+	 * after it has been removed (instead of a flag if the set has been changed).
 	 * <p>
-	 * The method return '0' if the object has been removed from the set by this method call. It
-	 * return '-1' if the object has not been present in the set before.
+	 * The method return '0' if the object has been removed from the set by this method call. It return '-1' if the
+	 * object has not been present in the set before.
 	 *
 	 * @param object the object to add / increase the counter for
 	 * @return the actual counter of that object
@@ -247,22 +246,22 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * The method is similar to {@link #dec(Object)}, which also removes the object form the set or
-	 * decrease its counter by 1 and return the number of occurrences of the specified object after
-	 * it has been removed (instead of a flag if the set has been changed). But this method removes
-	 * the object multiple times, specified by the amount parameter. The object will be removed if
-	 * the returned counter is equal or below zero.
+	 * The method is similar to {@link #dec(Object)}, which also removes the object form the set or decrease its counter
+	 * by 1 and return the number of occurrences of the specified object after it has been removed (instead of a flag if
+	 * the set has been changed). But this method removes the object multiple times, specified by the amount parameter.
+	 * The object will be removed if the returned counter is equal or below zero.
 	 * <p>
-	 * The method returns a number between '0' (inclusively) above '-amount' (exclusively) if the
-	 * object has been removed from the set by this method call. It return '-amount' if the object
-	 * has not been present in the set before.
+	 * The method returns a number between '0' (inclusively) above '-amount' (exclusively) if the object has been
+	 * removed from the set by this method call. It return '-amount' if the object has not been present in the set
+	 * before.
 	 *
 	 * @param object the object to remove / decrease the counter for
 	 * @return the actual counter of that object
 	 * @created 14.02.2013
 	 */
-	@SuppressWarnings("SuspiciousMethodCalls")
+	@SuppressWarnings({ "SuspiciousMethodCalls", "unchecked" })
 	public int dec(Object object, int amount) {
+		if (amount < 0) return inc((E) object, -amount);
 		Count count = counters.get(object);
 		if (count != null) {
 			count.count -= amount;
@@ -275,9 +274,8 @@ public class CountingSet<E> implements Set<E> {
 	}
 
 	/**
-	 * Returns a map that represents the elements of the set and their current count as integer. The
-	 * map does only contains those elements with a positive count. The returned map is
-	 * unmodifiable.
+	 * Returns a map that represents the elements of the set and their current count as integer. The map does only
+	 * contains those elements with a positive count. The returned map is unmodifiable.
 	 *
 	 * @return the map representation of this counting set
 	 */
