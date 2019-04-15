@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A Future implementation that creates a future based on a callable (supplier that may throw any exception), that is
- * created synchronuouly in the thread calling the {@link #get()} method the first time. All other thread calling {@link
+ * created synchronously in the thread calling the {@link #get()} method the first time. All other thread calling {@link
  * #get()} will wait for the result or return immediately if the reuslt object is computed.
  * <p>
  * The class also provides utility methods to unwrap (and rethrow) common exceptions.
@@ -119,7 +119,7 @@ public class DefaultFuture<V> extends FutureTask<V> {
 	 * occurred. Otherwise this future is returned to chain multiple calls.
 	 *
 	 * @return this future
-	 * @throws InterruptedException if an IOException prevented the computational task to complete normally
+	 * @throws InterruptedException if an InterruptedException prevented the computational task to complete normally
 	 */
 	public DefaultFuture<V> unwrapInterrupted() throws InterruptedException {
 		try {
@@ -140,7 +140,7 @@ public class DefaultFuture<V> extends FutureTask<V> {
 	 * occurred. Otherwise this future is returned to chain multiple calls.
 	 *
 	 * @return this future
-	 * @throws TimeoutException if an IOException prevented the computational task to complete normally
+	 * @throws TimeoutException if an TimeoutException prevented the computational task to complete normally
 	 */
 	public DefaultFuture<V> unwrapTimeout() throws TimeoutException {
 		try {
