@@ -251,7 +251,7 @@ public class Strings {
 				nonEmpty.add(string);
 			}
 		}
-		return nonEmpty.toArray(new String[nonEmpty.size()]);
+		return nonEmpty.toArray(new String[0]);
 	}
 
 	public static StringFragment getFirstNonEmptyLineContent(String text) {
@@ -1076,6 +1076,7 @@ public class Strings {
 	 *
 	 * @return A copy of this string with leading white space removed, or this string if it has no leading white space.
 	 */
+	@Contract("null ->null; !null -> !null")
 	public static String trimLeft(String text) {
 		if (text == null) return null;
 		int pos = trimLeft(text, 0, text.length());
@@ -2086,7 +2087,6 @@ public class Strings {
 	 * @throws NullPointerException if the default value is null
 	 * @created 26.01.2014
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T extends Enum<T>> T parseEnum(String name, T defaultValue) {
 		return parseEnum(name, defaultValue.getClass(), defaultValue);
 	}
@@ -2364,7 +2364,7 @@ public class Strings {
 			decimal = "." + s.substring(commaIndex + 1);
 		}
 		String integer = s.substring(0, commaIndex);
-		String integerCleaned = integer.replaceAll("\\.|\\,", "");
+		String integerCleaned = integer.replaceAll("[.,]", "");
 		return integerCleaned + decimal;
 	}
 }
