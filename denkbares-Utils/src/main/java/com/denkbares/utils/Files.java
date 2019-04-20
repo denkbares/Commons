@@ -15,7 +15,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -278,7 +277,7 @@ public class Files {
 	 * @return if both files seems to be identical
 	 */
 	@SuppressWarnings("RedundantIfStatement")
-	public static boolean hasEqualFingerprint(File file1, File file2) throws IOException {
+	public static boolean hasEqualFingerprint(File file1, File file2) {
 		if (!file1.isFile()) return false;
 		if (!file2.isFile()) return false;
 		if (file1.length() != file2.length()) return false;
@@ -322,8 +321,21 @@ public class Files {
 	 * @param file the file to create the reader for
 	 * @return a reader for the given file
 	 */
-	public static Reader getReader(File file) throws FileNotFoundException, UnsupportedEncodingException {
+	public static Reader getReader(File file) throws FileNotFoundException {
 		return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+	}
+
+
+	/**
+	 * Convenience method to get a new file writer for a file (using the correct (UTF-8) encoding).
+	 *
+	 * @param file the file the writer should write on
+	 * @return a file writer for the given file
+	 * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not exist
+	 *                               but cannot be created, or cannot be opened for any other reason
+	 */
+	public static Writer getWriter(File file) throws FileNotFoundException {
+		return new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 	}
 
 	/**
