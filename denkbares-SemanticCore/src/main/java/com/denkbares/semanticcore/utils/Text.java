@@ -22,15 +22,15 @@ package com.denkbares.semanticcore.utils;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.strings.Strings;
 
 /**
- * Implementation of some util class that handles string values together with a potential language
- * tag. If no language tag is provided, the root language is assumed.
+ * Implementation of some util class that handles string values together with a potential language tag. If no language
+ * tag is provided, the root language is assumed.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 01.01.2015
@@ -57,10 +57,21 @@ public class Text {
 		return new Text(value.stringValue(), locale);
 	}
 
+	/**
+	 * Retruns the plain textual content of this Text instance.
+	 *
+	 * @return the plain text
+	 */
 	public String getString() {
 		return string;
 	}
 
+	/**
+	 * Returns the language this Text instance is tagged with. It returns {@link Locale#ROOT} if no specific language is
+	 * tagged.
+	 *
+	 * @return the language of the text
+	 */
 	@NotNull
 	public Locale getLanguage() {
 		return language;
