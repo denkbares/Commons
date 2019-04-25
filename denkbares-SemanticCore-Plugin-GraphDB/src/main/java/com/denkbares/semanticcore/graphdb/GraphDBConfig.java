@@ -55,7 +55,6 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 
 	public GraphDBConfig(String ruleSet) {
 		this(ruleSet, null);
-		EventManager.getInstance().fireEvent(new RepositoryConfigCreatedEvent(this));
 	}
 
 	public void setDefaultOverride(String key, String value) {
@@ -121,6 +120,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		if (configFile == null) configFile = "/des-defaults.ttl";
 		this.configFile = configFile;
 		this.ruleSet = ruleSet;
+		EventManager.getInstance().fireEvent(new RepositoryConfigCreatedEvent(this));
 	}
 
 	@Override
