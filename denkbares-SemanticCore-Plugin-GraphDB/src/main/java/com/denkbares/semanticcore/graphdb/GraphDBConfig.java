@@ -62,39 +62,13 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	}
 
 	public GraphDBConfig(String ruleSet, String configFile) {
+
+		configureCache();
+
 		// we deactivate statistics, because it can cause memory leaks on web app redeploy.
 		StatisticsSettings.getInstance().setStatisticsEnabled(false);
 
-		// fix to avoid weird exception log with graphdb-free-runtime 7.0.3
-		// ERROR com.ontotext.GraphDBConfigParameters - Exception when trying to find the plugins/ folder
-		// com.ontotext.graphdb.ConfigException: graphdb.dist must be set to the GraphDB distribution directory...
-//		if (System.getProperty("graphdb.dist") == null) {
-//			try {
-//				// try static, unchanging directory first
-//				File tempDir = new File(Files.getSystemTempDir(), "graphdb-dist-mock-dir");
-//				tempDir.mkdirs();
-//				if (!tempDir.isDirectory() || !tempDir.canRead()) {
-//					tempDir = Files.createTempDir();
-//					tempDir.deleteOnExit();
-//				}
-//				System.setProperty("graphdb.dist", tempDir.getAbsolutePath());
-//			}
-//			catch (IOException e) {
-//				Log.warning("Exception while creating workaround graphdb dist folder.");
-//			}
-//		}
-
-		// Configure logging
-		Logger rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
-			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
-		}
-		else {
-			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
-					+ ", but was " + rootLogger.getClass().getName() + ".\nTo fix this, remove (e.g. by excluding) "
-					+ "the dependency to the second logger from the class path, also see "
-					+ "https://www.slf4j.org/codes.html#multiple_bindings.");
-		}
+		configureLogging();
 
 		// prepare rule set
 		if (ruleSet == null) {
@@ -121,6 +95,40 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		this.configFile = configFile;
 		this.ruleSet = ruleSet;
 		EventManager.getInstance().fireEvent(new RepositoryConfigCreatedEvent(this));
+	}
+
+	private void configureLogging() {
+		// Configure logging
+		Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
+			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
+		}
+		else {
+			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
+					+ ", but was " + rootLogger.getClass().getName() + ".\nTo fix this, remove (e.g. by excluding) "
+					+ "the dependency to the second logger from the class path, also see "
+					+ "https://www.slf4j.org/codes.html#multiple_bindings.");
+		}
+	}
+
+	private void configureCache() {
+		// for more info regarding memory configuration
+		// see http://graphdb.ontotext.com/documentation/standard/configuring-a-repository.html
+		if (System.getProperty("graphdb.global.page.cache") == null) {
+			System.setProperty("graphdb.global.page.cache", "true"); // use off-heap-global cache
+		}
+		if (System.getProperty("graphdb.page.cache.size") == null) {
+			long maxMemory = Runtime.getRuntime().maxMemory();
+			double maxMemoryGB = (double) maxMemory / 1000000000;
+			// set cache size to max 1G, but not more than a forth of available memory
+			if (maxMemory == Long.MAX_VALUE || maxMemoryGB >= 4) {
+				System.setProperty("graphdb.page.cache.size", "1G");
+			} else {
+				// also assure at least 50 MB
+				int sizeMB = (int) Math.max(Math.min(maxMemoryGB * 250, 1000), 50);
+				System.setProperty("graphdb.page.cache.size", sizeMB + "M");
+			}
+		}
 	}
 
 	@Override
@@ -199,5 +207,4 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	public String getName() {
 		return ruleSet.replaceAll("-", "_").toUpperCase();
 	}
-
 }

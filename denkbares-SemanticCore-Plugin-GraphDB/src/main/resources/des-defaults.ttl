@@ -20,23 +20,16 @@
             owlim:owlim-license "" ;
             owlim:base-URL "https://www.denkbares.com/base#" ;
             owlim:defaultNS "" ;
-            owlim:entity-index-size "1000000" ;
+            owlim:entity-index-size "15000000" ;
             owlim:entity-id-size  "32" ;
             owlim:imports "" ;
         	owlim:repository-type "file-repository" ;
             owlim:storage-folder "storage" ;
  
-            owlim:enable-context-index "true" ;
+            owlim:enable-context-index "false" ;
 
-            # We set the overall cache-memory and comment out all the other more specific cache size settings.
-            # This way, the cache will be divided evenly between all active caches.
-            owlim:cache-memory "500m" ;
-            # owlim:tuple-index-memory "80m" ;
+            owlim:enablePredicateList "true" ;
 
-            owlim:enablePredicateList "false" ;
-            # owlim:predicate-memory "80m" ;
-
-            # owlim:fts-memory "20m" ;
             owlim:ftsIndexPolicy "never" ;
             owlim:ftsLiteralsOnly "true" ;
 
