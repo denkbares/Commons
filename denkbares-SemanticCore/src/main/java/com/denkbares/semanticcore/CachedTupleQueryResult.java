@@ -23,7 +23,8 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 
 	private final List<BindingSet> cache;
 	private final List<String> bindingNames;
-	private Iterator<BindingSet> cachedIterator = null;
+	// the CachedTupleQueryResult could be used by different threads, so use thread local iterator
+	private final ThreadLocal<Iterator<BindingSet>> cachedIterator = new ThreadLocal<>();
 
 	public CachedTupleQueryResult(List<String> bindingNames, List<BindingSet> bindingSets) {
 		this(bindingNames, bindingSets, null);
@@ -48,19 +49,19 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	@Override
 	public boolean hasNext() {
 		initIterator();
-		return cachedIterator.hasNext();
+		return cachedIterator.get().hasNext();
 	}
 
 	private void initIterator() {
-		if (cachedIterator == null) {
-			cachedIterator = cache.iterator();
+		if (cachedIterator.get() == null) {
+			cachedIterator.set(cache.iterator());
 		}
 	}
 
 	@Override
 	public BindingSet next() {
 		initIterator();
-		return cachedIterator.next();
+		return cachedIterator.get().next();
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	 * iterating this result.
 	 */
 	public void resetIterator() {
-		cachedIterator = null;
+		cachedIterator.set(null);
 	}
 
 	/**
