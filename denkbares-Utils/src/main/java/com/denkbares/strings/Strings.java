@@ -1157,6 +1157,7 @@ public class Strings {
 	 *
 	 * @return A copy of this string with leading white space removed, or this string if it has no leading white space.
 	 */
+	@Contract("null -> null; !null -> !null")
 	public static String trimRight(String text) {
 		if (text == null) return null;
 		int pos = trimRight(text, 0, text.length());
