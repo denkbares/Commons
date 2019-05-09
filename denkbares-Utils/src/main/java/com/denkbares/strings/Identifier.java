@@ -81,6 +81,7 @@ public class Identifier implements Comparable<Identifier> {
 	public Identifier(Identifier parent, String... additionalPathElements) {
 		int parentLen = parent.pathElements.length;
 		int additionalLen = additionalPathElements.length;
+		this.caseSensitive = parent.caseSensitive;
 		this.pathElements = Arrays.copyOf(parent.pathElements, parentLen + additionalLen);
 		System.arraycopy(additionalPathElements, 0, pathElements, parentLen, additionalLen);
 	}
