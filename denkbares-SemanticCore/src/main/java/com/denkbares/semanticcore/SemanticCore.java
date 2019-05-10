@@ -210,7 +210,7 @@ public final class SemanticCore {
 					try {
 						if (connectionInfo.connection.isOpen()) {
 							if (connectionInfo.stopWatch.getTime() > THRESHOLD_TIME) {
-								String message = "There is an connection that is open since "
+								String message = "There is a connection that is open for "
 										+ connectionInfo.stopWatch.getDisplay()
 										+ ". If these messages continue, it might be an indication that something "
 										+ "went wrong in the code.";
