@@ -53,8 +53,6 @@ import com.denkbares.collections.SubSpanIterator;
 import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.semanticcore.TupleQueryResult;
 import com.denkbares.utils.Pair;
-import de.d3web.testing.Message;
-import de.d3web.testing.Message.Type;
 
 public class ResultTableModel implements Iterable<TableRow> {
 
@@ -201,8 +199,8 @@ public class ResultTableModel implements Iterable<TableRow> {
 	 * @return if the expected data is equal to (or a subset of) the actual data
 	 * @created 20.01.2014
 	 */
-	public static MultiMap<String, Message> checkEquality(ResultTableModel expectedResultTable, ResultTableModel actualResultTable, boolean atLeast) {
-		MultiMap<String, Message> errorMessages = new DefaultMultiMap<>(MultiMaps.linkedFactory(), MultiMaps.linkedFactory());
+	public static MultiMap<String, String> checkEquality(ResultTableModel expectedResultTable, ResultTableModel actualResultTable, boolean atLeast) {
+		MultiMap<String, String> errorMessages = new DefaultMultiMap<>(MultiMaps.linkedFactory(), MultiMaps.linkedFactory());
 
 		/*
 		 * 2. Compare all result rows (except for those with blank nodes)
@@ -224,7 +222,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 			boolean contained = actualResultTable.contains(expectedTableRow);
 			if (!contained) {
 				if (!isOutdatedExpectedTableWithOneEmptyCell(expectedResultTable, expectedTableRow)) {
-					errorMessages.put("expected rows missing", new Message(Type.ERROR, expectedTableRow.toString()));
+					errorMessages.put("expected rows missing", expectedTableRow.toString());
 				}
 			}
 		}
@@ -248,14 +246,12 @@ public class ResultTableModel implements Iterable<TableRow> {
 		for (Value node : keySet) {
 			if (node != null && !(node instanceof BNode)) {
 				if (!expectedData.keySet().contains(node)) {
-					errorMessages.put("expected nodes missing",
-							new Message(Type.ERROR, node.toString()));
+					errorMessages.put("expected nodes missing", node.toString());
 					continue;
 				}
 
 				if (!(expectedData.get(node).size() == (actualData.get(node).size()))) {
-					errorMessages.put("cases where number of result columns does not match",
-							new Message(Type.ERROR, node.toString()));
+					errorMessages.put("cases where number of result columns does not match", node.toString());
 				}
 			}
 		}
@@ -280,7 +276,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 
 	public String toCSV() throws IOException {
 		StringWriter out = new StringWriter();
-		CSVPrinter printer = CSVFormat.DEFAULT.withHeader(variables.toArray(new String[variables.size()]))
+		CSVPrinter printer = CSVFormat.DEFAULT.withHeader(variables.toArray(new String[0]))
 				.print(out);
 		for (TableRow row : rows) {
 			List<Object> values = new ArrayList<>(variables.size());
@@ -320,23 +316,23 @@ public class ResultTableModel implements Iterable<TableRow> {
 		}
 	}
 
-	public static String generateErrorsText(MultiMap<String, Message> failures) {
+	public static String generateErrorsText(MultiMap<String, String> failures) {
 		return generateErrorsText(failures, true);
 	}
 
-	public static String generateErrorsText(MultiMap<String, Message> failures, boolean full) {
+	private static String generateErrorsText(MultiMap<String, String> failures, boolean full) {
 		StringBuilder buffy = new StringBuilder();
 		buffy.append("The following test failures occurred:\n");
 		for (String type : failures.keySet()) {
-			Set<Message> failuresOfType = failures.getValues(type);
+			Set<String> failuresOfType = failures.getValues(type);
 			buffy.append(failuresOfType.size()).append(" ").append(type).append(":\n");
 			int i = 0;
-			for (Message message : failuresOfType) {
+			for (String message : failuresOfType) {
 				if (!full && ++i > MAX_DISPLAYED_FAILRUES) {
 					buffy.append("* ... see expected and actual result linked below\n");
 					break;
 				}
-				buffy.append("* ").append(message.getText()).append("\n");
+				buffy.append("* ").append(message).append("\n");
 			}
 		}
 		return buffy.toString();
