@@ -320,7 +320,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 		return generateErrorsText(failures, true);
 	}
 
-	private static String generateErrorsText(MultiMap<String, String> failures, boolean full) {
+	public static String generateErrorsText(MultiMap<String, String> failures, boolean full) {
 		StringBuilder buffy = new StringBuilder();
 		buffy.append("The following test failures occurred:\n");
 		for (String type : failures.keySet()) {
