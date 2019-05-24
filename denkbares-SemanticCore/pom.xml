@@ -96,9 +96,5 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>de.uniwue.d3web</groupId>
-			<artifactId>d3web-Plugin-TestingFramework</artifactId>
-		</dependency>
 	</dependencies>
 </project>
