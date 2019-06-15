@@ -21,27 +21,41 @@ package com.denkbares.semanticcore.utils.hierarchy;
 
 import java.net.URI;
 
-import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
-import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import org.eclipse.rdf4j.query.Binding;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+
+import com.denkbares.collections.DefaultMultiMap;
+import com.denkbares.collections.MultiMap;
+import com.denkbares.collections.MultiMaps;
 import com.denkbares.collections.PartialHierarchy;
+import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)
  * @created 18.02.16.
  */
 public class SubClassHierarchy implements PartialHierarchy<URI> {
-	private final SPARQLEndpoint core;
-	private final String subClassRelation;
+
+	private final MultiMap<String, String> subClassCache = new DefaultMultiMap<>(MultiMaps.minimizedFactory(), MultiMaps.minimizedFactory());
 
 	public SubClassHierarchy(SPARQLEndpoint core, String subClassRelation) {
-		this.core = core;
-		this.subClassRelation = subClassRelation;
+//		String query = "ASK { <" + node1 + "> " + subClassRelation + " <" + node2 + "> }";
+		String query = "SELECT ?node1 ?node2 WHERE { ?node1 " + subClassRelation + " ?node2 }";
+		try (SPARQLQueryResult queryResult = core.execute(core.prepareQuery(query))) {
+			TupleQueryResult result = queryResult.getResult();
+			while (result.hasNext()) {
+				BindingSet bindingSet = result.next();
+				Binding node1 = bindingSet.getBinding("node1");
+				Binding node2 = bindingSet.getBinding("node2");
+				subClassCache.put(node1.getValue().stringValue(), node2.getValue().stringValue());
+			}
+		}
 	}
 
 	@Override
 	public boolean isSuccessorOf(URI node1, URI node2) {
-		String query = "ASK { <" + node1 + "> " + subClassRelation + " <" + node2 + "> }";
-		SPARQLBooleanQuery sparqlBooleanQuery = core.prepareBooleanQuery(query);
-		return sparqlBooleanQuery.evaluate();
+		return subClassCache.getValues(node1.toString()).contains(node2.toString());
 	}
 }
