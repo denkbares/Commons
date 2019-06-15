@@ -37,6 +37,7 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
 
 /**
@@ -128,6 +129,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
 	private TurtleFileEndpoint(Collection<Reader> sources, RepositoryConfig reasoning, boolean autoClose, String ontologyName, File tempFolder) throws IOException {
+		Stopwatch stopwatch = new Stopwatch();
 		this.ontologyName = ontologyName;
 		this.sc = SemanticCore.getOrCreateInstance(ontologyName, reasoning, tempFolder);
 		try {
@@ -148,6 +150,7 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 		}
 		// allocate core if everything if this instance is created and returned
 		sc.allocate();
+		stopwatch.log("Created " + this.getClass().getSimpleName());
 	}
 
 	/**
