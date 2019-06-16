@@ -401,6 +401,7 @@ public class PartialHierarchyTree<T> {
 	/**
 	 * Returns dash tree of this hierarchy, mainly for debugging purposes.
 	 */
+	@SuppressWarnings("unused")
 	public String toDashTree() {
 		StringBuilder builder = new StringBuilder();
 		for (Node<T> child : root.getChildren()) {

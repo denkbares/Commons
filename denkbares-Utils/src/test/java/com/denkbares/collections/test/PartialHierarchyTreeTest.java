@@ -1,5 +1,6 @@
 package com.denkbares.collections.test;
 
+import com.denkbares.collections.PartialHierarchy;
 import com.denkbares.collections.PartialHierarchyException;
 import com.denkbares.collections.PartialHierarchyTree;
 import com.denkbares.collections.PartialHierarchyTree.Node;
@@ -91,6 +92,53 @@ public class PartialHierarchyTreeTest {
 
 		tree.removeAll(Arrays.asList(a, b, ba));
 		assertEquals(0, tree.getNodes().size());
+	}
+
+	@Test
+	public void testMultipleParents() throws PartialHierarchyException {
+		PartialHierarchyTree<String> tree = new PartialHierarchyTree<>(String::contains);
+
+		tree.insertNode("A");
+		tree.insertNode("B");
+		tree.insertNode("C");
+		tree.insertNode("ABA");
+
+		String dashTree =
+				"A\n" +
+				"- ABA\n" +
+				"B\n" +
+				"- ABA\n" +
+				"C\n";
+		assertEquals(dashTree, tree.toDashTree());
+		assertEquals(4, tree.getNodeCount());
+		assertEquals(2, tree.find("ABA").getParents().size());
+		assertEquals(1, tree.find("A").getChildren().size());
+		assertEquals(1, tree.find("B").getChildren().size());
+		assertEquals(0, tree.find("C").getChildren().size());
+
+		tree.remove("ABA");
+		assertEquals(3, tree.getNodeCount());
+		assertEquals(0, tree.find("A").getChildren().size());
+		assertEquals(0, tree.find("B").getChildren().size());
+		assertEquals(0, tree.find("C").getChildren().size());
+
+		tree.insert("ABA");
+		assertEquals(dashTree, tree.toDashTree());
+
+		tree.remove("A");
+
+		assertEquals(3, tree.getNodeCount());
+		assertEquals(1, tree.find("ABA").getParents().size());
+
+		tree.remove("C");
+
+		assertEquals(2, tree.getNodeCount());
+		assertEquals(1, tree.find("ABA").getParents().size());
+
+		tree.remove("B");
+
+		assertEquals(1, tree.getNodeCount());
+		assertEquals(0, tree.find("ABA").getParents().size());
 	}
 
 	@Test
