@@ -22,6 +22,8 @@ import com.denkbares.utils.Log;
 
 import java.util.*;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This data structure is able to capture a (evolving) subset of nodes of a
  * hierarchy as a tree, still retaining the hierarchical relations. That is, if
@@ -48,32 +50,22 @@ public class PartialHierarchyTree<T> {
 	private final Comparator<T> comparator;
 	private final PartialHierarchy<T> hierarchy;
 
-	public PartialHierarchyTree(PartialHierarchy<T> h, Comparator<T> comparator) {
-		this.hierarchy = h;
-		root = new Node<>(null, comparator);
-		this.comparator = comparator;
-		root.children = new ArrayList<>();
-
+	public PartialHierarchyTree(PartialHierarchy<T> h) {
+		this(h, null, null);
 	}
 
-	public PartialHierarchyTree(PartialHierarchy<T> h) {
-		this.hierarchy = h;
-		root = new Node<>(null);
-		this.comparator = null;
-		root.children = new ArrayList<>();
+	public PartialHierarchyTree(PartialHierarchy<T> h, Comparator<T> comparator) {
+		this(h, null, comparator);
+	}
+
+	public PartialHierarchyTree(PartialHierarchy<T> h, T rootData) {
+		this(h, rootData, null);
 	}
 
 	public PartialHierarchyTree(PartialHierarchy<T> h, T rootData, Comparator<T> comparator) {
 		this.hierarchy = h;
 		this.comparator = comparator;
 		root = new Node<>(rootData, comparator);
-		root.children = new ArrayList<>();
-	}
-
-	public PartialHierarchyTree(PartialHierarchy<T> h, T rootData) {
-		this.hierarchy = h;
-		this.comparator = null;
-		root = new Node<>(rootData);
 		root.children = new ArrayList<>();
 	}
 
@@ -120,7 +112,7 @@ public class PartialHierarchyTree<T> {
 	 * @return whether t has been found and removed
 	 * @created 12.04.2013
 	 */
-	public synchronized boolean remove(T term) {
+	public synchronized boolean remove(T term) throws PartialHierarchyException {
 		return remove(term, root);
 	}
 
@@ -130,7 +122,7 @@ public class PartialHierarchyTree<T> {
 	 *
 	 * @return true if the PartialHierarchyTree has changed, false otherwise.
 	 */
-	public synchronized boolean removeAll(Collection<T> terms) {
+	public synchronized boolean removeAll(Collection<T> terms) throws PartialHierarchyException {
 		boolean changed = false;
 		for (T term : terms) {
 			boolean removed = remove(term);
@@ -160,15 +152,17 @@ public class PartialHierarchyTree<T> {
 	}
 
 	/**
-	 * Returns the depth level of this node in the tree
+	 * Returns the maximum depth level of this node in the tree. Since the can be multiple parents for each node, it is
+	 * possible to have different depth level depending on the path to the root. We return the length of longest path to
+	 * the root.
 	 */
-	public int getDepthLevel(Node<T> node) {
-		int depth = 0;
-		while (node.getParent() != null) {
-			node = node.getParent();
-			depth++;
+	public int getMaxDepthLevel(Node<T> node) {
+		int max = -1;
+		for (Node<T> parent : node.getParents()) {
+			int depthLevel = getMaxDepthLevel(parent);
+			if (depthLevel > max) max = depthLevel;
 		}
-		return depth;
+		return max + 1;
 	}
 
 	private synchronized Node<T> findRecursiveNode(T externalNode, Node<T> treeNode) throws PartialHierarchyException {
@@ -296,9 +290,8 @@ public class PartialHierarchyTree<T> {
 		if (t == null) {
 			return false;
 		}
-		Node<T> existingNode = find(t);
-		if (existingNode == null) {
-			insertNodeUnder(t, root);
+		if (find(t) == null) {
+			insertNodeUnder(new Node<>(t, comparator), root);
 			return true;
 		}
 		else {
@@ -317,15 +310,13 @@ public class PartialHierarchyTree<T> {
 	 * @return true if the value has been inserted into the tree, false otherwise
 	 */
 	public boolean insertNode(T t) {
-		boolean inserted;
 		try {
-			inserted = insert(t);
+			return insert(t);
 		}
 		catch (PartialHierarchyException e) {
 			Log.severe("Unable to insert node", e);
 			return false;
 		}
-		return inserted;
 	}
 
 	/**
@@ -343,60 +334,49 @@ public class PartialHierarchyTree<T> {
 	 *
 	 * @created 12.04.2013
 	 */
-	private synchronized void insertNodeUnder(T t, Node<T> parent) throws PartialHierarchyException {
-
-		List<Node<T>> children = parent.getChildren();
-		Iterator<Node<T>> descentIterator = children.iterator();
+	private synchronized void insertNodeUnder(Node<T> newNode, Node<T> parent) throws PartialHierarchyException {
 
 		// look for super concepts to descent
 		boolean descent = false;
-		while (descentIterator.hasNext()) {
-			Node<T> child = descentIterator.next();
-			if (hierarchy.isSuccessorOf(t, child.data)) {
-				insertNodeUnder(t, child);
+		for (Node<T> child : parent.getChildren()) {
+			if (hierarchy.isSuccessorOf(newNode.getData(), child.data)) {
+				insertNodeUnder(newNode, child);
 				descent = true;
-				break;
 			}
 		}
 		// if no super concept for descent is found, insert at this level
 		if (!descent) {
-			Node<T> newNode = new Node<>(t, comparator);
 			parent.addChild(newNode);
-			newNode.setParent(parent);
+			newNode.addParent(parent);
 
 			// then check siblings, which could be sub-concepts of the new one
-			Iterator<Node<T>> checkSiblingsIterator = children.iterator();
 			List<Node<T>> successorSiblings = new ArrayList<>();
-			while (checkSiblingsIterator.hasNext()) {
-				Node<T> sibling = checkSiblingsIterator.next();
-				if (sibling.data.equals(t)) {
+			for (Node<T> sibling : parent.getChildren()) {
+				if (sibling.data.equals(newNode.getData())) {
 					continue;
 				}
-				if (hierarchy.isSuccessorOf(sibling.data, t)) {
+				if (hierarchy.isSuccessorOf(sibling.data, newNode.getData())) {
 					// re-hang sibling to be successor of t
 					successorSiblings.add(sibling);
-
 				}
 			}
 			for (Node<T> successorSibling : successorSiblings) {
-				newNode.addChild(successorSibling);
 				parent.removeChild(successorSibling);
-				successorSibling.setParent(newNode);
+				newNode.addChild(successorSibling);
+				successorSibling.removeParent(parent);
+				successorSibling.addParent(newNode);
 			}
 		}
 
 	}
 
-	private boolean remove(T term, Node<T> node) {
+	private boolean remove(T term, Node<T> node) throws PartialHierarchyException {
+		if (term != null && node.getData() != null && !hierarchy.isSuccessorOf(term, node.getData())) return false;
 		boolean found = false;
-		List<Node<T>> children = node.getChildren();
-		Iterator<Node<T>> iterator = children.iterator();
-		Node<T> foundNode = null;
-		while (iterator.hasNext()) {
-			Node<T> child = iterator.next();
-			if (child.data.equals(term)) {
+		for (Node<T> child : new ArrayList<>(node.getChildren())) {
+			if (Objects.equals(child.getData(), term)) {
 				// if found, delete child node and hook up grand-children
-				foundNode = child;
+				removeChildNode(child, node);
 				found = true;
 			}
 			else {
@@ -405,28 +385,46 @@ public class PartialHierarchyTree<T> {
 					found = true;
 				}
 			}
-			if (found) {
-				break;
-			}
-		}
-		if (foundNode != null) {
-			removeChildNode(foundNode, node);
 		}
 		return found;
 	}
 
-	private void removeChildNode(Node<T> child, Node<T> father) {
+	private void removeChildNode(Node<T> child, Node<T> parent) {
 		List<Node<T>> grandChildren = child.getChildren();
-		father.removeChild(child);
+		parent.removeChild(child);
 		for (Node<T> grandChild : grandChildren) {
-			father.addChild(grandChild);
+			grandChild.parents.remove(child);
+			parent.addChild(grandChild);
+		}
+	}
+
+	/**
+	 * Returns dash tree of this hierarchy, mainly for debugging purposes.
+	 */
+	public String toDashTree() {
+		StringBuilder builder = new StringBuilder();
+		for (Node<T> child : root.getChildren()) {
+			toDashTree(child, 0, builder);
+		}
+		return builder.toString();
+	}
+
+	private void toDashTree(Node<T> currentNode, int currentDepth, StringBuilder builder) {
+		for (int i = 0; i < currentDepth; i++) {
+			builder.append("-");
+		}
+		if (currentDepth > 0) builder.append(" ");
+		builder.append(currentNode.data).append("\n");
+
+		for (Node<T> child : currentNode.getChildren()) {
+			toDashTree(child, currentDepth + 1, builder);
 		}
 	}
 
 	public static class Node<T> {
 
 		final T data;
-		private transient Node<T> parent;
+		private final transient Collection<Node<T>> parents = new MinimizedHashSet<>();
 		private List<Node<T>> children = new ArrayList<>();
 		private Comparator<T> comparator;
 
@@ -448,16 +446,14 @@ public class PartialHierarchyTree<T> {
 		}
 
 		/**
-		 * Returns the parent node of this node, returns null if this node is on
+		 * Returns the parent nodes of this node, returns empty list if this node is on
 		 * top-level.
 		 *
 		 * @created 26.11.2013
 		 */
-		public Node<T> getParent() {
-			if (parent == null || parent.data == null) {
-				return null;
-			}
-			return parent;
+		@NotNull
+		public Collection<Node<T>> getParents() {
+			return parents;
 		}
 
 		@Override
@@ -486,23 +482,24 @@ public class PartialHierarchyTree<T> {
 			return false;
 		}
 
-		public void setParent(Node<T> parent) {
-			this.parent = parent;
+		public void addParent(Node<T> parent) {
+			if (parent.data == null) return;
+			this.parents.add(parent);
 		}
 
 		public T getData() {
 			return data;
 		}
 
-		public void addChild(Node<T> n) {
-			if (!children.contains(n)) {
-				children.add(n);
-				n.parent = this;
+		public void addChild(Node<T> node) {
+			if (!children.contains(node)) {
+				children.add(node);
+				node.addParent(this);
 			}
 		}
 
-		public boolean removeChild(Node<T> n) {
-			return children.remove(n);
+		public boolean removeChild(Node<T> child) {
+			return this.children.remove(child);
 		}
 
 		public boolean containsChild(Node<T> n) {
@@ -524,6 +521,10 @@ public class PartialHierarchyTree<T> {
 			List<Node<T>> copy = new ArrayList<>(children);
 			copy.sort(new PartialHierarchyNodeComparator<>(c));
 			return Collections.unmodifiableList(copy);
+		}
+
+		public void removeParent(Node<T> parent) {
+			parents.remove(parent);
 		}
 
 		class DefaultComparator implements Comparator<T> {

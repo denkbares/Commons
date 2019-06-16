@@ -33,6 +33,8 @@ import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 
 /**
+ * Provides SubClassHierarchy information based on a SPARQLEndpoint.
+ *
  * @author Jochen Reutelshoefer (denkbares GmbH)
  * @created 18.02.16.
  */
@@ -41,7 +43,6 @@ public class SubClassHierarchy implements PartialHierarchy<URI> {
 	private final MultiMap<String, String> subClassCache = new DefaultMultiMap<>(MultiMaps.minimizedFactory(), MultiMaps.minimizedFactory());
 
 	public SubClassHierarchy(SPARQLEndpoint core, String subClassRelation) {
-//		String query = "ASK { <" + node1 + "> " + subClassRelation + " <" + node2 + "> }";
 		String query = "SELECT ?node1 ?node2 WHERE { ?node1 " + subClassRelation + " ?node2 }";
 		try (SPARQLQueryResult queryResult = core.execute(core.prepareQuery(query))) {
 			TupleQueryResult result = queryResult.getResult();

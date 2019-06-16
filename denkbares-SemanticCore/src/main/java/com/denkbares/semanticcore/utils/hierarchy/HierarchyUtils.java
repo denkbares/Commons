@@ -111,7 +111,7 @@ public class HierarchyUtils {
 		int maxDepth = 0;
 		PartialHierarchyTree.Node<URI> deepestLeaf = classHierarchy.getRoot();
 		for (PartialHierarchyTree.Node<URI> node : nodes) {
-			int depth = getDepth(node);
+			int depth = classHierarchy.getMaxDepthLevel(node);
 			if (depth >= maxDepth) {
 				maxDepth = depth;
 				deepestLeaf = node;
@@ -120,12 +120,4 @@ public class HierarchyUtils {
 		return deepestLeaf.getData();
 	}
 
-	private static int getDepth(PartialHierarchyTree.Node<URI> node) {
-		int depth = 0;
-		while (node.getParent() != null) {
-			depth++;
-			node = node.getParent();
-		}
-		return depth;
-	}
 }
