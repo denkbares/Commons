@@ -102,6 +102,7 @@ public final class InitPluginManager {
 		if (!Files.exists(classpathFile.toPath())) {
 			Log.severe("Dependency information file does not exist: " + classpathFile.getAbsolutePath());
 		}
+		Log.info("Initializing plugins specified in " + classpathFile);
 		init(Strings.readFile(classpathFile).split(";"), pluginFilterPattern);
 	}
 
