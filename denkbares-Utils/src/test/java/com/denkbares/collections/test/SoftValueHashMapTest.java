@@ -10,15 +10,10 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 import com.denkbares.collections.SoftValueHashMap;
 import com.denkbares.utils.Log;
-import com.denkbares.utils.Stopwatch;
 
 import static org.junit.Assert.*;
 
@@ -114,7 +109,7 @@ public class SoftValueHashMapTest {
 		map.put(key2, value3);
 		value1 = null;
 		value2 = null;
-		performSecureGC();
+		performSecureGC(1, map);
 
 		// then only key2 shall be contained with value3
 		assertEquals(1, map.size());
@@ -139,8 +134,7 @@ public class SoftValueHashMapTest {
 		map.put(null, value);
 		assertEquals(1, map.size());
 		value = null;
-		performSecureGC();
-		performSecureGC();
+		performSecureGC(0, map);
 		assertEquals(0, map.size());
 
 		// add value for null that is garbage collected
@@ -151,8 +145,7 @@ public class SoftValueHashMapTest {
 		map.put(null, null);
 		assertNull(map.get(null));
 		value = null;
-		performSecureGC();
-		performSecureGC();
+		performSecureGC(1, map);
 		assertEquals(1, map.size());
 
 		assertNull(map.values().iterator().next());
@@ -165,19 +158,22 @@ public class SoftValueHashMapTest {
 		assertNull(map.get(null));
 	}
 
-	private static void performSecureGC() {
-		try {
-			int blockSize = 1024 * 1024 * 1024; // 1 GB
-			// force out of memory (by adding blocks or memory to a list)
-			// --> all soft references are granted to be cleared
-			//noinspection EndlessStream
-			Stream.iterate(0, i -> i + 1).map(i -> new byte[blockSize]).collect(Collectors.toList());
-			throw new IllegalStateException();
-		}
-		catch (OutOfMemoryError e) {
-			// Ignore, we are fine now
-			Log.info("memory cleared");
-			System.gc();
+	private static void performSecureGC(int expectedSize, Map<Key, Value> map) {
+		for (int j = 0; j < 10; j++) {
+			try {
+				int blockSize = 1024 * 1024 * 1024; // 1 GB
+				// force out of memory (by adding blocks or memory to a list)
+				// --> all soft references are granted to be cleared
+				//noinspection EndlessStream
+				Stream.iterate(0, i -> i + 1).map(i -> new byte[blockSize]).collect(Collectors.toList());
+				throw new IllegalStateException();
+			}
+			catch (OutOfMemoryError e) {
+				// Ignore, we are fine now
+				Log.info("memory cleared");
+				System.gc();
+			}
+			if (map.size() <= expectedSize) break;
 		}
 	}
 
@@ -224,5 +220,4 @@ public class SoftValueHashMapTest {
 			super(value);
 		}
 	}
-
 }
