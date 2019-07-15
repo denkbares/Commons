@@ -425,8 +425,8 @@ public class Locales {
 
 	/**
 	 * Searches the best matching language within the specified map, and returns the associated value. If the map is
-	 * empty, the specified default value is returned. If the map is not empty, it is granted that any of the map's
-	 * values is returned (which may be null, if there are any null values in the map).
+	 * empty or null, the specified default value is returned. If the map is not empty, it is granted that any of the
+	 * map's values is returned (which may be null, if there are any null values in the map).
 	 *
 	 * @param map          the map of possible values
 	 * @param language     the preferred language to get the value for
@@ -434,7 +434,7 @@ public class Locales {
 	 * @return the value of the best matching language
 	 */
 	public static <E> E getBestValue(Map<Locale, E> map, Locale language, E defaultValue) {
-		if (map == null) return null;
+		if (map == null) return defaultValue;
 		return map.getOrDefault(findBestLocale(language, map.keySet()), defaultValue);
 	}
 }
