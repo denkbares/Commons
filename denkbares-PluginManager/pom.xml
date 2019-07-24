@@ -30,6 +30,10 @@
 	<artifactId>denkbares-PluginManager</artifactId>
 	<description>denkbares Plugin manager based on JPF</description>
 
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.jpf</groupId>

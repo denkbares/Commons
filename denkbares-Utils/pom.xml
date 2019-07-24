@@ -28,5 +28,8 @@
 
 	<artifactId>denkbares-Utils</artifactId>
 	<description>Small assembly of helpful tools and utilities.</description>
-
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 </project>
