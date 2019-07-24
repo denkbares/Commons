@@ -184,7 +184,7 @@ public class Files {
 	 * @created 13.06.2018
 	 */
 	public static String readFile(File file, String charset) throws IOException {
-		return Streams.readStream(new FileInputStream(file), charset);
+		return Streams.getTextAndClose(new FileInputStream(file), charset);
 	}
 
 	/**
@@ -324,7 +324,6 @@ public class Files {
 	public static Reader getReader(File file) throws FileNotFoundException {
 		return new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 	}
-
 
 	/**
 	 * Convenience method to get a new file writer for a file (using the correct (UTF-8) encoding).
