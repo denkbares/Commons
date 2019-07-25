@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
   ~ Copyright (C) 2019 denkbares GmbH, Germany
   ~
   ~ This is free software; you can redistribute it and/or modify it under the
@@ -28,5 +27,7 @@
 	</parent>
 
 	<artifactId>denkbares-Progress</artifactId>
-
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 </project>
