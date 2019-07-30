@@ -32,6 +32,7 @@
 		<graphdb.version>8.7.2</graphdb.version>
 		<rdf4j.version>2.3.2</rdf4j.version>
 		<d3web.version>12.2-SNAPSHOT</d3web.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modules>
