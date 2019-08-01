@@ -1731,7 +1731,25 @@ public class Strings {
 	 * @return the item count plus the item name
 	 */
 	public static String pluralOf(int itemCount, String itemName) {
-		return itemCount + " " + ((itemCount == 1) ? itemName : Inflector.pluralOf(itemName));
+		return pluralOf(itemCount, itemName, true);
+	}
+
+	/**
+	 * Returns the number of items together with the item name, correctly used in singular or plural case. It assumes
+	 * that the item name is in English language.
+	 * <pre>
+	 *     pluralOf(0, "apple") -> "0 apples"
+	 *     pluralOf(1, "user") -> "1 user"
+	 *     pluralOf(2, "coin") -> "2 coins"
+	 * </pre>
+	 *
+	 * @param itemCount     the number of items
+	 * @param itemName      the name of the item in singular case
+	 * @param includeNumber specifies whether the number should be included in the returned string
+	 * @return the item count plus the item name
+	 */
+	public static String pluralOf(int itemCount, String itemName, boolean includeNumber) {
+		return (includeNumber ? itemCount + " " : "") + ((itemCount == 1) ? itemName : Inflector.pluralOf(itemName));
 	}
 
 	/**
