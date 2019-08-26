@@ -39,7 +39,7 @@ public interface ClosableTupleQueryResult extends org.eclipse.rdf4j.query.TupleQ
 	 * @return a cached and closed version of this result, without preserving the namespaces
 	 * @throws QueryEvaluationException if there is a exception while evaluating
 	 */
-	ClosableTupleQueryResult cachedAndClosed() throws QueryEvaluationException;
+	CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException;
 
 	/**
 	 * Will cause the underlying result to be retrieved completely into a cache. After the caching, the underlying
