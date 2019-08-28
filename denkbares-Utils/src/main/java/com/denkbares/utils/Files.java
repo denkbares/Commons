@@ -796,7 +796,7 @@ public class Files {
 	 * @param file       the current file or folder to add to the zip
 	 * @param zos        the zip output stream to zip the directory
 	 */
-	private static void zipDir(File folder2zip, File file, ZipOutputStream zos, boolean includeHiddenFiles) throws IOException {
+	public static void zipDir(File folder2zip, File file, ZipOutputStream zos, boolean includeHiddenFiles) throws IOException {
 		if (file.isFile()) {
 			// relativize the savepath of the file against the savepath
 			// of the parentfolder of the actual wiki-folder
