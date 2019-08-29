@@ -32,11 +32,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
 
@@ -44,7 +47,8 @@ import com.denkbares.utils.Streams;
  * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the SemanticCore and
  * handles its allocation/release well.
  */
-public class TurtleFileEndpoint extends SesameEndpoint {
+public class TurtleFileEndpoint implements SPARQLEndpoint {
+
 	private final String ontologyName;
 	private SemanticCore sc;
 
@@ -136,7 +140,6 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 			for (Reader source : sources) {
 				sc.addData(source, RDFFormat.TURTLE);
 			}
-			setConnection(sc.getConnection());
 		}
 		catch (RepositoryException | RDFParseException e) {
 			throw new IOException("cannot initialize ontology from resource stream", e);
@@ -187,9 +190,29 @@ public class TurtleFileEndpoint extends SesameEndpoint {
 	}
 
 	@Override
+	public Collection<Namespace> getNamespaces() throws RepositoryException {
+		return sc.getNamespaces();
+	}
+
+	@Override
+	public boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		return sc.sparqlAsk(namespaces, query);
+	}
+
+	@Override
+	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		return sc.sparqlSelect(namespaces, query);
+	}
+
+	@Override
+	public ValueFactory getValueFactory() {
+		return sc.getValueFactory();
+	}
+
+	@Override
 	public synchronized void close() throws RepositoryException {
 		try {
-			super.close();
+			sc.close();
 		}
 		finally {
 			// release core when this instance is closed, but only once!

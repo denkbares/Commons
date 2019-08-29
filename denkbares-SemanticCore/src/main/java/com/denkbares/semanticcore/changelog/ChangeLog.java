@@ -73,25 +73,19 @@ public class ChangeLog {
 	}
 
 	public static void commitChanges(SemanticCore core, Queue<Change> changes) {
-		try {
-			RepositoryConnection connection = core.getConnection();
-			try {
-				ValueFactory vf = core.getValueFactory();
-				connection.begin();
-				for (Change change : changes) {
-					Statement s = toStatement(vf, change);
-					if (change.getAction() == Change.Action.ADD) {
-						connection.add(s);
-					}
-					else {
-						connection.remove(s);
-					}
+		try (RepositoryConnection connection = core.getConnection()) {
+			ValueFactory vf = core.getValueFactory();
+			connection.begin();
+			for (Change change : changes) {
+				Statement s = toStatement(vf, change);
+				if (change.getAction() == Change.Action.ADD) {
+					connection.add(s);
 				}
-				connection.commit();
+				else {
+					connection.remove(s);
+				}
 			}
-			finally {
-				com.denkbares.semanticcore.RepositoryConnection.closeQuietly(connection);
-			}
+			connection.commit();
 		}
 		catch (RepositoryException e) {
 			Log.severe("Exception while committing changes", e);
@@ -148,7 +142,5 @@ public class ChangeLog {
 			logWriter.flush();
 			committedChanges.add(change);
 		}
-
 	}
-
 }

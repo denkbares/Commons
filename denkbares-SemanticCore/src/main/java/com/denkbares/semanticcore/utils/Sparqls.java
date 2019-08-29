@@ -43,9 +43,8 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.collections.MultiMap;
-import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.semanticcore.ClosableTupleQueryResult;
-import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
+import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Log;
 
@@ -322,22 +321,6 @@ public class Sparqls {
 	 * @return a multi-map of the key-value-pairs
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
-	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, Function<BindingSet, K> keyExtractor, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
-		return toMultiMap(queryResult.getResult(), keyExtractor, valueExtractor);
-	}
-
-	/**
-	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
-	 * (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param keyExtractor   the function to extract the keys
-	 * @param valueExtractor the function to extract the values
-	 * @param <K>            the key type
-	 * @param <V>            the value type
-	 * @return a multi-map of the key-value-pairs
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
 	public static <K, V> MultiMap<K, V> toMultiMap(ClosableTupleQueryResult queryResult, Function<BindingSet, K> keyExtractor, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
 		MultiMap<K, V> map = new DefaultMultiMap<>();
 		while (queryResult.hasNext()) {
@@ -347,26 +330,6 @@ public class Sparqls {
 			if (value != null) map.put(key, value);
 		}
 		return map;
-	}
-
-	/**
-	 * Iterates the complete query result and collects the bindings as a multi-map. The specified queryResult ist not
-	 * (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param keyName        the name of the binding to be used for the keys (sparql variable name without the leading
-	 *                       "?")
-	 * @param keyExtractor   the function to convert the key bindings into a keys
-	 * @param valueName      the name of the binding to be used for the values (sparql variable name without the leading
-	 *                       "?")
-	 * @param valueExtractor the function to convert the value bindings into a values
-	 * @param <K>            the key type
-	 * @param <V>            the value type
-	 * @return a multi-map of the key-value-pairs
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
-	public static <K, V> MultiMap<K, V> toMultiMap(SPARQLQueryResult queryResult, String keyName, Function<Binding, K> keyExtractor, String valueName, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
-		return toMultiMap(queryResult.getResult(), keyName, keyExtractor, valueName, valueExtractor);
 	}
 
 	/**
@@ -401,39 +364,10 @@ public class Sparqls {
 	 * @return a set of the extracted values
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
-	public static <V> Set<V> toSet(SPARQLQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
-		return toSet(queryResult.getResult(), valueExtractor);
-	}
-
-	/**
-	 * Iterates the complete query result and collects a particular value of each binding set (row) into a set. The
-	 * specified queryResult ist not (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param valueExtractor the function to extract the value of each binding set
-	 * @param <V>            the value type
-	 * @return a set of the extracted values
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
 	public static <V> Set<V> toSet(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
 		Set<V> set = new HashSet<>();
 		collect(queryResult, valueExtractor, set);
 		return set;
-	}
-
-	/**
-	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
-	 * specified queryResult ist not (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
-	 * @param valueExtractor the function to convert each value binding into a value
-	 * @param <V>            the value type
-	 * @return a set of the extracted values
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
-	public static <V> Set<V> toSet(SPARQLQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
-		return toSet(queryResult.getResult(), variable, valueExtractor);
 	}
 
 	/**
@@ -462,39 +396,10 @@ public class Sparqls {
 	 * @return a list of the extracted values
 	 * @throws QueryEvaluationException if the query could not been iterated correctly
 	 */
-	public static <V> List<V> toList(SPARQLQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
-		return toList(queryResult.getResult(), valueExtractor);
-	}
-
-	/**
-	 * Iterates the complete query result and collects a particular value of each binding set (row) into a list. The
-	 * specified queryResult ist not (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param valueExtractor the function to extract the value of each binding set
-	 * @param <V>            the value type
-	 * @return a list of the extracted values
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
 	public static <V> List<V> toList(ClosableTupleQueryResult queryResult, Function<BindingSet, V> valueExtractor) throws QueryEvaluationException {
 		List<V> list = new LinkedList<>();
 		collect(queryResult, valueExtractor, list);
 		return list;
-	}
-
-	/**
-	 * Iterates the complete query result and collects the binding of the specified variable name as a set. The
-	 * specified queryResult ist not (!) automatically closed.
-	 *
-	 * @param queryResult    the query result to be iterated
-	 * @param variable       the name of the binding to be used (sparql variable name without the leading "?")
-	 * @param valueExtractor the function to convert each value binding into a value
-	 * @param <V>            the value type
-	 * @return a list of the extracted values
-	 * @throws QueryEvaluationException if the query could not been iterated correctly
-	 */
-	public static <V> List<V> toList(SPARQLQueryResult queryResult, String variable, Function<Binding, V> valueExtractor) throws QueryEvaluationException {
-		return toList(queryResult.getResult(), variable, valueExtractor);
 	}
 
 	/**

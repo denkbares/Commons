@@ -33,9 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.semanticcore.RepositoryConnection;
 import com.denkbares.semanticcore.TupleQuery;
-import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
-import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 import com.denkbares.utils.Log;
 
 /**
@@ -46,21 +44,18 @@ public class RDFUtils {
 
 	public static boolean isClass(SPARQLEndpoint core, URI resource) {
 		String query = "ASK { <" + resource + "> rdf:type rdfs:Class .}";
-		SPARQLBooleanQuery sparqlBooleanQuery = core.prepareBooleanQuery(query);
-		return sparqlBooleanQuery.evaluate();
+		return core.sparqlAsk(query);
 	}
 
 	public static boolean isProperty(SPARQLEndpoint core, URI resource) {
 		String query = "ASK { <" + resource + "> rdf:type rdf:Property .}";
-		SPARQLBooleanQuery sparqlBooleanQuery = core.prepareBooleanQuery(query);
-		return sparqlBooleanQuery.evaluate();
+		return core.sparqlAsk(query);
 	}
 
 	public static Collection<URI> getClasses(SPARQLEndpoint core, URI instance) {
 		String query = "SELECT ?class WHERE { <" + instance + "> rdf:type ?class .}";
 		List<URI> resultCollection = new ArrayList<>();
-		try (SPARQLQueryResult queryResult = core.execute(core.prepareQuery(query))) {
-			TupleQueryResult result = queryResult.getResult();
+		try (TupleQueryResult result = core.sparqlSelect(query)) {
 			while (result.hasNext()) {
 				BindingSet bindingSet = result.next();
 				URI aClass = Sparqls.asURI(bindingSet, "class");

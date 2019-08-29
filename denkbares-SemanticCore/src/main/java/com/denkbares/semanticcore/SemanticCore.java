@@ -14,6 +14,8 @@ import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,13 +33,14 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.MalformedQueryException;
-import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.QueryLanguage;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
@@ -56,13 +59,14 @@ import org.jetbrains.annotations.NotNull;
 import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
 
-public final class SemanticCore {
+public final class SemanticCore implements SPARQLEndpoint {
 
 	private static final long MAX_SHUTDOWN_WAIT = 1000 * 60;
 
@@ -203,7 +207,6 @@ public final class SemanticCore {
 
 	private void initConnectionDaemon() {
 		// checks every 2 min for open connections and warns about them...
-		// noinspection CodeBlock2Expr
 		daemon.scheduleWithFixedDelay(() -> {
 			synchronized (connectionsMutex) {
 				connections.removeIf(connectionInfo -> {
@@ -255,7 +258,7 @@ public final class SemanticCore {
 	public void release() {
 		long counter = allocationCounter.decrementAndGet();
 		if (counter == 0) {
-			shutdown();
+			close();
 		}
 	}
 
@@ -266,10 +269,10 @@ public final class SemanticCore {
 	 *
 	 * @see #allocate()
 	 * @see #release()
-	 * @see #shutdown()
+	 * @see #close()
 	 */
 	public void requestShutdown() {
-		if (!isAllocated()) shutdown();
+		if (!isAllocated()) close();
 	}
 
 	/**
@@ -290,8 +293,11 @@ public final class SemanticCore {
 	 * @see #release()
 	 * @see #requestShutdown()
 	 */
-	public void shutdown() {
+	@Override
+	public void close() {
 		state = State.shutdown;
+		instances.remove(getRepositoryId());
+		repositoryManager.removeRepository(getRepositoryId());
 		try {
 			Stopwatch stopwatch = new Stopwatch();
 			synchronized (connectionsMutex) {
@@ -328,7 +334,7 @@ public final class SemanticCore {
 						Log.severe(message);
 					}
 					catch (RepositoryException e) {
-						Log.info("Unable to shutdown connection", e);
+						Log.info("Unable to close connection", e);
 					}
 				});
 				connections.clear();
@@ -353,7 +359,7 @@ public final class SemanticCore {
 
 	public static void shutDownAllRepositories() {
 		// create new list to avoid concurrent modification exception
-		new ArrayList<>(instances.values()).forEach(SemanticCore::shutdown);
+		new ArrayList<>(instances.values()).forEach(SemanticCore::close);
 	}
 
 	private synchronized static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
@@ -394,12 +400,20 @@ public final class SemanticCore {
 			});
 		}
 		catch (RepositoryException e) {
-			Log.severe("Unable to retrieve repositories during manager shutdown", e);
+			Log.severe("Unable to retrieve repositories during manager close", e);
 		}
 		repositoryManager.shutDown();
 		lazyInitializationDone = false;
 	}
 
+	@Override
+	public Collection<Namespace> getNamespaces() throws RepositoryException {
+		try (RepositoryConnection connection = getConnection()) {
+			return Iterations.asList(connection.getNamespaces());
+		}
+	}
+
+	@Override
 	public ValueFactory getValueFactory() {
 		return repository.getValueFactory();
 	}
@@ -444,21 +458,6 @@ public final class SemanticCore {
 		try (org.eclipse.rdf4j.repository.RepositoryConnection connection = this.getConnection()) {
 			adder.run(connection);
 		}
-	}
-
-	/**
-	 * Reads an UPDATE query from a file and executes it
-	 *
-	 * @param sparqlFile   Input File
-	 * @param replacements String arrays of replacements to run on the query
-	 * @created 09.01.2015
-	 */
-	public void update(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, UpdateExecutionException {
-		String queryString = SPARQLLoader.load(sparqlFile, getClass());
-		for (String[] replacement : replacements) {
-			queryString = queryString.replaceAll(replacement[0], replacement[1]);
-		}
-		update(queryString);
 	}
 
 	public void addData(File file) throws RDFParseException, RepositoryException, IOException {
@@ -536,36 +535,14 @@ public final class SemanticCore {
 		addData(new File(file));
 	}
 
-	/**
-	 * Reads a SELECT query from a file and executes it
-	 *
-	 * @param sparqlFile   Input File
-	 * @param replacements String arrays of replacements to run on the query
-	 * @return A {@see TupleQueryResult}
-	 */
-	public TupleQueryResult query(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
-		String queryString = SPARQLLoader.load(sparqlFile, getClass());
-		for (String[] replacement : replacements) {
-			if (replacement.length > 1) {
-				queryString = queryString.replaceAll(replacement[0], replacement[1]);
-			}
-		}
-		return query(queryString);
-	}
-
-	/**
-	 * Performs a SELECT query
-	 *
-	 * @param queryString SPARQL query
-	 * @return A {@see TupleQueryResult}
-	 */
-	public TupleQueryResult query(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+	@Override
+	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String queryString) throws QueryFailedException {
 		RepositoryConnection connection = getConnection();
 		try {
-			TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+			TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
 			return new TupleQueryResult(connection, query.evaluate());
 		}
-		catch (RepositoryException | MalformedQueryException | QueryEvaluationException e) {
+		catch (Exception e) {
 			// if an exception occurs preparing the result instance, but after the connection has been created,
 			// we have to close the connection manually, otherwise nobody would close
 			connection.close();
@@ -574,36 +551,46 @@ public final class SemanticCore {
 	}
 
 	/**
-	 * Reads an ASK query from a file and executes it
+	 * Performs the give SELECT queries. No additional namespace will be prepended.
 	 *
-	 * @param sparqlFile   Input File
-	 * @param replacements String arrays of replacements to run on the query
-	 * @return Result of the ASK query
+	 * @return result of the ASK query
+	 * @deprecated use {@link #sparqlSelect(Collection, String)} instead
 	 */
-	public boolean ask(String sparqlFile, String[]... replacements) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
-		String queryString = SPARQLLoader.load(sparqlFile, getClass());
-		for (String[] replacement : replacements) {
-			queryString = queryString.replaceAll(replacement[0], replacement[1]);
-		}
-		return ask(queryString);
+	@Deprecated
+	public TupleQueryResult query(String queryString) throws QueryFailedException {
+		return sparqlSelect(Collections.emptyList(), queryString);
 	}
 
-	/**
-	 * Performs an ASK query
-	 *
-	 * @param queryString SPARQL query
-	 * @return Result of the ASK query
-	 */
-	public boolean ask(String queryString) throws RepositoryException, MalformedQueryException, QueryEvaluationException {
+	@Override
+	public boolean sparqlAsk(Collection<Namespace> namespaces, String queryString) throws QueryFailedException {
 		try (RepositoryConnection connection = getConnection()) {
-			BooleanQuery query = connection.prepareBooleanQuery(QueryLanguage.SPARQL, queryString);
+			BooleanQuery query = connection.prepareBooleanQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
 			return query.evaluate();
 		}
 	}
 
-	private interface DataAdder {
+	@NotNull
+	private String toPrefixes(Collection<Namespace> namespaces) {
+		StringBuilder prefixes = new StringBuilder();
+		for (Namespace namespace : namespaces) {
+			prefixes.append("PREFIX ")
+					.append(namespace.getPrefix())
+					.append(": <")
+					.append(namespace.getName())
+					.append(">\n");
+		}
+		return prefixes.toString();
+	}
 
-		void run(org.eclipse.rdf4j.repository.RepositoryConnection connection) throws IOException, RDFParseException, RepositoryException;
+	/**
+	 * Performs the give ASK queries. No additional namespace will be prepended.
+	 *
+	 * @return result of the ASK query
+	 * @deprecated use {@link #sparqlAsk(Collection, String)} instead
+	 */
+	@Deprecated
+	public boolean ask(String queryString) {
+		return sparqlAsk(Collections.emptyList(), queryString);
 	}
 
 	/**
@@ -615,9 +602,11 @@ public final class SemanticCore {
 	 * @created 09.01.2015
 	 */
 	public void update(String queryString) throws RepositoryException, MalformedQueryException, UpdateExecutionException {
-		Update query = getConnection().prepareUpdate(QueryLanguage.SPARQL, queryString);
-		query.setIncludeInferred(true);
-		query.execute();
+		try (RepositoryConnection connection = getConnection()) {
+			Update query = connection.prepareUpdate(QueryLanguage.SPARQL, queryString);
+			query.setIncludeInferred(true);
+			query.execute();
+		}
 	}
 
 	public void export(File file) throws IOException, RepositoryException, RDFHandlerException {
@@ -662,7 +651,7 @@ public final class SemanticCore {
 	@SuppressWarnings("unused")
 	public void dump(String query) {
 		Matrix<String> matrix = new Matrix<>();
-		try (TupleQueryResult result = query(query).cachedAndClosed(true)) {
+		try (TupleQueryResult result = sparqlSelect(query).cachedAndClosed(true)) {
 			// prepare headings and column length
 			List<String> names = result.getBindingNames();
 
@@ -682,6 +671,11 @@ public final class SemanticCore {
 			// dump the matrix
 			matrix.dumpTable(names);
 		}
+	}
+
+	private interface DataAdder {
+
+		void run(org.eclipse.rdf4j.repository.RepositoryConnection connection) throws IOException, RDFParseException, RepositoryException;
 	}
 
 	private static class ConnectionInfo {

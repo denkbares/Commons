@@ -22,7 +22,8 @@ package com.denkbares.semanticcore;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 
 /**
- * TupleQueryResult that is also auto closable. Always use the following way: <p/> try (TupleQueryResult result =
+ * TupleQueryResult that is also auto closable and can be cached. Always use the following way: <p/> try
+ * (TupleQueryResult result =
  * getResult()) {<br/> // iterate over result <br/> }
  *
  * @author Albrecht Striffler (denkbares GmbH)

@@ -40,7 +40,7 @@ public class SemanticCoreTest {
 		String tmpFolderPath = "target/basic";
 		SemanticCore instance = SemanticCore.createInstance("Just a test", RepositoryConfigs.get(RdfConfig.class), tmpFolderPath);
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
-		TupleQueryResult query = instance.query("SELECT * WHERE { ?x ?y ?z} ");
+		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z} ");
 
 		// check if we get the 87 triples from the rdf
 		assertEquals(87, query.cachedAndClosed().getBindingSets().size());

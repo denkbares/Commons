@@ -20,16 +20,13 @@
 package com.denkbares.semanticcore;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Collection;
 
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 
-import com.denkbares.semanticcore.sparql.SPARQLBooleanQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
-import com.denkbares.semanticcore.sparql.SPARQLQuery;
-import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
 
 /**
  * An implementation of a sparql endpoint that will be constructed on demand by some factory method,
@@ -77,24 +74,18 @@ public class FutureSPARQLEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
-	public Map<String, String> getPrefixes() throws RepositoryException {
-		if (delegate == null) return null;
-		return delegate.getPrefixes();
+	public Collection<Namespace> getNamespaces() throws RepositoryException {
+		return getQueryEndpoint().getNamespaces();
 	}
 
 	@Override
-	public SPARQLQuery prepareQuery(String queryString, String graph) throws QueryFailedException {
-		return getQueryEndpoint().prepareQuery(queryString, graph);
+	public boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		return getQueryEndpoint().sparqlAsk(namespaces, query);
 	}
 
 	@Override
-	public SPARQLBooleanQuery prepareBooleanQuery(String queryString, String graph) throws QueryFailedException {
-		return getQueryEndpoint().prepareBooleanQuery(queryString, graph);
-	}
-
-	@Override
-	public SPARQLQueryResult execute(SPARQLQuery query, Map<String, Value> bindings) throws QueryFailedException {
-		return getQueryEndpoint().execute(query, bindings);
+	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		return getQueryEndpoint().sparqlSelect(namespaces, query);
 	}
 
 	public synchronized SPARQLEndpoint getSparqlEndpoint() throws IOException {

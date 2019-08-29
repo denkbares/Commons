@@ -19,12 +19,13 @@
 
 package com.denkbares.semanticcore.sparql;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.Collection;
 
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
+
+import com.denkbares.semanticcore.TupleQueryResult;
 
 /**
  * Interface to describe an sparql endpoint that is also capable to directly execute sparql
@@ -36,131 +37,68 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 public interface SPARQLEndpoint extends AutoCloseable {
 
 	/**
-	 * Returns a map of the known prefixes of this SPARQLEndpoint.
+	 * Provides a collection of the known prefixes of this endpoint.
 	 *
-	 * @return a <name, abbreviation> map of prefixes
+	 * @return a collection with the namespaces known to this endpoint
 	 */
-	Map<String, String> getPrefixes() throws RepositoryException;
+	Collection<Namespace> getNamespaces() throws RepositoryException;
 
 	/**
-	 * Prepares a query on a certain graph
+	 * Executes the given ASK query. All known namespaces will be automatically be prepended as prefixes.
 	 *
-	 * @param queryString SPARQL query to execute
-	 * @param graph       Graph to run on
-	 * @return Prepared SPARQLQuery object
-	 * @throws QueryFailedException If the query was malformed or the method unable to successfully
-	 *                              prepare it.
-	 */
-	SPARQLQuery prepareQuery(String queryString, String graph) throws QueryFailedException;
-
-	/**
-	 * Prepares a query to run on the default graph
-	 *
-	 * @param queryString SPARQL query to execute
-	 * @return Prepared SPARQLQuery object
-	 * @throws QueryFailedException If the query was malformed or the method unable to successfully
-	 *                              prepare it.
-	 */
-	default SPARQLQuery prepareQuery(String queryString) throws QueryFailedException {
-		return prepareQuery(queryString, "");
-	}
-
-	/**
-	 * Prepares a query on a certain graph
-	 *
-	 * @param queryString SPARQL query to execute
-	 * @param graph       Graph to run on
-	 * @return Prepared SPARQLQuery object
-	 * @throws QueryFailedException If the query was malformed or the method unable to successfully
-	 *                              prepare it.
-	 */
-	SPARQLBooleanQuery prepareBooleanQuery(String queryString, String graph) throws QueryFailedException;
-
-	/**
-	 * Prepares a query to run on the default graph
-	 *
-	 * @param queryString SPARQL query to execute
-	 * @return Prepared SPARQLQuery object
-	 * @throws QueryFailedException If the query was malformed or the method unable to successfully
-	 *                              prepare it.
-	 */
-	default SPARQLBooleanQuery prepareBooleanQuery(String queryString) throws QueryFailedException {
-		return prepareBooleanQuery(queryString, "");
-	}
-
-	/**
-	 * Executes a previously prepared SPARQLQuery parametrized with a set of bindings.
-	 *
-	 * @param query    A prepared SPARQLQuery
-	 * @param bindings A Map of Strings to OpenRDF Values to use as bindings
-	 * @return The query result
+	 * @param query the ASK query without any namespace prefixes
+	 * @return the result of the ASK query
 	 * @throws QueryFailedException if the execution was not successful
-	 * @see #prepareQuery(String)
-	 * @see #prepareQuery(String, String)
 	 */
-	SPARQLQueryResult execute(SPARQLQuery query, Map<String, Value> bindings) throws QueryFailedException;
+	default boolean sparqlAsk(String query) throws QueryFailedException {
+		return sparqlAsk(getNamespaces(), query);
+	}
 
 	/**
-	 * Executes a previously prepared SPARQLQuery without any bindings.
+	 * Executes the given ASK query. Only the given namespaces will be automatically be prepended as prefixes.
 	 *
-	 * @param query The prepared query to run
-	 * @return The query result
+	 * @param query      the ASK query to be executed
+	 * @param namespaces the namespaces to prepend as prefixes
+	 * @return the result of the ASK query
 	 * @throws QueryFailedException if the execution was not successful
-	 * @see #prepareQuery(String)
-	 * @see #prepareQuery(String)
 	 */
-	default SPARQLQueryResult execute(SPARQLQuery query) throws QueryFailedException {
-		return execute(query, Collections.emptyMap());
+	boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException;
+
+	/**
+	 * Executes the given SELECT query. All known namespaces will be automatically be prepended as prefixes.
+	 *
+	 * @param query the SELECT query without any namespace prefixes
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default TupleQueryResult sparqlSelect(String query) throws QueryFailedException {
+		return sparqlSelect(getNamespaces(), query);
 	}
 
 	/**
-	 * Prepares and executes the given query string on the given graph
-	 * <p/>
-	 * <b>Note:</b> For performance reasons, you should consider preparing the query and executing
-	 * it multiple times.
+	 * Executes the given SELECT query. Only the given namespaces will be automatically be prepended as prefixes.
 	 *
-	 * @param queryString SPARQL query to execute
-	 * @param graph       Graph to run on
-	 * @return The query result
-	 * @throws QueryFailedException if the preparation or execution was not successful
+	 * @param query      the SELECT query to be executed
+	 * @param namespaces the namespaces to prepend as prefixes
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
 	 */
-	default SPARQLQueryResult query(String queryString, String graph) throws QueryFailedException {
-		SPARQLQuery query = prepareQuery(queryString, graph);
-		return execute(query);
-	}
+	TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException;
 
 	/**
-	 * Prepares and executes the given query string on the default graph
-	 * <p/>
-	 * <b>Note:</b> For performance reasons, you should consider preparing the query and executing
-	 * it multiple times.
+	 * Returns the value factory for the given endpoint.
 	 *
-	 * @param queryString SPARQL query to execute
-	 * @return The query result
-	 * @throws QueryFailedException if the preparation or execution was not successful
-	 */
-	default SPARQLQueryResult query(String queryString) throws QueryFailedException {
-		return query(queryString, "");
-	}
-
-	/**
-	 * Returns the value factory for the given model. The method returns null if there is no open
-	 * connection to a repository.
-	 *
-	 * @return value factory
+	 * @return a value factory
 	 */
 	ValueFactory getValueFactory();
 
+	@Override
+	void close() throws RepositoryException;
+
 	class QueryFailedException extends RuntimeException {
-		public QueryFailedException(String message) {
-			super(message);
-		}
 
 		public QueryFailedException(String message, Throwable cause) {
 			super(message, cause);
 		}
 	}
-
-	@Override
-	void close() throws RepositoryException;
 }

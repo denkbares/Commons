@@ -36,7 +36,7 @@ public class JenaRepositoryTest {
 				RepositoryConfigs.get(com.denkbares.semanticcore.jena.sail.RdfConfig.class), "target/testSail");
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
 
-		TupleQueryResult query = instance.query("SELECT * WHERE { ?x ?y ?z}");
+		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z}");
 		assertEquals(87, query.cachedAndClosed().getBindingSets().size());
 	}
 
@@ -45,7 +45,7 @@ public class JenaRepositoryTest {
 		SemanticCore instance = SemanticCore.createInstance("BasicTest", RepositoryConfigs.get(RdfConfig.class), "target/testBasic");
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
 
-		TupleQueryResult query = instance.query("SELECT * WHERE { ?x ?y ?z}");
+		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z}");
 		assertEquals(87, query.cachedAndClosed().getBindingSets().size());
 	}
 }

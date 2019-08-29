@@ -24,14 +24,11 @@ import java.util.Set;
 
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 
-import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
-import com.denkbares.semanticcore.sparql.SPARQLQueryResult;
-import com.denkbares.semanticcore.utils.Sparqls;
 import com.denkbares.collections.PartialHierarchyTree;
-import com.denkbares.utils.Log;
+import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import com.denkbares.semanticcore.utils.Sparqls;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)
@@ -68,9 +65,8 @@ public class HierarchyUtils {
 		build up tree of classes
          */
 		String classQuery = "SELECT ?c WHERE { <" + concept + "> " + typeRelation + " ?c }";
-		try {
-			SPARQLQueryResult queryResult = core.query(classQuery).cachedAndClosed();
-			TupleQueryResult tupleQueryResult = queryResult.getResult();
+
+		try (TupleQueryResult tupleQueryResult = core.sparqlSelect(classQuery)) {
 			while (tupleQueryResult.hasNext()) {
 				BindingSet row = tupleQueryResult.next();
 
@@ -83,11 +79,8 @@ public class HierarchyUtils {
 				URI uri = Sparqls.asURI(row, "c");
 				tree.insertNode(uri);
 			}
+			return tree;
 		}
-		catch (QueryEvaluationException e) {
-			Log.severe("Exception while executing SPARQL", e);
-		}
-		return tree;
 	}
 
 	/**
@@ -119,5 +112,4 @@ public class HierarchyUtils {
 		}
 		return deepestLeaf.getData();
 	}
-
 }
