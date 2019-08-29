@@ -44,7 +44,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	Collection<Namespace> getNamespaces() throws RepositoryException;
 
 	/**
-	 * Executes the given ASK query. All known namespaces will be automatically be prepended as prefixes.
+	 * Executes the given ASK query. All known namespaces will automatically be prepended as prefixes.
 	 *
 	 * @param query the ASK query without any namespace prefixes
 	 * @return the result of the ASK query
@@ -55,7 +55,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	}
 
 	/**
-	 * Executes the given ASK query. Only the given namespaces will be automatically be prepended as prefixes.
+	 * Executes the given ASK query. Only the given namespaces will automatically be prepended as prefixes.
 	 *
 	 * @param query      the ASK query to be executed
 	 * @param namespaces the namespaces to prepend as prefixes
@@ -65,7 +65,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException;
 
 	/**
-	 * Executes the given SELECT query. All known namespaces will be automatically be prepended as prefixes.
+	 * Executes the given SELECT query. All known namespaces will automatically be prepended as prefixes.
 	 *
 	 * @param query the SELECT query without any namespace prefixes
 	 * @return the result of the SELECT query
@@ -76,7 +76,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	}
 
 	/**
-	 * Executes the given SELECT query. Only the given namespaces will be automatically be prepended as prefixes.
+	 * Executes the given SELECT query. Only the given namespaces will automatically be prepended as prefixes.
 	 *
 	 * @param query      the SELECT query to be executed
 	 * @param namespaces the namespaces to prepend as prefixes
