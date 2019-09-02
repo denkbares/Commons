@@ -375,10 +375,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 			FileUtils.deleteDirectory(repositoryFolder);
 		}
 		File tempFolder = new File(repositoryPath);
-		repositoryManager = new SyncedLocalRepositoryManager(tempFolder);
+		repositoryManager = new LocalRepositoryManager(tempFolder);
 		Log.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
 		try {
-			repositoryManager.initialize();
+			repositoryManager.init();
 		}
 		catch (RepositoryException e) {
 			throw new IOException("Cannot initialize repository", e);
@@ -698,19 +698,4 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
-	/**
-	 * Overriding {@link LocalRepositoryManager}, which has a potential dead lock when creating and removing
-	 * repositories asynchronously.
-	 */
-	private static class SyncedLocalRepositoryManager extends LocalRepositoryManager {
-
-		public SyncedLocalRepositoryManager(File baseDir) {
-			super(baseDir);
-		}
-
-		@Override
-		public synchronized Repository getRepository(String identity) throws RepositoryConfigException, RepositoryException {
-			return super.getRepository(identity);
-		}
-	}
 }
