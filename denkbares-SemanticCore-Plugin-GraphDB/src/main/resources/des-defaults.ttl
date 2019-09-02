@@ -11,7 +11,7 @@
 
 [] a rep:Repository ;
     rep:repositoryImpl [
-        rep:repositoryType "graphdb:FreeSailRepository" ;
+        rep:repositoryType "graphdb:ConfigurableFreeSailRepository" ;
         sr:sailImpl [
             sail:sailType "graphdb:FreeSail" ;
 
@@ -20,7 +20,7 @@
             owlim:owlim-license "" ;
             owlim:base-URL "https://www.denkbares.com/base#" ;
             owlim:defaultNS "" ;
-            owlim:entity-index-size "15000000" ;
+            owlim:entity-index-size "15000011" ;
             owlim:entity-id-size  "32" ;
             owlim:imports "" ;
         	owlim:repository-type "file-repository" ;

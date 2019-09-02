@@ -216,6 +216,19 @@
 						<groupId>ch.qos.logback</groupId>
 						<artifactId>logback-core</artifactId>
 					</exclusion>
+					<!-- Exclude mongo db dependencies to not cause issues with other databases in project -->
+					<exclusion>
+						<groupId>org.mongodb</groupId>
+						<artifactId>mongodb-driver-core</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.mongodb</groupId>
+						<artifactId>mongodb-driver-sync</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.mongodb</groupId>
+						<artifactId>bson</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
