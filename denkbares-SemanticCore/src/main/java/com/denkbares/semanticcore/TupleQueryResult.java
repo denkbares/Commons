@@ -82,7 +82,6 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 				}
 			}
 			finally {
-				//noinspection ThrowFromFinallyBlock
 				close();
 			}
 			cache = new CachedTupleQueryResult(bindingNames, bindingSets, namespaces);
@@ -173,10 +172,25 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	@NotNull
 	@Override
 	public Iterator<BindingSet> iterator() {
-		throw new UnsupportedOperationException("Iterators are only available after calling cacheAndClose()");
+		if (cache != null) {
+			return cache.iterator();
+		}
+		//noinspection IteratorNextCanNotThrowNoSuchElementException
+		return new Iterator<BindingSet>() {
+
+			@Override
+			public boolean hasNext() {
+				return TupleQueryResult.this.hasNext();
+			}
+
+			@Override
+			public BindingSet next() {
+				return TupleQueryResult.this.next();
+			}
+		};
 	}
 
 	public List<BindingSet> getBindingSets() {
-		throw new UnsupportedOperationException("Collections are only available after calling cacheAndClose()");
+		return cachedAndClosed().getBindingSets();
 	}
 }
