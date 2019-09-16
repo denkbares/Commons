@@ -1383,8 +1383,8 @@ public class Strings {
 	private static Map<String, String> NAMED_ENTITIES = null;
 
 	/**
-	 * Decodes the html entities of a given String. Currently the method only supports a little number of named entities
-	 * but all ascii-coded entities. More entities are easy to be added.
+	 * Decodes the html entities of a given String. Currently the method only supports all known named entities
+	 * and all ascii-coded entities. More entities are easy to be added.
 	 *
 	 * @param text the text to be decoded
 	 * @return the decoded result
