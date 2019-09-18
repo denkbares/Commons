@@ -221,6 +221,17 @@ public class Sparqls {
 	public static Integer asInteger(Binding binding) {
 		if (binding == null) return null;
 		Value value = binding.getValue();
+		return asInteger(value);
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as an integer number. If the binding is null, null is returned. If
+	 * there is a value, but it cannot be parsed as a number null is returned.
+	 *
+	 * @param value the bindings of the sparql result row
+	 * @return the number value or null
+	 */
+	public static Integer asInteger(Value value) {
 		if (value == null) return null;
 		if (value instanceof Literal) {
 			try {
@@ -233,7 +244,7 @@ public class Sparqls {
 			return Integer.parseInt(value.stringValue());
 		}
 		catch (NumberFormatException e) {
-			Log.warning("cannot parse binding of '" + binding + "' as float");
+			Log.warning("cannot parse binding of '" + value + "' as float");
 			return null;
 		}
 	}
