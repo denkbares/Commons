@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CombinedProgressListener implements ProgressListener {
 
-	private long totalSize;
+	private final long totalSize;
 
 	private long currentStepStart = 0;
 	private long currentStepSize = 0;
@@ -65,6 +65,15 @@ public class CombinedProgressListener implements ProgressListener {
 	public void next(long size) {
 		currentStepStart += currentStepSize;
 		currentStepSize = size;
+	}
+
+	/**
+	 * Indicates that the last step of this progress has begun. No need to specify the size of the last step, we will
+	 * just use the rest.
+	 */
+	public void last() {
+		currentStepStart += currentStepSize;
+		currentStepSize = totalSize - currentStepStart;
 	}
 
 	/**
