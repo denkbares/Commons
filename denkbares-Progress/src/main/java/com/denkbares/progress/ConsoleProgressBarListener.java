@@ -32,6 +32,7 @@ public class ConsoleProgressBarListener implements ProgressListener {
 	private static final float UPDATE_DELTA = 0.001f;
 
 	private float percent = Float.NaN;
+	private String message = null;
 
 	@Override
 	public void updateProgress(float percent, String message) {
@@ -50,7 +51,7 @@ public class ConsoleProgressBarListener implements ProgressListener {
 			System.out.println(" 100 % |");
 			message = null;
 		}
-		else if (percent < 1f && (percent <= this.percent + UPDATE_DELTA)) {
+		else if (percent < 1f && (percent <= this.percent + UPDATE_DELTA) && (message == null || message.equals(this.message))) {
 			// no update required
 			return;
 		}
@@ -67,7 +68,10 @@ public class ConsoleProgressBarListener implements ProgressListener {
 		}
 		System.out.print("| ");
 		System.out.format(Locale.ENGLISH, "%5.1f%% ", this.percent * 100);
-		if (message != null) System.out.print(message);
+		if (message != null) {
+			System.out.print(message);
+			this.message = message;
+		}
 		if (this.percent >= 1f) {
 			if (message == null || message.isEmpty()) System.out.print("done");
 			System.out.println();
