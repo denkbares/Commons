@@ -305,45 +305,31 @@ Rules
 // Add your property-chain rules here
 //=================================================================================
 
-
-	
 Id: prp_spo1
-    p1 <rdfs:subPropertyOf> p2
-    x p1 y
-    -------------------------------
-    x p2 y
+	  a <rdfs:subPropertyOf> b
+	  c a d
+	------------------------------------
+	  c b d
 
 Id: prp_spo2_1
     p <owl:propertyChainAxiom> pc
-    //_checkChain(?start ?pc ?last)
-    b <onto:_checkChain1> start
-    b <onto:_checkChain2> pc
-    b <onto:_checkChain3> last
+    start pc last                [Context <onto:_checkChain>]
     ----------------------------
     start p last
-        
+
 Id: prp_spo2_2
     pc <rdf:first> p
-    pc <rdf:rest> t                 [Constraint t != <rdf:nil>]
+    pc <rdf:rest> t              [Constraint t != <rdf:nil>]
     start p next
-//    _checkChain(next t last)
-    b1 <onto:_checkChain1> next
-    b1 <onto:_checkChain2> t
-    b1 <onto:_checkChain3> last
+    next t last                  [Context <onto:_checkChain>]
     ----------------------------
-//    _checkChain(start pc last)
-    b2 <onto:_checkChain1> start
-    b2 <onto:_checkChain2> pc
-    b2 <onto:_checkChain3> last
+    start pc last                [Context <onto:_checkChain>]
 
 Id: prp_spo2_3
     pc <rdf:first> p
     pc <rdf:rest> <rdf:nil>
     start p last
     ----------------------------
-    //_checkChain( start pc last)
-    b <onto:_checkChain1> start
-    b <onto:_checkChain2> pc
-    b <onto:_checkChain3> last 
+    start pc last                [Context <onto:_checkChain>]
 
 }
