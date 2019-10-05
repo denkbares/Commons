@@ -68,6 +68,51 @@ public class Hashes {
 		return toHexString(md5(source));
 	}
 
+	/**
+	 * Creates a SHA hash from the specified source data. It tries to use SHA-256, if not available if falls back to
+	 * SHA-1. Note that SHA-1 is not save for cryptography.
+	 *
+	 * @param source the source data to create the hash from
+	 * @return the sha hash value
+	 */
+	public static byte[] sha(byte[] source) {
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("SHA-256");
+		}
+		catch (NoSuchAlgorithmException ignore) {
+			try {
+				digest = MessageDigest.getInstance("SHA-1");
+			}
+			catch (NoSuchAlgorithmException e) {
+				throw new IllegalStateException("SHA-1 missing", e);
+			}
+		}
+		return digest.digest(source);
+	}
+
+	/**
+	 * Creates a SHA hash from the specified source data. It tries to use SHA-256, if not available if falls back to
+	 * SHA-1. Note that SHA-1 is not save for cryptography.
+	 *
+	 * @param source the source data to create the hash from
+	 * @return the sha hash value
+	 */
+	public static byte[] sha(String source) {
+		return sha(source.getBytes(StandardCharsets.UTF_8));
+	}
+
+	/**
+	 * Creates a SHA hash from the specified source data, and returns the result as a formatted (block-wise) hex-string.
+	 * It tries to use SHA-256, if not available if falls back to SHA-1. Note that SHA-1 is not save for cryptography.
+	 *
+	 * @param source the source data to create the hash from
+	 * @return the sha hash value as a block-wise string
+	 */
+	public static String shaString(String source) {
+		return toHexString(sha(source));
+	}
+
 	private static String toHexString(byte[] data) {
 		// create blocks of 4-byte values
 		StringBuilder result = new StringBuilder();
