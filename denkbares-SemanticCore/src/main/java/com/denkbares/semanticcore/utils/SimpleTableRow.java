@@ -69,7 +69,7 @@ public class SimpleTableRow implements TableRow {
 			final Value valueOther = other.getValue(variable);
 			final Value value = values.get(variable);
 			if (value == null && valueOther == null) {
-				return true;
+				continue;
 			}
 			if (value == null || valueOther == null) {
 				return false;
