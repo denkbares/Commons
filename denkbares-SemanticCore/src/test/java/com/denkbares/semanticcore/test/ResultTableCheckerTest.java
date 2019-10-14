@@ -62,6 +62,9 @@ public class ResultTableCheckerTest {
 
 		List<ResultTableChecker.Failure> result = ResultTableChecker.checkEquality(expected, actual, false);
 		Assert.assertTrue(result.isEmpty());
+
+		// just call generateErrorsText to detect any exceptions there
+		ResultTableChecker.generateErrorsText(result, true);
 	}
 
 	@Test
@@ -88,6 +91,9 @@ public class ResultTableCheckerTest {
 		assertTrue(additionalRowsFound.stream()
 				.map(f -> f.getDetails().toString())
 				.anyMatch(s -> s.contains("\"a@42\"")));
+
+		// just call generateErrorsText to detect any exceptions there
+		ResultTableChecker.generateErrorsText(result, true);
 	}
 
 	private static List<ResultTableChecker.Failure> getFailuresOfType(List<ResultTableChecker.Failure> allFailures, ResultTableChecker.FailureType type) {
@@ -119,6 +125,9 @@ public class ResultTableCheckerTest {
 		for (TableRow removed : removedRows) {
 			assertTrue(missingRows.contains(removed.toString()));
 		}
+
+		// just call generateErrorsText to detect any exceptions there
+		ResultTableChecker.generateErrorsText(result, true);
 	}
 
 	@Test
@@ -147,6 +156,9 @@ public class ResultTableCheckerTest {
 		List<ResultTableChecker.Failure> additionalRowFailures = getFailuresOfType(result, ResultTableChecker.FailureType.UNEXPECTED_ROW_FOUND);
 		assertEquals(1, additionalRowFailures.size());
 		assertTrue(additionalRowFailures.get(0).getDetails().toString().contains("\"a@42\""));
+
+		// just call generateErrorsText to detect any exceptions there
+		ResultTableChecker.generateErrorsText(result, true);
 	}
 
 	@Test
@@ -172,6 +184,9 @@ public class ResultTableCheckerTest {
 		assertEquals("a@1", mismatchDetails.getSubject().stringValue());
 		assertEquals(mismatchDetails.getExpected(), 1);
 		assertEquals(mismatchDetails.getActual(), 2);
+
+		// just call generateErrorsText to detect any exceptions there
+		ResultTableChecker.generateErrorsText(result, true);
 	}
 
 	private List<TableRow> createRows(int numRows, List<String> variables) {

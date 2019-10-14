@@ -241,8 +241,8 @@ public class ResultTableChecker {
 				TableRow additionalRow = (TableRow) details;
 				return additionalRow.toString();
 			case ROWS_FOR_SUBJECT_MISMATCH:
-				Value subject = (Value) details;
-				return subject.stringValue();
+				RowMismatch mismatch = (RowMismatch) details;
+				return mismatch.getSubject().stringValue();
 			default:
 				throw new IllegalArgumentException("Unexpected failure type " + type);
 		}
