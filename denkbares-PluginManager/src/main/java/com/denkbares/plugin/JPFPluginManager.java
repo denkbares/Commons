@@ -186,9 +186,9 @@ public final class JPFPluginManager extends PluginManager {
 			instance = new JPFPluginManager(pluginFiles);
 		}
 		catch (JpfException e) {
-			Log.severe("internal error while initializing plugin manager: " + e);
+			Log.severe("Internal error while initializing plugin manager: " + e);
 			throw new IllegalArgumentException(
-					"internal error while initializing plugin manager", e);
+					"Internal error while initializing plugin manager", e);
 		}
 	}
 
