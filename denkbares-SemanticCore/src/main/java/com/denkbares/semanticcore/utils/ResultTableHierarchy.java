@@ -19,10 +19,13 @@
 
 package com.denkbares.semanticcore.utils;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,45 +50,53 @@ public class ResultTableHierarchy {
 	}
 
 	public List<TableRow> getRoots() {
-		return roots.stream()
-				.sorted(comparator)
+		return this.roots.stream()
+				.sorted(this.comparator)
 				.collect(Collectors.toList());
 	}
 
 	public List<TableRow> getChildren(TableRow row) {
-		return children.getValues(row).stream()
-				.sorted(comparator)
+		return this.children.getValues(row).stream()
+				.sorted(this.comparator)
 				.collect(Collectors.toList());
 	}
 
 	private void init() {
-		for (TableRow tableRow : data) {
-			String parentColumn = data.getVariables().get(1);
+		// the first column is supposed to be the row identifier = subject
+		// build an index of all rows by subject
+		// note that the subject may not be unique
+		final Map<Value, List<TableRow>> rowsBySubject = new HashMap<>();
+		final String subjectColumn = this.data.getVariables().get(0);
+		for (TableRow row : this.data) {
+			Value subject = row.getValue(subjectColumn);
+			rowsBySubject.computeIfAbsent(subject, v -> new ArrayList<>()).add(row);
+		}
+
+		final String parentColumn = this.data.getVariables().get(1);
+		for (TableRow tableRow : this.data) {
 			Value parentId = tableRow.getValue(parentColumn);
-			Collection<TableRow> parents = data.findRowFor(parentId);
+			List<TableRow> parents = rowsBySubject.getOrDefault(parentId, Collections.emptyList());
 			if (parents.isEmpty()) {
-				roots.add(tableRow);
+				this.roots.add(tableRow);
 			}
 			else {
-				for (TableRow parent : parents) {
-					children.put(parent, tableRow);
-				}
+				parents.forEach(parent -> this.children.put(parent, tableRow));
 			}
 		}
 	}
 
 	private static Comparator<TableRow> getComparator(final ResultTableModel result) {
+		String sortColumn = result.getVariables()
+				.stream()
+				.filter(v -> v.equals(SORT_VALUE))
+				.findAny()
+				.orElse(result.getVariables().get(0));
+
 		return (o1, o2) -> {
 			// we sort by the column 'sortValue' if existing
 			// otherwise we sort by URI
-			Value sortValue1 = o1.getValue(SORT_VALUE);
-			Value sortValue2 = o2.getValue(SORT_VALUE);
-			if (sortValue1 == null) {
-				sortValue1 = o1.getValue(result.getVariables().get(0));
-			}
-			if (sortValue2 == null) {
-				sortValue2 = o2.getValue(result.getVariables().get(0));
-			}
+			Value sortValue1 = o1.getValue(sortColumn);
+			Value sortValue2 = o2.getValue(sortColumn);
 
 			// TODO : is there a better way to sort integer literals?
 			final String sortString1 = sortValue1.toString();

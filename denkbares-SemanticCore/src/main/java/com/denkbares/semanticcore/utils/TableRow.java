@@ -19,12 +19,64 @@
 package com.denkbares.semanticcore.utils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.rdf4j.model.Value;
+import org.jetbrains.annotations.NotNull;
 
-public interface TableRow {
+public final class TableRow {
+	private final Map<String, Value> values;
+	private final List<String> variables;
 
-	Value getValue(String Variable);
+	public TableRow(@NotNull Map<String, Value> values, @NotNull List<String> variables) {
+		this.values = values;
+		this.variables = variables;
+	}
 
-	List<String> getVariables();
+	public void addValue(String variable, Value n) {
+		this.values.put(variable, n);
+	}
+
+	public Value getValue(String Variable) {
+		return this.values.get(Variable);
+	}
+
+	@Override
+	public String toString() {
+		return this.values.toString();
+	}
+
+	public boolean deepEquals(TableRow other) {
+		if (this == other) {
+			return true;
+		}
+		if (other == null) {
+			return false;
+		}
+
+		if (getVariables().size() != other.getVariables().size()) {
+			return false;
+		}
+
+		for (Map.Entry<String, Value> valueEntry : this.values.entrySet()) {
+			final String variable = valueEntry.getKey();
+			final Value valueOther = other.getValue(variable);
+			final Value value = valueEntry.getValue();
+
+			if (!Objects.equals(value, valueOther)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	public List<String> getVariables() {
+		return this.variables;
+	}
+
+	public boolean isEmpty() {
+		return this.values.isEmpty();
+	}
 }
