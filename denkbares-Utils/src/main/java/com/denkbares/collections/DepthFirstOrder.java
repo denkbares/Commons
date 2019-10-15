@@ -34,6 +34,10 @@ import java.util.function.Function;
 /**
  * Class that creates a depth first order, based on se set of start nodes, and a successor function. It considers that
  * multiple paths may lead to a single successor node, and avoids running into cycles.
+ * <p>
+ * If a node can be reached by multiple paths, the node will be placed behind each other node that comes before in any
+ * of the paths, so in fact this class creates a mixed depth-first-breads-first order. If creates a depth-first order,
+ * but stops before any node that will be reached by a later depth-first-path.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 22.09.2019
@@ -41,17 +45,17 @@ import java.util.function.Function;
 public class DepthFirstOrder<Node> {
 
 	private final Set<Node> startNodes = new LinkedHashSet<>();
-	private final Function<Node, Collection<Node>> successors;
+	private final Function<Node, ? extends Collection<Node>> successors;
 
 	private Map<Node, Integer> positions;
 	private int nextPosition;
 
 	@SafeVarargs
-	public DepthFirstOrder(Function<Node, Collection<Node>> successors, Node... startNodes) {
+	public DepthFirstOrder(Function<Node, ? extends Collection<Node>> successors, Node... startNodes) {
 		this(successors, Arrays.asList(startNodes));
 	}
 
-	public DepthFirstOrder(Function<Node, Collection<Node>> successors, Collection<Node> startNodes) {
+	public DepthFirstOrder(Function<Node, ? extends Collection<Node>> successors, Collection<? extends Node> startNodes) {
 		this.successors = successors;
 		this.startNodes.addAll(startNodes);
 	}
