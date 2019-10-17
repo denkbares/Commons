@@ -29,12 +29,10 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * HashSet memory optimized for cases where you have a lot of them but most of the time with only
- * one element.
+ * HashSet memory optimized for cases where you have a lot of them but most of the time with only one element.
  * <p>
- * The implementation has a backup set, that is either an empty set or the item itself (not a
- * singleton, to save memory), or a singleton set (if the item itself was a set), or a HashSet of
- * the items.
+ * The implementation has a backup set, that is either an empty set or the item itself (not a singleton set, to save
+ * memory), or a singleton set (if the item itself was a set), or a HashSet of the items.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 22.04.2017
@@ -105,7 +103,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		if (data == EMPTY) {
 			// we require to wrap a set around, if the item itself is a set, to not confuse this implementation
 			if (item instanceof Set) {
-				warpDelegate(item, 2);
+				wrapDelegate(item, 2);
 				return true;
 			}
 			data = item;
@@ -117,7 +115,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 			// stop if same item added twice
 			if (Objects.equals(data, item)) return false;
 			// wrap the current item into a new set and continue to add the new item to the set
-			warpDelegate(data, 4);
+			wrapDelegate(data, 4);
 		}
 		// when we are here, we have at least one item,
 		// and the items are wrapped in a modifiable hash set in the field delegate
@@ -142,11 +140,22 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		return removed;
 	}
 
-	private void warpDelegate(Object item, int capacity) {
-		Set wrapper = new HashSet(capacity);
+	private void wrapDelegate(Object item, int capacity) {
+		Set wrapper = createWrappingSet(capacity);
 		//noinspection unchecked
 		wrapper.add(item);
 		data = wrapper;
+	}
+
+	/**
+	 * Method to create a set of the specified initial capacity, to add the elements of this set
+	 *
+	 * @param capacity the initial capacity
+	 * @return the created storage set to fill in the items of this set
+	 */
+	@NotNull
+	protected Set<T> createWrappingSet(int capacity) {
+		return new HashSet<>(capacity);
 	}
 
 	private void unwrapDelegate() {
