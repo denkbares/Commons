@@ -23,7 +23,7 @@ import java.util.Locale;
 /**
  * A simple ProgressListener that prints the progress to the console:
  * <p>
- * |████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|  20.1% still working
+ * |████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|  20.1%  still working
  *
  * @author Volker Belli (denkbares GmbH)
  */
