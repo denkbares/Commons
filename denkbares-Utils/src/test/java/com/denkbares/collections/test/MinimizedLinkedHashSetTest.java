@@ -19,6 +19,8 @@
 
 package com.denkbares.collections.test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -27,7 +29,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.denkbares.collections.MinimizedHashSet;
+import com.denkbares.collections.MinimizedLinkedHashSet;
 
 import static org.junit.Assert.*;
 
@@ -35,11 +37,11 @@ import static org.junit.Assert.*;
  * @author Volker Belli (denkbares GmbH)
  * @created 22.04.2017
  */
-public class MinimizedHashSetTest {
+public class MinimizedLinkedHashSetTest {
 
 	@Test
-	public void basic()  {
-		Set<String> set = new MinimizedHashSet<>();
+	public void basic() {
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		Assert.assertEquals(0, set.size());
 
 		set.add("a");
@@ -65,11 +67,17 @@ public class MinimizedHashSetTest {
 		Assert.assertTrue(set.contains("a"));
 		Assert.assertTrue(set.contains("b"));
 		Assert.assertTrue(set.contains("c"));
+
+		// check that the order is preserved
+		Assert.assertEquals(Arrays.asList("a", "b", "c"), new ArrayList<>(set));
+		set.remove("a");
+		set.add("a");
+		Assert.assertEquals(Arrays.asList("b", "c", "a"), new ArrayList<>(set));
 	}
 
 	@Test
 	public void remove() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		set.add("b");
 		set.add("c");
@@ -93,12 +101,13 @@ public class MinimizedHashSetTest {
 	@SuppressWarnings("OverwrittenKey")
 	@Test
 	public void iteratorRemove() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		set.add("b");
 		set.add("c");
 		set.add("a");
 		Assert.assertEquals(3, set.size());
+		Assert.assertEquals(Arrays.asList("a", "b", "c"), new ArrayList<>(set));
 
 		Iterator<String> iterator = set.iterator();
 		iterator.next();
@@ -113,8 +122,8 @@ public class MinimizedHashSetTest {
 	}
 
 	@Test
-	public void withSetElements()  {
-		Set<Set<String>> set = new MinimizedHashSet<>();
+	public void withSetElements() {
+		Set<Set<String>> set = new MinimizedLinkedHashSet<>();
 		set.add(Collections.singleton("a"));
 		set.add(Collections.singleton("b"));
 		set.add(Collections.singleton("c"));
@@ -136,14 +145,14 @@ public class MinimizedHashSetTest {
 	@Test
 	public void iterateEmpty() {
 		//noinspection MismatchedQueryAndUpdateOfCollection
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		//noinspection RedundantOperationOnEmptyContainer
 		assertFalse(set.iterator().hasNext());
 	}
 
 	@Test
 	public void iterateSingle() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		Iterator<String> iterator = set.iterator();
 		assertTrue(iterator.hasNext());
@@ -153,7 +162,7 @@ public class MinimizedHashSetTest {
 
 	@Test
 	public void iterateNull() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add(null);
 		Iterator<String> iterator = set.iterator();
 		assertTrue(iterator.hasNext());
@@ -163,7 +172,7 @@ public class MinimizedHashSetTest {
 
 	@Test
 	public void iterateMultiple() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		set.add("b");
 		Iterator<String> iterator = set.iterator();
@@ -177,14 +186,14 @@ public class MinimizedHashSetTest {
 	@Test(expected = NoSuchElementException.class)
 	public void nextOfEmpty() {
 		//noinspection MismatchedQueryAndUpdateOfCollection
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		//noinspection RedundantOperationOnEmptyContainer
 		set.iterator().next();
 	}
 
 	@Test(expected = NoSuchElementException.class)
 	public void nextNextOfSingle() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		Iterator<String> iterator = set.iterator();
 		iterator.next();
@@ -193,7 +202,7 @@ public class MinimizedHashSetTest {
 
 	@Test(expected = NoSuchElementException.class)
 	public void nextNextNextOfTwo() {
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		set.add("b");
 		Iterator<String> iterator = set.iterator();
@@ -205,7 +214,7 @@ public class MinimizedHashSetTest {
 	@Test(expected = IllegalStateException.class)
 	public void minimizedHashSetException2() {
 		//noinspection MismatchedQueryAndUpdateOfCollection
-		Set<String> set = new MinimizedHashSet<>();
+		Set<String> set = new MinimizedLinkedHashSet<>();
 		set.add("a");
 		// remove without next should fail, even if there are elements available
 		set.iterator().remove();

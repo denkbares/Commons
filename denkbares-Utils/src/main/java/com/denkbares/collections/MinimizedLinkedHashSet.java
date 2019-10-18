@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Implementation of a minimized hash set, that retains the order of the stored elements. It is very memory efficient
  * for empty sets of sets of size 1.
+ * <p>
+ * The MinimizedLinkedHashSet is memory optimized for cases where you have a lot of them but most of the time with only
+ * one (or none) element. As most sets will do (but not all), this implementation also supports to explicitly store a
+ * null values into the set.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 16.10.2019
@@ -36,5 +40,10 @@ public class MinimizedLinkedHashSet<T> extends MinimizedHashSet<T> {
 	@NotNull
 	protected Set<T> createWrappingSet(int capacity) {
 		return new LinkedHashSet<>(capacity);
+	}
+
+	@Override
+	protected boolean isPotentialWrappingSet(Object object) {
+		return (object != null) && (object.getClass() == LinkedHashSet.class);
 	}
 }

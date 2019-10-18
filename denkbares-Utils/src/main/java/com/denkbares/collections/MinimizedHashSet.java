@@ -29,7 +29,9 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * HashSet memory optimized for cases where you have a lot of them but most of the time with only one element.
+ * HashSet memory optimized for cases where you have a lot of them but most of the time with only one (or none) element.
+ * As most sets will do (but not all), this implementation also supports to explicitly store a null values into the
+ * set.
  * <p>
  * The implementation has a backup set, that is either an empty set or the item itself (not a singleton set, to save
  * memory), or a singleton set (if the item itself was a set), or a HashSet of the items.
@@ -44,12 +46,12 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 
 	@Override
 	public int size() {
-		return (data == EMPTY) ? 0 : (data instanceof Set) ? ((Set) data).size() : 1;
+		return (data == EMPTY) ? 0 : isPotentialWrappingSet(data) ? ((Set) data).size() : 1;
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		return (data instanceof Set) ? ((Set) data).contains(o) : Objects.equals(data, o);
+		return isPotentialWrappingSet(data) ? ((Set) data).contains(o) : Objects.equals(data, o);
 	}
 
 	@NotNull
@@ -60,7 +62,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 
 			private final Iterator<T> delegateIterator =
 					(data == EMPTY) ? Collections.emptyIterator()
-							: (data instanceof Set) ? ((Set) data).iterator()
+							: isPotentialWrappingSet(data) ? ((Set) data).iterator()
 							: (Iterator<T>) Collections.singleton(data).iterator();
 			private Object current = EMPTY;
 
@@ -82,8 +84,8 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 			@Override
 			public void remove() {
 				if (current == EMPTY) throw new IllegalStateException();
-				if (data instanceof Set) {
-					// if it is still a set, then remove by the iterator and unwarp is possible
+				if (isPotentialWrappingSet(data)) {
+					// if it is still a set, then remove by the iterator and unwrap is possible
 					// because direct removal will lead to ConcurrentModificationException
 					delegateIterator.remove();
 					unwrapDelegate();
@@ -102,7 +104,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		// if empty set, create singleton for the item
 		if (data == EMPTY) {
 			// we require to wrap a set around, if the item itself is a set, to not confuse this implementation
-			if (item instanceof Set) {
+			if (isPotentialWrappingSet(item)) {
 				wrapDelegate(item, 2);
 				return true;
 			}
@@ -111,7 +113,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		}
 		// if we have a single element, test the element (and stop if equal)
 		// but otherwise create a set for the element and continue
-		if (!(data instanceof Set)) {
+		if (!isPotentialWrappingSet(data)) {
 			// stop if same item added twice
 			if (Objects.equals(data, item)) return false;
 			// wrap the current item into a new set and continue to add the new item to the set
@@ -128,7 +130,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		// if set is empty, do nothing
 		if (data == EMPTY) return false;
 		// if we have one element, remove the element if equal
-		if (!(data instanceof Set)) {
+		if (!isPotentialWrappingSet(data)) {
 			if (!Objects.equals(data, o)) return false;
 			data = EMPTY;
 			return true;
@@ -158,6 +160,17 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		return new HashSet<>(capacity);
 	}
 
+	/**
+	 * Returns true if the specified object is potentially the created wrapping set. Implementors should return true, if
+	 * the object has the class of a created wrapping set.
+	 *
+	 * @param object the object to be tested
+	 * @return true, if the object is potentially the wrapping set
+	 */
+	protected boolean isPotentialWrappingSet(Object object) {
+		return (object != null) && (object.getClass() == HashSet.class);
+	}
+
 	private void unwrapDelegate() {
 		Set set = (Set) data;
 		if (set.isEmpty()) {
@@ -166,7 +179,7 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 		else if (set.size() == 1) {
 			Object item = set.iterator().next();
 			// fallback if the item is not a set itself, to not confuse this implementation
-			if (!(item instanceof Set)) {
+			if (!isPotentialWrappingSet(item)) {
 				data = item;
 			}
 		}
