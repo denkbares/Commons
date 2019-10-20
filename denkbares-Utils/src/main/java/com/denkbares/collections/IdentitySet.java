@@ -18,59 +18,25 @@
  */
 package com.denkbares.collections;
 
-import java.util.AbstractSet;
+import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
-
-import org.jetbrains.annotations.NotNull;
+import java.util.Set;
 
 /**
- * An Set using reference-equality
- * 
- * Should only be used for special purposes
- * 
+ * An Set using reference-equality. Should only be used for special purposes.
+ * <p>
+ * Note that this is no longer a set implementation, as java collections now provides some build-in functionality to
+ * simulate this behaviour.
+ *
  * @author Markus Friedrich (denkbares GmbH)
  * @created 02.02.2011
  */
-public class IdentitySet<E> extends AbstractSet<E> {
+public final class IdentitySet {
 
-	private final transient IdentityHashMap<E, Object> map = new IdentityHashMap<>();
-	private static final Object PRESENT = new Object();
-
-	@Override
-	public boolean add(E arg0) {
-		return map.put(arg0, PRESENT) == null;
+	public static <E> Set<E> newIdentityHashSet() {
+		return Collections.newSetFromMap(new IdentityHashMap<>());
 	}
 
-	@Override
-	public void clear() {
-		map.clear();
-	}
-
-	@Override
-	public boolean contains(Object arg0) {
-		//noinspection SuspiciousMethodCalls
-		return map.containsKey(arg0);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return map.isEmpty();
-	}
-
-	@NotNull
-	@Override
-	public Iterator<E> iterator() {
-		return map.keySet().iterator();
-	}
-
-	@Override
-	public boolean remove(Object arg0) {
-		return map.remove(arg0) == PRESENT;
-	}
-
-	@Override
-	public int size() {
-		return map.size();
+	private IdentitySet() {
 	}
 }
