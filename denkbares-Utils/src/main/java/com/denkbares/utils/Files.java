@@ -36,6 +36,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -123,6 +124,19 @@ public class Files {
 			out.write(content);
 			out.close();
 		}
+	}
+
+	/**
+	 * Writes the given InputStream to the given file. Creates missing parent directories is required.
+	 *
+	 * @param file          the file to be written
+	 * @param contentStream the content of the file to be written
+	 * @throws IOException if writing fails
+	 */
+	public static void writeFile(File file, InputStream contentStream) throws IOException {
+		file.getParentFile().mkdirs();
+		java.nio.file.Files.copy(contentStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		contentStream.close();
 	}
 
 	/**
