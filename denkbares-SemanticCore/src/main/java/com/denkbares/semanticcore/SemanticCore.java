@@ -648,7 +648,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		writer.flush();
 	}
 
-	private void export(RDFWriter rdfWriter) throws RepositoryException, RDFHandlerException {
+	public void export(RDFWriter rdfWriter) throws RepositoryException, RDFHandlerException {
 		RepositoryConnection connection = getConnection();
 		connection.export(rdfWriter);
 		connection.close();
