@@ -28,7 +28,14 @@ public enum OS {
 	OTHER(".*"); // take the rest
 
 	private final Pattern pattern;
-	private static final OS currentOS = findOS(System.getProperty("os.name"));
+	private static final OS currentOS = findOS(getCurrentOriginalName());
+
+	/**
+	 * Returns the original operating system name, provided by the operating system itself.
+	 */
+	public static String getCurrentOriginalName() {
+		return System.getProperty("os.name");
+	}
 
 	OS(String regex) {
 		this.pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
