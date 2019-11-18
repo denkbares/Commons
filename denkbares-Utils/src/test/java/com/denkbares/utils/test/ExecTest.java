@@ -38,8 +38,13 @@ import static org.junit.Assert.*;
 public class ExecTest {
 	@Test
 	public void parseEmpty() {
-		assertNull(Exec.parse(null));
-		assertNull(Exec.parse(""));
+		assertEquals("", Exec.parse(null).getCommand());
+		assertEquals("", Exec.parse("").getCommand());
+	}
+
+	@Test(expected = IOException.class)
+	public void failEmpty() throws IOException, InterruptedException {
+		Exec.parse("").runAndWait();
 	}
 
 	@Test
