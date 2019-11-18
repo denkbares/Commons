@@ -68,19 +68,20 @@ public class ExecTest {
 	@Test
 	public void listFiles() throws IOException, InterruptedException {
 		List<String> files = new ArrayList<>();
+		List<String> errors = new ArrayList<>();
 		switch (OS.getCurrentOS()) {
 			case WINDOWS:
-				Exec.parse("dir .").console(false).output(files::add).runAndWait();
-				assertFalse(files.isEmpty());
+				Exec.parse("dir .").console(false).error(errors::add).output(files::add).runAndWait();
 				break;
 			case MAC_OS:
 			case UNIX:
-				Exec.parse("ls -al").console(false).output(files::add).runAndWait();
-				assertFalse(files.isEmpty());
+				Exec.parse("ls -al").console(false).error(errors::add).output(files::add).runAndWait();
 				break;
 			default:
 				Log.warning("unknown operating system, skip test: " + OS.getCurrentOriginalName());
-				break;
+				return;
 		}
+		assertTrue(errors.isEmpty());
+		assertTrue(files.stream().anyMatch(file -> file.contains("pom.xml")));
 	}
 }
