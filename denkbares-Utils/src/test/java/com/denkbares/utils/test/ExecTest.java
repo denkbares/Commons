@@ -67,20 +67,24 @@ public class ExecTest {
 
 	@Test
 	public void listFiles() throws IOException, InterruptedException {
-		List<String> files = new ArrayList<>();
-		List<String> errors = new ArrayList<>();
+		String cmdLine;
 		switch (OS.getCurrentOS()) {
 			case WINDOWS:
-				Exec.parse("dir .").console(false).error(errors::add).output(files::add).runAndWait();
+				cmdLine = "dir .";
 				break;
 			case MAC_OS:
 			case UNIX:
-				Exec.parse("ls -al").console(false).error(errors::add).output(files::add).runAndWait();
+				cmdLine = "ls -al";
 				break;
 			default:
 				Log.warning("unknown operating system, skip test: " + OS.getCurrentOriginalName());
 				return;
 		}
+
+		// execute command line and check if the pom.xml of the working directory has been found
+		List<String> files = new ArrayList<>();
+		List<String> errors = new ArrayList<>();
+		Exec.parse(cmdLine).console(false).error(errors::add).output(files::add).runAndWait();
 		assertTrue(errors.isEmpty());
 		assertTrue(files.stream().anyMatch(file -> file.contains("pom.xml")));
 	}
