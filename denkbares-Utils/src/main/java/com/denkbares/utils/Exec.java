@@ -46,14 +46,21 @@ public class Exec {
 
 	private static final Pattern EXE_SPLIT_PATTERN = Pattern.compile("[\\h\\s\\v]+");
 
+	// constructor parameters
 	private final String[] commandLine;
 
+	// optional configuration parameters
 	private File directory = null;
 	private String[] envp = null;
 	private boolean pipeToConsole = true;
 	private Consumer<String> errorHandler = null;
 	private Consumer<String> outputHandler = null;
 	private Consumer<Integer> exitHandler = null;
+
+	// runtime parameters
+	private Process process = null;
+	private Thread errorReader = null;
+	private Thread outputReader = null;
 
 	public Exec(String command, String... arguments) {
 		this.commandLine = new String[arguments.length + 1];
@@ -185,37 +192,111 @@ public class Exec {
 		return this;
 	}
 
+	/**
+	 * Starts the process and waits for the process to be completed.
+	 *
+	 * @return the exit value of the subprocess represented by this {@code Exec} object.  By convention, the value
+	 * {@code 0} indicates normal termination.
+	 * @throws IOException          if the process could not been started properly
+	 * @throws InterruptedException if the current thread is {@linkplain Thread#interrupt() interrupted} by another
+	 *                              thread while it is waiting
+	 */
 	public int runAndWait() throws IOException, InterruptedException {
-		Process process = startProcess();
-		waitProcess(process);
+		startProcess();
+		waitProcess();
 		return process.exitValue();
 	}
 
+	/**
+	 * Starts the process asynchronously. The method returns after the process has started.
+	 *
+	 * @throws IOException if the process could not been started properly
+	 */
 	public void runAsync() throws IOException {
-		Process process = startProcess();
+		startProcess();
 		new Thread(() -> {
 			try {
-				waitProcess(process);
+				waitProcess();
 			}
 			catch (InterruptedException e) {
 				Log.warning("interrupted waiting for external process", e);
 			}
-		}, "Exec: " + getCommand()).start();
+		}, "Exec-AsyncRunner: " + getCommand()).start();
+	}
+
+	/**
+	 * Causes the current thread to wait, if necessary, until the process represented by this {@code Exec} object has
+	 * terminated.  This method returns immediately if the subprocess has already terminated.  If the subprocess has not
+	 * yet terminated, the calling thread will be blocked until the subprocess exits.
+	 *
+	 * @return the exit value of the subprocess represented by this {@code Process} object.  By convention, the value
+	 * {@code 0} indicates normal termination.
+	 * @throws InterruptedException if the current thread is {@linkplain Thread#interrupt() interrupted} by another
+	 *                              thread while it is waiting
+	 */
+	public int waitFor() throws InterruptedException {
+		int exitValue = process.waitFor();
+		if (errorReader != null) errorReader.join();
+		if (outputReader != null) outputReader.join();
+		return exitValue;
+	}
+
+	/**
+	 * Returns the exit value for the subprocess.
+	 *
+	 * @return the exit value of the subprocess represented by this {@code Exec} object.  By convention, the value
+	 * {@code 0} indicates normal termination.
+	 * @throws IllegalThreadStateException if the subprocess represented by this {@code Exec} object has not yet
+	 *                                     terminated
+	 */
+	public int exitValue() {
+		return process.exitValue();
+	}
+
+	/**
+	 * Kills the subprocess. Whether the subprocess represented by this {@code Process} object is forcibly terminated or
+	 * not is implementation dependent.
+	 */
+	public void destroy() {
+		process.destroy();
+	}
+
+	/**
+	 * Kills the subprocess. The subprocess represented by this {@code Exec} object is forcibly terminated.
+	 *
+	 * <p>Note: The subprocess may not terminate immediately.
+	 * i.e. {@code isAlive()} may return true for a brief period after {@code destroyForcibly()} is called. This method
+	 * may be chained to {@code waitFor()} if needed.
+	 *
+	 * @return the {@code Exec} object representing the subprocess to be forcibly destroyed.
+	 */
+	public Process destroyForcibly() {
+		return process.destroyForcibly();
+	}
+
+	/**
+	 * Tests whether the subprocess represented by this {@code Exec} is alive.
+	 *
+	 * @return {@code true} if the subprocess represented by this {@code Exec} object has not yet terminated.
+	 */
+	public boolean isAlive() {
+		return process.isAlive();
 	}
 
 	@SuppressWarnings("UseOfSystemOutOrSystemErr")
-	private Process startProcess() throws IOException {
+	private void startProcess() throws IOException {
 		if (Strings.isBlank(getCommand())) throw new IOException("no command specified");
-		Process process = Runtime.getRuntime().exec(commandLine, envp, directory);
-		connectStream(process.getInputStream(), System.out, outputHandler);
-		connectStream(process.getErrorStream(), System.err, errorHandler);
-		return process;
+		if (this.process != null) throw new IOException("process already started");
+		this.process = Runtime.getRuntime().exec(commandLine, envp, directory);
+		this.outputReader = connectStream(process.getInputStream(), System.out, outputHandler);
+		this.errorReader = connectStream(process.getErrorStream(), System.err, errorHandler);
 	}
 
-	private int waitProcess(Process process) throws InterruptedException {
+	private int waitProcess() throws InterruptedException {
 		try {
-			process.waitFor();
-			int exitValue = process.exitValue();
+			// wait for process and wait for readers to complete
+			int exitValue = waitFor();
+
 			// inform exit handler
 			if (exitHandler != null) {
 				exitHandler.accept(exitValue);
@@ -231,10 +312,10 @@ public class Exec {
 		}
 	}
 
-	private void connectStream(InputStream in, PrintStream delegate, Consumer<String> handler) {
+	private Thread connectStream(InputStream in, PrintStream delegate, Consumer<String> handler) {
 		// even if there is no handler, we have to read the stream contents,
 		// otherwise the process may block its execution if the buffer is full
-		new Thread(() -> {
+		Thread streamReader = new Thread(() -> {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 			try {
 				while (true) {
@@ -247,7 +328,9 @@ public class Exec {
 			catch (IOException ignore) {
 				// ignore exception, as it usually happens when the application returns and the stream is closed
 			}
-		}, "Exec-StreamReader: " + getCommand()).start();
+		}, "Exec-StreamReader: " + getCommand());
+		streamReader.start();
+		return streamReader;
 	}
 
 	/**
