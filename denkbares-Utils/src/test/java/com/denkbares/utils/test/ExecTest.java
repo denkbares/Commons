@@ -66,16 +66,16 @@ public class ExecTest {
 	}
 
 	@Test
-	public void listFiles() throws IOException {
+	public void listFiles() throws IOException, InterruptedException {
 		List<String> files = new ArrayList<>();
 		switch (OS.getCurrentOS()) {
 			case WINDOWS:
-				Exec.parse("dir .").console(false).output(files::add).runAsync();
+				Exec.parse("dir .").console(false).output(files::add).runAndWait();
 				assertFalse(files.isEmpty());
 				break;
 			case MAC_OS:
 			case UNIX:
-				Exec.parse("ls -al").console(false).output(files::add).runAsync();
+				Exec.parse("ls -al").console(false).output(files::add).runAndWait();
 				assertFalse(files.isEmpty());
 				break;
 			default:
