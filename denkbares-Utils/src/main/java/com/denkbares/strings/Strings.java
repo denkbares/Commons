@@ -1082,6 +1082,7 @@ public class Strings {
 		return (pos == 0) ? text : text.substring(pos);
 	}
 
+	@Contract("null -> null; !null -> !null")
 	public static String trim(String text) {
 		return trimLeft(trimRight(text));
 	}
