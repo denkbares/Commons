@@ -43,8 +43,8 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.collections.MultiMap;
-import com.denkbares.semanticcore.ClosableTupleQueryResult;
 import com.denkbares.semanticcore.CachedTupleQueryResult;
+import com.denkbares.semanticcore.ClosableTupleQueryResult;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Log;
 
@@ -75,7 +75,9 @@ public class Sparqls {
 	 * @return the text or null
 	 */
 	public static Text asText(Binding binding) {
-		if (binding == null) return null;
+		if (binding == null) {
+			return null;
+		}
 		Value value = binding.getValue();
 		return Text.create(value);
 	}
@@ -99,9 +101,13 @@ public class Sparqls {
 	 * @return the plain string or null
 	 */
 	public static String asString(Binding binding) {
-		if (binding == null) return null;
+		if (binding == null) {
+			return null;
+		}
 		Value value = binding.getValue();
-		if (value == null) return null;
+		if (value == null) {
+			return null;
+		}
 		return value.stringValue();
 	}
 
@@ -126,7 +132,9 @@ public class Sparqls {
 	 * @return the number value or null
 	 */
 	public static Float asFloat(Binding binding) {
-		if (binding == null) return null;
+		if (binding == null) {
+			return null;
+		}
 		Value value = binding.getValue();
 		return asFloat(value);
 	}
@@ -139,7 +147,9 @@ public class Sparqls {
 	 * @return the number value or null
 	 */
 	public static Float asFloat(Value value) {
-		if (value == null) return null;
+		if (value == null) {
+			return null;
+		}
 		if (value instanceof Literal) {
 			try {
 				return ((Literal) value).floatValue();
@@ -163,9 +173,13 @@ public class Sparqls {
 	 * @return the LocalDate or null
 	 */
 	public static LocalDate asDate(Binding binding) {
-		if (binding == null) return null;
+		if (binding == null) {
+			return null;
+		}
 		Value value = binding.getValue();
-		if (value == null) return null;
+		if (value == null) {
+			return null;
+		}
 		if (value instanceof Literal) {
 			final String valueString = ((Literal) value).getLabel();
 			final IRI datatype = ((Literal) value).getDatatype();
@@ -230,7 +244,9 @@ public class Sparqls {
 	 * @return the number value or null
 	 */
 	public static Integer asInteger(Binding binding) {
-		if (binding == null) return null;
+		if (binding == null) {
+			return null;
+		}
 		Value value = binding.getValue();
 		return asInteger(value);
 	}
@@ -243,7 +259,9 @@ public class Sparqls {
 	 * @return the number value or null
 	 */
 	public static Integer asInteger(Value value) {
-		if (value == null) return null;
+		if (value == null) {
+			return null;
+		}
 		if (value instanceof Literal) {
 			try {
 				return ((Literal) value).intValue();
@@ -313,7 +331,9 @@ public class Sparqls {
 	}
 
 	private static URI toURI(String string) {
-		if (string == null) return null;
+		if (string == null) {
+			return null;
+		}
 
 		// try to create uri directly
 		try {
@@ -349,7 +369,9 @@ public class Sparqls {
 			BindingSet bindingSet = queryResult.next();
 			K key = keyExtractor.apply(bindingSet);
 			V value = valueExtractor.apply(bindingSet);
-			if (value != null) map.put(key, value);
+			if (value != null) {
+				map.put(key, value);
+			}
 		}
 		return map;
 	}
@@ -447,7 +469,9 @@ public class Sparqls {
 		while (queryResult.hasNext()) {
 			BindingSet bindingSet = queryResult.next();
 			V value = valueExtractor.apply(bindingSet);
-			if (value != null) result.add(value);
+			if (value != null) {
+				result.add(value);
+			}
 		}
 	}
 
