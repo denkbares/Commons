@@ -71,6 +71,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	private final String configFile;
 	private final String ruleSet;
 	private final Map<String, String> defaultOverrides = new HashMap<>();
+	private int supportedParallelConnections = 2;
 
 	public GraphDBConfig(String ruleSet) {
 		this(ruleSet, null);
@@ -225,5 +226,14 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	@Override
 	public String getName() {
 		return ruleSet.replaceAll("-", "_").toUpperCase();
+	}
+
+	public void setNumberOfSupportedParallelConnections(int supportedParallelConnections) {
+		this.supportedParallelConnections = supportedParallelConnections;
+	}
+
+	@Override
+	public int getNumberOfSupportedParallelConnections() {
+		return supportedParallelConnections;
 	}
 }

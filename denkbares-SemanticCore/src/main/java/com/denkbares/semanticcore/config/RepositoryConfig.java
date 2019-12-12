@@ -48,4 +48,13 @@ public interface RepositoryConfig {
 	 */
 	String getName();
 
+	/**
+	 * Allows to set the number of supported parallel connections to the corresponding repository, allowing for some
+	 * optimization in the parallelization code.
+	 *
+	 * @return the number of supported parallel connections of the underlying repository
+	 */
+	default int getNumberOfSupportedParallelConnections() {
+		return Integer.MAX_VALUE;
+	}
 }
