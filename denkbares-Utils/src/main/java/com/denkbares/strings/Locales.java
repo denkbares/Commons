@@ -145,6 +145,17 @@ public class Locales {
 	}
 
 	/**
+	 * Returns true if the specified locale has the specified language.
+	 *
+	 * @param locale   the locale to compare the language
+	 * @param language the language to check for
+	 * @return if the language of the locale matches
+	 */
+	public static boolean hasLanguage(Locale locale, String language) {
+		return (locale != null) && locale.getLanguage().equalsIgnoreCase(language);
+	}
+
+	/**
 	 * Returns true of the language of the specified locale is the german language, false otherwise.
 	 *
 	 * @param locale the locale to be tested
