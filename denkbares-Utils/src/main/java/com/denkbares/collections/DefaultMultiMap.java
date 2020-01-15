@@ -18,6 +18,7 @@
  */
 package com.denkbares.collections;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 // They are used when accessing entries, because java.util.Map also does it this way.
 // only methods that adds items are forcing to have the correct parameter types.
 @SuppressWarnings("SuspiciousMethodCalls")
-public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> {
+public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> implements Serializable {
 
 	private int size = 0;
 	final Map<K, Set<V>> k2v;

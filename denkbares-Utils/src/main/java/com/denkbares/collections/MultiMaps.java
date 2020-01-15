@@ -18,6 +18,7 @@
  */
 package com.denkbares.collections;
 
+import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Comparator;
@@ -118,7 +119,7 @@ public class MultiMaps {
 		}
 	}
 
-	private static final class HashFactory<T> implements CollectionFactory<T> {
+	private static final class HashFactory<T> implements CollectionFactory<T>, Serializable {
 
 		private final int capacity;
 
