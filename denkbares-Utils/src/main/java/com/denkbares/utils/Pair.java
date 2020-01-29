@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2020 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 /**
- * This class implements a typed, null-save pair of two other objects.
+ * This class implements a typed, null-safe pair of two other objects.
  *
  * @author volker_belli
  */
