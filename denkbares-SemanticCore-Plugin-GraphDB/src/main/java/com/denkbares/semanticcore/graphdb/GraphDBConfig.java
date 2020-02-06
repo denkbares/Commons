@@ -68,6 +68,9 @@ import static com.denkbares.semanticcore.SemanticCore.DEFAULT_NAMESPACE;
  */
 public abstract class GraphDBConfig implements RepositoryConfig {
 
+	private static final String GRAPHDB_GLOBAL_PAGE_CACHE = "graphdb.global.page.cache";
+	private static final String DEFAULT_MIN_DISTINCT_THRESHOLD = "default.min.distinct.threshold";
+	private static final String GRAPHDB_PAGE_CACHE_SIZE = "graphdb.page.cache.size";
 	private final String configFile;
 	private final String ruleSet;
 	private final Map<String, String> defaultOverrides = new HashMap<>();
@@ -134,19 +137,24 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	private void configureCache() {
 		// for more info regarding memory configuration
 		// see http://graphdb.ontotext.com/documentation/standard/configuring-a-repository.html
-		if (System.getProperty("graphdb.global.page.cache") == null) {
-			System.setProperty("graphdb.global.page.cache", "true"); // use off-heap-global cache
+		if (System.getProperty(GRAPHDB_GLOBAL_PAGE_CACHE) == null) {
+			// use off-heap-global cache
+			System.setProperty(GRAPHDB_GLOBAL_PAGE_CACHE, "true");
 		}
-		if (System.getProperty("graphdb.page.cache.size") == null) {
+		if (System.getProperty(DEFAULT_MIN_DISTINCT_THRESHOLD) == null) {
+			// require smaller free heap for distinct queries, GC should be able to free up some space if necessary
+			System.setProperty(DEFAULT_MIN_DISTINCT_THRESHOLD, "15m");
+		}
+		if (System.getProperty(GRAPHDB_PAGE_CACHE_SIZE) == null) {
 			long maxMemory = Runtime.getRuntime().maxMemory();
 			double maxMemoryGB = (double) maxMemory / 1000000000;
 			// set cache size to max 1G, but not more than a forth of available memory
 			if (maxMemory == Long.MAX_VALUE || maxMemoryGB >= 4) {
-				System.setProperty("graphdb.page.cache.size", "1G");
+				System.setProperty(GRAPHDB_PAGE_CACHE_SIZE, "1G");
 			} else {
 				// also assure at least 50 MB
 				int sizeMB = (int) Math.max(Math.min(maxMemoryGB * 250, 1000), 50);
-				System.setProperty("graphdb.page.cache.size", sizeMB + "M");
+				System.setProperty(GRAPHDB_PAGE_CACHE_SIZE, sizeMB + "M");
 			}
 		}
 	}
