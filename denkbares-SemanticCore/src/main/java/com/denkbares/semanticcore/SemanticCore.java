@@ -32,19 +32,13 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -79,7 +73,6 @@ import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
-import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Stopwatch;
@@ -87,15 +80,12 @@ import com.denkbares.utils.Streams;
 
 public final class SemanticCore implements SPARQLEndpoint {
 
-	private static final long MAX_SHUTDOWN_WAIT = 1000 * 60;
-
 	public enum State {
 		initializing, active, shutdown
 	}
 
 	private volatile State state = State.initializing;
 
-	private final Object connectionsMutex = new Object();
 	private static final Map<String, SemanticCore> instances = new HashMap<>();
 	private static final Object lazyInitializationMutex = new Object();
 	private static volatile boolean lazyInitializationDone = false;
@@ -106,15 +96,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 	private final String repositoryId;
 	private final Repository repository;
 	private final AtomicLong allocationCounter = new AtomicLong(0);
-	private final Set<ConnectionInfo> connections = new HashSet<>();
-	private final static boolean rememberConnectionOpeningStack = "true".equals(System.getProperty("semanticcore.connection.debug.stacktrace", "false"));
-	//	private AtomicLong connectionCounter = new AtomicLong(0);
-
-	static {
-		Log.info("Connection debugging with stack traces: " + rememberConnectionOpeningStack);
-	}
-
-	private final ScheduledExecutorService daemon = Executors.newSingleThreadScheduledExecutor();
 
 	public static SemanticCore getInstance(String key) {
 		return instances.get(key);
@@ -210,7 +191,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 		catch (RDF4JException e) {
 			throw new IOException("Cannot initialize repository", e);
 		}
-		initConnectionDaemon();
 	}
 
 	private void initializeLazy(String tmpFolder) throws IOException {
@@ -222,38 +202,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 				}
 			}
 		}
-	}
-
-	private void initConnectionDaemon() {
-		// checks every 2 min for open connections and warns about them...
-		daemon.scheduleWithFixedDelay(() -> {
-			synchronized (connectionsMutex) {
-				connections.removeIf(connectionInfo -> {
-					try {
-						if (connectionInfo.connection.isOpen()) {
-							if (connectionInfo.stopWatch.getTime() > THRESHOLD_TIME) {
-								String message = "There is a connection that is open for "
-										+ connectionInfo.stopWatch.getDisplay()
-										+ ". If these messages continue, it might be an indication that something "
-										+ "went wrong in the code.";
-								if (connectionInfo.stackTrace != null) {
-									message += "\n" + Strings.concat("\n\t", connectionInfo.stackTrace);
-								}
-								Log.warning(message);
-							}
-							return false;
-						}
-						else {
-							return true; // remove connection if closed
-						}
-					}
-					catch (RepositoryException e) {
-						Log.severe("Exception while checking connection status", e);
-					}
-					return false;
-				});
-			}
-		}, 0, THRESHOLD_TIME, TimeUnit.MILLISECONDS);
 	}
 
 	public String getRepositoryId() {
@@ -319,46 +267,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 		repositoryManager.removeRepository(getRepositoryId());
 		try {
 			Stopwatch stopwatch = new Stopwatch();
-			synchronized (connectionsMutex) {
-				// we check the connections and wait a finite MAX_SHUTDOWN_WAIT time for them to close if they are still open
-				long start = System.currentTimeMillis();
-				while (true) {
-					connections.removeIf(connectionInfo -> {
-						try {
-							if (!connectionInfo.connection.isOpen()) return true;
-						}
-						catch (RepositoryException e) {
-							Log.info("Exception while checking connection status", e);
-						}
-						Log.info("Waiting for connection to close...");
-						return false;
-					});
-					if (connections.isEmpty() || System.currentTimeMillis() - start > MAX_SHUTDOWN_WAIT) {
-						break;
-					}
-					// sleep some time till the next try
-					//noinspection BusyWait
-					Thread.sleep(1000);
-				}
-				// if there are still open questions, they will be closed by force
-				connections.forEach(connectionInfo -> {
-					try {
-						connectionInfo.connection.close();
-
-						String message = "Shutting down repository connection by force, this might cause subsequent exceptions.";
-						if (connectionInfo.stackTrace != null) {
-							String trace = Strings.concat("\n\t", connectionInfo.stackTrace);
-							message += "\nConnection was opened with the following trace:\n" + trace;
-						}
-						Log.severe(message);
-					}
-					catch (RepositoryException e) {
-						Log.info("Unable to close connection", e);
-					}
-				});
-				connections.clear();
-			}
-			daemon.shutdown();
 			repository.shutDown();
 			Log.info("SemanticCore " + repositoryId + " shut down successfully in " + stopwatch.getDisplay());
 		}
@@ -441,12 +349,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		// check state also before synchronizing to avoid having to wait for connection shutdown
 		// just to learn that the core is already shut down
 		if (state == State.shutdown) throwShutdownException();
-		synchronized (connectionsMutex) {
-			if (state == State.shutdown) throwShutdownException();
-			org.eclipse.rdf4j.repository.RepositoryConnection connection = repository.getConnection();
-			connections.add(new ConnectionInfo(connection));
-			return new RepositoryConnection(connection);
-		}
+		return new RepositoryConnection(repository.getConnection());
 	}
 
 	private void throwShutdownException() throws RepositoryException {
@@ -695,26 +598,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 	private interface DataAdder {
 
 		void run(org.eclipse.rdf4j.repository.RepositoryConnection connection) throws IOException, RDFParseException, RepositoryException;
-	}
-
-	private static class ConnectionInfo {
-
-		private final Stopwatch stopWatch;
-		private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
-		private final StackTraceElement[] stackTrace;
-
-		ConnectionInfo(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
-			this.connection = connection;
-			// for debugging purposes....
-			if (rememberConnectionOpeningStack) {
-				StackTraceElement[] stackTrace = new Exception().getStackTrace();
-				this.stackTrace = Arrays.copyOfRange(stackTrace, 2, stackTrace.length);
-			}
-			else {
-				this.stackTrace = null;
-			}
-			this.stopWatch = new Stopwatch();
-		}
 	}
 
 	/**
