@@ -19,8 +19,9 @@
 
 package com.denkbares.utils;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -60,8 +61,52 @@ public class Predicates {
 	 * @return a predicate, identical to the specified function, but caching the values
 	 */
 	public static <T> Predicate<T> cache(Predicate<T> predicate) {
-		Map<T, Boolean> cache = new HashMap<>();
+		Map<T, Boolean> cache = new ConcurrentHashMap<>();
 		return value -> cache.computeIfAbsent(value, v -> predicate.test(value));
+	}
+
+	/**
+	 * Returns a predicate that returns true for the first <code>limit</code> items that are tested. Duplicate items are
+	 * only counted once. If the limit is "0", no items are accepted. If the limit is negative, all items are accepted.
+	 *
+	 * @param limit the number of items to be accepted
+	 * @return the predicate that accepts the specified number of tested items
+	 */
+	public static <T> Predicate<T> limit(int limit) {
+		// if no linit is specified, accept all items
+		if (limit < 0) return TRUE();
+		if (limit == 0) return FALSE();
+
+		// create a set to count the already accepted items
+		Set<T> accepted = new HashSet<>();
+		return value -> {
+			synchronized (accepted) {
+				// if we already have enough accepted items in the in the set, only accept the existing items
+				if (accepted.size() >= limit) return accepted.contains(value);
+				// otherwise add the item and accept
+				accepted.add(value);
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * Returns a predicate that returns true for the first <code>limit</code> items that are accepted by the specified
+	 * predicate. Duplicate items are only counted once. If the limit is "0", no items are accepted. If the limit is
+	 * negative, all items are accepted.
+	 *
+	 * @param predicate the original predicate to decorate with a limit
+	 * @param limit     the number of items to be accepted
+	 * @return the predicate that only accepts the first specified number of items that are already accepted by the
+	 * specified predicate
+	 */
+	public static <T> Predicate<T> limit(Predicate<T> predicate, int limit) {
+		// if no limit is specified, use original predicate
+		if (limit < 0) return predicate;
+		// if limit is "0", accept nothing
+		if (limit == 0) return FALSE();
+		// otherwise add limit to the accepted items only
+		return predicate.and(limit(limit));
 	}
 
 	/**
