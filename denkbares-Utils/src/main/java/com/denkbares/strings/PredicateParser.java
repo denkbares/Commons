@@ -30,7 +30,41 @@ import java.util.regex.PatternSyntaxException;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Class that implements a simple recursive descent parser for logical expressions.
+ * Class that implements a simple recursive descent parser for logical expressions (condition) that evaluate a set of
+ * variables to a boolean value.
+ * <p>
+ * Note that the evaluator also allows multiple bindings for each variable, so each variable potentially represents a
+ * set of values. If a variable is unbound (or 'null'), there will be an empty binding set for the variable. If each
+ * variable is either null or single-bounded, the conditions behave like 'normal' conditions.
+ * <p>
+ * When evaluating the parsed condition, comparing variables with '=' (or '=='), '&lt;', '&lt;=', '&gt;', '&gt;=', it is
+ * required that there is at least one variable value for the tested variables that matches the condition. Otherwise (or
+ * it no value is available at all), the condition evaluates to false. But note, when checking for a varaible value by
+ * comparing with '!=', all values of the variable must be unequal to match the condition. If the variable has no
+ * value at all, the unequal check will also be true. It is also possible to directly check for the absence of a
+ * specific variable value by testing for '== null'. It is also possible to directly check for the existence of a at
+ * least one (but any) value of a specific variable value by testing for '!= null'.
+ * <p>
+ * The following types of conditions are allowed: <ul> <li><b>Negation</b>: <br>NOT &lt;Cond&gt; <br> !&lt;Cond&gt;
+ * </li> <li><b>Disjunction</b>: <br> &lt;Cond&gt; OR &lt;Cond&gt; <br> &lt;Cond&gt; | &lt;Cond&gt; <br> &lt;Cond&gt;
+ * || &lt;Cond&gt;</li> <li><b>Conjunction</b>: <br>&lt;Cond&gt; AND &lt;Cond&gt; <br> &lt;Cond&gt; &amp; &lt;Cond&gt;
+ * <br> &lt;Cond&gt; &amp;&amp; &lt;Cond&gt;</li> <li><b>Brackets</b>: <br>(&lt;Cond&gt;)</li> <li><b>Atomic
+ * Checks</b>:
+ * <br>&lt;Variable&gt; [=,==,&lt;,&lt;=,&gt;,&gt;=,!=, ~=] &lt;Text-or-Num-Value&gt;</li></ul>
+ * <p>
+ * When nesting atomic checks, negation has the highest priority, followed by AND, followed by OR, as usual in common
+ * boolean expressions. You may use brackets to naturally change this priority.
+ * <p>
+ * '~=' is a case-sensitive match against the regular expression, where any of the valiable's values must entirely
+ * match the pattern. See {@link Pattern} for details on regular expressions and flags, e.g. to match case-insensitive
+ * use prefix '(?i)'. For the other atomic checks, if the right value may be a number or a string, where strings are
+ * compared case-insensitive and number-aware ({@link NumberAwareComparator#CASE_INSENSITIVE}). Text values or regular
+ * expressions may optionally be quoted by ' or ", e.g. if they contain any whitespaces or token characters.
+ * <p>
+ * Some examples of valid conditions: <ul> <li>price > '2.000,00 €'</li> <li>weight <= 2</li> <li>ports ~=
+ * '.*usb.*'</li> <li>weight >= 1 && weight <= 2 AND processor != i5</li> <li>processor == i5 OR weight >= 1.5 && weight
+ * <= 2 OR ports = audio</li> <li>(processor == i5 OR processor == i7) AND ports = audio</li><li>processor != null</li>
+ * <li>win_version = null</li> <li>win_version != 10</li> <li>win_version == 10</li> <li>ports != audio</li> </ul>
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 15.02.2020

@@ -80,7 +80,7 @@ public class PredicateParserTest {
 		PredicateParser parser = new PredicateParser("{");
 
 		Node simple = parser.parse("weight <= 2 { Hello World }");
-		Node noSpace = parser.parse("ports ~= '(?i).*USB.*'{ Hello World }");
+		Node noSpace = parser.parse("ports ~= '(?i).*USB{1}.*'{ Hello World }");
 		Node brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio))) {");
 
 		DefaultMultiMap<String, String> values = new DefaultMultiMap<>();
