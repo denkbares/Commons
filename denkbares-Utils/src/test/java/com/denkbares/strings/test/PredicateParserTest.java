@@ -107,4 +107,19 @@ public class PredicateParserTest {
 		assertFalse(noSpace.eval(values::getValues));
 		assertFalse(brackets.eval(values::getValues));
 	}
+
+	@Test(expected = ParseException.class)
+	public void missingBracket() throws ParseException {
+		new PredicateParser().parse("((processor == i5 OR processor == i7)");
+	}
+
+	@Test(expected = ParseException.class)
+	public void missingClause() throws ParseException {
+		new PredicateParser().parse("((processor == i5 OR");
+	}
+
+	@Test(expected = ParseException.class)
+	public void earlyStopToken() throws ParseException {
+		new PredicateParser("{").parse("(processor == i5 { OR processor == i7)");
+	}
 }
