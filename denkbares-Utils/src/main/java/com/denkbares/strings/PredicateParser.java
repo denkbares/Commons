@@ -131,6 +131,14 @@ public class PredicateParser {
 		return checkVariables(new HashSet<>(Arrays.asList(allowedVariables))::contains);
 	}
 
+	/**
+	 * Parses the specified condition and returns the parsed predicate. If the condition could not been parsed
+	 * correctly, the method throws a {@link ParseException} that contains some information about the error occurred.
+	 *
+	 * @param condition the condition string to be parsed
+	 * @return the parsed predicate
+	 * @throws ParseException if the condition could not been parsed
+	 */
 	public Predicate<ValueProvider> parse(String condition) throws ParseException {
 		Lexer lexer = new Lexer(condition);
 		Predicate<ValueProvider> node = parseStart(lexer);
