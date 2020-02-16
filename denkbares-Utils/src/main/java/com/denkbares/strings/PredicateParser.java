@@ -94,7 +94,7 @@ public class PredicateParser {
 	/**
 	 * Modified this parser to stop parsing at the specified stopToken literal. Note that this stop literal is of high
 	 * priority, it should not be a prefix of any valid token or variable name, otherwise the parser stops too early.
-	 * Safe stop literals are e.g. "{" or "\n" (for single line expressions). If null is specified, no custom stop
+	 * Safe stop literals are e.g. "{", ";" or "\n" (for single line expressions). If null is specified, no custom stop
 	 * literal is used.
 	 *
 	 * @param stopToken the custom stop literal
@@ -139,11 +139,11 @@ public class PredicateParser {
 	 * @return the parsed predicate
 	 * @throws ParseException if the condition could not been parsed
 	 */
-	public Predicate<ValueProvider> parse(String condition) throws ParseException {
+	public ParsedPredicate parse(String condition) throws ParseException {
 		Lexer lexer = new Lexer(condition);
 		Predicate<ValueProvider> node = parseStart(lexer);
-		lexer.consume(TokenType.eof);
-		return node;
+		Token eof = lexer.consume(TokenType.eof);
+		return new ParsedPredicate(condition.substring(0, eof.end), node);
 	}
 
 	private Predicate<ValueProvider> parseStart(Lexer lexer) throws ParseException {
@@ -226,6 +226,36 @@ public class PredicateParser {
 	private void assertVariable(String variable, int position) throws ParseException {
 		if (isAllowedVariable != null && !isAllowedVariable.test(variable)) {
 			throw new ParseException("unknown variable " + variable, position);
+		}
+	}
+
+	/**
+	 * Class that represents a parsed logical expression, that is capable to evaluate itself to true or false, based on
+	 * a given binding of the variables.
+	 */
+	public static class ParsedPredicate implements Predicate<ValueProvider> {
+
+		private final String condition;
+		private final Predicate<ValueProvider> root;
+
+		public ParsedPredicate(String expression, Predicate<ValueProvider> root) {
+			this.condition = expression;
+			this.root = root;
+		}
+
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return root.test(valueProvider);
+		}
+
+		/**
+		 * The original parsed source string, as it has been consumed by this parser. When using a custom stop token, it
+		 * is the original source string up to the stop token, including the stop token.
+		 *
+		 * @return the original parsed and consumed condition expression
+		 */
+		public String getCondition() {
+			return condition;
 		}
 	}
 
