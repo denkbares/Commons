@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -81,26 +82,53 @@ import com.denkbares.utils.Predicates;
  */
 public class PredicateParser {
 
-	private final String stopToken;
+	private String stopToken = null;
+	private Predicate<String> isAllowedVariable = null;
 
 	/**
 	 * Creates a new predicate parser.
 	 */
 	public PredicateParser() {
-		this(null);
 	}
 
 	/**
-	 * Creates a new predicate parser that additionally stops parsing at the specified stopToken literal. Note that this
-	 * stop literal is of high priority, it should not be a prefix of any valid token or variable name, otherwise the
-	 * parser stops too early. Safe stop literals are e.g. "{" or "\n" (for single line expressions). If null is
-	 * specified, no custom stop literal is used.
+	 * Modified this parser to stop parsing at the specified stopToken literal. Note that this stop literal is of high
+	 * priority, it should not be a prefix of any valid token or variable name, otherwise the parser stops too early.
+	 * Safe stop literals are e.g. "{" or "\n" (for single line expressions). If null is specified, no custom stop
+	 * literal is used.
 	 *
 	 * @param stopToken the custom stop literal
+	 * @return this instance, to chain method calls
 	 */
-	public PredicateParser(String stopToken) {
+	public PredicateParser stopToken(String stopToken) {
 		if (stopToken != null && stopToken.isEmpty()) stopToken = null;
 		this.stopToken = stopToken;
+		return this;
+	}
+
+	/**
+	 * This method restricts the allowed variable names to the ones, accepted by the specified predicate. After this
+	 * call, the parser will report a {@link ParseException} for any condition that contains a variable, not accepted by
+	 * the specified predicate.
+	 *
+	 * @param isAllowedVariable the predicate to accept variable names
+	 * @return this instance, to chain method calls
+	 */
+	public PredicateParser checkVariables(Predicate<String> isAllowedVariable) {
+		this.isAllowedVariable = isAllowedVariable;
+		return this;
+	}
+
+	/**
+	 * This method restricts the allowed variable names to the specified ones. After this call, the parser will report a
+	 * {@link ParseException} for any condition that contains a variable, not listed here. The variable names are
+	 * expected to be case sensitive.
+	 *
+	 * @param allowedVariables the accepted variable names
+	 * @return this instance, to chain method calls
+	 */
+	public PredicateParser checkVariables(@NotNull String... allowedVariables) {
+		return checkVariables(new HashSet<>(Arrays.asList(allowedVariables))::contains);
 	}
 
 	public Predicate<ValueProvider> parse(String condition) throws ParseException {
@@ -160,28 +188,36 @@ public class PredicateParser {
 		if (lexer.consumeIf(TokenType.lit_true)) return Predicates.TRUE();
 		if (lexer.consumeIf(TokenType.lit_false)) return Predicates.FALSE();
 
-		// otherwise consume normal compare con
-		String left = Strings.unquote(lexer.consume(TokenType.string, TokenType.number, TokenType.nil).text, '"', '\'');
+		// otherwise consume normal compare
+		Token left = lexer.consume(TokenType.string, TokenType.number, TokenType.nil);
+		String variable = Strings.unquote(left.text, '"', '\'');
+		assertVariable(variable, left.start);
 		Token operator = lexer.consume(TokenType.compare);
 		Token right = lexer.next();
 		switch (operator.text) {
 			case "<":
-				return new CompareNode(left, right, true, false, false);
+				return new CompareNode(variable, right, true, false, false);
 			case "<=":
-				return new CompareNode(left, right, true, true, false);
+				return new CompareNode(variable, right, true, true, false);
 			case ">":
-				return new CompareNode(left, right, false, false, true);
+				return new CompareNode(variable, right, false, false, true);
 			case ">=":
-				return new CompareNode(left, right, false, true, true);
+				return new CompareNode(variable, right, false, true, true);
 			case "=":
 			case "==":
-				return new CompareNode(left, right, false, true, false);
+				return new CompareNode(variable, right, false, true, false);
 			case "!=":
-				return new CompareNode(left, right, true, false, true);
+				return new CompareNode(variable, right, true, false, true);
 			case "~=":
-				return new RegexNode(left, right);
+				return new RegexNode(variable, right);
 			default:
 				throw new ParseException("unknown operator " + operator.text, lexer.position());
+		}
+	}
+
+	private void assertVariable(String variable, int position) throws ParseException {
+		if (isAllowedVariable != null && !isAllowedVariable.test(variable)) {
+			throw new ParseException("unknown variable " + variable, position);
 		}
 	}
 

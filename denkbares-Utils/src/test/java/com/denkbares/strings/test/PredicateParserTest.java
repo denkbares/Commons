@@ -41,9 +41,7 @@ import static org.junit.Assert.assertTrue;
 public class PredicateParserTest {
 	@Test
 	public void basic() throws ParseException {
-
 		PredicateParser parser = new PredicateParser();
-
 		Predicate<ValueProvider> expensive = parser.parse("price > '2.000,00 €'");
 		Predicate<ValueProvider> light = parser.parse("weight <= 2");
 		Predicate<ValueProvider> anyUSB = parser.parse("ports ~= '(?i).*USB.*'");
@@ -81,9 +79,7 @@ public class PredicateParserTest {
 
 	@Test
 	public void customStopToken() throws ParseException {
-
-		PredicateParser parser = new PredicateParser("{");
-
+		PredicateParser parser = new PredicateParser().stopToken("{");
 		Predicate<ValueProvider> simple = parser.parse("weight <= 2 { Hello World }");
 		Predicate<ValueProvider> noSpace = parser.parse("ports ~= '(?i).*USB{1}.*'{ Hello World }");
 		Predicate<ValueProvider> brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio))) {");
@@ -114,6 +110,12 @@ public class PredicateParserTest {
 	}
 
 	@Test(expected = ParseException.class)
+	public void forbiddenVariable() throws ParseException {
+		PredicateParser parser = new PredicateParser().checkVariables("processor", "ports");
+		parser.parse("price > '2.000,00 €'");
+	}
+
+	@Test(expected = ParseException.class)
 	public void missingBracket() throws ParseException {
 		new PredicateParser().parse("((processor == i5 OR processor == i7)");
 	}
@@ -125,7 +127,7 @@ public class PredicateParserTest {
 
 	@Test(expected = ParseException.class)
 	public void earlyStopToken() throws ParseException {
-		new PredicateParser("{").parse("(processor == i5 { OR processor == i7)");
+		new PredicateParser().stopToken("{").parse("(processor == i5 { OR processor == i7)");
 	}
 
 	@Test
