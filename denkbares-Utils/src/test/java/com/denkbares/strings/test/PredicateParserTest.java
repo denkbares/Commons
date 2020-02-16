@@ -19,12 +19,17 @@
 
 package com.denkbares.strings.test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.function.Predicate;
+
 import org.junit.Test;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.strings.PredicateParser;
-import com.denkbares.strings.PredicateParser.Node;
 import com.denkbares.strings.PredicateParser.ParseException;
+import com.denkbares.strings.PredicateParser.ValueBindings;
+import com.denkbares.strings.PredicateParser.ValueProvider;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -39,17 +44,17 @@ public class PredicateParserTest {
 
 		PredicateParser parser = new PredicateParser();
 
-		Node expensive = parser.parse("price > '2.000,00 €'");
-		Node light = parser.parse("weight <= 2");
-		Node anyUSB = parser.parse("ports ~= '(?i).*USB.*'");
-		Node and = parser.parse("weight >= 1 && weight <= 2 AND processor != i5");
-		Node mixed = parser.parse("processor == i5 OR weight >= 1.5 && weight <= 2 OR ports = audio");
-		Node brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio)))");
-		Node null1 = parser.parse("processor != null");
-		Node null2 = parser.parse("win_version = null");
-		Node null3 = parser.parse("win_version != 10");
-		Node null4 = parser.parse("win_version == 10");
-		Node portsNotEqual = parser.parse("ports != audio");
+		Predicate<ValueProvider> expensive = parser.parse("price > '2.000,00 €'");
+		Predicate<ValueProvider> light = parser.parse("weight <= 2");
+		Predicate<ValueProvider> anyUSB = parser.parse("ports ~= '(?i).*USB.*'");
+		Predicate<ValueProvider> and = parser.parse("weight >= 1 && weight <= 2 AND processor != i5");
+		Predicate<ValueProvider> mixed = parser.parse("processor == i5 OR weight >= 1.5 && weight <= 2 OR ports = audio");
+		Predicate<ValueProvider> brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio)))");
+		Predicate<ValueProvider> null1 = parser.parse("processor != null");
+		Predicate<ValueProvider> null2 = parser.parse("win_version = null");
+		Predicate<ValueProvider> null3 = parser.parse("win_version != 10");
+		Predicate<ValueProvider> null4 = parser.parse("win_version == 10");
+		Predicate<ValueProvider> portsNotEqual = parser.parse("ports != audio");
 
 		DefaultMultiMap<String, String> values = new DefaultMultiMap<>();
 		values.put("processor", "i7");
@@ -59,19 +64,19 @@ public class PredicateParserTest {
 		values.put("price", "2.795,00 €");
 
 		// check the applicable ones
-		assertTrue(expensive.eval(values::getValues));
-		assertTrue(light.eval(values::getValues));
-		assertTrue(anyUSB.eval(values::getValues));
-		assertTrue(and.eval(values::getValues));
-		assertTrue(mixed.eval(values::getValues));
-		assertTrue(brackets.eval(values::getValues));
-		assertTrue(null1.eval(values::getValues));
-		assertTrue(null2.eval(values::getValues));
-		assertTrue(null3.eval(values::getValues));
+		assertTrue(expensive.test(values::getValues));
+		assertTrue(light.test(values::getValues));
+		assertTrue(anyUSB.test(values::getValues));
+		assertTrue(and.test(values::getValues));
+		assertTrue(mixed.test(values::getValues));
+		assertTrue(brackets.test(values::getValues));
+		assertTrue(null1.test(values::getValues));
+		assertTrue(null2.test(values::getValues));
+		assertTrue(null3.test(values::getValues));
 
 		// check the non-applicable ones
-		assertFalse(null4.eval(values::getValues));
-		assertFalse(portsNotEqual.eval(values::getValues));
+		assertFalse(null4.test(values::getValues));
+		assertFalse(portsNotEqual.test(values::getValues));
 	}
 
 	@Test
@@ -79,33 +84,33 @@ public class PredicateParserTest {
 
 		PredicateParser parser = new PredicateParser("{");
 
-		Node simple = parser.parse("weight <= 2 { Hello World }");
-		Node noSpace = parser.parse("ports ~= '(?i).*USB{1}.*'{ Hello World }");
-		Node brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio))) {");
+		Predicate<ValueProvider> simple = parser.parse("weight <= 2 { Hello World }");
+		Predicate<ValueProvider> noSpace = parser.parse("ports ~= '(?i).*USB{1}.*'{ Hello World }");
+		Predicate<ValueProvider> brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio))) {");
 
 		DefaultMultiMap<String, String> values = new DefaultMultiMap<>();
 
-		assertFalse(simple.eval(values::getValues));
-		assertFalse(noSpace.eval(values::getValues));
-		assertFalse(brackets.eval(values::getValues));
+		assertFalse(simple.test(values::getValues));
+		assertFalse(noSpace.test(values::getValues));
+		assertFalse(brackets.test(values::getValues));
 
 		values.put("processor", "i7");
 		values.put("ports", "usb3");
 		values.put("ports", "audio");
 		values.put("weight", "1.25");
 
-		assertTrue(simple.eval(values::getValues));
-		assertTrue(noSpace.eval(values::getValues));
-		assertTrue(brackets.eval(values::getValues));
+		assertTrue(simple.test(values::getValues));
+		assertTrue(noSpace.test(values::getValues));
+		assertTrue(brackets.test(values::getValues));
 
 		values.clear();
 		values.put("processor", "i3");
 		values.put("ports", "lightning");
 		values.put("weight", "5");
 
-		assertFalse(simple.eval(values::getValues));
-		assertFalse(noSpace.eval(values::getValues));
-		assertFalse(brackets.eval(values::getValues));
+		assertFalse(simple.test(values::getValues));
+		assertFalse(noSpace.test(values::getValues));
+		assertFalse(brackets.test(values::getValues));
 	}
 
 	@Test(expected = ParseException.class)
@@ -121,5 +126,44 @@ public class PredicateParserTest {
 	@Test(expected = ParseException.class)
 	public void earlyStopToken() throws ParseException {
 		new PredicateParser("{").parse("(processor == i5 { OR processor == i7)");
+	}
+
+	@Test
+	public void bindings() throws ParseException {
+		Predicate<ValueProvider> predicate = new PredicateParser().parse(
+				"(processor == i5 OR weight >= 1.5) && (weight <= 2 OR ports = audio)");
+
+		// try with empty bindings
+		assertFalse(predicate.test(new ValueBindings()));
+
+		// try with valid constant bindings
+		ValueBindings values = new ValueBindings()
+				.constant("processor", "i5")
+				.constants("weight", "1")
+				.constants("ports", Arrays.asList("audio", "USB"));
+		assertTrue(predicate.test(values));
+
+		// try with valid functional bindings
+		values
+				.value("processor", () -> "i5")
+				.valueArray("weight", () -> new String[] { "1", "3" })
+				.values("ports", () -> Arrays.asList("audio", "USB"));
+		assertTrue(predicate.test(values));
+	}
+
+	@Test
+	public void singleBounded() throws ParseException {
+		Predicate<ValueProvider> predicate = new PredicateParser().parse(
+				"(processor == i5 OR weight >= 1.5) && (weight <= 2 OR ports = audio)");
+
+		// try with empty bindings
+		HashMap<String, String> values = new HashMap<>();
+		assertFalse(predicate.test(ValueProvider.singleBounded(values::get)));
+
+		// try with valid constant bindings
+		values.put("processor", "i5");
+		values.put("weight", "1");
+		values.put("ports", "audio");
+		assertTrue(predicate.test(ValueProvider.singleBounded(values::get)));
 	}
 }

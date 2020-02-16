@@ -21,13 +21,23 @@ package com.denkbares.strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import com.denkbares.utils.Predicates;
 
 /**
  * Class that implements a simple recursive descent parser for logical expressions (condition) that evaluate a set of
@@ -40,10 +50,10 @@ import org.jetbrains.annotations.NotNull;
  * When evaluating the parsed condition, comparing variables with '=' (or '=='), '&lt;', '&lt;=', '&gt;', '&gt;=', it is
  * required that there is at least one variable value for the tested variables that matches the condition. Otherwise (or
  * it no value is available at all), the condition evaluates to false. But note, when checking for a varaible value by
- * comparing with '!=', all values of the variable must be unequal to match the condition. If the variable has no
- * value at all, the unequal check will also be true. It is also possible to directly check for the absence of a
- * specific variable value by testing for '== null'. It is also possible to directly check for the existence of a at
- * least one (but any) value of a specific variable value by testing for '!= null'.
+ * comparing with '!=', all values of the variable must be unequal to match the condition. If the variable has no value
+ * at all, the unequal check will also be true. It is also possible to directly check for the absence of a specific
+ * variable value by testing for '== null'. It is also possible to directly check for the existence of a at least one
+ * (but any) value of a specific variable value by testing for '!= null'.
  * <p>
  * The following types of conditions are allowed: <ul> <li><b>Negation</b>: <br>NOT &lt;Cond&gt; <br> !&lt;Cond&gt;
  * </li> <li><b>Disjunction</b>: <br> &lt;Cond&gt; OR &lt;Cond&gt; <br> &lt;Cond&gt; | &lt;Cond&gt; <br> &lt;Cond&gt;
@@ -55,9 +65,9 @@ import org.jetbrains.annotations.NotNull;
  * When nesting atomic checks, negation has the highest priority, followed by AND, followed by OR, as usual in common
  * boolean expressions. You may use brackets to naturally change this priority.
  * <p>
- * '~=' is a case-sensitive match against the regular expression, where any of the valiable's values must entirely
- * match the pattern. See {@link Pattern} for details on regular expressions and flags, e.g. to match case-insensitive
- * use prefix '(?i)'. For the other atomic checks, if the right value may be a number or a string, where strings are
+ * '~=' is a case-sensitive match against the regular expression, where any of the valiable's values must entirely match
+ * the pattern. See {@link Pattern} for details on regular expressions and flags, e.g. to match case-insensitive use
+ * prefix '(?i)'. For the other atomic checks, if the right value may be a number or a string, where strings are
  * compared case-insensitive and number-aware ({@link NumberAwareComparator#CASE_INSENSITIVE}). Text values or regular
  * expressions may optionally be quoted by ' or ", e.g. if they contain any whitespaces or token characters.
  * <p>
@@ -93,50 +103,50 @@ public class PredicateParser {
 		this.stopToken = stopToken;
 	}
 
-	public Node parse(String condition) throws ParseException {
+	public Predicate<ValueProvider> parse(String condition) throws ParseException {
 		Lexer lexer = new Lexer(condition);
-		Node node = parseStart(lexer);
+		Predicate<ValueProvider> node = parseStart(lexer);
 		lexer.consume(TokenType.eof);
 		return node;
 	}
 
-	private Node parseStart(Lexer lexer) throws ParseException {
+	private Predicate<ValueProvider> parseStart(Lexer lexer) throws ParseException {
 		return parseOr(lexer);
 	}
 
-	private Node parseOr(Lexer lexer) throws ParseException {
-		List<Node> nodes = new ArrayList<>();
+	private Predicate<ValueProvider> parseOr(Lexer lexer) throws ParseException {
+		List<Predicate<ValueProvider>> nodes = new ArrayList<>();
 		nodes.add(parseAnd(lexer));
 		while (lexer.consumeIf(TokenType.or)) {
 			nodes.add(parseAnd(lexer));
 		}
 		return (nodes.size() <= 1) ? nodes.get(0)
-				: equipment -> nodes.stream().anyMatch(node -> node.eval(equipment));
+				: equipment -> nodes.stream().anyMatch(node -> node.test(equipment));
 	}
 
-	private Node parseAnd(Lexer lexer) throws ParseException {
-		List<Node> nodes = new ArrayList<>();
+	private Predicate<ValueProvider> parseAnd(Lexer lexer) throws ParseException {
+		List<Predicate<ValueProvider>> nodes = new ArrayList<>();
 		nodes.add(parseNot(lexer));
 		while (lexer.consumeIf(TokenType.and)) {
 			nodes.add(parseNot(lexer));
 		}
 		return (nodes.size() == 1) ? nodes.get(0)
-				: equipment -> nodes.stream().allMatch(node -> node.eval(equipment));
+				: equipment -> nodes.stream().allMatch(node -> node.test(equipment));
 	}
 
-	private Node parseNot(Lexer lexer) throws ParseException {
+	private Predicate<ValueProvider> parseNot(Lexer lexer) throws ParseException {
 		if (lexer.consumeIf(TokenType.not)) {
-			Node node = parseBrackets(lexer);
-			return equipment -> !node.eval(equipment);
+			Predicate<ValueProvider> node = parseBrackets(lexer);
+			return equipment -> !node.test(equipment);
 		}
 		else {
 			return parseBrackets(lexer);
 		}
 	}
 
-	private Node parseBrackets(Lexer lexer) throws ParseException {
+	private Predicate<ValueProvider> parseBrackets(Lexer lexer) throws ParseException {
 		if (lexer.consumeIf(TokenType.open)) {
-			Node result = parseStart(lexer);
+			Predicate<ValueProvider> result = parseStart(lexer);
 			lexer.consume(TokenType.close);
 			return result;
 		}
@@ -145,10 +155,10 @@ public class PredicateParser {
 		}
 	}
 
-	private Node parseCompare(Lexer lexer) throws ParseException {
+	private Predicate<ValueProvider> parseCompare(Lexer lexer) throws ParseException {
 		// check for boolean literals
-		if (lexer.consumeIf(TokenType.lit_true)) return TRUE_NODE;
-		if (lexer.consumeIf(TokenType.lit_false)) return FALSE_NODE;
+		if (lexer.consumeIf(TokenType.lit_true)) return Predicates.TRUE();
+		if (lexer.consumeIf(TokenType.lit_false)) return Predicates.FALSE();
 
 		// otherwise consume normal compare con
 		String left = Strings.unquote(lexer.consume(TokenType.string, TokenType.number, TokenType.nil).text, '"', '\'');
@@ -176,18 +186,9 @@ public class PredicateParser {
 	}
 
 	/**
-	 * Interface that represents a parsed logical expression, that is capable to evaluate itself to true or false, based
-	 * on a given binding of the variables.
-	 */
-	@FunctionalInterface
-	public interface Node {
-		boolean eval(ValueProvider equipment);
-	}
-
-	/**
 	 * Interface that represents a binding of variables, returning the set of values for each given variable name. If a
-	 * variable is unbound (aka 'null' or 'nil'), the method should return an empty collection. Otherwise it returns the
-	 * value(s) the variable is bound to.
+	 * variable is unbound (aka 'null' or 'nil'), the method should return an empty collection (or null). Otherwise it
+	 * returns the value(s) the variable is bound to.
 	 * <p>
 	 * In most cases, the returned collection contains a single value, representing the bound value of the variable, but
 	 * the logical evaluator allows multiple values for each element, using an implicit 'or', so that the expression
@@ -195,8 +196,122 @@ public class PredicateParser {
 	 */
 	@FunctionalInterface
 	public interface ValueProvider {
-		@NotNull
+		/**
+		 * Returns the values bound to the variable. If the variable is unbound, return null or an empty collection.
+		 *
+		 * @param variable the variable to get the bound values for
+		 * @return the bound values, or null
+		 */
+		@Nullable
 		Collection<String> get(@NotNull String variable);
+
+		/**
+		 * Creates a value provider for single bounded variables. The specified single value provider may returns a
+		 * single string value for the variable, or null, if the variable is not bound. This method creates a compatible
+		 * ValueProvider to evaluate the parsed predicates for that.
+		 *
+		 * @param singleValueProvider a function that returns the bound value, or null, for each variable
+		 * @return a value provider that allows to be used for parsed predicates
+		 */
+		static ValueProvider singleBounded(Function<@NotNull String, @Nullable String> singleValueProvider) {
+			return variable -> ValueBindings.mapOptional(singleValueProvider.apply(variable));
+		}
+	}
+
+	/**
+	 * Implementation of a value provider, that easily allows to bind a single- or multi-value Supplier for each
+	 * variable name. This utility class can be used to bind some variable names e.g. to some getter methods of an
+	 * instance and evaluate an expression based on these getters.
+	 */
+	public static class ValueBindings implements ValueProvider {
+		private final Map<String, Supplier<? extends Collection<String>>> bindings = new HashMap<>();
+
+		/**
+		 * Binds the specified variable to the (nullable) supplier of the value
+		 *
+		 * @param variable the variable to bind
+		 * @param binding  the supplier to get the value from
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings value(String variable, Supplier<@Nullable String> binding) {
+			bindings.put(variable, () -> mapOptional(binding.get()));
+			return this;
+		}
+
+		/**
+		 * Binds the specified variable to the supplier of the values.
+		 *
+		 * @param variable the variable to bind
+		 * @param binding  the supplier to get the values from
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings values(String variable, Supplier<? extends Collection<String>> binding) {
+			bindings.put(variable, binding);
+			return this;
+		}
+
+		/**
+		 * Binds the specified variable to the supplier of the values.
+		 *
+		 * @param variable the variable to bind
+		 * @param binding  the supplier to get the values from
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings valueArray(String variable, Supplier<String[]> binding) {
+			bindings.put(variable, () -> mapOptional(binding.get()));
+			return this;
+		}
+
+		/**
+		 * Binds the specified variable to a constant value.
+		 *
+		 * @param variable the variable to bind
+		 * @param value    the constant value of the variable
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings constant(String variable, String value) {
+			bindings.put(variable, () -> mapOptional(value));
+			return this;
+		}
+
+		/**
+		 * Binds the specified variable to a set of constant values.
+		 *
+		 * @param variable the variable to bind
+		 * @param values   the constant values of the variable
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings constants(String variable, Collection<String> values) {
+			bindings.put(variable, () -> values);
+			return this;
+		}
+
+		/**
+		 * Binds the specified variable to a set of constant values.
+		 *
+		 * @param variable the variable to bind
+		 * @param values   the constant values of the variable
+		 * @return this instance, to chain method calls
+		 */
+		public ValueBindings constants(String variable, String... values) {
+			bindings.put(variable, () -> mapOptional(values));
+			return this;
+		}
+
+		@Override
+		public Collection<String> get(@NotNull String variable) {
+			// get the value(s) from the bound supplier, or use the empty set supplier if not bound
+			Supplier<? extends Collection<String>> supplier = bindings.get(variable);
+			return (supplier == null) ? null : supplier.get();
+		}
+
+		private static Collection<String> mapOptional(@Nullable String value) {
+			return (value == null) ? null : Collections.singleton(value);
+		}
+
+		private static Collection<String> mapOptional(@Nullable String[] values) {
+			return (values == null) ? null : Arrays.asList(values);
+		}
 	}
 
 	/**
@@ -342,7 +457,7 @@ public class PredicateParser {
 		}
 	}
 
-	private static class CompareNode implements Node {
+	private static class CompareNode implements Predicate<ValueProvider> {
 		private final String variable;
 		private final String textValue;
 		private final Number numValue;
@@ -366,8 +481,10 @@ public class PredicateParser {
 		}
 
 		@Override
-		public boolean eval(ValueProvider valueProvider) {
+		public boolean test(ValueProvider valueProvider) {
 			Collection<String> values = valueProvider.get(variable);
+			if (values == null) values = Collections.emptySet();
+
 			// if we test for null (== or !=),
 			// we compare against the fact if the set if empty or not
 			if (textValue == null) {
@@ -397,7 +514,7 @@ public class PredicateParser {
 		}
 	}
 
-	private static class RegexNode implements Node {
+	private static class RegexNode implements Predicate<ValueProvider> {
 		private final String variable;
 		private final Pattern pattern;
 
@@ -413,31 +530,19 @@ public class PredicateParser {
 		}
 
 		@Override
-		public boolean eval(ValueProvider valueProvider) {
+		public boolean test(ValueProvider valueProvider) {
 			// get the values and test if any matches
-			for (String value : valueProvider.get(variable)) {
-				if (pattern.matcher(value).matches()) {
-					return true;
+			Collection<String> values = valueProvider.get(variable);
+			if (values != null) {
+				for (String value : values) {
+					if (pattern.matcher(value).matches()) {
+						return true;
+					}
 				}
 			}
+
 			// if no value returns true (or there is no value)
 			return false;
 		}
 	}
-
-	private static class ConstantNode implements Node {
-		private final boolean value;
-
-		private ConstantNode(boolean value) {
-			this.value = value;
-		}
-
-		@Override
-		public boolean eval(ValueProvider valueProvider) {
-			return value;
-		}
-	}
-
-	private static final ConstantNode TRUE_NODE = new ConstantNode(true);
-	private static final ConstantNode FALSE_NODE = new ConstantNode(false);
 }
