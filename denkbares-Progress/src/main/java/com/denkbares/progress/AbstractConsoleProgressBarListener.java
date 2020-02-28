@@ -33,6 +33,7 @@ public abstract class AbstractConsoleProgressBarListener implements ProgressList
 
 	protected final boolean printHeader;
 	protected final Stopwatch stopwatch = new Stopwatch();
+	private final boolean printOnEveryNewMessage;
 
 	protected float percent = Float.NaN;
 	protected String message = "";
@@ -42,8 +43,13 @@ public abstract class AbstractConsoleProgressBarListener implements ProgressList
 	}
 
 	public AbstractConsoleProgressBarListener(int totalBarSize, boolean printHeader) {
+		this(totalBarSize, printHeader, false);
+	}
+
+	public AbstractConsoleProgressBarListener(int totalBarSize, boolean printHeader, boolean printEveryNewMessage) {
 		this.SIZE = totalBarSize;
 		this.printHeader = printHeader;
+		this.printOnEveryNewMessage = printEveryNewMessage;
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public abstract class AbstractConsoleProgressBarListener implements ProgressList
 			printHeader();
 			System.out.flush();
 		}
-		else if (percent < 1f && (percent <= this.percent + UPDATE_DELTA) && !newMessage) {
+		else if (percent < 1f && (percent <= this.percent + UPDATE_DELTA) && (!newMessage || !printOnEveryNewMessage)) {
 			// no update required
 			return;
 		}
