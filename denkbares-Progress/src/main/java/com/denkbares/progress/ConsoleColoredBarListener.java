@@ -40,11 +40,11 @@ public class ConsoleColoredBarListener extends AbstractConsoleProgressBarListene
 	private final boolean useColors;
 
 	public ConsoleColoredBarListener() {
-		this(30, true, false);
+		this(30, true, false, false);
 	}
 
-	public ConsoleColoredBarListener(int totalBarSize, boolean printHeader, boolean useColors) {
-		super(totalBarSize, printHeader);
+	public ConsoleColoredBarListener(int totalBarSize, boolean printHeader, boolean useColors, boolean printEveryNewMessage) {
+		super(totalBarSize, printHeader, printEveryNewMessage);
 		this.useColors = useColors;
 	}
 
