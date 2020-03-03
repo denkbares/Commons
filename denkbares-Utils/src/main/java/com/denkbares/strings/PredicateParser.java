@@ -431,7 +431,7 @@ public class PredicateParser {
 		nil("^(null)"),
 		lit_true("^(true)"), lit_false("^(false)"),
 		number("^([+\\-]?\\d+(\\.\\d+)?)"),
-		string("^(\\w[^\\s()!|&\"']*|\"[^\n\"]*\"|'[^\n']*')");
+		string("^(\\w[^\\s()!=<>|&\"']*|\"[^\n\"]*\"|'[^\n']*')");
 
 		private final Pattern pattern;
 
