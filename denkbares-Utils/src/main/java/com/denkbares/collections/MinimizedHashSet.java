@@ -20,6 +20,7 @@
 package com.denkbares.collections;
 
 import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -43,6 +44,18 @@ public class MinimizedHashSet<T> extends AbstractSet<T> {
 
 	private static final Object EMPTY = new Object();
 	private Object data = EMPTY;
+
+	public MinimizedHashSet() {
+	}
+
+	public MinimizedHashSet(Collection<? extends T> source) {
+		addAll(source);
+	}
+
+	@SafeVarargs
+	public MinimizedHashSet(T... items) {
+		Collections.addAll(this, items);
+	}
 
 	@Override
 	public int size() {
