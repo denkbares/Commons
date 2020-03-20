@@ -28,8 +28,7 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import com.denkbares.semanticcore.TupleQueryResult;
 
 /**
- * Interface to describe an sparql endpoint that is also capable to directly execute sparql
- * queries.
+ * Interface to describe an sparql endpoint that is also capable to directly execute sparql queries.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 30.12.2014
@@ -92,10 +91,20 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 */
 	ValueFactory getValueFactory();
 
+	/**
+	 * Executes the sparql query, and dumps the result to the console, as a human-readable ascii formatted table. The
+	 * bound variables are in the title of the table, the column widths are adjusted to the content of each column. URI
+	 * references are abbreviated as the namespace is known to this core.
+	 *
+	 * @param query the sparql query to be executed
+	 */
+	void dump(String query);
+
 	@Override
 	void close() throws RepositoryException;
 
 	class QueryFailedException extends RuntimeException {
+		private static final long serialVersionUID = 6858265382899856794L;
 
 		public QueryFailedException(String message, Throwable cause) {
 			super(message, cause);

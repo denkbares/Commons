@@ -74,6 +74,11 @@ public class FutureSPARQLEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
+	public void dump(String query) {
+		delegate.dump(query);
+	}
+
+	@Override
 	public Collection<Namespace> getNamespaces() throws RepositoryException {
 		return getQueryEndpoint().getNamespaces();
 	}

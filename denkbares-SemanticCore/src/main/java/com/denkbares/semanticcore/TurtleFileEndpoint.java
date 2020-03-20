@@ -210,6 +210,11 @@ public class TurtleFileEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
+	public void dump(String query) {
+		sc.dump(query);
+	}
+
+	@Override
 	public synchronized void close() throws RepositoryException {
 		try {
 			sc.close();
