@@ -2359,8 +2359,32 @@ public class Strings {
 	 * @return the filled string of at least the specified target length
 	 */
 	public static String fillLeft(String text, char fillChar, int targetLength) {
+		return fill(text, fillChar, targetLength, true);
+	}
+
+	/**
+	 * Returns a string of the specified text, that has been filled the specified char at its right side, unit the
+	 * specified target length is reached. If the string already reached or exceeds the specified target length, the
+	 * original string is returned.
+	 *
+	 * @param text         the left-side text to be filled on its right side
+	 * @param fillChar     the char to be filled
+	 * @param targetLength the target length to be filled
+	 * @return the filled string of at least the specified target length
+	 */
+	public static String fillRight(String text, char fillChar, int targetLength) {
+		return fill(text, fillChar, targetLength, false);
+	}
+
+	private static String fill(String text, char fillChar, int targetLength, boolean fillLeft) {
 		if (text.length() >= targetLength) return text;
-		return nTimes(fillChar, targetLength - text.length()) + text;
+		StringBuilder builder = new StringBuilder(targetLength);
+		if (!fillLeft) builder.append(text);
+		for (int i = text.length(); i < targetLength; i++) {
+			builder.append(fillChar);
+		}
+		if (fillLeft) builder.append(text);
+		return builder.toString();
 	}
 
 	/**

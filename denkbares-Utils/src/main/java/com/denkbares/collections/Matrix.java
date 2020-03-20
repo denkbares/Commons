@@ -64,6 +64,16 @@ public class Matrix<E> {
 	}
 
 	/**
+	 * Removes all elements of this matrix. After this call the matrix is identical to a newly created one, with no cell
+	 * contains any content and size is 0/0.
+	 */
+	public void clear() {
+		rows = 0;
+		cols = 0;
+		elements.clear();
+	}
+
+	/**
 	 * Returns the element that is stored at the specified position in this matrix. If the current matrix does not hold
 	 * an element at the specified indices, null is returned.
 	 *
