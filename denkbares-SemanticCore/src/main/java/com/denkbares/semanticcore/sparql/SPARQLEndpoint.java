@@ -25,6 +25,8 @@ import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 
+import com.denkbares.semanticcore.BooleanQuery;
+import com.denkbares.semanticcore.TupleQuery;
 import com.denkbares.semanticcore.TupleQueryResult;
 
 /**
@@ -61,7 +63,41 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @return the result of the ASK query
 	 * @throws QueryFailedException if the execution was not successful
 	 */
-	boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException;
+	default boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		try (BooleanQuery ask = prepareAsk(namespaces, query)) {
+			return sparqlAsk(ask);
+		}
+	}
+
+	/**
+	 * Executes the given ASK query.
+	 *
+	 * @param query the ASK query to be executed
+	 * @return the result of the ASK query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default boolean sparqlAsk(BooleanQuery query) throws QueryFailedException {
+		return query.evaluate();
+	}
+
+	/**
+	 * Prepares the given sparql ask query. All known namespaces will automatically be prepended as prefixes.
+	 *
+	 * @param query the sparql ask query to be prepared
+	 * @return the prepared query
+	 */
+	default BooleanQuery prepareAsk(String query) {
+		return prepareAsk(getNamespaces(), query);
+	}
+
+	/**
+	 * Prepares the given sparql ask query. Only the given namespaces will automatically be prepended as prefixes.
+	 *
+	 * @param query      the sparql ask query to be prepared
+	 * @param namespaces the namespaces to prepend as prefixes
+	 * @return the prepared query
+	 */
+	BooleanQuery prepareAsk(Collection<Namespace> namespaces, String query);
 
 	/**
 	 * Executes the given SELECT query. All known namespaces will automatically be prepended as prefixes.
@@ -82,7 +118,39 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @return the result of the SELECT query
 	 * @throws QueryFailedException if the execution was not successful
 	 */
-	TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException;
+	default TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException {
+		try (TupleQuery select = prepareSelect(namespaces, query)) {
+			return sparqlSelect(select);
+		}
+	}
+
+	/**
+	 * Executes the given SELECT query.
+	 *
+	 * @param query the SELECT query to be executed
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException;
+
+	/**
+	 * Prepares the given sparql query. All known namespaces will automatically be prepended as prefixes.
+	 *
+	 * @param query the sparql query to be prepared
+	 * @return the prepared query
+	 */
+	default TupleQuery prepareSelect(String query) {
+		return prepareSelect(getNamespaces(), query);
+	}
+
+	/**
+	 * Prepares the given sparql query. Only the given namespaces will automatically be prepended as prefixes.
+	 *
+	 * @param query      the sparql query to be prepared
+	 * @param namespaces the namespaces to prepend as prefixes
+	 * @return the prepared query
+	 */
+	TupleQuery prepareSelect(Collection<Namespace> namespaces, String query);
 
 	/**
 	 * Returns the value factory for the given endpoint.

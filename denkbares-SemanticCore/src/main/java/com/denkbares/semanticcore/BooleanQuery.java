@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2020 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -23,25 +23,23 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.Dataset;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
-import org.eclipse.rdf4j.query.TupleQueryResultHandler;
-import org.eclipse.rdf4j.query.TupleQueryResultHandlerException;
 
 /**
- * Implements a (prepared) tuple query, that holds the original connection, and closes the connection as the query is
+ * Implements a (prepared) boolean query, that holds the original connection, and closes the connection as the query is
  * closed.
  *
- * @author Albrecht Striffler (denkbares GmbH)
- * @created 29.01.16
+ * @author Volker Belli (denkbares GmbH)
+ * @created 21.03.2020
  */
-public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoCloseable {
+public class BooleanQuery implements org.eclipse.rdf4j.query.BooleanQuery, AutoCloseable {
 
 	private final RepositoryConnection connection;
-	private final org.eclipse.rdf4j.query.TupleQuery tupleQuery;
+	private final org.eclipse.rdf4j.query.BooleanQuery delegate;
 	private final String queryString;
 
-	public TupleQuery(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQuery tupleQuery,String queryString) {
+	public BooleanQuery(RepositoryConnection connection, org.eclipse.rdf4j.query.BooleanQuery delegate, String queryString) {
 		this.connection = connection;
-		this.tupleQuery = tupleQuery;
+		this.delegate = delegate;
 		this.queryString = queryString;
 	}
 
@@ -65,75 +63,68 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 	}
 
 	@Override
-	public TupleQueryResult evaluate() throws QueryEvaluationException {
-		return new TupleQueryResult(null, tupleQuery.evaluate());
+	public boolean evaluate() throws QueryEvaluationException {
+		return delegate.evaluate();
 	}
 
 	@Override
-	public void evaluate(TupleQueryResultHandler handler) throws QueryEvaluationException, TupleQueryResultHandlerException {
-		// TODO: do we need to close here somehow?
-		tupleQuery.evaluate(handler);
-	}
-
-	@Override
-	@Deprecated
 	public void setMaxQueryTime(int maxQueryTime) {
-		tupleQuery.setMaxQueryTime(maxQueryTime);
+		//noinspection deprecation
+		delegate.setMaxQueryTime(maxQueryTime);
 	}
 
 	@Override
-	@Deprecated
 	public int getMaxQueryTime() {
-		return tupleQuery.getMaxQueryTime();
+		return delegate.getMaxQueryTime();
 	}
 
 	@Override
 	public void setBinding(String name, Value value) {
-		tupleQuery.setBinding(name, value);
+		delegate.setBinding(name, value);
 	}
 
 	@Override
 	public void removeBinding(String name) {
-		tupleQuery.removeBinding(name);
+		delegate.removeBinding(name);
 	}
 
 	@Override
 	public void clearBindings() {
-		tupleQuery.clearBindings();
+		delegate.clearBindings();
 	}
 
 	@Override
 	public BindingSet getBindings() {
-		return tupleQuery.getBindings();
+		return delegate.getBindings();
 	}
 
 	@Override
 	public void setDataset(Dataset dataset) {
-		tupleQuery.setDataset(dataset);
+		delegate.setDataset(dataset);
 	}
 
 	@Override
 	public Dataset getDataset() {
-		return tupleQuery.getDataset();
+		return delegate.getDataset();
 	}
 
 	@Override
 	public void setIncludeInferred(boolean includeInferred) {
-		tupleQuery.setIncludeInferred(includeInferred);
+		delegate.setIncludeInferred(includeInferred);
 	}
 
 	@Override
 	public boolean getIncludeInferred() {
-		return tupleQuery.getIncludeInferred();
+		return delegate.getIncludeInferred();
 	}
 
 	@Override
 	public void setMaxExecutionTime(int maxExecTime) {
-		tupleQuery.setMaxExecutionTime(maxExecTime);
+		delegate.setMaxExecutionTime(maxExecTime);
 	}
 
 	@Override
 	public int getMaxExecutionTime() {
-		return tupleQuery.getMaxExecutionTime();
+		return delegate.getMaxExecutionTime();
 	}
 }

@@ -52,10 +52,8 @@ import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.Repository;
@@ -459,6 +457,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	@Override
 	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String queryString) throws QueryFailedException {
+		// we overwrite default implementation to avoid multiple connection creation
 		RepositoryConnection connection = getConnection();
 		try {
 			TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
@@ -470,6 +469,26 @@ public final class SemanticCore implements SPARQLEndpoint {
 			connection.close();
 			throw e;
 		}
+	}
+
+	@Override
+	public TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
+		RepositoryConnection connection = getConnection();
+		try {
+			return new TupleQueryResult(connection, query.evaluate());
+		}
+		catch (Exception e) {
+			// if an exception occurs preparing the result instance, but after the connection has been created,
+			// we have to close the connection manually, otherwise nobody would close
+			connection.close();
+			throw e;
+		}
+	}
+
+	@Override
+	public TupleQuery prepareSelect(Collection<Namespace> namespaces, String queryString) {
+		RepositoryConnection connection = getConnection();
+		return connection.prepareTupleQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
 	}
 
 	/**
@@ -484,11 +503,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	@Override
-	public boolean sparqlAsk(Collection<Namespace> namespaces, String queryString) throws QueryFailedException {
-		try (RepositoryConnection connection = getConnection()) {
-			BooleanQuery query = connection.prepareBooleanQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
-			return query.evaluate();
-		}
+	public BooleanQuery prepareAsk(Collection<Namespace> namespaces, String queryString) {
+		RepositoryConnection connection = getConnection();
+		String query = toPrefixes(namespaces) + queryString;
+		return new BooleanQuery(connection, connection.prepareBooleanQuery(QueryLanguage.SPARQL, query), query);
 	}
 
 	@NotNull

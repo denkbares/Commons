@@ -62,9 +62,9 @@ import org.jetbrains.annotations.NotNull;
 import com.denkbares.utils.Log;
 
 /**
- * This is a delegate for the ordinary {@link org.eclipse.rdf4j.repository.RepositoryException}.
- * Tries to close delegate query result when garbage collected. Since we cannot guaranty garbage collection of the
- * object, we still need to use <tt>try(ClosingQueryResult result = getResult(..)) { code }</tt>
+ * This is a delegate for the ordinary {@link org.eclipse.rdf4j.repository.RepositoryException}. Tries to close delegate
+ * query result when garbage collected. Since we cannot guaranty garbage collection of the object, we still need to use
+ * <tt>try(ClosingQueryResult result = getResult(..)) { code }</tt>
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 28.01.16
@@ -122,17 +122,20 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 	@Override
 	public com.denkbares.semanticcore.TupleQuery prepareTupleQuery(String query) throws RepositoryException, MalformedQueryException {
-		return new com.denkbares.semanticcore.TupleQuery(new CounterTupleQuery(connection.prepareTupleQuery(query)));
+		CounterTupleQuery tupleQuery = new CounterTupleQuery(connection.prepareTupleQuery(query));
+		return new com.denkbares.semanticcore.TupleQuery(this, tupleQuery, query);
 	}
 
 	@Override
 	public com.denkbares.semanticcore.TupleQuery prepareTupleQuery(QueryLanguage ql, String query) throws RepositoryException, MalformedQueryException {
-		return new com.denkbares.semanticcore.TupleQuery(new CounterTupleQuery(connection.prepareTupleQuery(ql, query)));
+		CounterTupleQuery tupleQuery = new CounterTupleQuery(connection.prepareTupleQuery(ql, query));
+		return new com.denkbares.semanticcore.TupleQuery(this, tupleQuery, query);
 	}
 
 	@Override
 	public com.denkbares.semanticcore.TupleQuery prepareTupleQuery(QueryLanguage ql, String query, String baseURI) throws RepositoryException, MalformedQueryException {
-		return new com.denkbares.semanticcore.TupleQuery(new CounterTupleQuery(connection.prepareTupleQuery(ql, query, baseURI)));
+		CounterTupleQuery tupleQuery = new CounterTupleQuery(connection.prepareTupleQuery(ql, query, baseURI));
+		return new com.denkbares.semanticcore.TupleQuery(this, tupleQuery, query);
 	}
 
 	@Override
@@ -146,18 +149,21 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	@Override
-	public BooleanQuery prepareBooleanQuery(String query) throws RepositoryException, MalformedQueryException {
-		return connection.prepareBooleanQuery(query);
+	public com.denkbares.semanticcore.BooleanQuery prepareBooleanQuery(String query) throws RepositoryException, MalformedQueryException {
+		BooleanQuery booleanQuery = connection.prepareBooleanQuery(query);
+		return new com.denkbares.semanticcore.BooleanQuery(this, booleanQuery, query);
 	}
 
 	@Override
-	public BooleanQuery prepareBooleanQuery(QueryLanguage ql, String query) throws RepositoryException, MalformedQueryException {
-		return connection.prepareBooleanQuery(ql, query);
+	public com.denkbares.semanticcore.BooleanQuery prepareBooleanQuery(QueryLanguage ql, String query) throws RepositoryException, MalformedQueryException {
+		BooleanQuery booleanQuery = connection.prepareBooleanQuery(ql, query);
+		return new com.denkbares.semanticcore.BooleanQuery(this, booleanQuery, query);
 	}
 
 	@Override
-	public BooleanQuery prepareBooleanQuery(QueryLanguage ql, String query, String baseURI) throws RepositoryException, MalformedQueryException {
-		return connection.prepareBooleanQuery(ql, query, baseURI);
+	public com.denkbares.semanticcore.BooleanQuery prepareBooleanQuery(QueryLanguage ql, String query, String baseURI) throws RepositoryException, MalformedQueryException {
+		BooleanQuery booleanQuery = connection.prepareBooleanQuery(ql, query, baseURI);
+		return new com.denkbares.semanticcore.BooleanQuery(this, booleanQuery, query);
 	}
 
 	@Override

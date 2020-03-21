@@ -20,38 +20,30 @@
 package com.denkbares.semanticcore;
 
 import java.io.IOException;
-import java.util.Collection;
 
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.jetbrains.annotations.NotNull;
 
+import com.denkbares.semanticcore.sparql.AbstractDelegateEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 
 /**
- * An implementation of a sparql endpoint that will be constructed on demand by some factory method,
- * the first time it is queried or a query is prepared.
+ * An implementation of a sparql endpoint that will be constructed on demand by some factory method, the first time it
+ * is queried or a query is prepared.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 13.01.2015
  */
-public class FutureSPARQLEndpoint implements SPARQLEndpoint {
-
-	/**
-	 * Functional interface to create the underlying sparql endpoint on demand.
-	 */
-	@FunctionalInterface
-	public interface SPARQLEndpointFactory {
-		SPARQLEndpoint createEndpoint() throws IOException;
-	}
+public class FutureSPARQLEndpoint extends AbstractDelegateEndpoint {
 
 	private final SPARQLEndpointFactory factory;
 	private SPARQLEndpoint delegate = null;
 
 	/**
-	 * Creates a new sparql endpoint based on some factory method. The factory method will be used
-	 * to create the underlying endpoint that is delegated for each query. The factory method is not
-	 * called until the first time a query or preparation is performed.
+	 * Creates a new sparql endpoint based on some factory method. The factory method will be used to create the
+	 * underlying endpoint that is delegated for each query. The factory method is not called until the first time a
+	 * query or preparation is performed.
 	 *
 	 * @param factory the factory method to be used to create the endpoint on demand
 	 */
@@ -74,38 +66,29 @@ public class FutureSPARQLEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
-	public void dump(String query) {
-		delegate.dump(query);
-	}
-
-	@Override
-	public Collection<Namespace> getNamespaces() throws RepositoryException {
-		return getQueryEndpoint().getNamespaces();
-	}
-
-	@Override
-	public boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException {
-		return getQueryEndpoint().sparqlAsk(namespaces, query);
-	}
-
-	@Override
-	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException {
-		return getQueryEndpoint().sparqlSelect(namespaces, query);
-	}
-
-	public synchronized SPARQLEndpoint getSparqlEndpoint() throws IOException {
-		if (delegate == null) {
-			delegate = factory.createEndpoint();
-		}
+	@NotNull
+	protected SPARQLEndpoint getDelegate() {
+		if (delegate == null) initEndpoint();
 		return delegate;
 	}
 
-	private SPARQLEndpoint getQueryEndpoint() throws QueryFailedException {
+	private synchronized void initEndpoint() {
+		// as we now entered the synchronized area,
+		// we have to check if the endpoint is still null, to avoid duplicate initialization
+		if (delegate != null) return;
 		try {
-			return getSparqlEndpoint();
+			delegate = factory.createEndpoint();
 		}
 		catch (IOException e) {
 			throw new QueryFailedException("cannot create sparql endpoint", e);
 		}
+	}
+
+	/**
+	 * Functional interface to create the underlying sparql endpoint on demand.
+	 */
+	@FunctionalInterface
+	public interface SPARQLEndpointFactory {
+		SPARQLEndpoint createEndpoint() throws IOException;
 	}
 }

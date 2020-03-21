@@ -32,13 +32,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
+import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.semanticcore.sparql.AbstractDelegateEndpoint;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
@@ -47,7 +47,7 @@ import com.denkbares.utils.Streams;
  * Implementation of a SesameEndpoint for a single turtle file that gets the connection from the SemanticCore and
  * handles its allocation/release well.
  */
-public class TurtleFileEndpoint implements SPARQLEndpoint {
+public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 
 	private final String ontologyName;
 	private SemanticCore sc;
@@ -180,6 +180,15 @@ public class TurtleFileEndpoint implements SPARQLEndpoint {
 				String.format("%08x", (0xFFFFFFFFL & sourcePath.hashCode())).toUpperCase();
 	}
 
+	@Override
+	@NotNull
+	protected SPARQLEndpoint getDelegate() {
+		if (sc == null) {
+			throw new RepositoryException("repository already closed");
+		}
+		return sc;
+	}
+
 	public String getOntologyName() {
 		return ontologyName;
 	}
@@ -187,31 +196,6 @@ public class TurtleFileEndpoint implements SPARQLEndpoint {
 	@Override
 	public String toString() {
 		return "TurtleFileEndpoint:" + ontologyName;
-	}
-
-	@Override
-	public Collection<Namespace> getNamespaces() throws RepositoryException {
-		return sc.getNamespaces();
-	}
-
-	@Override
-	public boolean sparqlAsk(Collection<Namespace> namespaces, String query) throws QueryFailedException {
-		return sc.sparqlAsk(namespaces, query);
-	}
-
-	@Override
-	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String query) throws QueryFailedException {
-		return sc.sparqlSelect(namespaces, query);
-	}
-
-	@Override
-	public ValueFactory getValueFactory() {
-		return sc.getValueFactory();
-	}
-
-	@Override
-	public void dump(String query) {
-		sc.dump(query);
 	}
 
 	@Override
