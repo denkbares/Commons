@@ -20,8 +20,12 @@
 package com.denkbares.semanticcore.sparql;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 
@@ -70,7 +74,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	}
 
 	/**
-	 * Executes the given ASK query.
+	 * Executes the given prepared ASK query.
 	 *
 	 * @param query the ASK query to be executed
 	 * @return the result of the ASK query
@@ -78,6 +82,80 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 */
 	default boolean sparqlAsk(BooleanQuery query) throws QueryFailedException {
 		return query.evaluate();
+	}
+
+	/**
+	 * Executes the given prepared ASK query. The specified variable bindings are applied to the query before executed,
+	 * and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the same
+	 * prepared query.
+	 *
+	 * @param query  the ASK query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @return the result of the ASK query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default boolean sparqlAsk(BooleanQuery query, String param1, Value value1) throws QueryFailedException {
+		return sparqlAsk(query, Collections.singletonMap(param1, value1));
+	}
+
+	/**
+	 * Executes the given prepared ASK query. The specified variable bindings are applied to the query before executed,
+	 * and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the same
+	 * prepared query.
+	 *
+	 * @param query  the ASK query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @param param2 the second query variable to bind
+	 * @param value2 the value of the second query variable
+	 * @return the result of the ASK query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default boolean sparqlAsk(BooleanQuery query, String param1, Value value1, String param2, Value value2) throws QueryFailedException {
+		return sparqlAsk(query, ImmutableMap.of(param1, value1, param2, value2));
+	}
+
+	/**
+	 * Executes the given prepared ASK query. The specified variable bindings are applied to the query before executed,
+	 * and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the same
+	 * prepared query.
+	 *
+	 * @param query  the ASK query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @param param2 the second query variable to bind
+	 * @param value2 the value of the second query variable
+	 * @param param3 the third query variable to bind
+	 * @param value3 the value of the third query variable
+	 * @return the result of the ASK query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default boolean sparqlAsk(BooleanQuery query, String param1, Value value1, String param2, Value value2, String param3, Value value3) throws QueryFailedException {
+		return sparqlAsk(query, ImmutableMap.of(param1, value1, param2, value2, param3, value3));
+	}
+
+	/**
+	 * Executes the given prepared ASK query. The specified variable bindings are applied to the query before executed,
+	 * and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the same
+	 * prepared query.
+	 *
+	 * @param query    the ASK query to be executed
+	 * @param bindings the variable bindings to be used when executing the perpared query
+	 * @return the result of the ASK query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default boolean sparqlAsk(BooleanQuery query, Map<String, Value> bindings) throws QueryFailedException {
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (query) {
+			try {
+				bindings.forEach(query::setBinding);
+				return sparqlAsk(query);
+			}
+			finally {
+				bindings.keySet().forEach(query::removeBinding);
+			}
+		}
 	}
 
 	/**
@@ -125,13 +203,89 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	}
 
 	/**
-	 * Executes the given SELECT query.
+	 * Executes the given prepared SELECT query.
 	 *
 	 * @param query the SELECT query to be executed
 	 * @return the result of the SELECT query
 	 * @throws QueryFailedException if the execution was not successful
 	 */
-	TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException;
+	default TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
+		return query.evaluate();
+	}
+
+	/**
+	 * Executes the given prepared SELECT query. The specified variable bindings are applied to the query before
+	 * executed, and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the
+	 * same prepared query.
+	 *
+	 * @param query  the SELECT query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default TupleQueryResult sparqlSelect(TupleQuery query, String param1, Value value1) throws QueryFailedException {
+		return sparqlSelect(query, Collections.singletonMap(param1, value1));
+	}
+
+	/**
+	 * Executes the given prepared SELECT query. The specified variable bindings are applied to the query before
+	 * executed, and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the
+	 * same prepared query.
+	 *
+	 * @param query  the SELECT query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @param param2 the second query variable to bind
+	 * @param value2 the value of the second query variable
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default TupleQueryResult sparqlSelect(TupleQuery query, String param1, Value value1, String param2, Value value2) throws QueryFailedException {
+		return sparqlSelect(query, ImmutableMap.of(param1, value1, param2, value2));
+	}
+
+	/**
+	 * Executes the given prepared SELECT query. The specified variable bindings are applied to the query before
+	 * executed, and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the
+	 * same prepared query.
+	 *
+	 * @param query  the SELECT query to be executed
+	 * @param param1 the first query variable to bind
+	 * @param value1 the value of the first query variable
+	 * @param param2 the second query variable to bind
+	 * @param value2 the value of the second query variable
+	 * @param param3 the third query variable to bind
+	 * @param value3 the value of the third query variable
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default TupleQueryResult sparqlSelect(TupleQuery query, String param1, Value value1, String param2, Value value2, String param3, Value value3) throws QueryFailedException {
+		return sparqlSelect(query, ImmutableMap.of(param1, value1, param2, value2, param3, value3));
+	}
+
+	/**
+	 * Executes the given prepared SELECT query. The specified variable bindings are applied to the query before
+	 * executed, and will be removed afterwards. The method is thread-safe, if multiple threads trying to execute the
+	 * same prepared query.
+	 *
+	 * @param query    the SELECT query to be executed
+	 * @param bindings the variable bindings to be used when executing the perpared query
+	 * @return the result of the SELECT query
+	 * @throws QueryFailedException if the execution was not successful
+	 */
+	default TupleQueryResult sparqlSelect(TupleQuery query, Map<String, Value> bindings) throws QueryFailedException {
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (query) {
+			try {
+				bindings.forEach(query::setBinding);
+				return sparqlSelect(query);
+			}
+			finally {
+				bindings.keySet().forEach(query::removeBinding);
+			}
+		}
+	}
 
 	/**
 	 * Prepares the given sparql query. All known namespaces will automatically be prepended as prefixes.
