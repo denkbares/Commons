@@ -473,16 +473,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	@Override
 	public TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
-		RepositoryConnection connection = getConnection();
-		try {
-			return new TupleQueryResult(connection, query.evaluate());
-		}
-		catch (Exception e) {
-			// if an exception occurs preparing the result instance, but after the connection has been created,
-			// we have to close the connection manually, otherwise nobody would close
-			connection.close();
-			throw e;
-		}
+		return query.evaluate();
 	}
 
 	@Override
