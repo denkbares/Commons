@@ -229,6 +229,10 @@
 						<groupId>org.mongodb</groupId>
 						<artifactId>bson</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>org.apache.httpcomponents</groupId>
+						<artifactId>httpclient-osgi</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>
