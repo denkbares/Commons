@@ -279,7 +279,9 @@ public interface SPARQLEndpoint extends AutoCloseable {
 		synchronized (query) {
 			try {
 				bindings.forEach(query::setBinding);
-				return sparqlSelect(query);
+				// return a cached instance, because modifying and re-query a prepared query,
+				// during iteration, may throw a concurrent modification exception
+				return sparqlSelect(query).cachedAndClosed();
 			}
 			finally {
 				bindings.keySet().forEach(query::removeBinding);
