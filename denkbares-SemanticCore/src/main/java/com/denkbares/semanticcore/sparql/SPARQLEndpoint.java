@@ -146,16 +146,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @throws QueryFailedException if the execution was not successful
 	 */
 	default boolean sparqlAsk(BooleanQuery query, Map<String, Value> bindings) throws QueryFailedException {
-		//noinspection SynchronizationOnLocalVariableOrMethodParameter
-		synchronized (query) {
-			try {
-				bindings.forEach(query::setBinding);
-				return sparqlAsk(query);
-			}
-			finally {
-				bindings.keySet().forEach(query::removeBinding);
-			}
-		}
+		return query.evaluate(bindings);
 	}
 
 	/**
@@ -210,6 +201,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @throws QueryFailedException if the execution was not successful
 	 */
 	default TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
+		// we lock/unlock after select, to avoid that we have locked, but there is no result to unlock again
 		return query.evaluate();
 	}
 
@@ -275,24 +267,9 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @throws QueryFailedException if the execution was not successful
 	 */
 	default TupleQueryResult sparqlSelect(TupleQuery query, Map<String, Value> bindings) throws QueryFailedException {
-		//noinspection SynchronizationOnLocalVariableOrMethodParameter
-		synchronized (query) {
-			try {
-				bindings.forEach(query::setBinding);
-				// return a cached instance, because modifying and re-query a prepared query,
-				// during iteration, may throw a concurrent modification exception
-				TupleQueryResult result = sparqlSelect(query).onClose(query::unlock);
-				// we lock/unlock after select, to avoid that we have locked, but there is no result to unlock again
-				query.lock();
-				return result;
-			}
-			catch (InterruptedException e) {
-				throw new QueryFailedException("interrupted while waiting to lock query", e);
-			}
-			finally {
-				bindings.keySet().forEach(query::removeBinding);
-			}
-		}
+		// return a cached instance, because modifying and re-query a prepared query,
+		// during iteration, may throw a concurrent modification exception
+		return query.evaluate(bindings);
 	}
 
 	/**

@@ -20,8 +20,10 @@
 package com.denkbares.semanticcore.sparql;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.jetbrains.annotations.NotNull;
@@ -66,6 +68,11 @@ public abstract class AbstractDelegateEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
+	public boolean sparqlAsk(BooleanQuery query, Map<String, Value> bindings) throws QueryFailedException {
+		return getDelegate().sparqlAsk(query, bindings);
+	}
+
+	@Override
 	public BooleanQuery prepareAsk(String query) {
 		return getDelegate().prepareAsk(query);
 	}
@@ -88,6 +95,11 @@ public abstract class AbstractDelegateEndpoint implements SPARQLEndpoint {
 	@Override
 	public TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
 		return getDelegate().sparqlSelect(query);
+	}
+
+	@Override
+	public TupleQueryResult sparqlSelect(TupleQuery query, Map<String, Value> bindings) throws QueryFailedException {
+		return getDelegate().sparqlSelect(query, bindings);
 	}
 
 	@Override

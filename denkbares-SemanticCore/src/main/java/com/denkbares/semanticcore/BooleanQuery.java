@@ -19,6 +19,8 @@
 
 package com.denkbares.semanticcore;
 
+import java.util.Map;
+
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.Dataset;
@@ -63,8 +65,24 @@ public class BooleanQuery implements org.eclipse.rdf4j.query.BooleanQuery, AutoC
 	}
 
 	@Override
-	public boolean evaluate() throws QueryEvaluationException {
+	public synchronized boolean evaluate() throws QueryEvaluationException {
 		return delegate.evaluate();
+	}
+
+	/**
+	 * Method that evaluates this (prepared) query with a set of predefined variable bindings.
+	 *
+	 * @param bindings the bindings to be applied before the query is executed
+	 * @return the query result
+	 */
+	public synchronized boolean evaluate(Map<String, Value> bindings) throws QueryEvaluationException {
+		try {
+			bindings.forEach(this::setBinding);
+			return delegate.evaluate();
+		}
+		finally {
+			bindings.keySet().forEach(this::removeBinding);
+		}
 	}
 
 	@Override
