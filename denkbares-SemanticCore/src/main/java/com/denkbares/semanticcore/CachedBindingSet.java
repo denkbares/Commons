@@ -19,6 +19,7 @@
 
 package com.denkbares.semanticcore;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,12 +48,22 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CachedBindingSet extends AbstractBindingSet {
 
+	private static final long serialVersionUID = 6002089496337116648L;
 	private final Map<String, Value> bindings;
 
 	public CachedBindingSet(BindingSet bindingSet) {
-		this.bindings = new HashMap<>(bindingSet.size());
-		for (Binding binding : bindingSet) {
-			bindings.put(binding.getName(), convertValue(binding.getValue()));
+		if (bindingSet.size() >= 2) {
+			this.bindings = new HashMap<>((int) (bindingSet.size() * 1.5));
+			for (Binding binding : bindingSet) {
+				bindings.put(binding.getName(), convertValue(binding.getValue()));
+			}
+		}
+		else if (bindingSet.size() == 1) {
+			Binding binding = bindingSet.iterator().next();
+			bindings = Collections.singletonMap(binding.getName(), convertValue(binding.getValue()));
+		}
+		else {
+			bindings = Collections.emptyMap();
 		}
 	}
 
@@ -123,6 +134,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static final class CachedLiteral extends SimpleLiteral {
+		private static final long serialVersionUID = 8135962119311429522L;
 
 		@Override
 		public void setDatatype(IRI datatype) {
@@ -143,6 +155,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static class CachedBNode extends SimpleBNode {
+		private static final long serialVersionUID = -2870840425921911510L;
 
 		public CachedBNode(String id) {
 			super(id);
@@ -150,10 +163,10 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static class CachedIRI extends SimpleIRI {
+		private static final long serialVersionUID = -2118422531535486044L;
 
 		public CachedIRI(String id) {
 			super(id);
 		}
 	}
-
 }
