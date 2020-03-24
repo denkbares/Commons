@@ -23,8 +23,7 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 
 /**
  * TupleQueryResult that is also auto closable and can be cached. Always use the following way: <p/> try
- * (TupleQueryResult result =
- * getResult()) {<br/> // iterate over result <br/> }
+ * (TupleQueryResult result = getResult()) {<br/> // iterate over result <br/> }
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 29.01.16
@@ -41,16 +40,4 @@ public interface ClosableTupleQueryResult extends org.eclipse.rdf4j.query.TupleQ
 	 * @throws QueryEvaluationException if there is a exception while evaluating
 	 */
 	CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException;
-
-	/**
-	 * Will cause the underlying result to be retrieved completely into a cache. After the caching, the underlying
-	 * result is also closed. This way, after calling this method, it is no longer necessary to close this instance.
-	 * This is particularly useful if the repository only provides a limited amount of concurrent queries and you want
-	 * to evaluate additional queries while iterating over this result.
-	 *
-	 * @param preserveNamespaces if the namespaces should be still available after closing
-	 * @return a cached and closed version of this result
-	 * @throws QueryEvaluationException if there is a exception while evaluating
-	 */
-	CachedTupleQueryResult cachedAndClosed(boolean preserveNamespaces) throws QueryEvaluationException;
 }

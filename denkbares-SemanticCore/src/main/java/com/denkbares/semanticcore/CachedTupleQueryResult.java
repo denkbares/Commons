@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.Repository;
@@ -46,11 +45,6 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	private final ThreadLocal<Iterator<BindingSet>> cachedIterator = new ThreadLocal<>();
 
 	public CachedTupleQueryResult(List<String> bindingNames, List<BindingSet> bindingSets) {
-		this(bindingNames, bindingSets, null);
-	}
-
-	public CachedTupleQueryResult(List<String> bindingNames, List<BindingSet> bindingSets, List<Namespace> namespaces) {
-		super(namespaces);
 		this.bindingNames = new ArrayList<>(bindingNames);
 		this.cache = new ArrayList<>(bindingSets);
 	}

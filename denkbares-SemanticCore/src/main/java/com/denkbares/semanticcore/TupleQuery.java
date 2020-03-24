@@ -19,6 +19,8 @@
 
 package com.denkbares.semanticcore;
 
+import java.util.concurrent.Semaphore;
+
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.Dataset;
@@ -39,7 +41,13 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 	private final org.eclipse.rdf4j.query.TupleQuery tupleQuery;
 	private final String queryString;
 
-	public TupleQuery(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQuery tupleQuery,String queryString) {
+	// fore prepared statements, we use a lock to avoid multiple parallel executions
+	// we require a semaphore, instead of a lock, because the lock/unlock may be executed by different threads
+	// we also store the thread currently holding the semaphore to avoid that inner loops will cause dead-locks
+	private final Semaphore lock = new Semaphore(1, true);
+	private Thread locker = null;
+
+	public TupleQuery(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQuery tupleQuery, String queryString) {
 		this.connection = connection;
 		this.tupleQuery = tupleQuery;
 		this.queryString = queryString;
@@ -59,6 +67,26 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 		return queryString;
 	}
 
+	/**
+	 * Locks this query until {@link #unlock()} is called. If a lock is already held by an other thread, the method
+	 * waits until the lock is released.
+	 */
+	public void lock() throws InterruptedException {
+		// a prepared query is not reentrant, so if this is tried, we will fail
+		if (locker == Thread.currentThread()) {
+			throw new IllegalStateException("tried to lock the query twice.\n" +
+					"This would indicate that the lock is not properly unlocked by a previous (completed) query, " +
+					"or that the query is used inside the loop that currently iterates a query result.");
+		}
+		lock.acquire();
+		locker = Thread.currentThread();
+	}
+
+	public void unlock() {
+		locker = null;
+		lock.release();
+	}
+
 	@Override
 	public void close() {
 		connection.close();
@@ -66,7 +94,7 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 
 	@Override
 	public TupleQueryResult evaluate() throws QueryEvaluationException {
-		return new TupleQueryResult(null, tupleQuery.evaluate());
+		return new TupleQueryResult(tupleQuery.evaluate());
 	}
 
 	@Override

@@ -51,6 +51,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.impl.SimpleIRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryLanguage;
@@ -461,7 +462,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		RepositoryConnection connection = getConnection();
 		try {
 			TupleQuery query = connection.prepareTupleQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
-			return new TupleQueryResult(connection, query.evaluate());
+			return new TupleQueryResult(query.evaluate()).onClose(connection::close);
 		}
 		catch (Exception e) {
 			// if an exception occurs preparing the result instance, but after the connection has been created,
@@ -575,7 +576,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	@Override
 	public void dump(String query) {
 		Matrix<String> matrix = new Matrix<>();
-		try (TupleQueryResult result = sparqlSelect(query).cachedAndClosed(true)) {
+		try (TupleQueryResult result = sparqlSelect(query).cachedAndClosed()) {
 			// prepare headings and column length
 			List<String> names = result.getBindingNames();
 
@@ -585,7 +586,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 				BindingSet bindings = result.next();
 				for (int col = 0; col < names.size(); col++) {
 					Value value = bindings.getValue(names.get(col));
-					if (value instanceof IRI) value = result.toShortIRI((IRI) value);
+					if (value instanceof IRI) value = toShortIRI((IRI) value);
 					String text = (value == null) ? "null" : value.stringValue();
 					matrix.set(row, col, text);
 				}
@@ -595,6 +596,24 @@ public final class SemanticCore implements SPARQLEndpoint {
 			// dump the matrix
 			matrix.dumpTable(names);
 		}
+	}
+
+	private IRI toShortIRI(IRI iri) {
+		String uriText = iri.toString();
+		int length = 0;
+		IRI shortURI = iri;
+		for (Namespace namespace : getNamespaces()) {
+			String partURI = namespace.getName();
+			int partLength = partURI.length();
+			if (partLength > length && uriText.length() > partLength && uriText.startsWith(partURI)) {
+				String shortText = namespace.getPrefix() + ":" + uriText.substring(partLength);
+				shortURI = new SimpleIRI(shortText) {
+					private static final long serialVersionUID = 8831976782866898688L;
+				};
+				length = partLength;
+			}
+		}
+		return shortURI;
 	}
 
 	private interface DataAdder {

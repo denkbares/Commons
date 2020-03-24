@@ -22,14 +22,10 @@ package com.denkbares.semanticcore;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
-import org.eclipse.rdf4j.common.iteration.Iterations;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.impl.SimpleIRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,29 +41,35 @@ import com.denkbares.utils.Log;
  */
 public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<BindingSet> {
 
-	private RepositoryConnection connection;
-	private org.eclipse.rdf4j.query.TupleQueryResult delegate;
+	private final org.eclipse.rdf4j.query.TupleQueryResult delegate;
+	private final List<Consumer<TupleQueryResult>> closeHandlers = new ArrayList<>(0);
+
 	private CachedTupleQueryResult cache = null;
 	private boolean calledNext = false;
 
-	private List<Namespace> namespaces = null;
-
-	public TupleQueryResult(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQueryResult delegate) {
-		this.connection = connection;
+	public TupleQueryResult(org.eclipse.rdf4j.query.TupleQueryResult delegate) {
 		this.delegate = delegate;
+	}
+
+	TupleQueryResult() {
+		// only to be used by CachedTupleQueryResult
+		this.delegate = null;
+	}
+
+	public TupleQueryResult onClose(Runnable closeHandler) {
+		return onClose(self -> closeHandler.run());
+	}
+
+	public TupleQueryResult onClose(Consumer<TupleQueryResult> closeHandler) {
+		this.closeHandlers.add(closeHandler);
+		return this;
 	}
 
 	@Override
 	public CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException {
-		return cachedAndClosed(false);
-	}
-
-	@Override
-	public CachedTupleQueryResult cachedAndClosed(boolean preserveNamespaces) throws QueryEvaluationException {
 		if (calledNext) {
 			throw new UnsupportedOperationException("After calling next(), cacheAndClose() is no longer usable.");
 		}
-		if (preserveNamespaces) initNamespaces();
 		if (cache == null) {
 			List<String> bindingNames = getBindingNames();
 			List<BindingSet> bindingSets = new ArrayList<>();
@@ -84,58 +86,32 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 			finally {
 				close();
 			}
-			cache = new CachedTupleQueryResult(bindingNames, bindingSets, namespaces);
+			cache = new CachedTupleQueryResult(bindingNames, bindingSets);
 		}
 
 		return cache;
 	}
 
-	TupleQueryResult(List<Namespace> namespaces) {
-		// only to be used by CachedTupleQueryResult
-		this.namespaces = namespaces;
-	}
-
-	private void initNamespaces() {
-		if (namespaces == null && connection != null) {
-			this.namespaces = Iterations.asList(connection.getNamespaces());
-		}
-	}
-
-	public IRI toShortIRI(IRI iri) {
-		initNamespaces();
-		if (namespaces == null) return iri;
-
-		String uriText = iri.toString();
-		int length = 0;
-		IRI shortURI = iri;
-		for (Namespace namespace : namespaces) {
-			String partURI = namespace.getName();
-			int partLength = partURI.length();
-			if (partLength > length && uriText.length() > partLength && uriText.startsWith(partURI)) {
-				String shortText = namespace.getPrefix() + ":" + uriText.substring(partLength);
-				shortURI = new SimpleIRI(shortText) {
-					private static final long serialVersionUID = 8831976782866898688L;
-				};
-				length = partLength;
-			}
-		}
-		return shortURI;
-	}
-
 	@Override
 	public List<String> getBindingNames() throws QueryEvaluationException {
+		if (cache != null) return cache.getBindingNames();
+		assert delegate != null;
 		return delegate.getBindingNames();
 	}
 
 	@Override
 	public void close() throws QueryEvaluationException {
-		delegate.close();
+		if (cache != null) {
+			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
+		}
 		try {
-			if (connection != null) connection.close();
+			closeHandlers.forEach(handler -> handler.accept(this));
 		}
 		catch (RepositoryException e) {
 			throw new QueryEvaluationException("Unable to close connection", e);
 		}
+		assert delegate != null;
+		delegate.close();
 	}
 
 	@Override
@@ -143,6 +119,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		if (cache != null) {
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
 		}
+		assert delegate != null;
 		return delegate.hasNext();
 	}
 
@@ -152,6 +129,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
 		}
 		calledNext = true;
+		assert delegate != null;
 		return delegate.next();
 	}
 
@@ -160,6 +138,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		if (cache != null) {
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
 		}
+		assert delegate != null;
 		delegate.remove();
 	}
 
