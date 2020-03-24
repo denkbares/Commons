@@ -281,7 +281,13 @@ public interface SPARQLEndpoint extends AutoCloseable {
 				bindings.forEach(query::setBinding);
 				// return a cached instance, because modifying and re-query a prepared query,
 				// during iteration, may throw a concurrent modification exception
-				return sparqlSelect(query).cachedAndClosed();
+				TupleQueryResult result = sparqlSelect(query).onClose(query::unlock);
+				// we lock/unlock after select, to avoid that we have locked, but there is no result to unlock again
+				query.lock();
+				return result;
+			}
+			catch (InterruptedException e) {
+				throw new QueryFailedException("interrupted while waiting to lock query", e);
 			}
 			finally {
 				bindings.keySet().forEach(query::removeBinding);
