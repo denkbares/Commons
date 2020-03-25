@@ -104,6 +104,7 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	/**
 	 * Returns a sequential {@code Stream} with the binding sets of this query result.
 	 */
+	@Override
 	public Stream<BindingSet> stream() {
 		return getBindingSets().stream();
 	}

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -182,6 +184,10 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 				return TupleQueryResult.this.next();
 			}
 		};
+	}
+
+	public Stream<BindingSet> stream() {
+		return StreamSupport.stream(spliterator(), false);
 	}
 
 	public List<BindingSet> getBindingSets() {
