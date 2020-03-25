@@ -46,6 +46,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 
 	private CachedTupleQueryResult cache = null;
 	private boolean calledNext = false;
+	private boolean closed = false;
 
 	public TupleQueryResult(org.eclipse.rdf4j.query.TupleQueryResult delegate) {
 		this.delegate = delegate;
@@ -68,7 +69,10 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	@Override
 	public CachedTupleQueryResult cachedAndClosed() throws QueryEvaluationException {
 		if (calledNext) {
-			throw new UnsupportedOperationException("After calling next(), cacheAndClose() is no longer usable.");
+			throw new UnsupportedOperationException("After calling next(), this method is no longer usable.");
+		}
+		if (closed) {
+			throw new UnsupportedOperationException("After calling close(), this method is no longer usable.");
 		}
 		if (cache == null) {
 			List<String> bindingNames = getBindingNames();
@@ -110,6 +114,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		catch (RepositoryException e) {
 			throw new QueryEvaluationException("Unable to close connection", e);
 		}
+		closed = true;
 		assert delegate != null;
 		delegate.close();
 	}
@@ -119,6 +124,9 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		if (cache != null) {
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
 		}
+		if (closed) {
+			throw new UnsupportedOperationException("After calling close(), this method is no longer usable.");
+		}
 		assert delegate != null;
 		return delegate.hasNext();
 	}
@@ -127,6 +135,9 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	public BindingSet next() throws QueryEvaluationException {
 		if (cache != null) {
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
+		}
+		if (closed) {
+			throw new UnsupportedOperationException("After calling close(), this method is no longer usable.");
 		}
 		calledNext = true;
 		assert delegate != null;
@@ -138,6 +149,9 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		if (cache != null) {
 			throw new UnsupportedOperationException("After calling cacheAndClose(), this method is no longer usable.");
 		}
+		if (closed) {
+			throw new UnsupportedOperationException("After calling close(), this method is no longer usable.");
+		}
 		assert delegate != null;
 		delegate.remove();
 	}
@@ -145,7 +159,8 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
-		close();
+		// we only close if not closed yet, to avoid useless exception creation
+		if (!closed) close();
 	}
 
 	@NotNull
