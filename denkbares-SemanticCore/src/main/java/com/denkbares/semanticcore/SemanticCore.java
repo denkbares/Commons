@@ -72,6 +72,7 @@ import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Stopwatch;
@@ -576,6 +577,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	@Override
 	public void dump(String query) {
 		Matrix<String> matrix = new Matrix<>();
+		Stopwatch stopwatch = new Stopwatch();
 		try (TupleQueryResult result = sparqlSelect(query).cachedAndClosed()) {
 			// prepare headings and column length
 			List<String> names = result.getBindingNames();
@@ -594,7 +596,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 			}
 
 			// dump the matrix
+			String time = stopwatch.getDisplay();
 			matrix.dumpTable(names);
+			//noinspection UseOfSystemOutOrSystemErr
+			System.out.println("\ncreated " + Strings.pluralOf(matrix.getRowSize(), "row") + " in " + time);
 		}
 	}
 
