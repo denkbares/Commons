@@ -116,8 +116,9 @@ public class Locales {
 	 * Returns the best matching locale of the same language out of a collection of available locales. It returns the
 	 * ROOT locale if no locales matches the available locales with at least the same language.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to return a
-	 * locale instance out of the available ones with the same language or the root locale.
+	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to either return
+	 * a locale instance out of the available ones with the same language, or return the root locale (even if it is not
+	 * in the available locales).
 	 *
 	 * @param preferred the preferred locale to be used
 	 * @param available the available locales
