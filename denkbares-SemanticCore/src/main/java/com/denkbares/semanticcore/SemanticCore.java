@@ -35,11 +35,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -81,12 +82,15 @@ import com.denkbares.utils.Streams;
 public final class SemanticCore implements SPARQLEndpoint {
 
 	public enum State {
-		initializing, active, shutdown
+		active, shutdown
 	}
 
-	private volatile State state = State.initializing;
+	private volatile State state;
 
-	private static final Map<String, SemanticCore> instances = new HashMap<>();
+	// we use a map of atomic reference, to immediately add the reference to block the key,
+	// even before the initialization of the semantic core is completed
+	private static final Map<String, AtomicReference<SemanticCore>> instances = new ConcurrentHashMap<>();
+
 	private static final Object lazyInitializationMutex = new Object();
 	private static volatile boolean lazyInitializationDone = false;
 	private static LocalRepositoryManager repositoryManager = null;
@@ -98,7 +102,14 @@ public final class SemanticCore implements SPARQLEndpoint {
 	private final AtomicLong allocationCounter = new AtomicLong(0);
 
 	public static SemanticCore getInstance(String key) {
-		return instances.get(key);
+		AtomicReference<SemanticCore> reference = instances.get(key);
+		if (reference == null) {
+			return null;
+		}
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (reference) {
+			return reference.get();
+		}
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning) throws IOException {
@@ -110,11 +121,12 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, String tmpPath) throws IOException {
-		SemanticCore instance = getInstance(key);
-		if (instance == null) {
-			instance = createInstance(key, reasoning, tmpPath);
+		AtomicReference<SemanticCore> reference = instances.computeIfAbsent(key, k -> new AtomicReference<>());
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (reference) {
+			createInstance(reference, key, reasoning, tmpPath);
 		}
-		return instance;
+		return reference.get();
 	}
 
 	public static SemanticCore createInstance(String key, RepositoryConfig reasoning) throws IOException {
@@ -123,11 +135,28 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	public static SemanticCore createInstance(String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
 		Objects.requireNonNull(reasoning);
-		SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
-		instances.put(key, instance);
-		instance.state = State.active;
+		AtomicReference<SemanticCore> reference = new AtomicReference<>();
+		//noinspection SynchronizationOnLocalVariableOrMethodParameter
+		synchronized (reference) {
+			instances.put(key, reference);
+			createInstance(reference, key, reasoning, tmpFolder);
+		}
+		SemanticCore instance = reference.get();
 		Log.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
 		return instance;
+	}
+
+	private static void createInstance(AtomicReference<SemanticCore> reference, String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
+		if (reference.get() != null) return;
+		try {
+			SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
+			reference.set(instance);
+		}
+		finally {
+			if (reference.get() == null) {
+				instances.remove(key);
+			}
+		}
 	}
 
 	public static String createRepositoryPath(String suffix) throws IOException {
@@ -167,9 +196,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
-
 		initializeLazy(tmpFolder);
-
 		this.repositoryId = repositoryId;
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
@@ -177,7 +204,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 			}
 
 			org.eclipse.rdf4j.repository.config.RepositoryConfig openRdfRepositoryConfig = repositoryConfig.createRepositoryConfig(repositoryId, repositoryLabel, overrides);
-
 			repositoryManager.addRepositoryConfig(openRdfRepositoryConfig);
 
 			// Get the repository and connect to it!
@@ -191,6 +217,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		catch (RDF4JException e) {
 			throw new IOException("Cannot initialize repository", e);
 		}
+		this.state = State.active;
 	}
 
 	private void initializeLazy(String tmpFolder) throws IOException {
@@ -286,7 +313,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	public static void shutDownAllRepositories() {
 		// create new list to avoid concurrent modification exception
-		new ArrayList<>(instances.values()).forEach(SemanticCore::close);
+		new ArrayList<>(instances.keySet()).stream().map(SemanticCore::getInstance)
+				.filter(Objects::nonNull).forEach(SemanticCore::close);
 	}
 
 	private synchronized static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
