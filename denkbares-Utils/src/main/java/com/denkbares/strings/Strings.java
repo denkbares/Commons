@@ -133,7 +133,8 @@ public class Strings {
 	}
 
 	/**
-	 * Tests if the specified text string ends with the specified prefix.
+	 * Tests if the specified text string ends with the specified prefix. If any of the specified strings are null,
+	 * false is returned.
 	 *
 	 * @param text   the text string to be checked
 	 * @param suffix the suffix to be looked for
@@ -141,10 +142,11 @@ public class Strings {
 	 * sequence represented by the specified text string; <code>false</code> otherwise. Note also that <code>true</code>
 	 * will be returned if the argument is an empty string or is equal to this <code>String</code> object as determined
 	 * by the {@link #equals(Object)} method.
-	 * @throws NullPointerException if any of the specified strings is null
 	 * @created 18.10.2010
 	 */
 	public static boolean endsWithIgnoreCase(String text, String suffix) {
+		if (text == null) return false;
+		if (suffix == null) return false;
 		int length = suffix.length();
 		int offset = text.length() - length;
 		if (offset < 0) return false;
@@ -933,7 +935,8 @@ public class Strings {
 	}
 
 	/**
-	 * Tests if the specified text string starts with the specified prefix.
+	 * Tests if the specified text string starts with the specified prefix. If any of the specified strings are null,
+	 * false is returned.
 	 *
 	 * @param text   the text string to be checked
 	 * @param prefix the prefix to be looked for
@@ -941,10 +944,11 @@ public class Strings {
 	 * sequence represented by the specified text string; <code>false</code> otherwise. Note also that <code>true</code>
 	 * will be returned if the argument is an empty string or is equal to this <code>String</code> object as determined
 	 * by the {@link #equals(Object)} method.
-	 * @throws NullPointerException if any of the specified strings is null
 	 * @created 18.10.2010
 	 */
 	public static boolean startsWithIgnoreCase(String text, String prefix) {
+		if (text == null) return false;
+		if (prefix == null) return false;
 		int length = prefix.length();
 		if (length > text.length()) return false;
 		for (int i = 0; i < length; i++) {
@@ -1204,8 +1208,7 @@ public class Strings {
 	 * @return a pair of integers representing start and end of trimmed string inside the given text
 	 */
 	public static Pair<Integer, Integer> trim(String text, int start, int end) {
-		//noinspection unchecked
-		return new Pair(trimLeft(text, start, end), trimRight(text, start, end));
+		return new Pair<>(trimLeft(text, start, end), trimRight(text, start, end));
 	}
 
 	private static boolean isNonBreakingSpace(char c) {
@@ -2112,7 +2115,7 @@ public class Strings {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Enum<T>> T parseEnum(String name, Class enumType, T defaultValue) {
+	private static <T extends Enum<T>> T parseEnum(String name, @SuppressWarnings("rawtypes") Class enumType, T defaultValue) {
 		if (isBlank(name)) return defaultValue;
 		try {
 			return (T) Enum.valueOf(enumType, name);
