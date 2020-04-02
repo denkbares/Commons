@@ -21,6 +21,7 @@ package com.denkbares.progress;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Class that decorates a progress and allows to split it into a set of multiple progresses. Each of that multiple
@@ -31,11 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ParallelProgress implements ExtendedProgressListener {
 
-	private final ProgressListener delegate;
-	private final PartListener[] partListeners;
-	private final Map<PartListener, PartListener> activeListeners = new ConcurrentHashMap<>();
+	final ProgressListener delegate;
+	PartListener[] partListeners;
+	final Map<PartListener, PartListener> activeListeners = new ConcurrentHashMap<>();
 	private float current = 0f;
-	private String lastMessage = "";
+	String lastMessage = "";
 
 	/**
 	 * Creates a new {@link ParallelProgress} for a specified delegate listener. If is divided into several sub-tasks
@@ -53,10 +54,8 @@ public class ParallelProgress implements ExtendedProgressListener {
 			total += size;
 		}
 		// create sub-listeners according to their percentage
-		this.partListeners = new PartListener[subTaskSizes.length];
-		for (int i = 0; i < subTaskSizes.length; i++) {
-			this.partListeners[i] = new PartListener(subTaskSizes[i] / total);
-		}
+		final float finalTotal = total;
+		createAndAddPartListeners(subTaskSizes.length, i -> subTaskSizes[i] / finalTotal);
 	}
 
 	/**
@@ -70,9 +69,13 @@ public class ParallelProgress implements ExtendedProgressListener {
 	public ParallelProgress(ProgressListener delegate, int subTaskCount) {
 		this.delegate = delegate;
 		// create sub-listeners according to their percentage
-		this.partListeners = new PartListener[subTaskCount];
-		for (int i = 0; i < subTaskCount; i++) {
-			this.partListeners[i] = new PartListener(1f / subTaskCount);
+		createAndAddPartListeners(subTaskCount, i -> 1f / subTaskCount);
+	}
+
+	void createAndAddPartListeners(int count, Function<Integer, Float> fractionFunction) {
+		this.partListeners = new PartListener[count];
+		for (int i = 0; i < count; i++) {
+			this.partListeners[i] = new PartListener(fractionFunction.apply(i));
 		}
 	}
 
@@ -150,7 +153,7 @@ public class ParallelProgress implements ExtendedProgressListener {
 		return lastMessage;
 	}
 
-	private class PartListener implements ExtendedProgressListener, Comparable<PartListener> {
+	class PartListener implements ExtendedProgressListener, Comparable<PartListener> {
 
 		private final float fraction;
 		private float current = 0f;
