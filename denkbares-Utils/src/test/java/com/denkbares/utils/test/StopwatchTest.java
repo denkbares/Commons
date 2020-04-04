@@ -43,9 +43,9 @@ public class StopwatchTest {
 
 		// reset and automatically stop
 		time.reset();
-		assertTrue(time.getTime() == 0);
+		assertEquals(0, time.getTime());
 		Thread.sleep(1);
-		assertTrue(time.getTime() == 0);
+		assertEquals(0, time.getTime());
 
 		// resume multiple times
 		time.resume();
@@ -63,7 +63,7 @@ public class StopwatchTest {
 		assertAtLeast(time, 3);
 		long temp = time.getTime();
 		Thread.sleep(1);
-		assertTrue(time.getTime() == temp);
+		assertEquals(time.getTime(), temp);
 
 		// check resume after pause
 		time.resume();
