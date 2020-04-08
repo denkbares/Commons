@@ -90,6 +90,19 @@ public abstract class AbstractConsoleProgressBarListener implements ProgressList
 		System.out.flush();
 	}
 
+	/**
+	 * Ends the progress bar listener, even if 100% is not yet reached. It proceeds the cursor to a new line, to no
+	 * longer overwrite the progress bar, and terminates console output.
+	 */
+	public void close() {
+		if (this.percent < 1f) {
+			printProgress();
+			System.out.println();
+			System.out.flush();
+			this.percent = 1f;
+		}
+	}
+
 	protected void printHeader() {
 		// print message if requested
 		if (printHeader) {
