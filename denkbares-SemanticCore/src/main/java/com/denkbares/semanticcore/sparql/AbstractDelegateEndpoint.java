@@ -25,6 +25,7 @@ import java.util.Map;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.jetbrains.annotations.NotNull;
 
@@ -103,12 +104,12 @@ public abstract class AbstractDelegateEndpoint implements SPARQLEndpoint {
 	}
 
 	@Override
-	public TupleQuery prepareSelect(String query) {
+	public TupleQuery prepareSelect(String query) throws RepositoryException, MalformedQueryException {
 		return getDelegate().prepareSelect(query);
 	}
 
 	@Override
-	public TupleQuery prepareSelect(Collection<Namespace> namespaces, String query) {
+	public TupleQuery prepareSelect(Collection<Namespace> namespaces, String query) throws RepositoryException, MalformedQueryException {
 		return getDelegate().prepareSelect(namespaces, query);
 	}
 

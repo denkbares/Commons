@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.repository.RepositoryException;
 
 import com.denkbares.semanticcore.BooleanQuery;
@@ -278,7 +279,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @param query the sparql query to be prepared
 	 * @return the prepared query
 	 */
-	default TupleQuery prepareSelect(String query) {
+	default TupleQuery prepareSelect(String query) throws RepositoryException, MalformedQueryException  {
 		return prepareSelect(getNamespaces(), query);
 	}
 
@@ -289,7 +290,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @param namespaces the namespaces to prepend as prefixes
 	 * @return the prepared query
 	 */
-	TupleQuery prepareSelect(Collection<Namespace> namespaces, String query);
+	TupleQuery  prepareSelect(Collection<Namespace> namespaces, String query) throws RepositoryException, MalformedQueryException;
 
 	/**
 	 * Returns the value factory for the given endpoint.
