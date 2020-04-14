@@ -501,13 +501,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
-//	@Override
-//	public TupleQueryResult sparqlSelect(TupleQuery query) throws QueryFailedException {
-//		return query.evaluate();
-//	}
-
 	@Override
-	public TupleQuery prepareSelect(Collection<Namespace> namespaces, String queryString) {
+	public TupleQuery prepareSelect(Collection<Namespace> namespaces, String queryString) throws RepositoryException, MalformedQueryException {
 		RepositoryConnection connection = getConnection();
 		return connection.prepareTupleQuery(QueryLanguage.SPARQL, toPrefixes(namespaces) + queryString);
 	}
