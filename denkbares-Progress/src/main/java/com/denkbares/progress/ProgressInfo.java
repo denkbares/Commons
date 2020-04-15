@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2020 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -19,21 +19,33 @@
 
 package com.denkbares.progress;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
- * A ProgressListener with a slightly extended interface.
- * <p/>
- * @author Albrecht Striffler (denkbares GmbH)
- * @created 31.03.2014
+ * A readable progress listener that simply records the current progress, and provides the current progress vio API
+ * interface.
+ *
+ * @author Volker Belli (denkbares GmbH)
+ * @created 15.04.2020
  */
-public interface ExtendedProgressListener extends ProgressListener {
+public class ProgressInfo implements ReadableProgressListener {
 
-	/**
-	 * Returns the current progress of this listener.
-	 */
-	float getProgress();
+	private float progress = 0;
+	private String message = "";
 
-	/**
-	 * Returns the current message of this listener.
-	 */
-	String getMessage();
+	@Override
+	public float getProgress() {
+		return progress;
+	}
+
+	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	@Override
+	public void updateProgress(float percent, @Nullable String message) {
+		this.progress = percent;
+		if (message != null) this.message = message;
+	}
 }

@@ -16,38 +16,24 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
  * site: http://www.fsf.org.
  */
+
 package com.denkbares.progress;
 
 /**
- * A simple ProgressListener that prints the progress to the console
+ * A ProgressListener implementation, capable to provide the recently updated progress information.
  *
- * @author Markus Friedrich (denkbares GmbH)
+ * @author Albrecht Striffler (denkbares GmbH)
+ * @created 31.03.2014
  */
-public class ConsoleProgressListener implements ReadableProgressListener {
+public interface ReadableProgressListener extends ProgressListener {
 
-	private float percent = 0;
-	private String message = "--";
-	private String lastProgressText = "";
+	/**
+	 * Returns the current progress of this listener.
+	 */
+	float getProgress();
 
-	@SuppressWarnings("UseOfSystemOutOrSystemErr")
-	@Override
-	public void updateProgress(float percent, String message) {
-		this.percent = percent;
-		if (message != null) this.message = message;
-		String progressText = "" + Math.round(percent * 100) + "%: " + this.message;
-		if (!progressText.equals(lastProgressText)) {
-			lastProgressText = progressText;
-			System.out.println(progressText);
-		}
-	}
-
-	@Override
-	public float getProgress() {
-		return percent;
-	}
-
-	@Override
-	public String getMessage() {
-		return message;
-	}
+	/**
+	 * Returns the current message of this listener.
+	 */
+	String getMessage();
 }

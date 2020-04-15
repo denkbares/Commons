@@ -26,13 +26,13 @@ package com.denkbares.progress;
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 31.03.2014
  */
-public class FakeProgressListener implements ExtendedProgressListener {
+public class FakeProgressListener implements ReadableProgressListener {
 
 	public static final float NORMAL_PROGRESS_MAX = 0.8f;
 	private static final float MAX = 0.99f;
 	public static final int WAIT_TIME = 10;
 	public static final int SECOND = 1000;
-	private final ExtendedProgressListener delegate;
+	private final ReadableProgressListener delegate;
 	private final FakeProgressThread thread;
 
 	/**
@@ -41,7 +41,7 @@ public class FakeProgressListener implements ExtendedProgressListener {
 	 *
 	 * @param runTimeInSeconds the time after which the listener should reach 80%
 	 */
-	public FakeProgressListener(ExtendedProgressListener delegate, float runTimeInSeconds) {
+	public FakeProgressListener(ReadableProgressListener delegate, float runTimeInSeconds) {
 				this.delegate = delegate;
 				this.thread = new FakeProgressThread(delegate, runTimeInSeconds);
 	}
@@ -79,10 +79,10 @@ public class FakeProgressListener implements ExtendedProgressListener {
 
 	private static class FakeProgressThread extends Thread {
 
-		private final ExtendedProgressListener listener;
+		private final ReadableProgressListener listener;
 		private final float runTimeInSeconds;
 
-		FakeProgressThread(ExtendedProgressListener listener, float runTimeInSeconds) {
+		FakeProgressThread(ReadableProgressListener listener, float runTimeInSeconds) {
 			this.listener = listener;
 			this.runTimeInSeconds = runTimeInSeconds;
 		}

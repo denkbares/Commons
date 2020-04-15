@@ -18,6 +18,9 @@
  */
 package com.denkbares.progress;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * A simple ProgressListener that delegates/broadcasts any progress updates to multiple other progress listeners.
  *
@@ -25,10 +28,29 @@ package com.denkbares.progress;
  */
 public class MultiProgressListener implements ProgressListener {
 
-	private final ProgressListener[] listeners;
+	private final List<ProgressListener> listeners;
 
 	public MultiProgressListener(ProgressListener... listeners) {
-		this.listeners = listeners;
+		// use concurrent list, to avoid concurrent modifications in multi-threaded environments
+		this.listeners = new CopyOnWriteArrayList<>(listeners);
+	}
+
+	/**
+	 * Adds the specified progress listener to this instance, to broadcast all future updates to.
+	 *
+	 * @param listener the listener to be added
+	 */
+	public void addListener(ProgressListener listener) {
+		listeners.add(listener);
+	}
+
+	/**
+	 * Removes the specified progress listener from this instance, to no longer broadcast future updates to.
+	 *
+	 * @param listener the listener to be removed
+	 */
+	public void removeListener(ProgressListener listener) {
+		listeners.remove(listener);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ import java.util.function.Function;
  * @author volker_belli
  * @created 09.09.2012
  */
-public class ParallelProgress implements ExtendedProgressListener {
+public class ParallelProgress implements ReadableProgressListener {
 
 	final ProgressListener delegate;
 	PartListener[] partListeners;
@@ -86,7 +86,7 @@ public class ParallelProgress implements ExtendedProgressListener {
 	 * @return the sub-task with the specified index
 	 * @throws java.lang.ArrayIndexOutOfBoundsException if the specified sub-task is not one of the created sub-tasks
 	 */
-	public ExtendedProgressListener getSubTaskProgressListener(int index) {
+	public ReadableProgressListener getSubTaskProgressListener(int index) {
 		return this.partListeners[index];
 	}
 
@@ -153,7 +153,7 @@ public class ParallelProgress implements ExtendedProgressListener {
 		return lastMessage;
 	}
 
-	class PartListener implements ExtendedProgressListener, Comparable<PartListener> {
+	class PartListener implements ReadableProgressListener, Comparable<PartListener> {
 
 		private final float fraction;
 		private float current = 0f;
