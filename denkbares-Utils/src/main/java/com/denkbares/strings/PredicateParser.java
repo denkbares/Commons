@@ -26,8 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -143,7 +145,7 @@ public class PredicateParser {
 		Lexer lexer = new Lexer(condition);
 		Predicate<ValueProvider> node = parseStart(lexer);
 		Token eof = lexer.consume(TokenType.eof);
-		return new ParsedPredicate(condition.substring(0, eof.end), node);
+		return new ParsedPredicate(condition.substring(0, eof.end), node, lexer.variables);
 	}
 
 	private Predicate<ValueProvider> parseStart(Lexer lexer) throws ParseException {
@@ -197,9 +199,7 @@ public class PredicateParser {
 		if (lexer.consumeIf(TokenType.lit_false)) return Predicates.FALSE();
 
 		// otherwise consume normal compare
-		Token left = lexer.consume(TokenType.string, TokenType.number, TokenType.nil);
-		String variable = Strings.unquote(left.text, '"', '\'');
-		assertVariable(variable, left.start);
+		String variable = lexer.consumeVariable();
 		Token operator = lexer.consume(TokenType.compare);
 		Token right = lexer.next();
 		switch (operator.text) {
@@ -223,12 +223,6 @@ public class PredicateParser {
 		}
 	}
 
-	private void assertVariable(String variable, int position) throws ParseException {
-		if (isAllowedVariable != null && !isAllowedVariable.test(variable)) {
-			throw new ParseException("unknown variable " + variable, position);
-		}
-	}
-
 	/**
 	 * Class that represents a parsed logical expression, that is capable to evaluate itself to true or false, based on
 	 * a given binding of the variables.
@@ -237,10 +231,12 @@ public class PredicateParser {
 
 		private final String condition;
 		private final Predicate<ValueProvider> root;
+		private final Set<String> variables;
 
-		public ParsedPredicate(String expression, Predicate<ValueProvider> root) {
+		public ParsedPredicate(String expression, Predicate<ValueProvider> root, Set<String> variables) {
 			this.condition = expression;
 			this.root = root;
+			this.variables = variables;
 		}
 
 		@Override
@@ -256,6 +252,18 @@ public class PredicateParser {
 		 */
 		public String getCondition() {
 			return condition;
+		}
+
+		/**
+		 * Returns the variables that have been detected in the parsed expression. The set is ordered by the first
+		 * occurence of the variables in the original expression. These are the variables that potentially will be
+		 * requested from the specified value provider when evaluating the condition.
+		 *
+		 * @return the variables used in the parsed expression
+		 * @see #test(ValueProvider)
+		 */
+		public Set<String> getVariables() {
+			return Collections.unmodifiableSet(variables);
 		}
 	}
 
@@ -445,6 +453,7 @@ public class PredicateParser {
 
 		private final String expression;
 		private final List<Token> tokens = new ArrayList<>();
+		private final Set<String> variables = new LinkedHashSet<>(4);
 		private int index = 0;
 
 		public Lexer(String expression) throws ParseException {
@@ -510,6 +519,29 @@ public class PredicateParser {
 				return true;
 			}
 			return false;
+		}
+
+		/**
+		 * Consumes the next token as a variable, throwing an parse exception if the token is not a valid variable. If
+		 * the parser has configured a variable checker, the method also throws a parse exception i the variable name is
+		 * not allowed to be used.
+		 *
+		 * @return the unquoted variable name
+		 * @throws ParseException if the token is not a valid variable
+		 */
+		public String consumeVariable() throws ParseException {
+			// consume the token of an appropriate type, and decode as a variable
+			Token left = consume(TokenType.string, TokenType.number, TokenType.nil);
+			String variable = Strings.unquote(left.text, '"', '\'');
+
+			// if a checker is installed in the parser, check the variable
+			if (isAllowedVariable != null && !isAllowedVariable.test(variable)) {
+				throw new ParseException("unknown variable " + variable, left.start);
+			}
+
+			// register the checked variable and return
+			this.variables.add(variable);
+			return variable;
 		}
 
 		public int position() {

@@ -19,7 +19,9 @@
 
 package com.denkbares.strings.test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.Predicate;
 
@@ -28,11 +30,11 @@ import org.junit.Test;
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.strings.PredicateParser;
 import com.denkbares.strings.PredicateParser.ParseException;
+import com.denkbares.strings.PredicateParser.ParsedPredicate;
 import com.denkbares.strings.PredicateParser.ValueBindings;
 import com.denkbares.strings.PredicateParser.ValueProvider;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Volker Belli (denkbares GmbH)
@@ -107,6 +109,24 @@ public class PredicateParserTest {
 		assertFalse(simple.test(values::getValues));
 		assertFalse(noSpace.test(values::getValues));
 		assertFalse(brackets.test(values::getValues));
+	}
+
+	@Test
+	public void variables() throws ParseException {
+		PredicateParser parser = new PredicateParser();
+		ParsedPredicate tautology = parser.parse("true");
+		ParsedPredicate expensive = parser.parse("price > '2.000,00 €'");
+		ParsedPredicate anyUSB = parser.parse("ports ~= '(?i).*USB.*'");
+		ParsedPredicate and = parser.parse("weight >= 1 && weight <= 2 AND processor != i5");
+		ParsedPredicate mixed = parser.parse("processor == i5 OR weight >= 1.5 && weight <= 2 OR ports = audio");
+		ParsedPredicate brackets = parser.parse("((processor == i5 OR processor == i7) AND ((ports == audio)))");
+
+		assertTrue(tautology.getVariables().isEmpty());
+		assertEquals(Collections.singletonList("price"), new ArrayList<>(expensive.getVariables()));
+		assertEquals(Collections.singletonList("ports"), new ArrayList<>(anyUSB.getVariables()));
+		assertEquals(Arrays.asList("weight", "processor"), new ArrayList<>(and.getVariables()));
+		assertEquals(Arrays.asList("processor", "weight", "ports"), new ArrayList<>(mixed.getVariables()));
+		assertEquals(Arrays.asList("processor", "ports"), new ArrayList<>(brackets.getVariables()));
 	}
 
 	@Test(expected = ParseException.class)
