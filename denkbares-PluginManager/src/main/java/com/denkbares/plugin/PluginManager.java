@@ -20,9 +20,8 @@
 package com.denkbares.plugin;
 
 /**
- * Via this abstract class a PluginManager can be accessed. The plugin manager
- * can be used to access the extensions
- * 
+ * Via this abstract class a PluginManager can be accessed. The plugin manager can be used to access the extensions
+ *
  * @author Markus Friedrich (denkbares GmbH)
  */
 public abstract class PluginManager {
@@ -30,55 +29,52 @@ public abstract class PluginManager {
 	protected static PluginManager instance;
 
 	/**
-	 * This method is used to get an array of all Extensions, registered in
-	 * this plugin manager.
-	 * 
+	 * This method is used to get an array of all Extensions, registered in this plugin manager.
+	 *
 	 * @return array of all registered Extensions
 	 */
 	public abstract Extension[] getExtensions();
 
 	/**
-	 * This method is used to get an array of Extensions, which extend the
-	 * extensionPoint represented by the extendedPointID in the Plugin
-	 * represented by the extendedPluginID
-	 * 
+	 * This method is used to get an array of Extensions, which extend the extensionPoint represented by the
+	 * extendedPointID in the Plugin represented by the extendedPluginID. The individual extensions are sorted by their
+	 * priority.
+	 *
 	 * @param extendedPluginID ID of the Plugin of the extended ExtensionPoint
-	 * @param extendedPointID ID of the extended ExtensionPoint
+	 * @param extendedPointID  ID of the extended ExtensionPoint
 	 * @return array of Extensions specified with the parameters
 	 */
 	public abstract Extension[] getExtensions(String extendedPluginID, String extendedPointID);
 
 	/**
 	 * This method is used to get an extension with the given parameters.
-	 * 
+	 *
 	 * @param extendedPluginID ID of the Plugin of the extended ExtensionPoint
-	 * @param extendedPointID ID of the extended ExtensionPoint
-	 * @param pluginID ID of the Plugin
-	 * @param extensionID ID of the Extension
+	 * @param extendedPointID  ID of the extended ExtensionPoint
+	 * @param pluginID         ID of the Plugin
+	 * @param extensionID      ID of the Extension
 	 * @return Extension specified with the parameters
 	 */
 	public abstract Extension getExtension(String extendedPluginID, String extendedPointID, String pluginID, String extensionID);
 
 	/**
 	 * Returns the list of all installed Plugins available to this manager.
-	 * 
+	 *
 	 * @return the available Plugins
 	 */
 	public abstract Plugin[] getPlugins();
 
 	/**
 	 * Returns the plugin with the specified id
-	 * 
+	 *
 	 * @param id of the plugin
-	 * @return the plugin with the specified id, if no plugin with the id
-	 *         exists, null will be returned
+	 * @return the plugin with the specified id, if no plugin with the id exists, null will be returned
 	 */
 	public abstract Plugin getPlugin(String id);
 
 	/**
-	 * The current instance of the PluginManager can be accessed with this
-	 * method
-	 * 
+	 * The current instance of the PluginManager can be accessed with this method
+	 *
 	 * @return Instance of the actual PluginManager
 	 */
 	public static PluginManager getInstance() {
@@ -94,5 +90,4 @@ public abstract class PluginManager {
 	public static boolean isInitialized() {
 		return instance != null;
 	}
-
 }
