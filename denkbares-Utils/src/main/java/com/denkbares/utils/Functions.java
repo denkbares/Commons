@@ -19,9 +19,11 @@
 
 package com.denkbares.utils;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +51,23 @@ public class Functions {
 	 * @return a function, identical to the specified function, but caching the values
 	 */
 	public static <T, R> Function<T, R> cache(Function<T, R> function) {
-		Map<T, R> cache = new HashMap<>();
+		Map<T, R> cache = new ConcurrentHashMap<>();
 		return value -> unwrap(cache.computeIfAbsent(value, v -> wrap(function.apply(value))));
+	}
+
+	/**
+	 * Returns a cached version of the specified supplier, where the specified supplier is invoked only once for each
+	 * value.
+	 * <p>
+	 * Note: The specified supplier should not have any side effects, and should return an equal instance for each
+	 * input. If this is violated, the cached supplier may behave different to the uncached one.
+	 *
+	 * @param supplier the supplier to be cached
+	 * @return a supplier, identical to the specified supplier, but caching the value
+	 */
+	public static <R> Supplier<R> cache(Supplier<R> supplier) {
+		AtomicReference<R> cache = new AtomicReference<>();
+		return () -> unwrap(cache.updateAndGet(prev -> (prev == null) ? wrap(supplier.get()) : prev));
 	}
 
 	@NotNull
