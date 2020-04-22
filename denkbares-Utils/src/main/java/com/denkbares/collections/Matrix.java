@@ -187,11 +187,14 @@ public class Matrix<E> {
 			return cache[index];
 		};
 
-		// prepare column lengths
+		// prepare column lengths and alignment
 		int[] lengths = new int[cols];
+		boolean[] lefts = new boolean[cols];
 		for (int row = firstRow; row < lastRow; row++) {
 			for (int col = 0; col < cols; col++) {
-				lengths[col] = Math.max(lengths[col], textFun.apply(row, col).length());
+				String text = textFun.apply(row, col);
+				lengths[col] = Math.max(lengths[col], text.length());
+				lefts[col] |= !text.matches("-?[0-9.,]*|NaN|Infinity");
 			}
 		}
 
@@ -201,8 +204,10 @@ public class Matrix<E> {
 			for (int col = 0; col < cols; col++) {
 				if (col > 0) out.print(" | ");
 				String value = textFun.apply(row, col);
+				String pad = Strings.nTimes(' ', lengths[col] - value.length());
+				if (lefts[col]) out.print(pad);
 				out.print(value);
-				out.print(Strings.nTimes(' ', lengths[col] - value.length()));
+				if (!lefts[col]) out.print(pad);
 			}
 			out.println();
 			if (row == firstRow) {
