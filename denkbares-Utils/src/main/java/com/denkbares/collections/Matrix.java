@@ -25,10 +25,17 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 import com.denkbares.strings.Strings;
@@ -145,6 +152,24 @@ public class Matrix<E> {
 	}
 
 	/**
+	 * Appends the specified matrix to this one, modifying this instance. The other matrix's row with row-index 0 of the
+	 * specified table will be appended after the last row of this table, then other matrix's row with row-index 1, and
+	 * so on.
+	 *
+	 * @param other the matrix to append to this one
+	 */
+	public void append(Matrix<E> other) {
+		int thisRow = getRowSize();
+		int rowSize = other.getRowSize();
+		int colSize = other.getColSize();
+		for (int otherRow = 0; otherRow < rowSize; thisRow++, otherRow++) {
+			for (int col = 0; col < colSize; col++) {
+				set(thisRow, col, other.get(otherRow, col));
+			}
+		}
+	}
+
+	/**
 	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The first row is
 	 * assumed to contain the headings of the table, the column widths are adjusted to the content of each column.
 	 */
@@ -194,7 +219,9 @@ public class Matrix<E> {
 			for (int col = 0; col < cols; col++) {
 				String text = textFun.apply(row, col);
 				lengths[col] = Math.max(lengths[col], text.length());
-				lefts[col] |= !text.matches("-?[0-9.,]*|NaN|Infinity");
+				if (row > firstRow) {
+					lefts[col] |= !text.matches("\\s*(-*[0-9.,]*|\\?*|NaN|Infinity)\\s*");
+				}
 			}
 		}
 
@@ -205,9 +232,9 @@ public class Matrix<E> {
 				if (col > 0) out.print(" | ");
 				String value = textFun.apply(row, col);
 				String pad = Strings.nTimes(' ', lengths[col] - value.length());
-				if (lefts[col]) out.print(pad);
-				out.print(value);
 				if (!lefts[col]) out.print(pad);
+				out.print(value);
+				if (lefts[col]) out.print(pad);
 			}
 			out.println();
 			if (row == firstRow) {
@@ -225,12 +252,19 @@ public class Matrix<E> {
 		return toString(5);
 	}
 
+	/**
+	 * Dumps the first up to maxRows lines of the Matrix to a string, as a human-readable ascii formatted table. The
+	 * column widths are adjusted to the content of each column (including the header). The first row is used as column
+	 * headings.
+	 *
+	 * @param maxRows the maximum numbers of rows to be appended
+	 */
 	public String toString(int maxRows) {
 		return toString(null, maxRows);
 	}
 
 	/**
-	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * Dumps the content of the Matrix to a string, as a human-readable ascii formatted table. The column widths are
 	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
 	 * as column headings.
 	 *
@@ -241,7 +275,7 @@ public class Matrix<E> {
 	}
 
 	/**
-	 * Dumps the content of the Matrix to the console, as a human-readable ascii formatted table. The column widths are
+	 * Dumps the content of the Matrix to a string, as a human-readable ascii formatted table. The column widths are
 	 * adjusted to the content of each column (including the header). If column headings is null, the first row is used
 	 * as column headings.
 	 *
@@ -251,6 +285,14 @@ public class Matrix<E> {
 		return toString(headings, Integer.MAX_VALUE);
 	}
 
+	/**
+	 * Dumps the first up to maxRows lines of the Matrix to a string, as a human-readable ascii formatted table. The
+	 * column widths are adjusted to the content of each column (including the header). If column headings is null, the
+	 * first row is used as column headings.
+	 *
+	 * @param headings the column names
+	 * @param maxRows  the maximum numbers of rows to be appended
+	 */
 	private String toString(List<String> headings, int maxRows) {
 		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		try (PrintStream out = new PrintStream(buffer, true, "UTF-8")) {
@@ -260,5 +302,75 @@ public class Matrix<E> {
 			throw new IllegalStateException(e);
 		}
 		return new String(buffer.toByteArray(), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a convert-to-table operation on input elements of type {@code E},
+	 * creating a row for each input element, starting with row 0, and a column for each of the specified
+	 * columnExtractor function. The resulting matrix has columns numbered from 0 (inclusively) to
+	 * columnExtractors.length (exclusively).
+	 *
+	 * @param <E>              the type of the input elements
+	 * @param <R>              the type of the matrix's result elements
+	 * @param columnExtractors the function mapping an input element to a column (cell) value
+	 * @return a {@code Collector} implementing the convert-to-table operation
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E, R> Collector<E, ?, Matrix<R>> toMatrix(Function<E, R>... columnExtractors) {
+		return toMatrix(Matrix::new, columnExtractors);
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a convert-to-table operation on input elements of type {@code E},
+	 * creating a row for each input element, starting with row 0, and a column for each of the specified
+	 * columnExtractor function. The resulting matrix has columns numbered from 0 (inclusively) to
+	 * columnExtractors.length (exclusively).
+	 *
+	 * @param <E>              the type of the input elements
+	 * @param <R>              the type of the matrix's result elements
+	 * @param columnExtractors the function mapping an input element to a column (cell) value
+	 * @return a {@code Collector} implementing the convert-to-table operation
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E, R> Collector<E, ?, Matrix<R>> toMatrix(Supplier<Matrix<R>> supplier, Function<E, R>... columnExtractors) {
+		return new Collector<E, Matrix<R>, Matrix<R>>() {
+
+			@Override
+			public Supplier<Matrix<R>> supplier() {
+				return supplier;
+			}
+
+			@Override
+			public BiConsumer<Matrix<R>, E> accumulator() {
+				return this::accumulate;
+			}
+
+			private void accumulate(Matrix<R> matrix, E item) {
+				int row = matrix.getRowSize();
+				int col = 0;
+				for (Function<E, R> column : columnExtractors) {
+					matrix.set(row, col++, column.apply(item));
+				}
+			}
+
+			@Override
+			public BinaryOperator<Matrix<R>> combiner() {
+				// append matrix2 to matrix1, behind the last row of matrix1
+				return (matrix1, matrix2) -> {
+					matrix1.append(matrix2);
+					return matrix1;
+				};
+			}
+
+			@Override
+			public Function<Matrix<R>, Matrix<R>> finisher() {
+				return Function.identity();
+			}
+
+			@Override
+			public Set<Characteristics> characteristics() {
+				return Collections.singleton(Collector.Characteristics.IDENTITY_FINISH);
+			}
+		};
 	}
 }
