@@ -39,6 +39,7 @@ import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 import com.denkbares.strings.Strings;
+import com.denkbares.utils.Consoles;
 import com.denkbares.utils.Pair;
 
 /**
@@ -217,7 +218,7 @@ public class Matrix<E> {
 		boolean[] lefts = new boolean[cols];
 		for (int row = firstRow; row < lastRow; row++) {
 			for (int col = 0; col < cols; col++) {
-				String text = textFun.apply(row, col);
+				String text = Consoles.toPlainText(textFun.apply(row, col));
 				lengths[col] = Math.max(lengths[col], text.length());
 				if (row > firstRow) {
 					lefts[col] |= !text.matches("\\s*(-*[0-9.,]*|\\?*|NaN|Infinity)\\s*");
@@ -322,12 +323,30 @@ public class Matrix<E> {
 
 	/**
 	 * Returns a {@code Collector} implementing a convert-to-table operation on input elements of type {@code E},
+	 * creating a row for each input element, starting with the first row behind the existing rows, and a column for
+	 * each of the specified columnExtractor function. The resulting matrix has columns numbered from 0 (inclusively) to
+	 * columnExtractors.length (exclusively).
+	 *
+	 * @param <E>              the type of the input elements
+	 * @param <R>              the type of the matrix's result elements
+	 * @param target           the existing matrix to append the rows to
+	 * @param columnExtractors the function mapping an input element to a column (cell) value
+	 * @return a {@code Collector} implementing the convert-to-table operation
+	 */
+	@SuppressWarnings("unchecked")
+	public static <E, R> Collector<E, ?, Matrix<R>> toMatrix(Matrix<R> target, Function<E, R>... columnExtractors) {
+		return toMatrix(() -> target, columnExtractors);
+	}
+
+	/**
+	 * Returns a {@code Collector} implementing a convert-to-table operation on input elements of type {@code E},
 	 * creating a row for each input element, starting with row 0, and a column for each of the specified
 	 * columnExtractor function. The resulting matrix has columns numbered from 0 (inclusively) to
 	 * columnExtractors.length (exclusively).
 	 *
 	 * @param <E>              the type of the input elements
 	 * @param <R>              the type of the matrix's result elements
+	 * @param supplier         the creator for the new matrix to fill the rows in
 	 * @param columnExtractors the function mapping an input element to a column (cell) value
 	 * @return a {@code Collector} implementing the convert-to-table operation
 	 */
