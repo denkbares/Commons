@@ -29,15 +29,16 @@ public class Consoles {
 
 	/**
 	 * Formats the specified text, by wrapping the text with the specified formats, resetting the format at the end of
-	 * the text.
+	 * the text. if any of the formats are null, they will be ignored.
 	 *
 	 * @param text    the text to be wrapped
 	 * @param formats the formats to be applied to the text
 	 * @return the formatted text
 	 */
 	public static String formatText(String text, Style... formats) {
+		if (formats == null) return text;
 		StringBuilder result = new StringBuilder();
-		for (Style format : formats) result.append(format.getCode());
+		for (Style format : formats) if (format != null) result.append(format.getCode());
 		result.append(text);
 		result.append(RESET.getCode());
 		return result.toString();
