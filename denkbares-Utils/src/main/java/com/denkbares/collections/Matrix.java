@@ -232,7 +232,7 @@ public class Matrix<E> {
 			for (int col = 0; col < cols; col++) {
 				if (col > 0) out.print(" | ");
 				String value = textFun.apply(row, col);
-				String pad = Strings.nTimes(' ', lengths[col] - value.length());
+				String pad = Strings.nTimes(' ', lengths[col] - Consoles.toPlainText(value).length());
 				if (!lefts[col]) out.print(pad);
 				out.print(value);
 				if (lefts[col]) out.print(pad);
