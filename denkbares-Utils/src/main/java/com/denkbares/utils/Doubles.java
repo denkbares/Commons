@@ -73,14 +73,14 @@ public class Doubles {
 	}
 
 	/**
-	 * Returns true, if the value is potentially equal, after a assumed number of atomic operations which each
-	 * potentially creates a minimal imprecision failure. The number of maxAtomicFailures is usually the number of
-	 * operations performed on a and b that may create any imprecision.
+	 * Returns true, if the two specified numbers are potentially equal, after a assumed number of atomic operations
+	 * which each potentially creates a minimal imprecision failure. The number of maxAtomicFailures is usually the
+	 * number of operations performed on a and b that may create any imprecision.
 	 *
 	 * @param a                 left operand to compare
 	 * @param b                 right operand to compare
 	 * @param maxAtomicFailures number of atomic imprecision failures, a and b may differ from
-	 * @return if the two values are equal within the precision of the maxAtomicFailures
+	 * @return if the two numbers are equal within the precision of the maxAtomicFailures
 	 */
 	public static boolean isEqual(double a, double b, int maxAtomicFailures) {
 		//noinspection FloatingPointEquality
@@ -88,17 +88,43 @@ public class Doubles {
 	}
 
 	/**
-	 * Returns true, if the value is potentially equal, after a assumed number of atomic operations which each
-	 * potentially creates a minimal imprecision failure. The number of maxAtomicFailures is usually the number of
-	 * operations performed on a and b that may create any imprecision.
+	 * Returns true, if the two specified numbers are potentially equal, after a assumed number of atomic operations
+	 * which each potentially creates a minimal imprecision failure. The number of maxAtomicFailures is usually the
+	 * number of operations performed on a and b that may create any imprecision.
 	 *
 	 * @param a                 left operand to compare
 	 * @param b                 right operand to compare
 	 * @param maxAtomicFailures number of atomic imprecision failures, a and b may differ from
-	 * @return if the two values are equal within the precision of the maxAtomicFailures
+	 * @return if the two numbers are equal within the precision of the maxAtomicFailures
 	 */
 	public static boolean isEqual(float a, float b, int maxAtomicFailures) {
 		//noinspection FloatingPointEquality
 		return a == b || getRelativeDelta(a, b) < FLOAT_IMPRECISION * (maxAtomicFailures + 1);
+	}
+
+	/**
+	 * Returns true, if the specified number is potentially equal to <code>0</code>, after a assumed number of atomic
+	 * operations which each potentially creates a minimal imprecision failure. The number of maxAtomicFailures is
+	 * usually the number of operations performed on a that may create any imprecision.
+	 *
+	 * @param a                 the number to compare againt zero
+	 * @param maxAtomicFailures number of atomic imprecision failures
+	 * @return if the number is close to 0, within the precision of the maxAtomicFailures
+	 */
+	public static boolean isZero(double a, int maxAtomicFailures) {
+		return isEqual(a, 0.0, maxAtomicFailures);
+	}
+
+	/**
+	 * Returns true, if the specified number is potentially equal to <code>0</code>, after a assumed number of atomic
+	 * operations which each potentially creates a minimal imprecision failure. The number of maxAtomicFailures is
+	 * usually the number of operations performed on a that may create any imprecision.
+	 *
+	 * @param a                 the number to compare againt zero
+	 * @param maxAtomicFailures number of atomic imprecision failures
+	 * @return if the number is close to 0, within the precision of the maxAtomicFailures
+	 */
+	public static boolean isZero(float a, int maxAtomicFailures) {
+		return isEqual(a, 0f, maxAtomicFailures);
 	}
 }
