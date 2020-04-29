@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.RepositoryConfigCreatedEvent;
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.strings.Strings;
+import com.denkbares.utils.Files;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Streams;
 
@@ -98,26 +100,39 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 			ruleSet = "empty";
 		}
 		else {
-			// check if the rule set is provided as pie file in the resource
-			// if yes, copy it to a temp folder, since GraphDB doesn't get resources
-			InputStream ruleSetStream = getClass().getResourceAsStream(ruleSet);
-			if (ruleSetStream != null) {
-				try {
-					File ruleSetResourceCopy = File.createTempFile("RuleSetResourceCopy_", "_" + getName() + ".pie");
-					ruleSetResourceCopy.deleteOnExit();
-					OutputStream ruleSetCopyStream = new FileOutputStream(ruleSetResourceCopy);
-					Streams.streamAndClose(ruleSetStream, ruleSetCopyStream);
-					ruleSet = ruleSetResourceCopy.getAbsolutePath();
-				}
-				catch (IOException e) {
-					Log.warning("Exception while trying to cache rule set file for usage", e);
-				}
-			}
+			ruleSet = handleResourceFileCopy(ruleSet);
 		}
 		if (configFile == null) configFile = "/des-defaults.ttl";
 		this.configFile = configFile;
 		this.ruleSet = ruleSet;
 		EventManager.getInstance().fireEvent(new RepositoryConfigCreatedEvent(this));
+	}
+
+	@NotNull
+	private String handleResourceFileCopy(String ruleSet) {
+		// check if the rule set is provided as pie file in the resource
+		// if yes, copy it to a temp folder, since GraphDB doesn't get resources
+		try (InputStream ruleSetStream = getClass().getResourceAsStream(ruleSet)) {
+			if (ruleSetStream != null) {
+				String tempDir = System.getProperty("java.io.tmpdir");
+				File ruleSetResourceCopy = tempDir == null
+						? File.createTempFile("RuleSetResourceCopy_", "_" + getName() + ".pie")
+						: new File(tempDir, "RuleSetResourceCopy_" + getName() + ".pie"); // more stable file
+				String content = Strings.readStream(ruleSetStream);
+				if (ruleSetResourceCopy.exists()) {
+					String existingContent = Strings.readFile(ruleSetResourceCopy);
+					if (existingContent.equals(content)) {
+						return ruleSetResourceCopy.getAbsolutePath();
+					}
+				}
+				Strings.writeFile(ruleSetResourceCopy, content);
+				ruleSet = ruleSetResourceCopy.getAbsolutePath();
+			}
+		}
+		catch (IOException e) {
+			Log.warning("Exception while trying to cache rule set file for usage", e);
+		}
+		return ruleSet;
 	}
 
 	private void configureLogging() {
@@ -151,7 +166,8 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 			// set cache size to max 1G, but not more than a forth of available memory
 			if (maxMemory == Long.MAX_VALUE || maxMemoryGB >= 4) {
 				System.setProperty(GRAPHDB_PAGE_CACHE_SIZE, "1G");
-			} else {
+			}
+			else {
 				// also assure at least 50 MB
 				int sizeMB = (int) Math.max(Math.min(maxMemoryGB * 250, 1000), 50);
 				System.setProperty(GRAPHDB_PAGE_CACHE_SIZE, sizeMB + "M");
