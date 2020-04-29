@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -138,6 +139,25 @@ public class MultiMaps {
 		}
 	}
 
+	private static final class ConcurrentFactory<T> implements CollectionFactory<T>, Serializable {
+
+		private final int capacity;
+
+		public ConcurrentFactory(int capacity) {
+			this.capacity = capacity;
+		}
+
+		@Override
+		public Set<T> createSet() {
+			return Collections.newSetFromMap(createMap());
+		}
+
+		@Override
+		public <E> Map<T, E> createMap() {
+			return new ConcurrentHashMap<>(capacity);
+		}
+	}
+
 	private static final class MinimizedHashFactory<T> implements CollectionFactory<T> {
 
 		@Override
@@ -181,6 +201,9 @@ public class MultiMaps {
 
 	@SuppressWarnings("rawtypes")
 	private static final CollectionFactory IDENTITY = new IdentityFactory();
+
+	@SuppressWarnings("rawtypes")
+	private static final CollectionFactory CONCURRENT = new ConcurrentFactory(16);
 
 	/**
 	 * Returns a collection factory for hashing the entries, using {@link T#hashCode()} and {@link T#equals(Object)}
@@ -263,6 +286,17 @@ public class MultiMaps {
 	@SuppressWarnings("unchecked")
 	public static <T> CollectionFactory<T> linkedMinimizedFactory() {
 		return (CollectionFactory<T>) LINKED_MINIMIZED;
+	}
+
+	/**
+	 * Returns a collection factory for hashing the entries in concurrent hash maps, using {@link T#hashCode()} and
+	 * {@link T#equals(Object)} method.
+	 *
+	 * @return the collection factory
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> CollectionFactory<T> concurrentFactory() {
+		return (CollectionFactory<T>) HASH;
 	}
 
 	public static <K, V> MultiMap<K, V> synchronizedMultiMap(MultiMap<K, V> map) {

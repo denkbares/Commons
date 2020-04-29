@@ -79,14 +79,20 @@ public class DefaultMultiMap<K, V> extends AbstractMultiMap<K, V> implements Ser
 		return new DefaultMultiMap<>(MultiMaps.linkedFactory(), MultiMaps.linkedFactory());
 	}
 
+	/**
+	 * Convenience constructor method that creates a multi-map with keys and values are in concurrent hash sets.
+	 *
+	 * @return a newly created, empty multi map that is "weakly consistent" in concurrency (cannot throw any concurrent
+	 * modifications)
+	 */
+	public static <K, V> DefaultMultiMap<K, V> newConcurrent() {
+		return new DefaultMultiMap<>(MultiMaps.concurrentFactory(), MultiMaps.concurrentFactory());
+	}
+
 	@Override
 	public boolean put(K key, V value) {
 		// connect source to term
-		Set<V> values = k2v.get(key);
-		if (values == null) {
-			values = valueFactory.createSet();
-			k2v.put(key, values);
-		}
+		Set<V> values = k2v.computeIfAbsent(key, _k -> valueFactory.createSet());
 		boolean isNew = values.add(value);
 		if (isNew) size++;
 		return isNew;
