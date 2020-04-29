@@ -48,11 +48,12 @@ import com.denkbares.utils.Predicates;
  * <p>
  * Note that the evaluator also allows multiple bindings for each variable, so each variable potentially represents a
  * set of values. If a variable is unbound (or 'null'), there will be an empty binding set for the variable. If each
- * variable is either null or single-bounded, the conditions behave like 'normal' conditions.
+ * variable is either null or single-bounded, the conditions behave like 'normal' conditions. Variable names may
+ * optionally be quoted by ' or ", e.g. if they contain any whitespaces or token characters.
  * <p>
  * When evaluating the parsed condition, comparing variables with '=' (or '=='), '&lt;', '&lt;=', '&gt;', '&gt;=', it is
  * required that there is at least one variable value for the tested variables that matches the condition. Otherwise (or
- * it no value is available at all), the condition evaluates to false. But note, when checking for a varaible value by
+ * it no value is available at all), the condition evaluates to false. But note, when checking for a variable value by
  * comparing with '!=', all values of the variable must be unequal to match the condition. If the variable has no value
  * at all, the unequal check will also be true. It is also possible to directly check for the absence of a specific
  * variable value by testing for '== null'. It is also possible to directly check for the existence of a at least one
