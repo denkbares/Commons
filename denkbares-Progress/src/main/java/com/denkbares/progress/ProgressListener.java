@@ -62,6 +62,20 @@ public interface ProgressListener {
 	}
 
 	/**
+	 * Convenience method that calculates the progress percent by the current element number/index and the total.
+	 * Updates this ProgressListener to a new completion percentage.
+	 * The message string is optional and may be null if the previous message is still valid.
+	 *
+	 * @param current the current element number of the process we track the progress for
+	 * @param total   the total size of the process we track the progress for
+	 * @param message a message containing information about the actual state
+	 * @apiNote if message is null, implementors should retain the recently updated message, if possible
+	 */
+	default void updateProgress(int current, int total, @Nullable String message) {
+		updateProgress(current / (float) Math.max(total, 1), message);
+	}
+
+	/**
 	 * Updates this ProgressListener to a new completion percentage. The specified percent value must be between 0.0 and
 	 * 1.0. The message string is not updated, and the previous message will remain valid.
 	 *
