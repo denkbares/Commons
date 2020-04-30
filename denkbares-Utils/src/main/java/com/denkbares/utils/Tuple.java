@@ -19,50 +19,46 @@
 
 package com.denkbares.utils;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * This class implements a typed, null-save tuple of a number of other objects.
  *
  * @author volker_belli
  */
-public class Tuple {
+public interface Tuple {
 
-	private final Object[] items;
-	private int hash = -1;
+	Object get(int index);
 
-	public Tuple(Object... items) {
-		this.items = items;
-	}
+	int getSize();
 
-	public Object get(int index) {
-		return items[index];
-	}
+	Collection<?> asList();
 
-	public int getSize() {
-		return items.length;
-	}
+	static boolean equals(Tuple t1, Tuple t2) {
+		if (t1 == t2) return true;
+		if (t1 == null || t2 == null) return false;
 
-	public Collection<?> asList() {
-		return Arrays.asList(items);
-	}
+		// must have same size
+		int size1 = t1.getSize();
+		int size2 = t2.getSize();
+		if (size1 != size2) return false;
 
-	@Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
+		// nad must have same elements in same order
+		for (int i = 0; i < size1; i++) {
+			if (!Objects.equals(t1.get(i), t2.get(i))) return false;
 		}
-		if (!(other instanceof Tuple)) {
-			return false;
-		}
-		Tuple o = (Tuple) other;
-		return Arrays.equals(this.items, o.items);
+		return true;
 	}
 
-	@Override
-	public int hashCode() {
-		if (hash == -1) hash = Arrays.hashCode(this.items);
+	static int hashCode(Tuple tuple) {
+		if (tuple == null) return 0;
+		int hash = 1;
+		int size = tuple.getSize();
+		for (int i = 0; i < size; i++) {
+			Object item = tuple.get(i);
+			hash = 31 * hash + (item == null ? 0 : item.hashCode());
+		}
 		return hash;
 	}
 }

@@ -19,38 +19,83 @@
 
 package com.denkbares.utils;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+
 /**
  * This class implements a typed, null-save triple of three other objects.
- * 
+ *
  * @author volker_belli
- * 
  */
-public class Triple<T1, T2, T3> extends Tuple {
+public class Triple<T1, T2, T3> implements Tuple {
+
+	private final T1 a;
+	private final T2 b;
+	private final T3 c;
+	private int hash = -1;
 
 	public Triple(T1 a, T2 b, T3 c) {
-		super(a, b, c);
+		this.a = a;
+		this.b = b;
+		this.c = c;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T1 getA() {
-		return (T1) get(0);
+		return a;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T2 getB() {
-		return (T2) get(1);
+		return b;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T3 getC() {
-		return (T3) get(2);
+		return c;
+	}
+
+	@Override
+	public Object get(int index) {
+		if (index == 0) return a;
+		if (index == 1) return b;
+		if (index == 2) return c;
+		throw new ArrayIndexOutOfBoundsException(String.valueOf(index));
+	}
+
+	@Override
+	public int getSize() {
+		return 3;
+	}
+
+	@Override
+	public Collection<?> asList() {
+		return Arrays.asList(a, b, c);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o instanceof Triple) {
+			Triple<?, ?, ?> triple = (Triple<?, ?, ?>) o;
+			return Objects.equals(a, triple.a) &&
+					Objects.equals(b, triple.b) &&
+					Objects.equals(c, triple.c);
+		}
+		else if (o instanceof Tuple) {
+			return Tuple.equals(this, (Tuple) o);
+		}
+		else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		if (hash == -1) hash = Tuple.hashCode(this);
+		return hash;
 	}
 
 	@Override
 	public String toString() {
-		return "#Triple["
-				+ String.valueOf(getA()) + "; "
-				+ String.valueOf(getB()) + "; "
-				+ String.valueOf(getC()) + "]";
+		return "#Triple[" + getA() + "; " + getB() + "; " + getC() + "]";
 	}
 }

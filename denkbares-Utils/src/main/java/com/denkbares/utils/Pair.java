@@ -19,7 +19,10 @@
 
 package com.denkbares.utils;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -28,27 +31,67 @@ import java.util.function.BiFunction;
  *
  * @author volker_belli
  */
-public class Pair<T1, T2> extends Tuple {
+public class Pair<T1, T2> implements Tuple {
+
+	private final T1 a;
+	private final T2 b;
+	private int hash = -1;
 
 	public Pair(T1 a, T2 b) {
-		super(a, b);
+		this.a = a;
+		this.b = b;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T1 getA() {
-		return (T1) get(0);
+		return a;
 	}
 
-	@SuppressWarnings("unchecked")
 	public T2 getB() {
-		return (T2) get(1);
+		return b;
+	}
+
+	@Override
+	public Object get(int index) {
+		if (index == 0) return a;
+		if (index == 1) return b;
+		throw new ArrayIndexOutOfBoundsException(String.valueOf(index));
+	}
+
+	@Override
+	public int getSize() {
+		return 2;
+	}
+
+	@Override
+	public Collection<?> asList() {
+		return Arrays.asList(a, b);
 	}
 
 	@Override
 	public String toString() {
-		return "#Pair["
-				+ getA() + "; "
-				+ getB() + "]";
+		return "#Pair[" + getA() + "; " + getB() + "]";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o instanceof Pair) {
+			Pair<?, ?> pair = (Pair<?, ?>) o;
+			return Objects.equals(a, pair.a) &&
+					Objects.equals(b, pair.b);
+		}
+		else if (o instanceof Tuple) {
+			return Tuple.equals(this, (Tuple) o);
+		}
+		else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		if (hash == -1) hash = Tuple.hashCode(this);
+		return hash;
 	}
 
 	/**
@@ -57,7 +100,7 @@ public class Pair<T1, T2> extends Tuple {
 	 * @param consumer the consumer to be applied
 	 */
 	public void apply(BiConsumer<T1, T2> consumer) {
-		consumer.accept(getA(), getB());
+		consumer.accept(a, b);
 	}
 
 	/**
@@ -66,7 +109,7 @@ public class Pair<T1, T2> extends Tuple {
 	 * @param function the function to be applied
 	 */
 	public <R> R map(BiFunction<T1, T2, R> function) {
-		return function.apply(getA(), getB());
+		return function.apply(a, b);
 	}
 
 	/**
