@@ -28,6 +28,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +52,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.utils.Files;
+import com.denkbares.utils.Java;
 import com.denkbares.utils.Log;
 import com.denkbares.utils.Pair;
 import com.denkbares.utils.Streams;
@@ -2413,5 +2416,15 @@ public class Strings {
 		String integer = s.substring(0, commaIndex);
 		String integerCleaned = integer.replaceAll("[.,]", "");
 		return integerCleaned + decimal;
+	}
+
+	@NotNull
+	public static String getBundleStringAsUTF8(ResourceBundle bundle, String key) {
+		String text = bundle.getString(key);
+		if (Java.getVersion() < 9) {
+			// before Java 9, property files are read with ISO-8859-1, after they are read with UTF-8
+			text = new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+		}
+		return text;
 	}
 }
