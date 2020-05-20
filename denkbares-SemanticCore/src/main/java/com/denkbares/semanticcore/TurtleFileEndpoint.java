@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.AbstractDelegateEndpoint;
-import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
 
@@ -182,7 +181,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 
 	@Override
 	@NotNull
-	protected SPARQLEndpoint getDelegate() {
+	public SemanticCore getDelegate() {
 		if (sc == null) {
 			throw new RepositoryException("repository already closed");
 		}

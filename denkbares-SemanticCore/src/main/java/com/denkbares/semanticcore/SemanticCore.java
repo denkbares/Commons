@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
@@ -624,6 +625,34 @@ public final class SemanticCore implements SPARQLEndpoint {
 			//noinspection UseOfSystemOutOrSystemErr
 			System.out.println("\ncreated " + Strings.pluralOf(matrix.getRowSize(), "row") + " in " + time);
 		}
+	}
+
+	/**
+	 * Creates a full (absolute) URI, based on the specified IRI string. The iri sting may be either an absolute IRI, or
+	 * using any known namespace.
+	 *
+	 * @param shortOrFullIRI the absolute or prefixed IRI name
+	 * @return the absolute URI
+	 */
+	public URI toURI(String shortOrFullIRI) {
+		int splitPos = shortOrFullIRI.indexOf(':');
+		if (splitPos >= 0) {
+			// if there is a ':' contained, check if the text left of it is a known namespace
+			for (Namespace namespace : getNamespaces()) {
+				String prefix = namespace.getPrefix();
+				if (prefix.length() == splitPos && shortOrFullIRI.startsWith(prefix)) {
+					// construct full URI based on the prefix name + the specified local name
+					return URI.create(namespace.getName() + shortOrFullIRI.substring(splitPos + 1));
+				}
+			}
+		}
+
+		// if not containing a ':', or no prefix matches, create URI from specified IRI
+		return URI.create(shortOrFullIRI);
+	}
+
+	public IRI toShortIRI(URI uri) {
+		return toShortIRI(getValueFactory().createIRI(uri.toString()));
 	}
 
 	private IRI toShortIRI(IRI iri) {
