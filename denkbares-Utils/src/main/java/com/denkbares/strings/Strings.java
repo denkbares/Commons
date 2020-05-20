@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2020 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -385,124 +385,7 @@ public class Strings {
 	 */
 	public static final int UNBRACED = 0x20;
 
-	/**
-	 * Finds the index of the first occurrence of one of the given strings in the given text after the given offset. Use
-	 * the flags for more options. If text is null it is treated as an empty string.
-	 *
-	 * @param text    the text where we search for the strings
-	 * @param offset  the offset from where we start to look for the strings (flags like UNQUOTED or FIRST_IN_LINE also
-	 *                consider the text before the offset!)
-	 * @param flags   the settings flags to influence the behavior of the method
-	 * @param strings the strings for which you want the index in the text
-	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
-	 */
-	public static int indexOf(String text, int offset, @IndexOfFlags int flags, String... strings) {
-		if (text == null) text = "";
-		boolean unquoted = has(flags, UNQUOTED);
-		boolean skipComments = has(flags, SKIP_COMMENTS);
-		boolean first = !has(flags, LAST_INDEX);
-		boolean caseInsensitive = has(flags, CASE_INSENSITIVE);
-		boolean firstInLine = has(flags, FIRST_IN_LINE);
-		boolean unbraced = has(flags, UNBRACED);
-		char quoteChar = has(flags, SINGLE_QUOTED) ? '\'' : '"';
-
-		boolean quoted = false;
-		boolean comment = false;
-		boolean atLineStart = true;
-		int bracedLevel = 0;
-
-		int lastIndex = -1;
-
-		// scanning the text
-		for (int i = 0; i < text.length(); i++) {
-
-			// if we reach a line end we know that we no longer are
-			// inside a comment and instead at a line start again
-			if (text.charAt(i) == '\n') {
-				comment = false;
-				atLineStart = true;
-			}
-
-			// if we skip comments and are currently in one, nothing further to do here
-			if (skipComments && comment) continue;
-
-			if (firstInLine) {
-				// we skip if we only look at line starts, but if we are currently in quotes,
-				// we first need to find the end of the quotes
-				if (!atLineStart && !quoted) {
-					continue;
-				}
-				// we also skip if we are currently in a braced section
-				if (!atLineStart && unbraced && bracedLevel != 0) {
-					continue;
-				}
-				if (!isWhitespace(text.charAt(i))) {
-					atLineStart = false;
-				}
-			}
-
-			// if we only want indexes outside quotes, check quote status
-			if (unquoted) {
-				// toggle quote state
-				if (isUnEscapedQuote(text, i, quoteChar)) {
-
-					// special case, we look for quotes!
-					if (i >= offset && stringsContainChar(strings, quoteChar)) {
-						return i;
-					}
-
-					// set quoted status
-					quoted = !quoted;
-				}
-				// ignore indexes in quotes, also ignore comment start and braces
-				if (quoted) continue;
-			}
-
-			if (skipComments) {
-				// check comment status
-				if (i + 2 <= text.length()
-						&& text.charAt(i) == '/'
-						&& text.charAt(i + 1) == '/') {
-					comment = true;
-				}
-				// ignore comment
-				if (comment) continue;
-			}
-
-			// if we only want indexes outside braced content, check brace depth/status
-			if (unbraced) {
-				if (text.charAt(i) == '(') {
-					bracedLevel++;
-				}
-				else if (text.charAt(i) == ')' && bracedLevel > 0) {
-					bracedLevel--;
-				}
-				// ignore braced content
-				if (bracedLevel > 0) continue;
-			}
-
-			// we are before the offset, we don't yet look for the strings
-			if (i < offset) continue;
-
-			// when strings discovered return index
-			for (String symbol : strings) {
-				if (i + symbol.length() <= text.length()) {
-					boolean matches;
-					if (caseInsensitive) {
-						matches = text.substring(i, i + symbol.length()).equalsIgnoreCase(symbol);
-					}
-					else {
-						matches = text.substring(i, i + symbol.length()).equals(symbol);
-					}
-					if (matches) {
-						lastIndex = i;
-						if (first) return i;
-					}
-				}
-			}
-		}
-		return lastIndex;
-	}
+	private static final Pattern LOCALE_PATTERN = Pattern.compile("([\\w^_]{2,3})(?:[\\-_]([\\w^_]{2,3})(?:[\\-_]#([^\\-_]*))?(?:[\\-_](\\p{Graph}+))?)?");
 
 	private static boolean has(int flags, int flag) {
 		return (flags & flag) != 0;
@@ -772,130 +655,122 @@ public class Strings {
 	}
 
 	/**
-	 * Splits the text by the <tt>splitRegex</tt> disregarding splitSymbols which are quoted.
+	 * Finds the index of the first occurrence of one of the given strings in the given text after the given offset. Use
+	 * the flags for more options. If text is null it is treated as an empty string.
 	 *
-	 * @param text         the text to be split
-	 * @param splitPattern the regex to split by
-	 * @return the fragments of the text
+	 * @param text    the text where we search for the strings
+	 * @param offset  the offset from where we start to look for the strings (flags like UNQUOTED or FIRST_IN_LINE also
+	 *                consider the text before the offset!)
+	 * @param flags   the settings flags to influence the behavior of the method
+	 * @param strings the strings for which you want the index in the text
+	 * @return the first index of any of the strings in the text or -1 if none of the strings is found
 	 */
-	public static List<StringFragment> splitUnquoted(String text, Pattern splitPattern, boolean includeBlankFragments, QuoteSet... quotes) {
-		List<StringFragment> parts = new ArrayList<>();
-		if (text == null) return parts;
+	public static int indexOf(String text, int offset, @IndexOfFlags int flags, String... strings) {
+		if (text == null) text = "";
+		boolean unquoted = has(flags, UNQUOTED);
+		boolean skipComments = has(flags, SKIP_COMMENTS);
+		boolean first = !has(flags, LAST_INDEX);
+		boolean caseInsensitive = has(flags, CASE_INSENSITIVE);
+		boolean firstInLine = has(flags, FIRST_IN_LINE);
+		boolean unbraced = has(flags, UNBRACED);
+		char quoteChar = has(flags, SINGLE_QUOTED) ? '\'' : '"';
 
-		quotes = Arrays.copyOf(quotes, quotes.length);
-		// make sure triple quotes are first
-		Arrays.sort(quotes, (o1, o2) -> {
-			if (o1 == QuoteSet.TRIPLE_QUOTES && o2 != QuoteSet.TRIPLE_QUOTES) return -1;
-			if (o1 != QuoteSet.TRIPLE_QUOTES && o2 == QuoteSet.TRIPLE_QUOTES) return 1;
-			return 0;
-		});
+		boolean quoted = false;
+		boolean comment = false;
+		boolean atLineStart = true;
+		int bracedLevel = 0;
 
-		// init quote state for each quote
-		int[] quoteStates = new int[quotes.length];
-
-		StringBuffer actualPart = new StringBuffer();
-
-		Matcher matcher = splitPattern.matcher(text);
-		List<Group> candidates = new ArrayList<>();
-		while (matcher.find()) {
-			candidates.add(new Group(matcher.start(), matcher.end()));
-		}
-		if (candidates.isEmpty()) {
-			// not splitting in this text
-			return Collections.singletonList(new StringFragment(text, 0, text));
-		}
-		Iterator<Group> candidateIterator = candidates.iterator();
+		int lastIndex = -1;
 
 		// scanning the text
-		Group nextCandidate = candidateIterator.next();
-		int startOfNewPart = 0;
-		int skipQuoteDetectionUntil = -1;
 		for (int i = 0; i < text.length(); i++) {
 
-			// go to next split candidate if possible
-			if (i > nextCandidate.start) {
-				if (candidateIterator.hasNext()) {
-					nextCandidate = candidateIterator.next();
+			// if we reach a line end we know that we no longer are
+			// inside a comment and instead at a line start again
+			if (text.charAt(i) == '\n') {
+				comment = false;
+				atLineStart = true;
+			}
+
+			// if we skip comments and are currently in one, nothing further to do here
+			if (skipComments && comment) continue;
+
+			if (firstInLine) {
+				// we skip if we only look at line starts, but if we are currently in quotes,
+				// we first need to find the end of the quotes
+				if (!atLineStart && !quoted) {
+					continue;
 				}
-				else {
-					// no more candidates, rest of the string is one fragment
-					actualPart.append(text.substring(i));
-					break;
+				// we also skip if we are currently in a braced section
+				if (!atLineStart && unbraced && bracedLevel != 0) {
+					continue;
+				}
+				if (!isWhitespace(text.charAt(i))) {
+					atLineStart = false;
 				}
 			}
 
-			// tracking multiple quote states
-			for (int q = 0; q < quotes.length; q++) {
+			// if we only want indexes outside quotes, check quote status
+			if (unquoted) {
+				// toggle quote state
+				if (isUnEscapedQuote(text, i, quoteChar)) {
 
-				if (i <= skipQuoteDetectionUntil) continue;
-
-				QuoteSet quoteSet = quotes[q];
-
-				// check whether the quote is hidden by another quote, e.g. a
-				// bracket in a literal-quote
-				if (!isHiddenByOtherQuote(quoteStates, quotes, q)) {
-
-					// first handle unary quotes
-					if (quoteSet.isUnary()) {
-						// handle special case for triple quotes (""")
-						if (quoteSet == QuoteSet.TRIPLE_QUOTES
-								// triple quotes cannot be escaped, so just try a match
-								&& text.length() >= i + 3
-								&& text.substring(i, i + 3).equals(TRIPLE_QUOTES)
-								// don't match closing triple quotes at the start, but at the end of
-								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
-								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
-								.charAt(0))) {
-
-							toggleQuoteState(quoteStates, q);
-
-							// triple quotes might also match other quote set, so we skip
-							skipQuoteDetectionUntil = i + TRIPLE_QUOTES.length();
-							break;
-						}
-						// just ordinary unary quotes, open() == close()
-						else if (isUnEscapedQuote(text, i, quoteSet.open())) {
-							toggleQuoteState(quoteStates, q);
-						}
+					// special case, we look for quotes!
+					if (i >= offset && stringsContainChar(strings, quoteChar)) {
+						return i;
 					}
-					// then handle binary (potentially nested) quotes
+
+					// set quoted status
+					quoted = !quoted;
+				}
+				// ignore indexes in quotes, also ignore comment start and braces
+				if (quoted) continue;
+			}
+
+			if (skipComments) {
+				// check comment status
+				if (i + 2 <= text.length()
+						&& text.charAt(i) == '/'
+						&& text.charAt(i + 1) == '/') {
+					comment = true;
+				}
+				// ignore comment
+				if (comment) continue;
+			}
+
+			// if we only want indexes outside braced content, check brace depth/status
+			if (unbraced) {
+				if (text.charAt(i) == '(') {
+					bracedLevel++;
+				}
+				else if (text.charAt(i) == ')' && bracedLevel > 0) {
+					bracedLevel--;
+				}
+				// ignore braced content
+				if (bracedLevel > 0) continue;
+			}
+
+			// we are before the offset, we don't yet look for the strings
+			if (i < offset) continue;
+
+			// when strings discovered return index
+			for (String symbol : strings) {
+				if (i + symbol.length() <= text.length()) {
+					boolean matches;
+					if (caseInsensitive) {
+						matches = text.substring(i, i + symbol.length()).equalsIgnoreCase(symbol);
+					}
 					else {
-
-						// check for opening char
-						if (isUnEscapedQuote(text, i, quoteSet.open())) {
-							// this one is just being opened (once more)
-							quoteStates[q]++;
-						}
-						// check for closing char
-						if (isUnEscapedQuote(text, i, quoteSet.close())) {
-							// this one is just being closed (once)
-							quoteStates[q]--;
-						}
+						matches = text.startsWith(symbol, i);
+					}
+					if (matches) {
+						lastIndex = i;
+						if (first) return i;
 					}
 				}
 			}
-			if (quoted(quoteStates)) {
-				actualPart.append(text.charAt(i));
-				continue;
-			}
-
-			if (nextCandidate.start == i) {
-				String actualPartString = actualPart.toString();
-				if (includeBlankFragments || !isBlank(actualPartString)) {
-					parts.add(new StringFragment(actualPartString, startOfNewPart, text));
-				}
-				actualPart = new StringBuffer();
-				i = nextCandidate.end - 1;
-				startOfNewPart = nextCandidate.end;
-				continue;
-			}
-			actualPart.append(text.charAt(i));
 		}
-		String actualPartString = actualPart.toString();
-		if (includeBlankFragments || !isBlank(actualPartString)) {
-			parts.add(new StringFragment(actualPartString, startOfNewPart, text));
-		}
-		return parts;
+		return lastIndex;
 	}
 
 	private static void toggleQuoteState(int[] quoteStates, int q) {
@@ -2032,7 +1907,132 @@ public class Strings {
 		Files.writeFile(file, content);
 	}
 
-	private static final Pattern LOCALE_PATTERN = Pattern.compile("(\\w\\w)(?:[\\-_](\\w\\w)(?:[\\-_]#([^\\-_]*))?(?:[\\-_](\\p{Graph}+))?)?");
+	/**
+	 * Splits the text by the <tt>splitRegex</tt> disregarding splitSymbols which are quoted.
+	 *
+	 * @param text         the text to be split
+	 * @param splitPattern the regex to split by
+	 * @return the fragments of the text
+	 */
+	public static List<StringFragment> splitUnquoted(String text, Pattern splitPattern, boolean includeBlankFragments, QuoteSet... quotes) {
+		List<StringFragment> parts = new ArrayList<>();
+		if (text == null) return parts;
+
+		quotes = Arrays.copyOf(quotes, quotes.length);
+		// make sure triple quotes are first
+		Arrays.sort(quotes, (o1, o2) -> {
+			if (o1 == QuoteSet.TRIPLE_QUOTES && o2 != QuoteSet.TRIPLE_QUOTES) return -1;
+			if (o1 != QuoteSet.TRIPLE_QUOTES && o2 == QuoteSet.TRIPLE_QUOTES) return 1;
+			return 0;
+		});
+
+		// init quote state for each quote
+		int[] quoteStates = new int[quotes.length];
+
+		StringBuffer actualPart = new StringBuffer();
+
+		Matcher matcher = splitPattern.matcher(text);
+		List<Group> candidates = new ArrayList<>();
+		while (matcher.find()) {
+			candidates.add(new Group(matcher.start(), matcher.end()));
+		}
+		if (candidates.isEmpty()) {
+			// not splitting in this text
+			return Collections.singletonList(new StringFragment(text, 0, text));
+		}
+		Iterator<Group> candidateIterator = candidates.iterator();
+
+		// scanning the text
+		Group nextCandidate = candidateIterator.next();
+		int startOfNewPart = 0;
+		int skipQuoteDetectionUntil = -1;
+		for (int i = 0; i < text.length(); i++) {
+
+			// go to next split candidate if possible
+			if (i > nextCandidate.start) {
+				if (candidateIterator.hasNext()) {
+					nextCandidate = candidateIterator.next();
+				}
+				else {
+					// no more candidates, rest of the string is one fragment
+					actualPart.append(text.substring(i));
+					break;
+				}
+			}
+
+			// tracking multiple quote states
+			for (int q = 0; q < quotes.length; q++) {
+
+				if (i <= skipQuoteDetectionUntil) continue;
+
+				QuoteSet quoteSet = quotes[q];
+
+				// check whether the quote is hidden by another quote, e.g. a
+				// bracket in a literal-quote
+				if (!isHiddenByOtherQuote(quoteStates, quotes, q)) {
+
+					// first handle unary quotes
+					if (quoteSet.isUnary()) {
+						// handle special case for triple quotes (""")
+						if (quoteSet == QuoteSet.TRIPLE_QUOTES
+								// triple quotes cannot be escaped, so just try a match
+								&& text.length() >= i + 3
+								&& text.startsWith(TRIPLE_QUOTES, i)
+								// don't match closing triple quotes at the start, but at the end of
+								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
+								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
+								.charAt(0))) {
+
+							toggleQuoteState(quoteStates, q);
+
+							// triple quotes might also match other quote set, so we skip
+							skipQuoteDetectionUntil = i + TRIPLE_QUOTES.length();
+							break;
+						}
+						// just ordinary unary quotes, open() == close()
+						else if (isUnEscapedQuote(text, i, quoteSet.open())) {
+							toggleQuoteState(quoteStates, q);
+						}
+					}
+					// then handle binary (potentially nested) quotes
+					else {
+
+						// check for opening char
+						if (isUnEscapedQuote(text, i, quoteSet.open())) {
+							// this one is just being opened (once more)
+							quoteStates[q]++;
+						}
+						// check for closing char
+						if (isUnEscapedQuote(text, i, quoteSet.close())) {
+							// this one is just being closed (once)
+							quoteStates[q]--;
+						}
+					}
+				}
+			}
+			if (quoted(quoteStates)) {
+				actualPart.append(text.charAt(i));
+				continue;
+			}
+
+			if (nextCandidate.start == i) {
+				String actualPartString = actualPart.toString();
+				if (includeBlankFragments || !isBlank(actualPartString)) {
+					parts.add(new StringFragment(actualPartString, startOfNewPart, text));
+				}
+				actualPart = new StringBuffer();
+				i = nextCandidate.end - 1;
+				startOfNewPart = nextCandidate.end;
+				continue;
+			}
+			actualPart.append(text.charAt(i));
+		}
+		String actualPartString = actualPart.toString();
+		if (includeBlankFragments || !isBlank(actualPartString)) {
+			parts.add(new StringFragment(actualPartString, startOfNewPart, text));
+		}
+		return parts;
+	}
 
 	/**
 	 * Parses a locale from a locale string representation. This is the inverse method to {@link
