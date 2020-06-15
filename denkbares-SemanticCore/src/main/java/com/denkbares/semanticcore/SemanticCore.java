@@ -291,8 +291,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 	@Override
 	public void close() {
 		state = State.shutdown;
-		instances.remove(getRepositoryId());
-		repositoryManager.removeRepository(getRepositoryId());
 		try {
 			Stopwatch stopwatch = new Stopwatch();
 			repository.shutDown();
