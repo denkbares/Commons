@@ -45,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.SubSpanIterator;
 import com.denkbares.semanticcore.TupleQueryResult;
+import com.denkbares.strings.NumberAwareComparator;
 import com.denkbares.utils.Pair;
 
 public class ResultTableModel implements Iterable<TableRow> {
@@ -158,8 +159,8 @@ public class ResultTableModel implements Iterable<TableRow> {
 		Comparator<TableRow> valueComparator = (o1, o2) -> {
 			Value v1 = o1.getValue(variable);
 			Value v2 = o2.getValue(variable);
-			return (v1 == v2) ? 0 : (v1 == null) ? -1 : (v2 == null) ? 1 : v1.stringValue()
-					.compareTo(v2.stringValue());
+			return (v1 == v2) ? 0 : (v1 == null) ? -1 : (v2 == null) ? 1 : NumberAwareComparator.CASE_INSENSITIVE
+					.compare(v1.stringValue(), v2.stringValue());
 		};
 		return ascending ? valueComparator : valueComparator.reversed();
 	}
@@ -180,7 +181,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 		Collections.reverse(comparators);
 
 		List<TableRow> sortedRows = new ArrayList<>(this.rows);
-		comparators.forEach(comp -> sortedRows.sort(comp));
+		comparators.forEach(sortedRows::sort);
 		return createResultTableModel(sortedRows, this.variables);
 	}
 
@@ -252,7 +253,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 						rowValues.put(variable, valueFactory.createLiteral(cell));
 					}
 				}
-				rows.add(new TableRow(rowValues,variables));
+				rows.add(new TableRow(rowValues, variables));
 			}
 
 			//  and return the parsed table
