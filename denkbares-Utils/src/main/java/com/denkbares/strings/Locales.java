@@ -427,7 +427,7 @@ public class Locales {
 	 * may be null, if there are any null values in the map).
 	 *
 	 * @param map      the map of possible values
-	 * @param language the preferred language to get the value for
+	 * @param language the preferred language(s) to get the value for
 	 * @return the value of the best matching language
 	 */
 	public static <E> E getBestValue(Map<Locale, ? extends E> map, Locale... language) {
