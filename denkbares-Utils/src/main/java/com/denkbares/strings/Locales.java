@@ -430,9 +430,9 @@ public class Locales {
 	 * @param language the preferred language to get the value for
 	 * @return the value of the best matching language
 	 */
-	public static <E> E getBestValue(Map<Locale, ? extends E> map, Locale language) {
+	public static <E> E getBestValue(Map<Locale, ? extends E> map, Locale... language) {
 		if (map == null) return null;
-		return map.get(findBestLocale(language, map.keySet()));
+		return map.get(findBestLocale(Arrays.asList(language), map.keySet()));
 	}
 
 	/**
