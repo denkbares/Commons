@@ -20,7 +20,7 @@
 package com.denkbares.collections;
 
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -130,7 +130,7 @@ public class MappingMultiMap<K, V> extends AbstractMultiMap<K, V> {
 	@NotNull
 	@Override
 	public Set<V> valueSet() {
-		Set<V> result = new HashSet<>();
+		Set<V> result = new LinkedHashSet<>();
 		keys.stream().map(mapping).forEach(result::addAll);
 		return result;
 	}
