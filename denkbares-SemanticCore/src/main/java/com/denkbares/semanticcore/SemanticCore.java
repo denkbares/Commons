@@ -197,7 +197,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
-		initializeLazy(tmpFolder);
+		initializeLazy(tmpFolder == null ? createRepositoryPath(repositoryId) : tmpFolder);
 		this.repositoryId = repositoryId;
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
@@ -318,7 +318,9 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	private synchronized static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
 		if (repositoryManager != null) return; // could already be initialized externally
-		if (repositoryPath == null) repositoryPath = createRepositoryPath("Default");
+		if (repositoryPath == null) {
+			repositoryPath = createRepositoryPath("Default");
+		}
 		initializeRepositoryManager(repositoryPath);
 	}
 
