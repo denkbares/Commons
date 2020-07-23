@@ -574,10 +574,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	public void export(Writer writer) throws RepositoryException, RDFHandlerException, IOException {
 		RDFWriter rdfWriter = Rio.createWriter(RDFFormat.RDFXML, writer);
-		RepositoryConnection connection = getConnection();
-		connection.export(rdfWriter);
+		export(rdfWriter);
 		writer.flush();
-		connection.close();
 	}
 
 	public void export(Writer writer, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
@@ -586,16 +584,16 @@ public final class SemanticCore implements SPARQLEndpoint {
 		writer.flush();
 	}
 
-	public void export(RDFWriter rdfWriter) throws RepositoryException, RDFHandlerException {
-		RepositoryConnection connection = getConnection();
-		connection.export(rdfWriter);
-		connection.close();
-	}
-
 	public void export(OutputStream out, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
 		RDFWriter rdfWriter = Rio.createWriter(format, out);
 		export(rdfWriter);
 		out.flush();
+	}
+
+	public void export(RDFWriter rdfWriter) throws RepositoryException, RDFHandlerException {
+		RepositoryConnection connection = getConnection();
+		connection.export(rdfWriter);
+		connection.close();
 	}
 
 	@Override
