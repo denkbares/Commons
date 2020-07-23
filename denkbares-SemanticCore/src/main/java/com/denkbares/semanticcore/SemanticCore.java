@@ -68,7 +68,6 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.Matrix;
@@ -581,27 +580,14 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	public void export(Writer writer, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
 		RDFWriter rdfWriter = Rio.createWriter(format, writer);
-		makePrettyTurtle(rdfWriter, format);
 		export(rdfWriter);
 		writer.flush();
 	}
 
 	public void export(OutputStream out, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
 		RDFWriter rdfWriter = Rio.createWriter(format, out);
-		makePrettyTurtle(rdfWriter, format);
 		export(rdfWriter);
 		out.flush();
-	}
-
-	private void makePrettyTurtle(RDFWriter rdfWriter, RDFFormat format) {
-		if (format == RDFFormat.TURTLE) {
-			// Somehow this is the settings that makes the difference between ugly one line turtle files and
-			// properly formatted turtle.
-			// The java doc warns of potentially high memory usage, but that couldn't yet be confirmed, so this will be
-			// the default for now. If it does cause problems, we always can use export(RDFWriter) with a rdf writer
-			// that does not have this setting.
-			rdfWriter.getWriterConfig().set(BasicWriterSettings.INLINE_BLANK_NODES, true);
-		}
 	}
 
 	public void export(RDFWriter rdfWriter) throws RepositoryException, RDFHandlerException {
