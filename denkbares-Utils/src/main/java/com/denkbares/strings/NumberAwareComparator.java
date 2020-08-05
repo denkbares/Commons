@@ -42,6 +42,8 @@ public class NumberAwareComparator implements Comparator<String> {
 	@SuppressWarnings("Duplicates")
 	@Override
 	public int compare(String s1, String s2) {
+		if (s1 == null) s1 = "";
+		if (s2 == null) s2 = "";
 		int n1 = s1.length(), n2 = s2.length();
 		int i1 = 0, i2 = 0;
 		for (; i1 < n1 && i2 < n2; i1++, i2++) {
