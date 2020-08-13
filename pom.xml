@@ -44,6 +44,7 @@
 		<module>denkbares-SemanticCore-Plugin-Jena</module>
 		<module>denkbares-SemanticCore-Plugin-GraphDB</module>
 		<module>denkbares-TestUtils</module>
+		<module>denkbares-PythonConnector</module>
 	</modules>
 
 	<licenses>
