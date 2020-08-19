@@ -32,21 +32,21 @@ import java.util.function.Predicate;
 public abstract class FilterIterator<E> implements Iterator<E> {
 
 	/**
-	 * Functional interface to check a particular item to be included in the filtered iteration or
-	 * not. For more details see {@link #accept(Object)}.
+	 * Functional interface to check a particular item to be included in the filtered iteration or not. For more details
+	 * see {@link #accept(Object)}.
 	 *
 	 * @param <E> the type of the items to be checked
 	 */
+	@FunctionalInterface
 	public interface EntryFilter<E> {
 		/**
-		 * Method to be overwritten. The method should check if the specified item should be
-		 * included in the iteration. if the method returns false, the item is skipped.
+		 * Method to be overwritten. The method should check if the specified item should be included in the iteration.
+		 * if the method returns false, the item is skipped.
 		 * <p/>
-		 * The method may (instead of returning a boolean value) throw the Stop.EXCLUDE or
-		 * Stop.INCLUDE exception. In this case the iteration assumes that all succeeding items will
-		 * not been accepted. The iteration stops immediately at the current item. Depending on the
-		 * thrown exception instance, the currently specified item will be included or excluded
-		 * before the iteration terminates.
+		 * The method may (instead of returning a boolean value) throw the Stop.EXCLUDE or Stop.INCLUDE exception. In
+		 * this case the iteration assumes that all succeeding items will not been accepted. The iteration stops
+		 * immediately at the current item. Depending on the thrown exception instance, the currently specified item
+		 * will be included or excluded before the iteration terminates.
 		 *
 		 * @param item the current item to be checked
 		 * @return if the specified item should be included
@@ -55,18 +55,18 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 		boolean accept(E item) throws Stop;
 	}
 
+	@SuppressWarnings("serial")
 	public static class Stop extends Exception {
 		/**
-		 * Exception to be thrown by the accept method to signal that none of the succeeding items
-		 * will be accepted, but the current item should be included in the filtered iteration.
+		 * Exception to be thrown by the accept method to signal that none of the succeeding items will be accepted, but
+		 * the current item should be included in the filtered iteration.
 		 */
 		@SuppressWarnings("ThrowableInstanceNeverThrown")
 		public static final Stop INCLUDE = new Stop("include");
 
 		/**
-		 * Exception to be thrown by the accept method to signal that none of the succeeding items
-		 * will be accepted. The current item should also not been included in the filtered
-		 * iteration.
+		 * Exception to be thrown by the accept method to signal that none of the succeeding items will be accepted. The
+		 * current item should also not been included in the filtered iteration.
 		 */
 		@SuppressWarnings("ThrowableInstanceNeverThrown")
 		public static final Stop EXCLUDE = new Stop("exclude");
@@ -82,8 +82,8 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	private boolean endReached = false;
 
 	/**
-	 * Creates a new FilterIterator for the specified iterator. The returned iterator contains only
-	 * the elements that passes the {@link #accept(Object)} method.
+	 * Creates a new FilterIterator for the specified iterator. The returned iterator contains only the elements that
+	 * passes the {@link #accept(Object)} method.
 	 *
 	 * @param source the iterator to be filtered
 	 */
@@ -92,16 +92,15 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
-	 * Creates a new Iterable for the specified iterable for the specified filter functional
-	 * interface. The returned iterable contains only the elements that passes the accept function
-	 * of the specified filter with "true".
+	 * Creates a new Iterable for the specified iterable for the specified filter functional interface. The returned
+	 * iterable contains only the elements that passes the accept function of the specified filter with "true".
 	 * <p/>
-	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
-	 * without creating a subclass of this abstract class.
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner, without creating a
+	 * subclass of this abstract class.
 	 *
 	 * @param iterable the iterable to be filtered
-	 * @param filter the filter function to be applied
-	 * @param <E> the type of the elements to be iterated
+	 * @param filter   the filter function to be applied
+	 * @param <E>      the type of the elements to be iterated
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> Iterable<E> filter(Iterable<E> iterable, final EntryFilter<? super E> filter) {
@@ -109,16 +108,15 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
-	 * Creates a new FilterIterator for the specified iterator and a filter functional interface.
-	 * The returned iterator contains only the elements that passes the accept function of the
-	 * specified filter with "true".
+	 * Creates a new FilterIterator for the specified iterator and a filter functional interface. The returned iterator
+	 * contains only the elements that passes the accept function of the specified filter with "true".
 	 * <p/>
-	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
-	 * without creating a subclass of this abstract class.
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner, without creating a
+	 * subclass of this abstract class.
 	 *
 	 * @param iterator the iterator to be filtered
-	 * @param filter the filter function to be applied
-	 * @param <E> the type of the elements to be iterated
+	 * @param filter   the filter function to be applied
+	 * @param <E>      the type of the elements to be iterated
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> FilterIterator<E> filter(Iterator<E> iterator, final EntryFilter<? super E> filter) {
@@ -137,17 +135,33 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
-	 * Creates a new Iterable for the specified iterable for the specified filter functional
-	 * interface. The returned iterable contains only the elements that continuously (!) passes the
-	 * accept function of the specified filter with "true". All elements after the first rejected
-	 * element are truncated, without calling the filter function for them.
+	 * Creates a new FilterIterator for the specified iterator and a filter predicate. The returned iterator contains
+	 * only the elements that passes the accept function of the specified filter with "true".
 	 * <p/>
-	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
-	 * without creating a subclass of this abstract class.
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner, without creating a
+	 * subclass of this abstract class.
+	 *
+	 * @param iterator the iterator to be filtered
+	 * @param filter   the filter predicate to be applied
+	 * @param <E>      the type of the elements to be iterated
+	 * @return an iterator only containing the accepted entries
+	 */
+	public static <E> FilterIterator<E> filterByPredicate(Iterator<E> iterator, final Predicate<? super E> filter) {
+		return filter(iterator, filter::test);
+	}
+
+	/**
+	 * Creates a new Iterable for the specified iterable for the specified filter functional interface. The returned
+	 * iterable contains only the elements that continuously (!) passes the accept function of the specified filter with
+	 * "true". All elements after the first rejected element are truncated, without calling the filter function for
+	 * them.
+	 * <p/>
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner, without creating a
+	 * subclass of this abstract class.
 	 *
 	 * @param iterable the iterable to be filtered
-	 * @param filter the filter function to be applied
-	 * @param <E> the type of the elements to be iterated
+	 * @param filter   the filter function to be applied
+	 * @param <E>      the type of the elements to be iterated
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> Iterable<E> takeWhile(Iterable<E> iterable, Predicate<? super E> filter) {
@@ -155,17 +169,16 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
-	 * Creates a new FilterIterator for the specified iterator and a filter functional interface.
-	 * The returned iterator contains only the elements that continuously (!) passes the accept
-	 * function of the specified filter with "true". All elements after the first rejected element
-	 * are truncated, without calling the filter function for them.
+	 * Creates a new FilterIterator for the specified iterator and a filter functional interface. The returned iterator
+	 * contains only the elements that continuously (!) passes the accept function of the specified filter with "true".
+	 * All elements after the first rejected element are truncated, without calling the filter function for them.
 	 * <p/>
-	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner,
-	 * without creating a subclass of this abstract class.
+	 * This method allows to use this FilterIterator implementations in Java 8+ styled manner, without creating a
+	 * subclass of this abstract class.
 	 *
 	 * @param iterator the iterator to be filtered
-	 * @param filter the filter function to be applied
-	 * @param <E> the type of the elements to be iterated
+	 * @param filter   the filter function to be applied
+	 * @param <E>      the type of the elements to be iterated
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> FilterIterator<E> takeWhile(Iterator<E> iterator, Predicate<? super E> filter) {
@@ -192,8 +205,7 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
-	 * This method determines if an item is accepted from the underlying delegate iterator or if
-	 * rejected.
+	 * This method determines if an item is accepted from the underlying delegate iterator or if rejected.
 	 *
 	 * @param item the item to be checked
 	 * @return true if the item shall be accepted.
@@ -217,20 +229,23 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	@Override
 	public void remove() {
 		// we can only remove if the cursor have not been updated since last next()
-		if (needsUpdate && nextEntry != null) delegate.remove();
-		else throw new UnsupportedOperationException();
+		if (needsUpdate && nextEntry != null) {
+			delegate.remove();
+		}
+		else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	/**
-	 * This method can be called by the implementer of this abstract class when the overwritten
-	 * accept-method is sure that all sub-sequential elements of the underlying iterator will not
-	 * been accepted and therefore filtered out. Thus the method signals that this iterator has
-	 * reached its end.
+	 * This method can be called by the implementer of this abstract class when the overwritten accept-method is sure
+	 * that all sub-sequential elements of the underlying iterator will not been accepted and therefore filtered out.
+	 * Thus the method signals that this iterator has reached its end.
 	 * <p/>
-	 * Note that if this method is called from within the accept method, the filtering of the
-	 * current element is determined only (!) by the return value of the accept method. This method
-	 * only influences further items. So you can detect the end also at the last accepted element by
-	 * calling this method but return true within the accept method.
+	 * Note that if this method is called from within the accept method, the filtering of the current element is
+	 * determined only (!) by the return value of the accept method. This method only influences further items. So you
+	 * can detect the end also at the last accepted element by calling this method but return true within the accept
+	 * method.
 	 */
 	protected void signalEnd() {
 		endReached = true;
