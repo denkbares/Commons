@@ -19,12 +19,17 @@
 
 package com.denkbares.utils;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class to provide utilities for {@link Predicate}s and similar.
@@ -121,5 +126,55 @@ public class Predicates {
 	 */
 	public static <T> Predicate<T> FALSE() {
 		return (T t) -> false;
+	}
+
+	/**
+	 * Returns a predicate that combines the specified predicates by an logical "AND". If the specified predicates are
+	 * empty or null, true is returned.
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public static <T> Predicate<T> and(Predicate<T>... predicates) {
+		if (predicates == null) return TRUE();
+		if (predicates.length == 0) return TRUE();
+		if (predicates.length == 1) return predicates[0];
+		return (T t) -> Arrays.stream(predicates).allMatch(p -> p.test(t));
+	}
+
+	/**
+	 * Returns a predicate that combines the specified predicates by an logical "AND". If the specified predicates are
+	 * empty or null, true is returned.
+	 */
+	@NotNull
+	public static <T> Predicate<T> and(@Nullable Collection<Predicate<T>> predicates) {
+		if (predicates == null) return TRUE();
+		if (predicates.isEmpty()) return TRUE();
+		if (predicates.size() == 1) return predicates.iterator().next();
+		return (T t) -> predicates.stream().allMatch(p -> p.test(t));
+	}
+
+	/**
+	 * Returns a predicate that combines the specified predicates by an logical "OR". If the specified predicates are
+	 * empty or null, false is returned.
+	 */
+	@SuppressWarnings("unchecked")
+	@NotNull
+	public static <T> Predicate<T> or(Predicate<T>... predicates) {
+		if (predicates == null) return FALSE();
+		if (predicates.length == 0) return FALSE();
+		if (predicates.length == 1) return predicates[0];
+		return (T t) -> Arrays.stream(predicates).anyMatch(p -> p.test(t));
+	}
+
+	/**
+	 * Returns a predicate that combines the specified predicates by an logical "OR". If the specified predicates are
+	 * empty or null, false is returned.
+	 */
+	@NotNull
+	public static <T> Predicate<T> or(@Nullable Collection<Predicate<T>> predicates) {
+		if (predicates == null) return FALSE();
+		if (predicates.isEmpty()) return FALSE();
+		if (predicates.size() == 1) return predicates.iterator().next();
+		return (T t) -> predicates.stream().anyMatch(p -> p.test(t));
 	}
 }
