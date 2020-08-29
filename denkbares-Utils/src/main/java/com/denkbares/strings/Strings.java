@@ -2394,6 +2394,18 @@ public class Strings {
 	}
 
 	/**
+	 * Returns the specified integer as a 8-digit-hex representation. The returned hex string is in upper case and of a
+	 * fixed with of 8 characters (filled with leading "0" as required). Negative numbers are returned in their
+	 * complement representation.
+	 *
+	 * @param number the number to be converted to hex String
+	 * @return the 8-character string of uppercase hex digits
+	 */
+	public static String toHex8(int number) {
+		return String.format("%08X", (0xFFFFFFFFL & number));
+	}
+
+	/**
 	 * Returns a clean string which can be parsed as a decimal number. Removes all irregular dots and commas without
 	 * losing the decimal part.
 	 *

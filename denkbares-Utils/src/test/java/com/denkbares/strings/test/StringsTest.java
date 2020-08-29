@@ -446,6 +446,14 @@ public class StringsTest {
 	}
 
 	@Test
+	public void hex() {
+		assertEquals("00000000", Strings.toHex8(0));
+		assertEquals("00000001", Strings.toHex8(1));
+		assertEquals("FFFFFFFF", Strings.toHex8(-1));
+		assertEquals("FFFFFFFE", Strings.toHex8(-2));
+	}
+
+	@Test
 	public void cleanNumeralTest() {
 		String s = Strings.cleanNumeral("1.012,12");
 		assertEquals("1012.12", s);
