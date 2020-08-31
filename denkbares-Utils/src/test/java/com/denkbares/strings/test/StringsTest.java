@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -137,7 +138,7 @@ public class StringsTest {
 
 	@Test
 	public void isUnescapedQuoted() {
-		String text = "x\\\'\\\"\'\"";
+		String text = "x\\'\\\"'\"";
 		assertFalse(Strings.isUnEscapedQuote(text, 0, '"', '\''));
 		assertFalse(Strings.isUnEscapedQuote(text, 1, '"', '\''));
 		assertFalse(Strings.isUnEscapedQuote(text, 2, '"', '\''));
@@ -223,8 +224,8 @@ public class StringsTest {
 		assertEquals("ab\\as", Strings.unquote("\"ab\\as\""));
 		assertEquals("ab\"c", Strings.unquote("\"ab\\\"c\""));
 		assertEquals("ab\\c", Strings.unquote("\"ab\\\\c\""));
-		assertEquals(null, Strings.unquote(null));
 		assertEquals("", Strings.unquote("\""));
+		assertNull(Strings.unquote(null));
 
 		assertEquals("foo", Strings.unquote("\"foo\"", '"', '\''));
 		assertEquals("foo", Strings.unquote("'foo'", '"', '\''));
@@ -234,8 +235,14 @@ public class StringsTest {
 
 	@Test
 	public void encodeHTML() {
-		assertEquals(null, Strings.encodeHtml(null));
+		assertNull(Strings.encodeHtml(null));
 		assertEquals("abc&amp;&quot;&lt;&gt;&#35;&#92;def", Strings.encodeHtml("abc&\"<>#\\def"));
+	}
+
+	@Test
+	public void encodeURL() throws URISyntaxException {
+		assertNull(Strings.encodeURL(null));
+		assertEquals("auf+den%2FFu%C3%9F.txt", Strings.encodeURL("auf den/Fuß.txt"));
 	}
 
 	@Test

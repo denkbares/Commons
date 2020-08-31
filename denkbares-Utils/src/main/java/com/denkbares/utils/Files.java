@@ -35,6 +35,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
@@ -51,6 +53,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -732,6 +735,27 @@ public class Files {
 			}
 		}
 		return files;
+	}
+
+	/**
+	 * Creates a relative path URI that contains the specified path. The components of the path are assumed to be
+	 * unencoded, and will be encoded to URI path components.
+	 * <p>
+	 * The {@link URI#getPath()} of the created URI will return the specified path. Use {@link URI#getRawPath()} to get
+	 * the encoded path as a string.
+	 *
+	 * @param path the path to create the URI from
+	 * @return the URI consisting only of the path, correctly encoded
+	 */
+	@Contract("null -> null; !null -> !null")
+	public static URI encodePathToURI(String path) {
+		if (path == null) return null;
+		try {
+			return new URI(null, null, path, null);
+		}
+		catch (URISyntaxException e) {
+			throw new IllegalArgumentException("cannot convert to URI path: " + path);
+		}
 	}
 
 	/**
