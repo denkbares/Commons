@@ -240,6 +240,28 @@ public interface MultiMap<K, V> {
 	boolean put(K key, V value);
 
 	/**
+	 * Associates the specified value with the specified key in this map (optional operation), if the key is not already
+	 * bound to the value. If the map previously contained a mapping for the equal key and value, the previous value is
+	 * retained, and false is returned.
+	 *
+	 * @param key   key with which the specified value is to be associated
+	 * @param value value to be associated with the specified key
+	 * @return <tt>true</tt> if (and only if) the specified key to value mapping has not been present in this map and
+	 * therefore has been added to the map
+	 * @throws UnsupportedOperationException if the <tt>put</tt> operation is not supported by this map
+	 * @throws ClassCastException            if the class of the specified key or value prevents it from being stored in
+	 *                                       this map
+	 * @throws NullPointerException          if the specified key or value is null and this map does not permit null
+	 *                                       keys or values
+	 * @throws IllegalArgumentException      if some property of the specified key or value prevents it from being
+	 *                                       stored in this map
+	 */
+	default boolean putIfAbsent(K key, V value) {
+		if (contains(key, value)) return false;
+		return put(key, value);
+	}
+
+	/**
 	 * Removes the mappings for a key from this map if it is present (optional operation). More formally, if this map
 	 * contains a mapping from key <tt>k</tt> to value <tt>v</tt> such that <code>(key==null ?  k==null :
 	 * key.equals(k))</code>, that mapping is removed.
@@ -311,8 +333,7 @@ public interface MultiMap<K, V> {
 	 * Copies all of the mappings from the specified map to this map (optional operation). The effect of this call is
 	 * equivalent to that of calling {@link #put(Object, Object) put(k, v)} on this map once for each mapping from key
 	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the
-	 * specified
-	 * map is modified while the operation is in progress.
+	 * specified map is modified while the operation is in progress.
 	 *
 	 * @param m mappings to be stored in this map
 	 * @return true if this multi map has changed due to this operation, false if no (new) values have been added.
@@ -330,8 +351,7 @@ public interface MultiMap<K, V> {
 	 * Copies all of the mappings from the specified map to this map (optional operation). The effect of this call is
 	 * equivalent to that of calling {@link #put(Object, Object) put(k, v)} on this map once for each mapping from key
 	 * <tt>k</tt> to value <tt>v</tt> in the specified map. The behavior of this operation is undefined if the
-	 * specified
-	 * map is modified while the operation is in progress.
+	 * specified map is modified while the operation is in progress.
 	 *
 	 * @param m mappings to be stored in this map
 	 * @return true if this multi map has changed due to this operation, false if no (new) values have been added.
