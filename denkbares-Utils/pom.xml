@@ -23,7 +23,7 @@
 	<parent>
 		<artifactId>denkbares-Commons</artifactId>
 		<groupId>com.denkbares</groupId>
-		<version>12.4-SNAPSHOT</version>
+		<version>12.5-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>denkbares-Utils</artifactId>
