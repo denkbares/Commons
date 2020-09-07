@@ -13,6 +13,8 @@ public class PythonDependency {
     }
 
     public PythonDependency(String dependencyName) {
-      this(dependencyName,null,null);
+        this.dependencyName = dependencyName;
+        this.comparator = null;
+        this.version = null;
     }
 }

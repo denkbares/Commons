@@ -5,7 +5,6 @@ import commandLine.CommandLineExecutor;
 import streamExecutor.CreateVenvStreamExecutor;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 public class PythonEnvironmentConnector {
@@ -23,12 +22,8 @@ public class PythonEnvironmentConnector {
         this.dependencies = dependencies;
     }
 
-    public PythonEnvironmentConnector(String environmentName, String environmentPath, String pythonExecutablePath) {
-        this(environmentName,environmentPath,pythonExecutablePath, Collections.emptyList());
-    }
-
     public PythonVirtualEnvironment initializeEnvironment() {
-        //the first thing we do is to check if the environment does already exist!
+        //the first thing we do is to check if the environment does already exist! TODO do this gracefully
 
         //the we create the environment
         PythonVirtualEnvironment vEnv = createVirtualEnv();
