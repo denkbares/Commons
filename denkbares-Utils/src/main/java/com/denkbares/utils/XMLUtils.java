@@ -356,19 +356,8 @@ public class XMLUtils {
 	public static void documentToStream(Document document, OutputStream outputStream, String encoding) throws IOException {
 		Source source = new DOMSource(document);
 		Result result = new StreamResult(outputStream);
-		Transformer transformer;
-
 		try {
-			// try to use the saxon transformer, if available, because it correctly encode surrogate codepoints (emoji)
-			try {
-				transformer = TransformerFactory
-						.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
-						.newTransformer();
-			}
-			catch (TransformerFactoryConfigurationError | TransformerConfigurationException ignore) {
-				transformer = TransformerFactory.newInstance().newTransformer();
-			}
-
+			Transformer transformer = newTransformer();
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 			transformer.setOutputProperty(OutputKeys.VERSION, "1.1");
 			if (document.getXmlEncoding() == null) {
@@ -384,6 +373,23 @@ public class XMLUtils {
 		}
 		catch (TransformerFactoryConfigurationError | TransformerException e) {
 			throw new IOException(e.getMessage());
+		}
+	}
+
+	/**
+	 * Creates a new xml transformer to output xml documents to text files.
+	 */
+	private static Transformer newTransformer() throws TransformerFactoryConfigurationError, TransformerConfigurationException {
+		try {
+			// try to use the saxon transformer, if available,
+			// because it correctly encode surrogate codepoints (emoji)
+			return TransformerFactory
+					.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
+					.newTransformer();
+		}
+		catch (TransformerFactoryConfigurationError | TransformerConfigurationException ignore) {
+			// otherwise default to the pre-set transformer, that may be the build-in xalan, in most cases
+			return TransformerFactory.newInstance().newTransformer();
 		}
 	}
 
@@ -448,11 +454,10 @@ public class XMLUtils {
 		Source xmlInput = new StreamSource(new FileReader(input));
 		File temp = File.createTempFile(Files.stripExtension(input.getName()), "xml");
 		try (FileWriter xmlOutput = new FileWriter(temp)) {
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			Transformer transformer = newTransformer();
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(xmlInput, new StreamResult(xmlOutput));
 		}
 		catch (Exception e) {
