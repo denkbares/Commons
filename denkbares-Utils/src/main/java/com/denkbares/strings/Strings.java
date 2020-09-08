@@ -1223,8 +1223,8 @@ public class Strings {
 	 * Safe way to modify strings that they can used as path segments in any known file system. All critical characters
 	 * will be replaced. If the specified text is null, null is returned.
 	 * <p>
-	 * Note: This method will return the smae string for multiple input strings, so uniqueness of the filename is not
-	 * (!) preserved.
+	 * Note: This method will potentially return the same string for multiple input strings, so uniqueness of the
+	 * filename is not (!) preserved.
 	 *
 	 * @param text the text to be as a file name
 	 * @return the encoded string, potentially clashing with other strings that will produce the same filename
@@ -1232,7 +1232,7 @@ public class Strings {
 	 */
 	public static String encodeFileName(String text) {
 		if (text == null) return null;
-		return trim(text.replaceAll("[\u0000-\001F]+", " "))
+		return trim(text.replaceAll("[\u0000-\001F]+", " ").replaceAll("[^\\u0000-\\uFFFF]+", ""))
 				.replaceAll("[\\\\/|;:<>?*]+", "_")
 				.replaceAll("^(CON|PRN|AUX|NUL|(COM\\d)|(LPT\\d))$", "$1_")
 				.replaceAll("\\.$", "_")
