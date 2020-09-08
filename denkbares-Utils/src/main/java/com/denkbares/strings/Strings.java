@@ -428,6 +428,32 @@ public class Strings {
 	}
 
 	/**
+	 * Returns the prefix of the two specified strings that is common in both strings. If any of the strings is null,
+	 * null is returned. If both texts are non-null, but have no shared prefix characters, an empty string is returned.
+	 *
+	 * @param text1 the first text to get the shared prefix from
+	 * @param text2 the second text to get the shared prefix from
+	 * @return the shared prefix of both texts (left-handed characters)
+	 */
+	@Contract("!null, !null -> !null; null, _ -> null; _, null -> null")
+	public static String getSharedPrefix(String text1, String text2) {
+		// if any is null, return null
+		if (text1 == null || text2 == null) return null;
+
+		// check the shared character length
+		int length = Math.min(text1.length(), text2.length());
+		for (int i = 0; i < length; i++) {
+			if (text1.charAt(i) != text2.charAt(i)) {
+				// if a character differs, return the substring up to this character (excluding)
+				return text1.substring(0, i);
+			}
+		}
+
+		// if the prefix is maximum, return the shorter input text
+		return (text1.length() == length) ? text1 : text2;
+	}
+
+	/**
 	 * Returns the number of unescaped quote characters in this string
 	 *
 	 * @param text      string to be examined
