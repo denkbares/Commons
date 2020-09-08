@@ -46,6 +46,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -356,9 +357,20 @@ public class XMLUtils {
 		Source source = new DOMSource(document);
 		Result result = new StreamResult(outputStream);
 		Transformer transformer;
+
 		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
+			// try to use the saxon transformer, if available, because it correctly encode surrogate codepoints (emoji)
+			try {
+				transformer = TransformerFactory
+						.newInstance("net.sf.saxon.TransformerFactoryImpl", null)
+						.newTransformer();
+			}
+			catch (TransformerFactoryConfigurationError | TransformerConfigurationException ignore) {
+				transformer = TransformerFactory.newInstance().newTransformer();
+			}
+
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+			transformer.setOutputProperty(OutputKeys.VERSION, "1.1");
 			if (document.getXmlEncoding() == null) {
 				transformer.setOutputProperty(OutputKeys.ENCODING, encoding);
 			}
