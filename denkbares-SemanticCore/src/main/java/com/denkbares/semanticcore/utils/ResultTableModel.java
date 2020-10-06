@@ -30,7 +30,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -185,6 +187,35 @@ public class ResultTableModel implements Iterable<TableRow> {
 		return createResultTableModel(sortedRows, this.variables);
 	}
 
+	/**
+	 * Filters the table model. The returned table model will only contain rows where all given patterns for all given
+	 * columns are matching. The map keys are the column names, the values are the patterns that have to match for that
+	 * column.
+	 *
+	 * @param filter a filter map with a set of Patterns to match for each column
+	 * @return a filtered tabled
+	 */
+	public ResultTableModel filter(@NotNull Map<String, Set<Pattern>> filter) {
+		if (filter.isEmpty()) return this; // shortcut
+
+		List<TableRow> filteredRows = new ArrayList<>();
+		rows:
+		for (TableRow row : this.rows) {
+			for (String variable : row.getVariables()) {
+				Set<Pattern> patterns = filter.getOrDefault(variable, Collections.emptySet());
+				if (patterns.isEmpty()) continue;
+				Value value = row.getValue(variable);
+				if (value == null) continue;
+				String stringValue = value.stringValue();
+				if (patterns.stream().noneMatch(p -> p.matcher(stringValue).matches())) {
+					continue rows;
+				}
+			}
+			filteredRows.add(row);
+		}
+		return createResultTableModel(filteredRows, this.variables);
+	}
+
 	protected ResultTableModel createResultTableModel(List<TableRow> rows, List<String> variables) {
 		return new ResultTableModel(rows, variables);
 	}
@@ -238,7 +269,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 			// read the header
 			Map<String, Integer> headerMap = parser.getHeaderMap();
 			final List<String> variables = headerMap.entrySet().stream()
-					.sorted(Comparator.comparing(Map.Entry::getValue))
+					.sorted(Map.Entry.comparingByValue())
 					.map(Map.Entry::getKey).collect(Collectors.toList());
 
 			// read the rows
