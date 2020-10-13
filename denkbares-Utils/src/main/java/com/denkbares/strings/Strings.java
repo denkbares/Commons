@@ -42,10 +42,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
@@ -100,7 +103,7 @@ public class Strings {
 	/**
 	 * This method appends the strings or objects and separates them with the specified separation string in between
 	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
-	 * String#valueOf(Object)} would do.
+	 * String#valueOf(Object)} would do. Empty or null values are ignored.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -114,7 +117,7 @@ public class Strings {
 	/**
 	 * This method appends the strings or objects and separates them with the specified separation string in between
 	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
-	 * String#valueOf(Object)} would do.
+	 * String#valueOf(Object)} would do. Empty or null values are ignored.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -122,13 +125,11 @@ public class Strings {
 	 */
 	public static String concat(String separator, Object[] strings) {
 		if (strings == null || strings.length == 0) return "";
-		if (strings.length == 1) return String.valueOf(strings[0]);
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < strings.length; i++) {
-			if (i > 0) result.append(separator);
-			result.append(strings[i]);
-		}
-		return result.toString();
+		return Stream.of(strings)
+				.filter(Objects::nonNull)
+				.map(Object::toString)
+				.filter(Strings::isNotBlank)
+				.collect(Collectors.joining(separator));
 	}
 
 	public static boolean containsUnquoted(String text, String symbol) {

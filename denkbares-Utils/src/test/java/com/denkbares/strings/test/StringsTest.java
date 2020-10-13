@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +50,10 @@ public class StringsTest {
 	@Test
 	public void concat() {
 		assertEquals("a#b#c", Strings.concat("#", Arrays.asList("a", "b", "c")));
+		assertEquals("a#c", Strings.concat("#", Arrays.asList("a", null, "c")));
+		assertEquals("", Strings.concat("#", Arrays.asList(null, null)));
+		assertEquals("", Strings.concat("#", (Collection<?>) null));
+		assertEquals("", Strings.concat("#", (Object[]) null));
 	}
 
 	@Test
