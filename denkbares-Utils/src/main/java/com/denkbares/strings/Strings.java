@@ -639,6 +639,30 @@ public class Strings {
 		return result;
 	}
 
+	/**
+	 * Replace all alphanumeric characters, umlauts and spaces of the text.
+	 *
+	 * @param text the text to replace from
+	 * @return empty text, if null or clean text
+	 */
+	public static String replaceAlphanumericChars(String text) {
+		return replaceAlphanumericChars(text, "");
+	}
+
+	/**
+	 * Replace all alphanumeric characters, umlauts and spaces of the text by the given replacement string.
+	 *
+	 * @param text        the text to replace from
+	 * @param replacement the string to insert instead
+	 * @return empty text, if null or clean text
+	 */
+	public static String replaceAlphanumericChars(String text, String replacement) {
+		if (text == null) return "";
+		text = replaceUmlaut(text);
+		text = text.replaceAll("[^a-zA-Z0-9]", " ");
+		return text.replaceAll("\\s+", replacement);
+	}
+
 	public static String[] splitUnquotedToArray(String text, String splitSymbol) {
 
 		List<StringFragment> stringFragments = splitUnquoted(text, splitSymbol, true, new QuoteSet(QUOTE_DOUBLE));
