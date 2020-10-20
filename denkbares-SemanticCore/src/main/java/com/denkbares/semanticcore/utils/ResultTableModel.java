@@ -205,8 +205,7 @@ public class ResultTableModel implements Iterable<TableRow> {
 				Set<Pattern> patterns = filter.getOrDefault(variable, Collections.emptySet());
 				if (patterns.isEmpty()) continue;
 				Value value = row.getValue(variable);
-				if (value == null) continue;
-				String stringValue = value.stringValue();
+				String stringValue = value == null ? "" : value.stringValue();
 				if (patterns.stream().noneMatch(p -> p.matcher(stringValue).matches())) {
 					continue rows;
 				}
