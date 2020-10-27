@@ -59,12 +59,15 @@ import com.denkbares.utils.Predicates;
  * variable value by testing for '== null'. It is also possible to directly check for the existence of a at least one
  * (but any) value of a specific variable value by testing for '!= null'.
  * <p>
- * The following types of conditions are allowed: <ul> <li><b>Negation</b>: <br>NOT &lt;Cond&gt; <br> !&lt;Cond&gt;
- * </li> <li><b>Disjunction</b>: <br> &lt;Cond&gt; OR &lt;Cond&gt; <br> &lt;Cond&gt; | &lt;Cond&gt; <br> &lt;Cond&gt;
- * || &lt;Cond&gt;</li> <li><b>Conjunction</b>: <br>&lt;Cond&gt; AND &lt;Cond&gt; <br> &lt;Cond&gt; &amp; &lt;Cond&gt;
- * <br> &lt;Cond&gt; &amp;&amp; &lt;Cond&gt;</li> <li><b>Brackets</b>: <br>(&lt;Cond&gt;)</li> <li><b>Atomic
- * Checks</b>:
- * <br>&lt;Variable&gt; [=,==,&lt;,&lt;=,&gt;,&gt;=,!=, ~=] &lt;Text-or-Num-Value&gt;</li></ul>
+ * The following types of conditions are allowed: <ul>
+ * <li><b>Negation</b>: <br>NOT &lt;Cond&gt; <br> !&lt;Cond&gt; </li>
+ * <li><b>Disjunction</b>: <br> &lt;Cond&gt; OR &lt;Cond&gt; <br> &lt;Cond&gt; | &lt;Cond&gt; <br> &lt;Cond&gt; ||
+ * &lt;Cond&gt;</li>
+ * <li><b>Conjunction</b>: <br>&lt;Cond&gt; AND &lt;Cond&gt; <br> &lt;Cond&gt; &amp; &lt;Cond&gt; <br> &lt;Cond&gt;
+ * &amp;&amp; &lt;Cond&gt;</li>
+ * <li><b>Brackets</b>: <br>(&lt;Cond&gt;)</li>
+ * <li><b>Atomic Checks</b>: <br>&lt;Variable&gt; [=,==,&lt;,&lt;=,&gt;,&gt;=,!=, ~=]
+ * &lt;Text-or-Num-Value&gt;</li></ul>
  * <p>
  * When nesting atomic checks, negation has the highest priority, followed by AND, followed by OR, as usual in common
  * boolean expressions. You may use brackets to naturally change this priority.
@@ -75,10 +78,24 @@ import com.denkbares.utils.Predicates;
  * compared case-insensitive and number-aware ({@link NumberAwareComparator#CASE_INSENSITIVE}). Text values or regular
  * expressions may optionally be quoted by ' or ", e.g. if they contain any whitespaces or token characters.
  * <p>
- * Some examples of valid conditions: <ul> <li>price > '2.000,00 €'</li> <li>weight <= 2</li> <li>ports ~=
- * '.*usb.*'</li> <li>weight >= 1 && weight <= 2 AND processor != i5</li> <li>processor == i5 OR weight >= 1.5 && weight
- * <= 2 OR ports = audio</li> <li>(processor == i5 OR processor == i7) AND ports = audio</li><li>processor != null</li>
- * <li>win_version = null</li> <li>win_version != 10</li> <li>win_version == 10</li> <li>ports != audio</li> </ul>
+ * The parser can be also enabled to accept some pure variable names as terminal conditions, in addition to atomic
+ * checks, to allow expression like "touch && ports == audio". In this case the variable ("touch") itself is treated as
+ * a boolean variable/expression (similar to javascript variables). A boolean variable to assumed to evaluate to "true"
+ * if it is bound to at least one non-null, non-"false" value (case-insensitive). To enable this feature for some
+ * variables, use {@link #isBoolean(String...)} or {@link #isBoolean(Predicate)}.
+ * <p>
+ * Some examples of valid conditions: <ul>
+ * <li>price > '2.000,00 €'</li>
+ * <li>weight <= 2</li> <li>ports ~= '.*usb.*'</li>
+ * <li>weight >= 1 && weight <= 2 AND processor != i5</li>
+ * <li>processor == i5 OR weight >= 1.5 && weight <= 2 OR ports = audio</li>
+ * <li>(processor == i5 OR processor == i7) AND ports = audio</li>
+ * <li>processor != null</li>
+ * <li>win_version = null</li>
+ * <li>win_version != 10</li>
+ * <li>win_version == 10</li>
+ * <li>ports != audio</li>
+ * <li>"touch && ports == audio"</li> (if "touch" is declared as a boolean variable</ul>
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 15.02.2020
