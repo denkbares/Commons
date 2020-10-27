@@ -87,6 +87,7 @@ public class PredicateParser {
 
 	private String stopToken = null;
 	private Predicate<String> isAllowedVariable = null;
+	private Predicate<String> isBooleanVariable = null;
 
 	/**
 	 * Creates a new predicate parser.
@@ -132,6 +133,38 @@ public class PredicateParser {
 	 */
 	public PredicateParser checkVariables(@NotNull String... allowedVariables) {
 		return checkVariables(new HashSet<>(Arrays.asList(allowedVariables))::contains);
+	}
+
+	/**
+	 * This method marks the specified variables to be used as boolean terminals (instead of condition expressions),
+	 * without any compare operator. The boolean terminal variables are evaluated to true if they have at least one
+	 * value, and if at least one of the values is not "false" (case insensitive).
+	 * <p>
+	 * Note: the method does not restrict the parser to these variable names, other variables are still allowed until
+	 * {@link #checkVariables(Predicate)} or {@link #checkVariables(String...)} is called.
+	 *
+	 * @param isBooleanVariable the predicate to accept the name variable as a boolean variable
+	 * @return this instance, to chain method calls
+	 */
+	public PredicateParser isBoolean(Predicate<String> isBooleanVariable) {
+		this.isBooleanVariable = isBooleanVariable;
+		return this;
+	}
+
+	/**
+	 * This method marks the specified variables to be used as boolean terminals (instead of condition expressions),
+	 * without any compare operator. The variable names are expected to be case sensitive. The boolean terminal
+	 * variables are evaluated to true if they have at least one value, and if at least one of the values is not "false"
+	 * (case insensitive).
+	 * <p>
+	 * Note: the method does not restrict the parser to these variable names, other variables are still allowed until
+	 * {@link #checkVariables(Predicate)} or {@link #checkVariables(String...)} is called.
+	 *
+	 * @param booleanVariables the accepted boolean variable names
+	 * @return this instance, to chain method calls
+	 */
+	public PredicateParser isBoolean(@NotNull String... booleanVariables) {
+		return isBoolean(new HashSet<>(Arrays.asList(booleanVariables))::contains);
 	}
 
 	/**
@@ -199,8 +232,14 @@ public class PredicateParser {
 		if (lexer.consumeIf(TokenType.lit_true)) return Predicates.TRUE();
 		if (lexer.consumeIf(TokenType.lit_false)) return Predicates.FALSE();
 
-		// otherwise consume normal compare
+		// consume the variable and check if the variable is a boolean variable
 		String variable = lexer.consumeVariable();
+		if (isBooleanVariable != null && isBooleanVariable.test(variable) && !lexer.peek(TokenType.compare)) {
+			// if it is a defined boolean variable, and no operator follows, we create a virtual compare to != false
+			return vars -> vars.isTrue(variable);
+		}
+
+		// otherwise consume normal compare operator and terminal, and create compare node from that
 		Token operator = lexer.consume(TokenType.compare);
 		Token right = lexer.next();
 		switch (operator.text) {
@@ -287,6 +326,30 @@ public class PredicateParser {
 		 */
 		@Nullable
 		Collection<String> get(@NotNull String variable);
+
+		/**
+		 * Returns the boolean value of teh specified variable. The boolean value is true, if the variable is bound to
+		 * at least one non-false value. A bound value is assumed to be false it it is null, or "false" (case
+		 * insensitive).
+		 *
+		 * @param variable the variable to get the true-state for
+		 * @return true of the variable is bound to a non-false value
+		 */
+		default boolean isTrue(@NotNull String variable) {
+			// undefined variable values are false
+			Collection<String> values = get(variable);
+			if (values == null) return false;
+
+			// true of there is any non-false value available
+			for (String value : values) {
+				if ((value != null) && !"false".equalsIgnoreCase(value)) {
+					return true;
+				}
+			}
+
+			// if there was no such non-false, non-null value, return false
+			return false;
+		}
 
 		/**
 		 * Creates a value provider for single bounded variables. The specified single value provider may returns a
@@ -498,6 +561,10 @@ public class PredicateParser {
 			return tokens.get(index);
 		}
 
+		public boolean peek(TokenType type) {
+			return peek().tokenType == type;
+		}
+
 		public Token next() throws ParseException {
 			if (index >= tokens.size()) {
 				throw new ParseException("cannot read beyond eof", position());
@@ -515,7 +582,7 @@ public class PredicateParser {
 		}
 
 		public boolean consumeIf(TokenType type) throws ParseException {
-			if (peek().tokenType == type) {
+			if (peek(type)) {
 				next();
 				return true;
 			}
@@ -535,7 +602,7 @@ public class PredicateParser {
 			Token left = consume(TokenType.string, TokenType.number, TokenType.nil);
 			String variable = Strings.unquote(left.text, '"', '\'');
 
-			// if a checker is installed in the parser, check the variable
+			// if a checker is installed in the parser, check the variable or boolean
 			if (isAllowedVariable != null && !isAllowedVariable.test(variable)) {
 				throw new ParseException("unknown variable " + variable, left.start);
 			}

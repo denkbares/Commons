@@ -33,6 +33,7 @@ import com.denkbares.strings.PredicateParser.ParseException;
 import com.denkbares.strings.PredicateParser.ParsedPredicate;
 import com.denkbares.strings.PredicateParser.ValueBindings;
 import com.denkbares.strings.PredicateParser.ValueProvider;
+import com.denkbares.utils.Predicates;
 
 import static org.junit.Assert.*;
 
@@ -187,5 +188,32 @@ public class PredicateParserTest {
 		values.put("weight", "1");
 		values.put("ports", "audio");
 		assertTrue(predicate.test(ValueProvider.singleBounded(values::get)));
+	}
+
+	@Test
+	public void booleanVariables() throws ParseException {
+		Predicate<ValueProvider> predicate = new PredicateParser()
+				.isBoolean(Predicates.TRUE()).parse("(a OR b) && (c OR d)");
+
+		// try with empty bindings
+		ValueBindings values = new ValueBindings();
+		assertFalse(predicate.test(values));
+
+		// try with valid false constant bindings
+		values.constant("a", "other");
+		values.constant("b", "false");
+		values.constant("c", "false");
+		assertFalse(predicate.test(values));
+
+		// try with valid true constant bindings
+		values.constants("d", "false", null, "true");
+		assertTrue(predicate.test(values));
+	}
+
+	@Test(expected = ParseException.class)
+	public void failBooleanParsing() throws ParseException {
+		new PredicateParser()
+				.isBoolean("a", "b", "d") // "c" should not be a valid boolean, so the second "OR" is an invalid token
+				.parse("(a OR b) && (c OR d)");
 	}
 }
