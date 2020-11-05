@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -290,7 +291,7 @@ public class PredicateParser {
 		private final Predicate<ValueProvider> root;
 		private final Set<String> variables;
 
-		public ParsedPredicate(String expression, Predicate<ValueProvider> root, Set<String> variables) {
+		public ParsedPredicate(@NotNull String expression, @NotNull Predicate<ValueProvider> root, @NotNull Set<String> variables) {
 			this.condition = expression;
 			this.root = root;
 			this.variables = variables;
@@ -321,6 +322,20 @@ public class PredicateParser {
 		 */
 		public Set<String> getVariables() {
 			return Collections.unmodifiableSet(variables);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			ParsedPredicate that = (ParsedPredicate) o;
+			return condition.equals(that.condition) &&
+					variables.equals(that.variables);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(condition, variables);
 		}
 	}
 
