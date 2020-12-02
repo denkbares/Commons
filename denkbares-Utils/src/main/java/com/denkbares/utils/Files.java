@@ -39,6 +39,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +50,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -436,6 +439,44 @@ public class Files {
 			properties.load(in);
 		}
 		return properties;
+	}
+
+	/**
+	 * Decodes the specified base64 image string to a file with the given suffix / extension.
+	 * <p>
+	 * Example: "data:image/png;base64,iVBORw0KGgoAAA..."
+	 *
+	 * @param imageBase64 the image base64 encoded
+	 * @return the decoded image as file, if pattern matches, null otherwise
+	 * @throws IOException if the base64 string could not be written
+	 */
+	public static File base64ToFile(String imageBase64) throws IOException {
+		Pattern pattern = Pattern.compile("data:image/(\\w{3,4});base64,.*");
+		Matcher matcher = pattern.matcher(imageBase64);
+		if (matcher.matches()) {
+			String extension = matcher.group(1);
+			return base64ToFile(imageBase64, "." + extension);
+		}
+		return null;
+	}
+
+	/**
+	 * Decodes the specified base64 image string to a file with the given suffix / extension.
+	 * <p>
+	 * Example: "data:image/png;base64,iVBORw0KGgoAAA..."
+	 *
+	 * @param imageBase64 the image base64 encoded
+	 * @param suffix      the suffix of the file
+	 * @return the decoded image as file, if string not empty, null otherwise
+	 * @throws IOException if the base64 string could not be written
+	 */
+	public static File base64ToFile(String imageBase64, String suffix) throws IOException {
+		if (Strings.isBlank(imageBase64)) return null;
+		File file = java.nio.file.Files.createTempFile("", suffix).toFile();
+		try (FileOutputStream fos = new FileOutputStream(file)) {
+			fos.write(Base64.getDecoder().decode(imageBase64.split(",")[1]));
+		}
+		return file;
 	}
 
 	/**
