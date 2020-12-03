@@ -1261,13 +1261,7 @@ public class Strings {
 	 */
 	public static String encodeURL(String text) {
 		if (text == null) return null;
-		try {
-			return URLEncoder.encode(text, "UTF-8");
-		}
-		catch (UnsupportedEncodingException e) {
-			Log.warning("Unsupported encoding UTF-8", e);
-			return text;
-		}
+		return URLEncoder.encode(text, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -1692,7 +1686,9 @@ public class Strings {
 	 * @param source the html source code
 	 * @return the converted plain text.
 	 */
+	@Contract("null -> null; !null -> !null")
 	public static String htmlToPlain(String source) {
+		if (source == null) return null;
 		String result = source;
 
 		// Remove HTML Development formatting
@@ -2397,12 +2393,7 @@ public class Strings {
 	public static String nTimes(String text, int count) {
 		if (count <= 0 || text == null) return "";
 		if (count == 1) return text;
-
-		StringBuilder builder = new StringBuilder(text.length() * count);
-		for (int i = 0; i < count; i++) {
-			builder.append(text);
-		}
-		return builder.toString();
+		return text.repeat(count);
 	}
 
 	/**
@@ -2437,9 +2428,7 @@ public class Strings {
 		if (text.length() >= targetLength) return text;
 		StringBuilder builder = new StringBuilder(targetLength);
 		if (!fillLeft) builder.append(text);
-		for (int i = text.length(); i < targetLength; i++) {
-			builder.append(fillChar);
-		}
+		builder.append(String.valueOf(fillChar).repeat(targetLength - text.length()));
 		if (fillLeft) builder.append(text);
 		return builder.toString();
 	}
