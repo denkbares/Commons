@@ -23,8 +23,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -34,6 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import com.denkbares.semanticcore.RepositoryConnection;
 import com.denkbares.semanticcore.TupleQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import com.denkbares.strings.Strings;
+import com.denkbares.strings.Text;
 import com.denkbares.utils.Log;
 
 /**
@@ -41,6 +45,19 @@ import com.denkbares.utils.Log;
  * @created 19.01.16.
  */
 public class RDFUtils {
+
+	public static Text create(String string, Locale language) {
+		return new Text(string, language);
+	}
+
+	public static Text create(Value value) {
+		if (value == null) return null;
+		Locale locale = Locale.ROOT;
+		if (value instanceof Literal) {
+			locale = ((Literal) value).getLanguage().map(Strings::parseLocale).orElse(Locale.ROOT);
+		}
+		return new Text(value.stringValue(), locale);
+	}
 
 	public static boolean isClass(SPARQLEndpoint core, URI resource) {
 		String query = "ASK { <" + resource + "> rdf:type rdfs:Class .}";

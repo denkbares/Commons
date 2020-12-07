@@ -46,6 +46,7 @@ import com.denkbares.collections.MultiMap;
 import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.semanticcore.ClosableTupleQueryResult;
 import com.denkbares.strings.Strings;
+import com.denkbares.strings.Text;
 import com.denkbares.utils.Log;
 
 /**
@@ -79,7 +80,7 @@ public class Sparqls {
 			return null;
 		}
 		Value value = binding.getValue();
-		return Text.create(value);
+		return RDFUtils.create(value);
 	}
 
 	/**

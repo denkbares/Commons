@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2020 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -17,16 +17,13 @@
  * site: http://www.fsf.org.
  */
 
-package com.denkbares.semanticcore.utils;
+package com.denkbares.strings;
 
 import java.util.Locale;
 import java.util.Objects;
 
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Value;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-
-import com.denkbares.strings.Strings;
 
 /**
  * Implementation of some util class that handles string values together with a potential language tag. If no language
@@ -39,22 +36,29 @@ public class Text {
 	private final String string;
 	private final Locale language;
 
-	private Text(String string, Locale language) {
+	/**
+	 * Creates a new text instance if the specified string in the specified language. If the specified language is null,
+	 * the root locale is applied.
+	 *
+	 * @param string   the string to create the text for
+	 * @param language the language of the text
+	 */
+	public Text(String string, Locale language) {
 		this.string = string;
 		this.language = (language == null) ? Locale.ROOT : language;
 	}
 
-	public static Text create(String string, Locale language) {
-		return new Text(string, language);
-	}
-
-	public static Text create(Value value) {
-		if (value == null) return null;
-		Locale locale = Locale.ROOT;
-		if (value instanceof Literal) {
-			locale = ((Literal) value).getLanguage().map(Strings::parseLocale).orElse(Locale.ROOT);
-		}
-		return new Text(value.stringValue(), locale);
+	/**
+	 * Creates a new text instance if the specified string in the specified language, if the string not null, otherwise
+	 * the method returns null. If the specified language is null, the root locale is applied.
+	 *
+	 * @param string   the string to create the text for
+	 * @param language the language of the text
+	 * @return the created text instance
+	 */
+	@Contract("null, _ -> null; !null, _ -> !null")
+	public static Text createNonNUll(String string, Locale language) {
+		return (string == null) ? null : new Text(string, language);
 	}
 
 	/**
