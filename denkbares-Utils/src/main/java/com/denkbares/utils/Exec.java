@@ -18,7 +18,6 @@
  */
 package com.denkbares.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import com.denkbares.strings.QuoteSet;
 import com.denkbares.strings.StringFragment;
 import com.denkbares.strings.Strings;
+import com.denkbares.utils.ConsoleWriter.LineConsumer;
 
 /**
  * Class for utility methods about executing commands and do other close-system actions.
@@ -53,8 +53,8 @@ public class Exec {
 	private File directory = null;
 	private String[] envp = null;
 	private boolean pipeToConsole = true;
-	private Consumer<String> errorHandler = null;
-	private Consumer<String> outputHandler = null;
+	private LineConsumer errorHandler = null;
+	private LineConsumer outputHandler = null;
 	private Consumer<Integer> exitHandler = null;
 
 	// runtime parameters
@@ -146,6 +146,18 @@ public class Exec {
 	 * @return this instance
 	 */
 	public Exec error(Consumer<String> errorHandler) {
+		return error(new SimpleConsumer(errorHandler));
+	}
+
+	/**
+	 * Sets the error handler that is called for each line written to the error stream of the created process. The
+	 * method should not be called after the process is started, as the handler may miss already printed lines. The
+	 * method returns this (modified) instance, to chain method calls.
+	 *
+	 * @param errorHandler the error handler to be used
+	 * @return this instance
+	 */
+	public Exec error(LineConsumer errorHandler) {
 		if (this.errorHandler != null) throw new IllegalStateException("cannot set multiple error handlers");
 		this.errorHandler = errorHandler;
 		return this;
@@ -160,6 +172,18 @@ public class Exec {
 	 * @return this instance
 	 */
 	public Exec output(Consumer<String> outputHandler) {
+		return output(new SimpleConsumer(outputHandler));
+	}
+
+	/**
+	 * Sets the output handler that is called for each line written to the output stream of the created process. The
+	 * method should not be called after the process is started, as the handler may miss already printed lines. The
+	 * method returns this (modified) instance, to chain method calls.
+	 *
+	 * @param outputHandler the output handler to be used
+	 * @return this instance
+	 */
+	public Exec output(LineConsumer outputHandler) {
 		if (this.outputHandler != null) throw new IllegalStateException("cannot set multiple output handlers");
 		this.outputHandler = outputHandler;
 		return this;
@@ -312,18 +336,16 @@ public class Exec {
 		}
 	}
 
-	private Thread connectStream(InputStream in, PrintStream delegate, Consumer<String> handler) {
+	private Thread connectStream(InputStream in, PrintStream delegate, LineConsumer handler) {
 		// even if there is no handler, we have to read the stream contents,
 		// otherwise the process may block its execution if the buffer is full
+		InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
+		ConsoleWriter writer = new ConsoleWriter();
+		if (pipeToConsole) writer.addListener(new PipeToPrintStream(delegate));
+		if (handler != null) writer.addListener(handler);
 		Thread streamReader = new Thread(() -> {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 			try {
-				while (true) {
-					String line = reader.readLine();
-					if (line == null) break;
-					if (pipeToConsole) delegate.println(line);
-					if (handler != null) handler.accept(line);
-				}
+				reader.transferTo(writer);
 			}
 			catch (IOException ignore) {
 				// ignore exception, as it usually happens when the application returns and the stream is closed
@@ -368,5 +390,62 @@ public class Exec {
 			throw new IOException("Command failed with exit code: " + exitValue + error);
 		}
 		return output.toString();
+	}
+
+	/**
+	 * Line consumer that sequentially only receives completed lines, and never touches an already completed line
+	 */
+	private static class SimpleConsumer implements LineConsumer {
+
+		private final Consumer<String> consumer;
+		private int completedLineNo = -1;
+
+		private SimpleConsumer(Consumer<String> consumer) {
+			this.consumer = consumer;
+		}
+
+		@Override
+		public void accept(int lineNo, CharSequence line) {
+			// special case: if the same line is touched (and not empty), reprint the line
+			if (lineNo == completedLineNo && line.length() > 0) consumer.accept(line.toString());
+
+			// if we are remaining in the recently completed line (or before), there is nothing we can do
+			if (lineNo <= completedLineNo) return;
+
+			// fill potentially empty lines in between
+			for (int i = completedLineNo + 1; i < lineNo; i++) consumer.accept("");
+
+			// and process the recent line
+			consumer.accept(line.toString());
+			completedLineNo = lineNo;
+		}
+	}
+
+	private static class PipeToPrintStream implements LineConsumer {
+
+		private final PrintStream out;
+		private int currentLineNo = -1;
+
+		private PipeToPrintStream(PrintStream out) {
+			this.out = out;
+		}
+
+		@Override
+		public void accept(int lineNo, CharSequence line) {
+			// if we are remaining in the current line (or before), clear line and append
+			if (lineNo <= currentLineNo) {
+				out.print(Consoles.Delete.CLEAR_LINE.getCode());
+				out.print("\r");
+				out.print(line);
+			}
+			// otherwise proceed to the next line, and append there
+			else {
+				while (currentLineNo < lineNo) {
+					out.print("\n");
+					currentLineNo++;
+				}
+				out.print(line);
+			}
+		}
 	}
 }

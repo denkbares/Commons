@@ -52,7 +52,7 @@ public class Consoles {
 	 * @return the unformatted plain text
 	 */
 	public static String toPlainText(String formattedText) {
-		return formattedText.replaceAll("\\u001b\\[\\d+[a-zA-Z]", "");
+		return formattedText.replaceAll("\\u001b\\[\\d+(?:;\\d+)?[a-zA-Z]", "");
 	}
 
 	@FunctionalInterface
@@ -91,9 +91,9 @@ public class Consoles {
 		CLEAR_SCREEN_BEFORE_CURSOR("\u001b[1J"),
 		CLEAR_SCREEN("\u001b[2J"),
 
-		CLEAR_LINE_AFTER_CURSOR("\u001b[0J"),
-		CLEAR_LINE_BEFORE_CURSOR("\u001b[1J"),
-		CLEAR_LINE("\u001b[2J");
+		CLEAR_LINE_AFTER_CURSOR("\u001b[0K"),
+		CLEAR_LINE_BEFORE_CURSOR("\u001b[1K"),
+		CLEAR_LINE("\u001b[2K");
 
 		private final String code;
 

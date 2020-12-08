@@ -22,6 +22,7 @@ package com.denkbares.utils.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.junit.Test;
 
@@ -84,7 +85,10 @@ public class ExecTest {
 		// execute command line and check if the pom.xml of the working directory has been found
 		List<String> files = new ArrayList<>();
 		List<String> errors = new ArrayList<>();
-		Exec.parse(cmdLine).console(false).error(errors::add).output(files::add).runAndWait();
+		Exec.parse(cmdLine).console(false)
+				.error((Consumer<String>) errors::add)
+				.output((Consumer<String>) files::add)
+				.runAndWait();
 		assertTrue(errors.isEmpty());
 		assertTrue(files.stream().anyMatch(file -> file.contains("pom.xml")));
 	}
