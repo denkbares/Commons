@@ -189,10 +189,27 @@ public class ResultTableCheckerTest {
 		ResultTableChecker.generateErrorsText(result, true);
 	}
 
-	private List<TableRow> createRows(int numRows, List<String> variables) {
+	@Test
+	public void testDifferentSizedValueMaps_ShouldCreateFailure() {
+		// there is no value expected for variable "a"
+		// but the actual row does have a value for "a" -> unequal objects
+		int numRows = 1;
+		List<TableRow> expectedRows = createRows(numRows, variables, "a");
+		List<TableRow> actualRows = createRows(numRows, variables);
+		ResultTableModel expected = new ResultTableModel(expectedRows, variables);
+		ResultTableModel actual = new ResultTableModel(actualRows, variables);
+
+		List<ResultTableChecker.Failure> result = ResultTableChecker.checkEquality(expected, actual, false);
+
+		Assert.assertEquals(2, result.size());
+		Assert.assertEquals(ResultTableChecker.FailureType.EXPECTED_ROW_MISSING, result.get(0).getFailureType());
+		Assert.assertEquals(ResultTableChecker.FailureType.UNEXPECTED_ROW_FOUND, result.get(1).getFailureType());
+	}
+
+	private List<TableRow> createRows(int numRows, List<String> variables, String... excludeValue) {
 		List<TableRow> rows = new ArrayList<>(numRows);
 		for (int i = 0; i < numRows; i++) {
-			rows.add(createRowValues(i, variables));
+				rows.add(createRowValues(i, variables, excludeValue));
 		}
 		// shuffle rows a bit to make comparision more demanding
 		Collections.shuffle(rows, RNG);
@@ -200,11 +217,13 @@ public class ResultTableCheckerTest {
 		return rows;
 	}
 
-	private TableRow createRowValues(int i, List<String> variables) {
+	private TableRow createRowValues(int i, List<String> variables, String... excludeValue) {
+		List<String> variablesReduced = new ArrayList<>(variables);
+		variablesReduced.removeAll(Arrays.asList(excludeValue));
+
 		SimpleValueFactory factory = SimpleValueFactory.getInstance();
-		Map<String, Value> values = new HashMap<>(variables.size());
-		variables.forEach(var -> values.put(var, factory.createLiteral(var + "@" + i)));
-		return new TableRow(
-				values, variables);
+		Map<String, Value> values = new HashMap<>(variablesReduced.size());
+		variablesReduced.forEach(var -> values.put(var, factory.createLiteral(var + "@" + i)));
+		return new TableRow(values, variables);
 	}
 }

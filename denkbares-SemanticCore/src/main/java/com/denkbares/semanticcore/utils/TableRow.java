@@ -59,6 +59,10 @@ public final class TableRow {
 			return false;
 		}
 
+		if (this.values.size() != other.values.size()) {
+			return false;
+		}
+
 		for (Map.Entry<String, Value> valueEntry : this.values.entrySet()) {
 			final String variable = valueEntry.getKey();
 			final Value valueOther = other.getValue(variable);
