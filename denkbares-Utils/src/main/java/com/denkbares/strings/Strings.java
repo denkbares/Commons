@@ -2242,14 +2242,16 @@ public class Strings {
 		print.flush();
 		String trace = buffer.toString();
 		if (maxDepth >= 0 && maxDepth < Integer.MAX_VALUE) {
-			trace = trace.substring(0, ordinalIndexOf(trace, "\n", maxDepth));
+			int endIndex = ordinalIndexOf(trace, "\n", maxDepth);
+			if (endIndex > 0) {
+				trace = trace.substring(0, endIndex);
+			}
 		}
 		return trace;
 	}
 
 	/**
 	 * Finds the ordinal or nth index of the given string in the given text. Note that the first occurrence is found by
-	 * n = 0. Second occurrence by n = 1 and so on.
 	 * <p>
 	 * Implementation from user <i>aioobe</i> from <a href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
 	 *
