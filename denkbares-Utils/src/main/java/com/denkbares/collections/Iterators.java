@@ -53,6 +53,17 @@ public class Iterators {
 	}
 
 	/**
+	 * Creates a java 8+ styled stream of the specified iterable. The stream is a non-parallel stream of the elements,
+	 * with the stream chartacteristics defined by the iterable's spliterator.
+	 *
+	 * @param source the iteraable to create the stream from
+	 * @return the stream of the iterable elements
+	 */
+	public static <E> Stream<E> stream(Iterable<E> source) {
+		return StreamSupport.stream(source.spliterator(), false);
+	}
+
+	/**
 	 * Iterates the specified iterator and collects all elements into a list. The order of the list elements is the
 	 * order of the elements, as they occur in the iterator. The returned list is mutable and can be modified by the
 	 * caller afterwards. The specified iterator is completely consumed before this method returns.
