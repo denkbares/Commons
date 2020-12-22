@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import org.jetbrains.annotations.Nullable;
@@ -37,9 +38,8 @@ import org.jetbrains.annotations.Nullable;
 public class Streams {
 
 	/**
-	 * Streams the specified inputStream to the specified outputStream and
-	 * returns after the stream has completely been written. Before the method
-	 * returns, both stream will be closed.
+	 * Streams the specified inputStream to the specified outputStream and returns after the stream has completely been
+	 * written. Before the method returns, both stream will be closed.
 	 *
 	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
@@ -57,8 +57,7 @@ public class Streams {
 	}
 
 	/**
-	 * Closes the closable and logs away exception that might be thrown. Use this inside finally
-	 * blocks.
+	 * Closes the closable and logs away exception that might be thrown. Use this inside finally blocks.
 	 *
 	 * @param closeable the closable to be closed
 	 */
@@ -73,8 +72,8 @@ public class Streams {
 	}
 
 	/**
-	 * Streams the specified inputStream to the specified outputStream and
-	 * returns after the stream has completely been written.
+	 * Streams the specified inputStream to the specified outputStream and returns after the stream has completely been
+	 * written.
 	 *
 	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
@@ -86,8 +85,8 @@ public class Streams {
 	}
 
 	/**
-	 * Streams the specified inputStream to the specified outputStream and
-	 * returns after the stream has completely been written.
+	 * Streams the specified inputStream to the specified outputStream and returns after the stream has completely been
+	 * written.
 	 *
 	 * @param inputStream  the source stream to read the data from
 	 * @param outputStream the target stream to write the data to
@@ -104,8 +103,8 @@ public class Streams {
 	}
 
 	/**
-	 * Creates a asynchronous streaming task from the specified source
-	 * {@link InputStream} to the specified target {@link OutputStream}.
+	 * Creates a asynchronous streaming task from the specified source {@link InputStream} to the specified target
+	 * {@link OutputStream}.
 	 *
 	 * @param inputStream  the source stream
 	 * @param outputStream the target stream
@@ -144,8 +143,8 @@ public class Streams {
 	}
 
 	/**
-	 * Returns the contents of the specified input stream as a byte[]. The
-	 * method closes the specified stream before it returns the contents.
+	 * Returns the contents of the specified input stream as a byte[]. The method closes the specified stream before it
+	 * returns the contents.
 	 *
 	 * @param input the input stream to read from
 	 * @return the content of the stream
@@ -185,8 +184,7 @@ public class Streams {
 	}
 
 	/**
-	 * Reads the contents of a stream into a String and return the string it. The InputStream is
-	 * not closed!
+	 * Reads the contents of a stream into a String and return the string it. The InputStream is not closed!
 	 *
 	 * @param inputStream the stream to load from
 	 * @return the contents of the file
@@ -215,8 +213,8 @@ public class Streams {
 	}
 
 	/**
-	 * Returns the contents of the specified input stream as a String. The
-	 * method closes the specified stream before it returns the contents.
+	 * Returns the contents of the specified input stream as a String. The method closes the specified stream before it
+	 * returns the contents.
 	 *
 	 * @param input the input stream to read from
 	 * @return the content of the stream
@@ -227,8 +225,8 @@ public class Streams {
 	}
 
 	/**
-	 * Returns the contents of the specified input stream as a String. The
-	 * method closes the specified stream before it returns the contents.
+	 * Returns the contents of the specified input stream as a String. The method closes the specified stream before it
+	 * returns the contents.
 	 *
 	 * @param input   the input stream to read from
 	 * @param charset the charset to use when reading the stream
@@ -249,5 +247,44 @@ public class Streams {
 		stream(input, result);
 		result.close();
 		return result;
+	}
+
+	/**
+	 * Checks if two streams have the same content. Returns true if both streams are of the same length, and the bytes
+	 * of both streams are identical. If the streams are equal, they are fully consumed after this call. Otherwise they
+	 * may be partially consumed. The streams are not closed by this method.
+	 *
+	 * @param in1 the first stream to compare
+	 * @param in2 the second stream to compare
+	 * @return if both streams had the same content
+	 */
+	public static boolean hasEqualContent(InputStream in1, InputStream in2) throws IOException {
+		return hasEqualContent(in1, in2, 1024);
+	}
+
+	/**
+	 * Checks if two streams have the same content. Returns true if both streams are of the same length, and the bytes
+	 * of both streams are identical. If the streams are equal, they are fully consumed after this call. Otherwise they
+	 * may be partially consumed. The streams are not closed by this method.
+	 *
+	 * @param in1        the first stream to compare
+	 * @param in2        the second stream to compare
+	 * @param bufferSize the size of the buffer used to compare
+	 * @return if both streams had the same content
+	 */
+	public static boolean hasEqualContent(InputStream in1, InputStream in2, int bufferSize) throws IOException {
+		byte[] buffer1 = new byte[bufferSize];
+		byte[] buffer2 = new byte[bufferSize];
+		while (true) {
+			int count1 = in1.readNBytes(buffer1, 0, bufferSize);
+			int count2 = in2.readNBytes(buffer2, 0, bufferSize);
+
+			// if the streams are not of the same length, or contains different datam they are NOT equal
+			if (count1 != count2) return false;
+			if (!Arrays.equals(buffer1, buffer2)) return false;
+
+			// we've reached the end of the streams, both streams has been equal
+			if (count1 < bufferSize) return true;
+		}
 	}
 }

@@ -337,20 +337,9 @@ public class Files {
 		if (!file2.isFile()) return false;
 		if (file1.length() != file2.length()) return false;
 
-		FileInputStream in1 = null, in2 = null;
-		try {
-			in1 = new FileInputStream(file1);
-			in2 = new FileInputStream(file2);
-			while (true) {
-				int byte1 = in1.read();
-				int byte2 = in2.read();
-				if (byte1 != byte2) return false;
-				if (byte1 == -1) return true;
-			}
-		}
-		finally {
-			Streams.closeQuietly(in1);
-			Streams.closeQuietly(in2);
+		try (InputStream in1 = new FileInputStream(file1);
+			 InputStream in2 = new FileInputStream(file2)) {
+			return Streams.hasEqualContent(in1, in2, 8192);
 		}
 	}
 
