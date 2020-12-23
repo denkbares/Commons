@@ -129,6 +129,15 @@ public class Predicates {
 	}
 
 	/**
+	 * Returns a predicate that negates the specified predicate. Even if each predicate has a negate method, this method
+	 * may be handy if applying to to method references.
+	 */
+	@NotNull
+	public static <T> Predicate<T> not(Predicate<T> predicate) {
+		return predicate.negate();
+	}
+
+	/**
 	 * Returns a predicate that combines the specified predicates by an logical "AND". If the specified predicates are
 	 * empty or null, true is returned.
 	 */
