@@ -1791,6 +1791,7 @@ public class Strings {
 	 */
 	@NotNull
 	public static String capitalize(@NotNull String text) {
+		if (Strings.isBlank(text)) return text;
 		return text.substring(0, 1).toUpperCase() + text.substring(1);
 	}
 
