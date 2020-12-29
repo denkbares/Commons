@@ -1783,15 +1783,15 @@ public class Strings {
 	}
 
 	/**
-	 * Capitalizes the given string, meaning the first character will be upper case, all following are lower case. If
+	 * Capitalizes the given string, meaning the first character will be upper case, all following unchanged. If
 	 * there are multiple words, still only the first character of the string will be capitalized!
 	 *
-	 * @param text the text to capitalize (make the first char upper case, rest lower case)
+	 * @param text the text to capitalize (make the first char upper case, rest unchanged)
 	 * @return the capitalized version of the text
 	 */
 	@NotNull
 	public static String capitalize(@NotNull String text) {
-		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+		return text.substring(0, 1).toUpperCase() + text.substring(1);
 	}
 
 	/**
