@@ -141,8 +141,8 @@ public class Predicates {
 	 * Returns a predicate that combines the specified predicates by an logical "AND". If the specified predicates are
 	 * empty or null, true is returned.
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
+	@SafeVarargs
 	public static <T> Predicate<T> and(Predicate<T>... predicates) {
 		if (predicates == null) return TRUE();
 		if (predicates.length == 0) return TRUE();
@@ -166,8 +166,8 @@ public class Predicates {
 	 * Returns a predicate that combines the specified predicates by an logical "OR". If the specified predicates are
 	 * empty or null, false is returned.
 	 */
-	@SuppressWarnings("unchecked")
 	@NotNull
+	@SafeVarargs
 	public static <T> Predicate<T> or(Predicate<T>... predicates) {
 		if (predicates == null) return FALSE();
 		if (predicates.length == 0) return FALSE();
