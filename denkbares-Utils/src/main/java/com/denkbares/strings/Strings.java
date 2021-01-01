@@ -85,6 +85,8 @@ public class Strings {
 	 * TODO: Make private again when d3web-Persistence:XMLUtil.writeDate/readDate are removed
 	 */
 	public static final SimpleDateFormat DATE_FORMAT_COMPATIBILITY = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+	public static final SimpleDateFormat DATE_FORMAT_NO_SECONDS = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static final SimpleDateFormat DATE_FORMAT_NO_TIME = new SimpleDateFormat("yyyy-MM-dd");
 
 	/**
 	 * A Comparator that orders <code>String</code> objects as by <code>compareToIgnoreCase</code>. The comparator
@@ -2329,11 +2331,25 @@ public class Strings {
 		}
 	}
 
+	private static Date parseDate(String dateString, SimpleDateFormat... allowedFormats) throws ParseException {
+		for (SimpleDateFormat format : allowedFormats) {
+			try {
+				//noinspection SynchronizationOnLocalVariableOrMethodParameter
+				synchronized (format) {
+					return format.parse(dateString);
+				}
+			}
+			catch (ParseException ignore) {
+			}
+		}
+		throw new ParseException("no date format can used to parse: "+dateString, 0);
+	}
+
 	/**
 	 * Serializes a date object into a string using a standardized format.
 	 */
 	public static Date readDate(String dateString) throws ParseException {
-		return readDate(dateString, DATE_FORMAT_COMPATIBILITY);
+		return parseDate(dateString, DATE_FORMAT_COMPATIBILITY, DATE_FORMAT_NO_SECONDS, DATE_FORMAT_NO_TIME);
 	}
 
 	private static String getTimeUnit(int i, boolean longVersion, boolean plural) {
