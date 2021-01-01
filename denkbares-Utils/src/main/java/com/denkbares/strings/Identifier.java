@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public class Identifier implements Comparable<Identifier> {
 
 	private static final String SEPARATOR = "#";
-	private static final String CONTROL_CHARS = " " + SEPARATOR + "()[]{}<>\"\'#=&|\\*+-,.\t";
+	private static final String CONTROL_CHARS = " " + SEPARATOR + "()[]{}<>\"'#=&|\\*+-,.\t";
 	private static final Pattern CONTROL_PATTERN = Pattern.compile(
 			"(?:[" + Pattern.quote(CONTROL_CHARS) + "])");
 
