@@ -361,7 +361,7 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 15.05.2012
 	 */
 	public boolean isEmpty() {
-		return this.toExternalFormLowerCase().isEmpty();
+		return this.toExternalForm().isEmpty();
 	}
 
 	/**
