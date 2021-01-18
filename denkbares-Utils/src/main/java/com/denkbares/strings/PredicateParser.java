@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 denkbares GmbH, Germany
+ * Copyright (C) 2021 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -73,7 +73,7 @@ import com.denkbares.utils.Predicates;
  * When nesting atomic checks, negation has the highest priority, followed by AND, followed by OR, as usual in common
  * boolean expressions. You may use brackets to naturally change this priority.
  * <p>
- * '~=' is a case-sensitive match against the regular expression, where any of the valiable's values must entirely match
+ * '~=' is a case-sensitive match against the regular expression, where any of the variable's values must entirely match
  * the pattern. See {@link Pattern} for details on regular expressions and flags, e.g. to match case-insensitive use
  * prefix '(?i)'. For the other atomic checks, if the right value may be a number or a string, where strings are
  * compared case-insensitive and number-aware ({@link NumberAwareComparator#CASE_INSENSITIVE}). Text values or regular
