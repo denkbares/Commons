@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 denkbares GmbH, Germany
+ * Copyright (C) 2021 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -207,6 +207,16 @@ public class PredicateParserTest {
 
 		// try with valid true constant bindings
 		values.constants("d", "false", null, "true");
+		assertTrue(predicate.test(values));
+	}
+
+	@Test
+	public void stringTest() throws ParseException{
+		Predicate<ValueProvider> predicate = new PredicateParser()
+				.isBoolean(Predicates.TRUE()).parse("serialnumber == 235AE02X");
+
+		ValueBindings values = new ValueBindings();
+		values.constant("serialnumber", "235AE02X");
 		assertTrue(predicate.test(values));
 	}
 

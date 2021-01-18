@@ -534,7 +534,7 @@ public class PredicateParser {
 		or("^(OR|\\|\\|?)[^\\w]"), and("^(AND|&&?)[^\\w]"), not("^(!|NOT)[^\\w]"),
 		nil("^(null)"),
 		lit_true("^(true)"), lit_false("^(false)"),
-		number("^([+\\-]?\\d+(\\.\\d+)?)"),
+		number("^([+\\-]?\\d++(\\.\\d+)?+(?![a-zA-Z]))"),
 		string("^(\\w[^\\s()!=<>|&\"']*|\"[^\n\"]*\"|'[^\n']*')");
 
 		private final Pattern pattern;
