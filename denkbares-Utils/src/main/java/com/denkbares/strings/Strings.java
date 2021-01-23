@@ -261,26 +261,6 @@ public class Strings {
 		return nonEmpty.toArray(new String[0]);
 	}
 
-	/**
-	 * Removes all non-word characters from a string while retaining all word characters,
-	 * underscores and numbers ([a-zA-Z_0-9]) and white spaces.
-	 *
-	 * @param text the text to search in
-	 * @return the string without non-word characters
-	 */
-	public static String removeNonWordCharacters(String text) {
-		String content = text.trim();
-		String[] entries = content.split("[^\\w|^\\s]");
-
-		List<String> nonEmpty = new ArrayList<>();
-		for (String string : entries) {
-			if (!string.isEmpty()) {
-				nonEmpty.add(string);
-			}
-		}
-		return concat("", nonEmpty);
-	}
-
 	public static StringFragment getFirstNonEmptyLineContent(String text) {
 		List<StringFragment> lineFragmentation = getLineFragmentation(text);
 		for (StringFragment stringFragment : lineFragmentation) {
