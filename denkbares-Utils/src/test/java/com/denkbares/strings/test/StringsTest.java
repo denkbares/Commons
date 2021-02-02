@@ -78,7 +78,11 @@ public class StringsTest {
 	@Test
 	public void splitColonList() {
 		assertArrayEquals(new String[0],
+				Strings.splitColonList(null));
+		assertArrayEquals(new String[0],
 				Strings.splitColonList(""));
+		assertArrayEquals(new String[0],
+				Strings.splitColonList("\u00a0"));
 		assertArrayEquals(new String[0],
 				Strings.splitColonList(" , ,, ,\u00a0"));
 		assertArrayEquals(new String[0],
