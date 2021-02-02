@@ -76,6 +76,29 @@ public class StringsTest {
 	}
 
 	@Test
+	public void splitColonList() {
+		assertArrayEquals(new String[0],
+				Strings.splitColonList(""));
+		assertArrayEquals(new String[0],
+				Strings.splitColonList(" , ,, ,\u00a0"));
+		assertArrayEquals(new String[0],
+				Strings.splitColonList(" ; ;; ;\u00a0"));
+		assertArrayEquals(new String[0],
+				Strings.splitColonList("\u00a0 ,\u00a0 ,\u00a0, \u00a0,\u00a0"));
+
+		assertArrayEquals(new String[]{"a", "b"},
+				Strings.splitColonList("a,b"));
+		assertArrayEquals(new String[]{"a", "b"},
+				Strings.splitColonList(" a , b "));
+		assertArrayEquals(new String[]{"a", "b"},
+				Strings.splitColonList("a, ,b"));
+		assertArrayEquals(new String[]{"a", "b"},
+				Strings.splitColonList(" ,a, ,b, "));
+		assertArrayEquals(new String[]{"a", "b"},
+				Strings.splitColonList(" ,; a ,;, ,; b ;, "));
+	}
+
+	@Test
 	public void splitUnquoted() {
 		assertEquals(
 				Arrays.asList("", "", "  ", " word1", "\"word.2\"", "word3", "").toString(),

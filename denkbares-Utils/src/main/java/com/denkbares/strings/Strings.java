@@ -53,6 +53,7 @@ import java.util.stream.Stream;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Java;
@@ -664,6 +665,39 @@ public class Strings {
 		text = text.replaceAll("[^a-zA-Z0-9]", " ");
 		return text.replaceAll("\\s+", replacement);
 	}
+
+	/**
+	 * Splits the specified text by any contained colon or semicolon. Each split item is individually trimmed, so
+	 * leading or trailing whitespaces between the split character and the items will be removed. Blank/empty items are
+	 * skipped. If the specified text is null or blank, or only contains blank split items, an empty array is returned.
+	 *
+	 * Note that the list will not contain any empty item, e.g. <code>" , a, , b" --&gt; ["a", "b"]</code>
+	 *
+	 * @param text the textual list to be split
+	 * @return the array of individual trimmed and non-empty items
+	 */
+	@NotNull
+	public static String[] splitColonList(@Nullable String text){
+		if (isBlank(text)) return new String[0];
+		return streamColonList(text).toArray(String[]::new);
+	}
+
+	/**
+	 * Splits the specified text by any contained colon or semicolon. Each split item is individually trimmed, so
+	 * leading or trailing whitespaces between the split character and the items will be removed. Blank/empty items are
+	 * skipped. If the specified text is null or blank, or only contains blank split items, an empty array is returned.
+	 *
+	 * Note that the list will not contain any empty item, e.g. <code>" , a, , b" --&gt; ["a", "b"]</code>
+	 *
+	 * @param text the textual list to be split
+	 * @return the array of individual trimmed and non-empty items
+	 */
+	@NotNull
+	public static Stream<String> streamColonList(@Nullable String text){
+		if (isBlank(text)) return Stream.empty();
+		return Arrays.stream(trim(text).split("[\\s\\xA0]*[,;][\\s\\xA0]*")).filter(Strings::nonBlank);
+	}
+
 
 	public static String[] splitUnquotedToArray(String text, String splitSymbol) {
 
