@@ -20,6 +20,8 @@ package com.denkbares.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.EnumSet;
+import java.util.NoSuchElementException;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -178,14 +180,13 @@ public class Log {
 		}
 	}
 
-	/*
 	/**
 	 * New Java 9+ way to access the call stack. Unfortunately still way slower than sun.reflect.Reflection (at least in
 	 * OpenJDK), but also much faster than e.g. CallStackExtractor.
 	 *
 	 * @author Albrecht Striffler (denkbares GmbH)
 	 */
-	/*
+	@SuppressWarnings("unused")
 	static class WalkingExtractor implements StackFrameFactory {
 
 		@Override
@@ -211,7 +212,6 @@ public class Log {
 			};
 		}
 	}
-	*/
 
 	/**
 	 * Class name extraction based on an exception stack trace. This is a very compatible method,
@@ -285,7 +285,7 @@ public class Log {
 	 */
 	public enum ClassDetection {
 		sun("NativeExtractor"),
-		//		walker("WalkingExtractor"),
+		walker("WalkingExtractor"),
 		stack("CallStackExtractor"),
 		none("FixedNameExtractor");
 
