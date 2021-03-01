@@ -74,7 +74,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 	private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
 
-	private static final ThreadLocal<Integer> queryCounter = ThreadLocal.withInitial(() -> 0);
+//	private static final ThreadLocal<Integer> queryCounter = ThreadLocal.withInitial(() -> 0);
 
 	public RepositoryConnection(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		this.connection = connection;
@@ -226,14 +226,12 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 		return connection.isEmpty();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setAutoCommit(boolean autoCommit) throws RepositoryException {
 		connection.setAutoCommit(autoCommit);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public boolean isAutoCommit() throws RepositoryException {
@@ -380,7 +378,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 	@Override
 	public RepositoryResult<Namespace> getNamespaces() throws RepositoryException {
-		return new RepositoryResult<Namespace>(connection.getNamespaces()) {
+		return new RepositoryResult<>(connection.getNamespaces()) {
 			@Override
 			public boolean hasNext() throws RepositoryException {
 
@@ -433,25 +431,25 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	private void increaseQueryCounter() {
-		int value = queryCounter.get() + 1;
-		if (value > 1) {
-//			System.out.println("++#################################################++");
-//			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
-//					.getName() + ")!!! Counter: " + value);
-//			StackTraceElement[] stackTrace = new Exception().getStackTrace();
-//			System.out.println(Strings.concat("\n\t", stackTrace));
-//			System.out.println("--#################################################--");
-		}
-		queryCounter.set(value);
+//		int value = queryCounter.get() + 1;
+//		if (value > 1) {
+////			System.out.println("++#################################################++");
+////			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
+////					.getName() + ")!!! Counter: " + value);
+////			StackTraceElement[] stackTrace = new Exception().getStackTrace();
+////			System.out.println(Strings.concat("\n\t", stackTrace));
+////			System.out.println("--#################################################--");
+//		}
+//		queryCounter.set(value);
 	}
 
 	private void decreaseQueryCounter() {
-		int value = queryCounter.get() - 1;
-		if (value > 0) {
-//			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
-//					.getName() + ") decreased: " + value);
-		}
-		queryCounter.set(value);
+//		int value = queryCounter.get() - 1;
+//		if (value > 0) {
+////			System.out.println("Multiple simultaneous queries in same thread (" + Thread.currentThread()
+////					.getName() + ") decreased: " + value);
+//		}
+//		queryCounter.set(value);
 	}
 
 	private class CounterTupleQuery implements TupleQuery {
