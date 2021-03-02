@@ -127,6 +127,7 @@ public class Identifier implements Comparable<Identifier> {
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		Identifier other = (Identifier) obj;
+		if (isCaseSensitive() != other.isCaseSensitive()) return false;
 		if (isCaseSensitive()) {
 			return this.toExternalForm().equals(other.toExternalForm());
 		}
