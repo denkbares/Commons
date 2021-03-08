@@ -40,9 +40,11 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.algebra.evaluation.util.ValueComparator;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.SubSpanIterator;
@@ -50,7 +52,11 @@ import com.denkbares.semanticcore.TupleQueryResult;
 import com.denkbares.strings.NumberAwareComparator;
 import com.denkbares.utils.Pair;
 
+import static org.eclipse.rdf4j.query.algebra.evaluation.util.QueryEvaluationUtil.isStringLiteral;
+
 public class ResultTableModel implements Iterable<TableRow> {
+
+	private static final ValueComparator VALUE_COMPARATOR = new ValueComparator();
 
 	public static class Builder {
 
@@ -161,8 +167,15 @@ public class ResultTableModel implements Iterable<TableRow> {
 		Comparator<TableRow> valueComparator = (o1, o2) -> {
 			Value v1 = o1.getValue(variable);
 			Value v2 = o2.getValue(variable);
-			return (v1 == v2) ? 0 : (v1 == null) ? -1 : (v2 == null) ? 1 : NumberAwareComparator.CASE_INSENSITIVE
-					.compare(v1.stringValue(), v2.stringValue());
+			// We could just use ValueComparator for everything, but actually
+			// NumberAwareComparator is a bit nicer, so we use that for strings and IRIs
+			if ((v1 instanceof IRI && v2 instanceof IRI) ||
+					(isStringLiteral(v1) && isStringLiteral(v2))) {
+				return NumberAwareComparator.CASE_INSENSITIVE.compare(v1.stringValue(), v2.stringValue());
+			}
+			else {
+				return VALUE_COMPARATOR.compare(v1, v2);
+			}
 		};
 		return ascending ? valueComparator : valueComparator.reversed();
 	}
