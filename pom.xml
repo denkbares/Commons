@@ -265,7 +265,16 @@
 						<groupId>org.springframework</groupId>
 						<artifactId>spring-web</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>commons-codec</groupId>
+						<artifactId>commons-codec</artifactId>
+					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.15</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
