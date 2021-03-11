@@ -19,6 +19,7 @@
 package com.denkbares.utils;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -482,6 +483,26 @@ public class Exec {
 				}
 				out.print(line);
 			}
+		}
+	}
+
+	/**
+	 * Convenient implementation of a consumer that collects the the output into a string buffer.
+	 */
+	public static class OutputBuffer implements LineConsumer {
+
+		private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		private final PrintStream out = new PrintStream(buffer, false, Charset.defaultCharset());
+		private final PipeToPrintStream delegate = new PipeToPrintStream(out);
+
+		@Override
+		public void accept(int lineNo, CharSequence line) {
+			delegate.accept(lineNo, line);
+		}
+
+		public String getConsoleOutput() {
+			out.flush();
+			return buffer.toString(Charset.defaultCharset());
 		}
 	}
 }
