@@ -29,8 +29,8 @@
 
 	<properties>
 		<denkbares.version>${project.version}</denkbares.version>
-		<graphdb.version>9.1.1</graphdb.version>
-		<rdf4j.version>3.0.1</rdf4j.version>
+		<graphdb.version>9.6.0</graphdb.version>
+		<rdf4j.version>3.5.1</rdf4j.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
