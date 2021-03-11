@@ -111,6 +111,19 @@ public class Streams {
 	 * @created 27.04.2011
 	 */
 	public static void streamAsync(InputStream inputStream, OutputStream outputStream) {
+		streamAsync(inputStream, outputStream, null);
+	}
+
+	/**
+	 * Creates a asynchronous streaming task from the specified source {@link InputStream} to the specified target
+	 * {@link OutputStream}.
+	 *
+	 * @param inputStream  the source stream
+	 * @param outputStream the target stream
+	 * @param closeUp      code to be executed after stream transfer (also if terminated due to an error)
+	 * @created 27.04.2011
+	 */
+	public static void streamAsync(InputStream inputStream, OutputStream outputStream, Runnable closeUp) {
 		final InputStream in = inputStream;
 		final OutputStream out = outputStream;
 		Thread thread = new Thread("asynchronous streaming task") {
@@ -122,6 +135,11 @@ public class Streams {
 				}
 				catch (IOException e) {
 					throw new IllegalStateException("unexpected error while piping streams", e);
+				}
+				finally {
+					if (closeUp != null) {
+						closeUp.run();
+					}
 				}
 			}
 		};

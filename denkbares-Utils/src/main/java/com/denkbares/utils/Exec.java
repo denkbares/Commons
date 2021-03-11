@@ -18,11 +18,14 @@
  */
 package com.denkbares.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -52,6 +55,7 @@ public class Exec {
 	// optional configuration parameters
 	private File directory = null;
 	private String[] envp = null;
+	private InputStream input = null;
 	private boolean pipeToConsole = true;
 	private LineConsumer errorHandler = null;
 	private LineConsumer outputHandler = null;
@@ -203,6 +207,32 @@ public class Exec {
 	}
 
 	/**
+	 * Sets the console input for the created process. The method must not be called after the process is started. The
+	 * method returns this (modified) instance, to chain method calls.
+	 *
+	 * @param input the data the process should receive as console input data
+	 * @return this instance
+	 */
+	public Exec input(InputStream input) {
+		if (this.process != null) throw new IllegalStateException("process already started");
+		if (this.input != null) throw new IllegalStateException("cannot set multiple input sources");
+		this.input = input;
+		return this;
+	}
+
+	/**
+	 * Sets the console input for the created process. The method must not be called after the process is started. The
+	 * method returns this (modified) instance, to chain method calls.
+	 *
+	 * @param input the data the process should receive as console input data
+	 * @return this instance
+	 */
+	public Exec input(String input) {
+		// we use the platforms default charset, as we call a platform native program
+		return input(new ByteArrayInputStream(input.getBytes(Charset.defaultCharset())));
+	}
+
+	/**
 	 * Sets the exit handler that is called when the process completes. The handler then gets the exit value of the
 	 * process. The method should not be called after the process is started, as the handler may miss an already
 	 * completed process. The method returns this (modified) instance, to chain method calls.
@@ -314,6 +344,12 @@ public class Exec {
 		this.process = Runtime.getRuntime().exec(commandLine, envp, directory);
 		this.outputReader = connectStream(process.getInputStream(), System.out, outputHandler);
 		this.errorReader = connectStream(process.getErrorStream(), System.err, errorHandler);
+
+		// if an input source is specified, stream the contents to the process
+		if (input != null) {
+			OutputStream stream = process.getOutputStream();
+			Streams.streamAsync(input, stream, () -> Streams.closeQuietly(stream));
+		}
 	}
 
 	private int waitProcess() throws InterruptedException {

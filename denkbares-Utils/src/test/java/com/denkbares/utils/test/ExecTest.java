@@ -66,6 +66,36 @@ public class ExecTest {
 		assertEquals(0, exec.getArguments().length);
 	}
 
+//	@Test
+//	public void clingo() throws IOException, InterruptedException {
+//		Exec.parse("clingo").input(new FileInputStream("/Users/volker.belli/Desktop/questions.lp")).runAndWait();
+//	}
+
+	@Test
+	public void input() throws IOException, InterruptedException {
+		String cmdLine;
+		switch (OS.getCurrentOS()) {
+			case MAC_OS:
+			case UNIX:
+				cmdLine = "cat";
+				break;
+			case WINDOWS:
+//				cmdLine = xxx; // TODO how to do a 'cat' in windows shell?
+//				break;
+			default:
+				Log.warning("unknown operating system, skip test: " + OS.getCurrentOriginalName());
+				return;
+		}
+
+		String input = "line1\nline2\n";
+		List<String> output = new ArrayList<>();
+		Exec.parse(cmdLine).input(input).output((Consumer<String>) output::add).runAndWait();
+
+		assertEquals(2, output.size());
+		assertEquals("line1", output.get(0));
+		assertEquals("line2", output.get(1));
+	}
+
 	@Test
 	public void listFiles() throws IOException, InterruptedException {
 		String cmdLine;
