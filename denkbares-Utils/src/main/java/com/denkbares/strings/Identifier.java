@@ -37,11 +37,15 @@ public class Identifier implements Comparable<Identifier> {
 	private static final Pattern CONTROL_PATTERN = Pattern.compile(
 			"(?:[" + Pattern.quote(CONTROL_CHARS) + "])");
 
+	private static final String PRETTY_PRINT_SEPARATOR = ".";
+	private static final Pattern PRETTY_PRINT_CONTROL_PATTERN = Pattern.compile("(?:[" + Pattern.quote(" .\"") + "])");
+
 	private final String[] pathElements;
 
 	private String externalForm = null;
 
 	private String externalFormLowerCase = null;
+	private String prettyPrint = null;
 	private boolean caseSensitive;
 
 	public Identifier(String... pathElements) {
@@ -129,11 +133,15 @@ public class Identifier implements Comparable<Identifier> {
 		Identifier other = (Identifier) obj;
 		if (isCaseSensitive() && other.isCaseSensitive()
 				|| isCaseSensitive() != other.isCaseSensitive()) {
-			return this.toExternalForm().equals(other.toExternalForm());
+			return getParsableString(this.pathElements).equals(getParsableString(other.pathElements));
 		}
 		else {
-			return this.toExternalFormLowerCase().equals(other.toExternalFormLowerCase());
+			return getParsableString(this.pathElements).equalsIgnoreCase(getParsableString(other.pathElements));
 		}
+	}
+
+	private static String getParsableString(String[] pathElements) {
+		return Strings.concatParsable(SEPARATOR, CONTROL_PATTERN, pathElements);
 	}
 
 	/**
@@ -294,7 +302,10 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	public String toExternalForm() {
 		if (this.externalForm == null) {
-			this.externalForm = Strings.concatParsable(SEPARATOR, CONTROL_PATTERN, pathElements);
+			String[] elements = new String[pathElements.length + 1];
+			elements[0] = this.isCaseSensitive() ? "C" : "c";
+			System.arraycopy(pathElements, 0, elements, 1, pathElements.length);
+			this.externalForm = getParsableString(elements);
 		}
 		return this.externalForm;
 	}
@@ -304,6 +315,20 @@ public class Identifier implements Comparable<Identifier> {
 			this.externalFormLowerCase = toExternalForm().toLowerCase();
 		}
 		return this.externalFormLowerCase;
+	}
+
+	/**
+	 * Generates and returns the pretty print representation of this {@link Identifier}.
+	 * This String can not be transformed back into an identical {@link Identifier}. In this case {@link
+	 * Identifier#toExternalForm()} must be used.
+	 * <br/> The pretty print form is the path elements connected with a separator and proper quoting if the separator
+	 * icon is contained in one of the path elements.
+	 */
+	public String toPrettyPrint() {
+		if (this.prettyPrint == null) {
+			this.prettyPrint = Strings.concatParsable(PRETTY_PRINT_SEPARATOR, PRETTY_PRINT_CONTROL_PATTERN, pathElements);
+		}
+		return this.prettyPrint;
 	}
 
 	/**
@@ -377,7 +402,15 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 07.05.2012
 	 */
 	public static Identifier fromExternalForm(String externalForm) {
-		return new Identifier(Strings.parseConcat(SEPARATOR, externalForm));
+		String[] pathElements = Strings.parseConcat(SEPARATOR, externalForm);
+		boolean isCaseSensitive = false;
+		String[] elements = pathElements;
+		if (pathElements.length > 1 && pathElements[0].matches("[Cc]")) {
+			isCaseSensitive = pathElements[0].equals("C");
+			elements = new String[pathElements.length -1];
+			System.arraycopy(pathElements, 1, elements, 0, elements.length);
+		}
+		return new Identifier(isCaseSensitive, elements);
 	}
 
 	/**

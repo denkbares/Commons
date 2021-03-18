@@ -129,7 +129,6 @@ public class IdentifierTest {
 		assertTrue("Concat and parse again failed:\n" + listOutput + " ==> " + concat + " ==> " + listOutPutFromExternalForm, equals);
 	}
 
-	@Ignore
 	@Test
 	public void testEquals() {
 		Identifier caseInsensitiveUpper = new Identifier(false,"term", "Identifier");
