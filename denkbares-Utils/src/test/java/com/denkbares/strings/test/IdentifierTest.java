@@ -20,6 +20,7 @@ package com.denkbares.strings.test;
 
 import java.util.Arrays;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.denkbares.strings.Identifier;
@@ -28,6 +29,7 @@ import com.denkbares.strings.Strings;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Test for the critical conversion from {@link Identifier} to its external
@@ -127,4 +129,37 @@ public class IdentifierTest {
 		assertTrue("Concat and parse again failed:\n" + listOutput + " ==> " + concat + " ==> " + listOutPutFromExternalForm, equals);
 	}
 
+	@Ignore
+	@Test
+	public void testEquals() {
+		Identifier caseInsensitiveUpper = new Identifier(false,"term", "Identifier");
+		Identifier caseSensitiveUpper = new Identifier(true, "term", "Identifier");
+		Identifier caseInsensitiveLower = new Identifier(false,"term", "identifier");
+		Identifier caseSensitiveLower = new Identifier(true, "term", "identifier");
+
+		// 1. same written identifiers should be the same
+		assertEquals(caseInsensitiveUpper, caseSensitiveUpper);
+		assertEquals(caseInsensitiveLower, caseSensitiveLower);
+
+		// 2. check for case sensitivity
+		assertEquals(caseInsensitiveUpper, caseInsensitiveLower);
+		assertNotEquals(caseSensitiveUpper, caseSensitiveLower);
+
+		Identifier caseInsensitiveUpperFromExternal = Identifier.fromExternalForm(caseInsensitiveUpper.toExternalForm());
+		Identifier caseSensitiveUpperFromExternal = Identifier.fromExternalForm(caseSensitiveUpper.toExternalForm());
+		Identifier caseInsensitiveLowerFromExternal = Identifier.fromExternalForm(caseInsensitiveLower.toExternalForm());
+		Identifier caseSensitiveLowerFromExternal = Identifier.fromExternalForm(caseSensitiveLower.toExternalForm());
+
+		// 3. identifier must be equals with the from external form identifier
+		assertEquals(caseInsensitiveUpper, caseInsensitiveUpperFromExternal);
+		assertEquals(caseSensitiveUpper, caseSensitiveUpperFromExternal);
+		assertEquals(caseInsensitiveLower, caseInsensitiveLowerFromExternal);
+		assertEquals(caseSensitiveLower, caseInsensitiveLowerFromExternal);
+
+		// 4. check #1 and #2 again with identifier from external form
+		assertEquals(caseInsensitiveUpperFromExternal, caseSensitiveUpperFromExternal);
+		assertEquals(caseInsensitiveLowerFromExternal, caseSensitiveLowerFromExternal);
+		assertEquals(caseInsensitiveUpperFromExternal, caseInsensitiveLowerFromExternal);
+		assertNotEquals(caseSensitiveUpperFromExternal, caseSensitiveLowerFromExternal);
+	}
 }
