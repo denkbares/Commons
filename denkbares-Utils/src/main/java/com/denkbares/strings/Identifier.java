@@ -156,7 +156,7 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	public void setCaseSensitive(boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
-		if (caseSensitive) this.externalFormLowerCase = null; // no longer needed
+		this.externalForm = null;
 	}
 
 	/**
@@ -387,7 +387,7 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 15.05.2012
 	 */
 	public boolean isEmpty() {
-		return this.toExternalForm().isEmpty();
+		return this.getPathElements().length <= 0;
 	}
 
 	/**
