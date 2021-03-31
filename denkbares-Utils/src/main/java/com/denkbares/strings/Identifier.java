@@ -166,7 +166,7 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	@Override
 	public String toString() {
-		return toExternalForm();
+		return toPrettyPrint();
 	}
 
 	@Override
