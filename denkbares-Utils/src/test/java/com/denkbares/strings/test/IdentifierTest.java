@@ -91,7 +91,7 @@ public class IdentifierTest {
 
 	private void checkPath(String... pathElements) {
 		Identifier termIdentifier = new Identifier(pathElements);
-		String externalForm = termIdentifier.toString();
+		String externalForm = termIdentifier.toExternalForm();
 		Identifier fromExternalForm = Identifier.fromExternalForm(externalForm);
 
 		String listOutput = Arrays.asList(termIdentifier.getPathElements()).toString();
