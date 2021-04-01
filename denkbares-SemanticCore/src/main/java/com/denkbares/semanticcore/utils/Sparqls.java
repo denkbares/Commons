@@ -391,9 +391,9 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a uri. If the column does not exists or
-	 * no value is available, null is returned. If there is a value, but it cannot be parsed as a, uri, a synthetic uri
-	 * is created form the string of the value.
+	 * Reads a value from a binding set of a sparql result row and returns it as an uri. If the column does not exists
+	 * or no value is available, null is returned. If there is a value, but it cannot be parsed as a, uri, a synthetic
+	 * uri is created form the string of the value.
 	 *
 	 * @param bindings   the bindings of the sparql result row
 	 * @param columnName the column name to read from
@@ -404,7 +404,7 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding and returns it as a uri. If the binding is null, null is returned. If there is a
+	 * Reads a value from a binding and returns it as an uri. If the binding is null, null is returned. If there is a
 	 * value, but it cannot be parsed as a, uri, a synthetic uri is created form the string of the value.
 	 *
 	 * @param binding the binding of the sparql result row
@@ -412,6 +412,18 @@ public class Sparqls {
 	 */
 	public static URI asURI(Binding binding) {
 		return toURI(asString(binding));
+	}
+
+	/**
+	 * Converts a value into an uri. If the binding is null, null is returned. If there is a value, but it cannot be
+	 * parsed as a, uri, a synthetic uri is created form the string of the value.
+	 *
+	 * @param value value to create the URI from
+	 * @return the uri value or null
+	 */
+	public static URI asURI(Value value) {
+		if (value == null) return null;
+		return toURI(value.stringValue());
 	}
 
 	private static URI toURI(String string) {
