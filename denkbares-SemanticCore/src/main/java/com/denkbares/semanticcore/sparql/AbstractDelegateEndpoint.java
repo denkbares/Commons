@@ -19,9 +19,11 @@
 
 package com.denkbares.semanticcore.sparql;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
@@ -116,6 +118,16 @@ public abstract class AbstractDelegateEndpoint implements SPARQLEndpoint {
 	@Override
 	public ValueFactory getValueFactory() {
 		return getDelegate().getValueFactory();
+	}
+
+	@Override
+	public @NotNull IRI toShortIRI(URI uri) {
+		return getDelegate().toShortIRI(uri);
+	}
+
+	@Override
+	public @NotNull IRI toShortIRI(IRI iri) {
+		return getDelegate().toShortIRI(iri);
 	}
 
 	@Override

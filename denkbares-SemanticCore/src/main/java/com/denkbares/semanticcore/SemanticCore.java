@@ -663,11 +663,9 @@ public final class SemanticCore implements SPARQLEndpoint {
 		return URI.create(shortOrFullIRI);
 	}
 
-	public IRI toShortIRI(URI uri) {
-		return toShortIRI(getValueFactory().createIRI(uri.toString()));
-	}
-
-	private IRI toShortIRI(IRI iri) {
+	@NotNull
+	@Override
+	public IRI toShortIRI(IRI iri) {
 		String uriText = iri.toString();
 		int length = 0;
 		IRI shortURI = iri;

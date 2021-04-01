@@ -168,34 +168,6 @@ public class Sparqls {
 	}
 
 	/**
-	 * Reads a value from a binding set of a sparql result row and returns it as a Date if it is a date literal.
-	 *
-	 * @param binding the value binding
-	 * @return the LocalDate or null
-	 */
-	public static LocalDate asDate(Binding binding) {
-		if (binding == null) {
-			return null;
-		}
-		Value value = binding.getValue();
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof Literal) {
-			final String valueString = ((Literal) value).getLabel();
-			final IRI datatype = ((Literal) value).getDatatype();
-			if ("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
-				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
-			}
-			else {
-				// we still try to parse...
-				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Reads a value from a binding set of a sparql result row and returns it as a float number. If the column does not
 	 * exists or no value is available, the specified default value is returned. If there is a value, but it cannot be
 	 * parsed as a number the specified default value is returned.
@@ -221,6 +193,34 @@ public class Sparqls {
 	public static float asFloat(Binding binding, float defaultValue) {
 		Float result = asFloat(binding);
 		return (result == null) ? defaultValue : result;
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as a Date if it is a date literal.
+	 *
+	 * @param binding the value binding
+	 * @return the LocalDate or null
+	 */
+	public static LocalDate asDate(Binding binding) {
+		if (binding == null) {
+			return null;
+		}
+		Value value = binding.getValue();
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Literal) {
+			final String valueString = ((Literal) value).getLabel();
+			final IRI datatype = ((Literal) value).getDatatype();
+			if ("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
+				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+			}
+			else {
+				// we still try to parse...
+				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -304,6 +304,89 @@ public class Sparqls {
 	 */
 	public static int asInteger(Binding binding, int defaultValue) {
 		Integer result = asInteger(binding);
+		return (result == null) ? defaultValue : result;
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as a boolean. If the column does not
+	 * exists or no value is available, null is returned. If there is a value, but it cannot be parsed as a boolean null
+	 * is returned.
+	 *
+	 * @param bindings   the bindings of the sparql result row
+	 * @param columnName the column name to read from
+	 * @return the boolean value or null
+	 */
+	public static Boolean asBoolean(BindingSet bindings, String columnName) {
+		return asBoolean(bindings.getBinding(columnName));
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a boolean. If the binding is null, null is returned. If there is a
+	 * value, but it cannot be parsed as a boolean null is returned.
+	 *
+	 * @param binding the bindings of the sparql result row
+	 * @return the boolean value or null
+	 */
+	public static Boolean asBoolean(Binding binding) {
+		if (binding == null) {
+			return null;
+		}
+		Value value = binding.getValue();
+		return asBoolean(value);
+	}
+
+	/**
+	 * Reads a value from a binding and returns it as a boolean. If the value is null, null is returned. If there is a
+	 * value, but it cannot be parsed as a boolean null is returned.
+	 *
+	 * @param value the bindings of the sparql result row
+	 * @return the boolean value or null
+	 */
+	public static Boolean asBoolean(Value value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Literal) {
+			try {
+				return ((Literal) value).booleanValue();
+			}
+			catch (NumberFormatException ignore) {
+			}
+		}
+		try {
+			return Boolean.parseBoolean(value.stringValue());
+		}
+		catch (NumberFormatException e) {
+			Log.warning("cannot parse binding of '" + value + "' as float");
+			return null;
+		}
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as a boolean. If the column does not
+	 * exists or no value is available, the specified default value is returned. If there is a value, but it cannot be
+	 * parsed as a boolean the specified default value is returned.
+	 *
+	 * @param bindings     the bindings of the sparql result row
+	 * @param columnName   the column name to read from
+	 * @param defaultValue the default value
+	 * @return the boolean value or null
+	 */
+	public static boolean asBoolean(BindingSet bindings, String columnName, boolean defaultValue) {
+		Boolean result = asBoolean(bindings, columnName);
+		return (result == null) ? defaultValue : result;
+	}
+
+	/**
+	 * Reads a value from a binding returns it as a boolean. If the binding is null, the specified default value is
+	 * returned. If there is a value, but it cannot be parsed as a boolean the specified default value is returned.
+	 *
+	 * @param binding      the binding of the sparql result row
+	 * @param defaultValue the default value
+	 * @return the boolean value or null
+	 */
+	public static boolean asBoolean(Binding binding, boolean defaultValue) {
+		Boolean result = asBoolean(binding);
 		return (result == null) ? defaultValue : result;
 	}
 

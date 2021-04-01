@@ -24,11 +24,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.semanticcore.BooleanQuery;
 import com.denkbares.semanticcore.TupleQuery;
@@ -279,7 +281,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @param query the sparql query to be prepared
 	 * @return the prepared query
 	 */
-	default TupleQuery prepareSelect(String query) throws RepositoryException, MalformedQueryException  {
+	default TupleQuery prepareSelect(String query) throws RepositoryException, MalformedQueryException {
 		return prepareSelect(getNamespaces(), query);
 	}
 
@@ -290,7 +292,7 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @param namespaces the namespaces to prepend as prefixes
 	 * @return the prepared query
 	 */
-	TupleQuery  prepareSelect(Collection<Namespace> namespaces, String query) throws RepositoryException, MalformedQueryException;
+	TupleQuery prepareSelect(Collection<Namespace> namespaces, String query) throws RepositoryException, MalformedQueryException;
 
 	/**
 	 * Returns the value factory for the given endpoint.
@@ -298,6 +300,28 @@ public interface SPARQLEndpoint extends AutoCloseable {
 	 * @return a value factory
 	 */
 	ValueFactory getValueFactory();
+
+	/**
+	 * De-resolves a specified uri to a short uri name. If there is no matching namespace, the full uri is returned.
+	 *
+	 * @param uri the uri to be de-resolved
+	 * @return the short uri name
+	 * @created 13.11.2013
+	 */
+	@NotNull
+	default IRI toShortIRI(java.net.URI uri) {
+		return toShortIRI(getValueFactory().createIRI(uri.toString()));
+	}
+
+	/**
+	 * De-resolves a specified uri to a short uri name. If there is no matching namespace, the full uri is returned.
+	 *
+	 * @param iri the uri to be de-resolved
+	 * @return the short uri name
+	 * @created 13.11.2013
+	 */
+	@NotNull
+	IRI toShortIRI(IRI iri);
 
 	/**
 	 * Executes the sparql query, and dumps the result to the console, as a human-readable ascii formatted table. The
