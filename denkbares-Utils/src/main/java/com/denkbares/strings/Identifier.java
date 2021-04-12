@@ -34,11 +34,10 @@ public class Identifier implements Comparable<Identifier> {
 
 	private static final String SEPARATOR = "#";
 	private static final String CONTROL_CHARS = " " + SEPARATOR + "()[]{}<>\"'#=&|\\*+-,.\t";
-	private static final Pattern CONTROL_PATTERN = Pattern.compile(
-			"(?:[" + Pattern.quote(CONTROL_CHARS) + "])");
+	private static final Pattern CONTROL_PATTERN = Pattern.compile("[" + Pattern.quote(CONTROL_CHARS) + "]");
 
 	private static final String PRETTY_PRINT_SEPARATOR = ".";
-	private static final Pattern PRETTY_PRINT_CONTROL_PATTERN = Pattern.compile("(?:[" + Pattern.quote(" .\"") + "])");
+	private static final Pattern PRETTY_PRINT_CONTROL_PATTERN = Pattern.compile("[" + Pattern.quote(" .\"") + "]");
 
 	private final String[] pathElements;
 
@@ -116,12 +115,7 @@ public class Identifier implements Comparable<Identifier> {
 
 	@Override
 	public int hashCode() {
-		if (isCaseSensitive()) {
-			return toExternalForm().hashCode();
-		}
-		else {
-			return toExternalFormLowerCase().hashCode();
-		}
+		return toExternalFormLowerCase().hashCode();
 	}
 
 	@Override
@@ -149,7 +143,6 @@ public class Identifier implements Comparable<Identifier> {
 	public boolean isCaseSensitive() {
 		return caseSensitive;
 	}
-
 
 	/**
 	 * Returns the external form of this {@link Identifier}.

@@ -20,7 +20,6 @@ package com.denkbares.strings.test;
 
 import java.util.Arrays;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.denkbares.strings.Identifier;
@@ -160,5 +159,23 @@ public class IdentifierTest {
 		assertEquals(caseInsensitiveLowerFromExternal, caseSensitiveLowerFromExternal);
 		assertEquals(caseInsensitiveUpperFromExternal, caseInsensitiveLowerFromExternal);
 		assertNotEquals(caseSensitiveUpperFromExternal, caseSensitiveLowerFromExternal);
+	}
+
+	@Test
+	public void testHashcode() {
+		Identifier insensitive = new Identifier(false, "THIS", "is", "A", "test");
+		Identifier sensitive = new Identifier(true, "THIS", "is", "A", "test");
+		assertEquals(insensitive, sensitive);
+		assertEquals(insensitive.hashCode(), sensitive.hashCode());
+
+		Identifier insensitive2 = new Identifier(false, "THIS", "is", "A", "test");
+		Identifier insensitive3 = new Identifier(false, "this", "is", "a", "test");
+		assertEquals(insensitive2, insensitive3);
+		assertEquals(insensitive2.hashCode(), insensitive3.hashCode());
+
+		Identifier sensitive2 = new Identifier(true, "THIS", "is", "A", "test");
+		Identifier sensitive3 = new Identifier(true, "this", "is", "a", "test");
+		assertNotEquals(sensitive2, sensitive3);
+		// sensitive2 and sensitive3 will have the same hash code, but that is ok for the hashcode contract
 	}
 }
