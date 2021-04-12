@@ -42,10 +42,9 @@ public class Identifier implements Comparable<Identifier> {
 
 	private final String[] pathElements;
 
-	private String externalForm = null;
-
-	private String externalFormLowerCase = null;
-	private String prettyPrint = null;
+	private volatile String externalForm = null;
+	private volatile String externalFormLowerCase = null;
+	private volatile String prettyPrint = null;
 	private boolean caseSensitive;
 
 	public Identifier(String... pathElements) {
