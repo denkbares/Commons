@@ -42,10 +42,10 @@ public class Identifier implements Comparable<Identifier> {
 
 	private final String[] pathElements;
 
-	private volatile String externalForm = null;
-	private volatile String externalFormLowerCase = null;
-	private volatile String prettyPrint = null;
-	private boolean caseSensitive;
+	private String externalForm = null;
+	private String externalFormLowerCase = null;
+	private String prettyPrint = null;
+	private final boolean caseSensitive;
 
 	public Identifier(String... pathElements) {
 		this(false, pathElements);
@@ -150,13 +150,6 @@ public class Identifier implements Comparable<Identifier> {
 		return caseSensitive;
 	}
 
-	/**
-	 * Decides whether this Identifier should match case sensitive or not.
-	 */
-	public void setCaseSensitive(boolean caseSensitive) {
-		this.caseSensitive = caseSensitive;
-		this.externalForm = null;
-	}
 
 	/**
 	 * Returns the external form of this {@link Identifier}.
@@ -300,13 +293,13 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 07.05.2012
 	 */
 	public String toExternalForm() {
-		if (this.externalForm == null) {
-			String[] elements = new String[pathElements.length + 1];
-			elements[0] = this.isCaseSensitive() ? "C" : "c";
-			System.arraycopy(pathElements, 0, elements, 1, pathElements.length);
-			this.externalForm = getParsableString(elements);
+		// use local variable to avoid NPEs when
+		String externalForm = this.externalForm;
+		if (externalForm == null) {
+			externalForm = (this.isCaseSensitive() ? "C" : "c") + SEPARATOR + getParsableString(pathElements);
+			this.externalForm = externalForm;
 		}
-		return this.externalForm;
+		return externalForm;
 	}
 
 	private String toExternalFormLowerCase() {
@@ -406,7 +399,7 @@ public class Identifier implements Comparable<Identifier> {
 		String[] elements = pathElements;
 		if (pathElements.length > 1 && pathElements[0].matches("[Cc]")) {
 			isCaseSensitive = pathElements[0].equals("C");
-			elements = new String[pathElements.length -1];
+			elements = new String[pathElements.length - 1];
 			System.arraycopy(pathElements, 1, elements, 0, elements.length);
 		}
 		return new Identifier(isCaseSensitive, elements);
