@@ -39,6 +39,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.DefaultMultiMap;
@@ -91,7 +92,9 @@ public class Sparqls {
 	 * @param columnName the column name to read from
 	 * @return the plain string or null
 	 */
+	@Contract("_, null -> fail")
 	public static String asString(BindingSet bindings, String columnName) {
+		assert !columnName.startsWith("?");
 		return asString(bindings.getBinding(columnName));
 	}
 
