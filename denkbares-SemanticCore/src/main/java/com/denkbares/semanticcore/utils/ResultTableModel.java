@@ -40,23 +40,15 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.algebra.evaluation.util.ValueComparator;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.collections.SubSpanIterator;
 import com.denkbares.semanticcore.TupleQueryResult;
-import com.denkbares.strings.NumberAwareComparator;
-import com.denkbares.utils.Pair;
-
-import static org.eclipse.rdf4j.query.algebra.evaluation.util.QueryEvaluationUtil.isStringLiteral;
 
 public class ResultTableModel implements Iterable<TableRow> {
-
-	private static final ValueComparator VALUE_COMPARATOR = new ValueComparator();
 
 	public static class Builder {
 
@@ -163,40 +155,16 @@ public class ResultTableModel implements Iterable<TableRow> {
 		return this.rows.stream();
 	}
 
-	private Comparator<TableRow> createComparator(final String variable, final boolean ascending) {
-		Comparator<TableRow> valueComparator = (o1, o2) -> {
-			Value v1 = o1.getValue(variable);
-			Value v2 = o2.getValue(variable);
-			// We could just use ValueComparator for everything, but actually
-			// NumberAwareComparator is a bit nicer, so we use that for strings and IRIs
-			if ((v1 instanceof IRI && v2 instanceof IRI) ||
-					(isStringLiteral(v1) && isStringLiteral(v2))) {
-				return NumberAwareComparator.CASE_INSENSITIVE.compare(v1.stringValue(), v2.stringValue());
-			}
-			else {
-				return VALUE_COMPARATOR.compare(v1, v2);
-			}
-		};
-		return ascending ? valueComparator : valueComparator.reversed();
-	}
-
 	/**
-	 * Returns a sorted copy of the ResultTableModel according to the sorting specification. The sorting spec is a list
-	 * of items that each specifies a comparision by column (variable) and ordering flag (true == ascending).
+	 * Returns a sorted copy of the ResultTableModel, using the given comparator
 	 *
-	 * @param sorting sorting specification
+	 * @param comparator the comparator to sort the model by
 	 * @return a new sorted copy of the model
 	 */
 	@NotNull
-	public ResultTableModel sort(@NotNull final List<Pair<String, Boolean>> sorting) {
-		final List<Comparator<TableRow>> comparators =
-				sorting.stream()
-						.map(sortSpec -> createComparator(sortSpec.getA(), sortSpec.getB()))
-						.collect(Collectors.toList());
-		Collections.reverse(comparators);
-
+	public final ResultTableModel sort(Comparator<TableRow> comparator) {
 		List<TableRow> sortedRows = new ArrayList<>(this.rows);
-		comparators.forEach(sortedRows::sort);
+		sortedRows.sort(comparator);
 		return createResultTableModel(sortedRows, this.variables);
 	}
 
