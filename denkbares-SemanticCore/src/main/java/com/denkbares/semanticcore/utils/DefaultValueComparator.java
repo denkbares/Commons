@@ -19,16 +19,32 @@
 
 package com.denkbares.semanticcore.utils;
 
-import java.util.Comparator;
-
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 
+import com.denkbares.strings.NumberAwareComparator;
+
+import static org.eclipse.rdf4j.query.algebra.evaluation.util.QueryEvaluationUtil.isStringLiteral;
+
 /**
- * Interface for comparator of RDF4J values
- *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 25.04.21
  */
-public interface ValueComparator extends Comparator<Value> {
+public class DefaultValueComparator implements ValueComparator {
 
+	private static final org.eclipse.rdf4j.query.algebra.evaluation.util.ValueComparator VALUE_COMPARATOR
+			= new org.eclipse.rdf4j.query.algebra.evaluation.util.ValueComparator();
+
+	@Override
+	public int compare(Value v1, Value v2) {
+		// We could just use RDF4J ValueComparator for everything, but actually,
+		// NumberAwareComparator is a bit nicer, so we use that for strings and IRIs
+		if ((v1 instanceof IRI && v2 instanceof IRI) ||
+				(isStringLiteral(v1) && isStringLiteral(v2))) {
+			return NumberAwareComparator.CASE_INSENSITIVE.compare(v1.stringValue(), v2.stringValue());
+		}
+		else {
+			return VALUE_COMPARATOR.compare(v1, v2);
+		}
+	}
 }
