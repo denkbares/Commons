@@ -29,8 +29,8 @@
 
 	<properties>
 		<denkbares.version>${project.version}</denkbares.version>
-		<graphdb.version>9.1.1</graphdb.version>
-		<rdf4j.version>3.0.1</rdf4j.version>
+		<graphdb.version>9.7.0</graphdb.version>
+		<rdf4j.version>3.6.1</rdf4j.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -290,12 +290,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.10.7</version>
+				<version>2.12.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
-				<version>2.9.9</version>
+				<version>2.12.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.jena</groupId>
