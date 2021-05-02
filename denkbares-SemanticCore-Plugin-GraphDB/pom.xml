@@ -79,6 +79,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.rdf4j</groupId>
+			<artifactId>rdf4j-shacl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.rdf4j</groupId>
 			<artifactId>rdf4j-rio-rdfxml</artifactId>
 		</dependency>
 		<dependency>
