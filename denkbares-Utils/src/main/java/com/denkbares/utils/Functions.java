@@ -22,6 +22,7 @@ package com.denkbares.utils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -40,8 +41,8 @@ public class Functions {
 	private static final Object NULL = new Object();
 
 	/**
-	 * Returns a cached version of the specified function, where the specified functions is invoked only once for each
-	 * value.
+	 * Returns a cached version of the specified function, where the specified function is invoked only once for each
+	 * argument value.
 	 * <p>
 	 * Note: The specified function should not have any side effects, and should return a single defined value for each
 	 * input that equals ({@link Object#equals(Object)}) to an other input. If this is violated, the cached function may
@@ -53,6 +54,22 @@ public class Functions {
 	public static <T, R> Function<T, R> cache(Function<T, R> function) {
 		Map<T, R> cache = new ConcurrentHashMap<>();
 		return value -> unwrap(cache.computeIfAbsent(value, v -> wrap(function.apply(value))));
+	}
+
+	/**
+	 * Returns a cached version of the specified binary function, where the specified function is invoked only once for
+	 * each pair of argument values.
+	 * <p>
+	 * Note: The specified function should not have any side effects, and should return a single defined value for each
+	 * input that equals ({@link Object#equals(Object)}) to an other input. If this is violated, the cached function may
+	 * behave different to the uncached one.
+	 *
+	 * @param function the function to cache the results
+	 * @return a function, identical to the specified function, but caching the values
+	 */
+	public static <T, U, R> BiFunction<T, U, R> cache(BiFunction<T, U, R> function) {
+		Map<Pair<T, U>, R> cache = new ConcurrentHashMap<>();
+		return (t, u) -> unwrap(cache.computeIfAbsent(new Pair<>(t, u), v -> wrap(function.apply(t, u))));
 	}
 
 	/**
