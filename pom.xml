@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2020 denkbares GmbH, Germany
+  ~ Copyright (C) 2021 denkbares GmbH, Germany
   ~
   ~ This is free software; you can redistribute it and/or modify it under the
   ~ terms of the GNU Lesser General Public License as published by the Free
@@ -223,6 +223,11 @@
 						<groupId>ch.qos.logback</groupId>
 						<artifactId>logback-core</artifactId>
 					</exclusion>
+					<!-- Exclude mapdb to avoid way old Kotlin standard library -->
+					<exclusion>
+						<groupId>org.mapdb</groupId>
+						<artifactId>mapdb</artifactId>
+					</exclusion>
 					<!-- Exclude mongo db dependencies to not cause issues with other databases in project -->
 					<exclusion>
 						<groupId>org.mongodb</groupId>
@@ -277,6 +282,22 @@
 						<artifactId>commons-codec</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.mapdb</groupId>
+				<artifactId>mapdb</artifactId>
+				<version>3.0.8</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.jetbrains.kotlin</groupId>
+						<artifactId>kotlin-stdlib</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.jetbrains.kotlin</groupId>
+				<artifactId>kotlin-stdlib</artifactId>
+				<version>1.5.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
-  ~ Copyright (C) 2020 denkbares GmbH, Germany
+  ~ Copyright (C) 2021 denkbares GmbH, Germany
   ~
   ~ This is free software; you can redistribute it and/or modify it under the
   ~ terms of the GNU Lesser General Public License as published by the Free
@@ -36,6 +36,15 @@
 		<dependency>
 			<groupId>com.ontotext.graphdb</groupId>
 			<artifactId>graphdb-free-runtime</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mapdb</groupId>
+			<artifactId>mapdb</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<!--suppress KotlinMavenPluginPhase -->
+			<artifactId>kotlin-stdlib</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
