@@ -19,8 +19,11 @@
 
 package com.denkbares.semanticcore.graphdb;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.turbo.TurboFilter;
+import ch.qos.logback.core.spi.FilterReply;
 import com.ontotext.trree.config.OWLIMSailConfig;
-import com.ontotext.trree.free.GraphDBRepositoryConfig;
 import com.ontotext.trree.monitorRepository.MonitorRepositoryConfig;
 import com.ontotext.trree.monitorRepository.MonitorRepositoryFactory;
 import org.eclipse.rdf4j.model.IRI;
@@ -34,6 +37,9 @@ import org.eclipse.rdf4j.sail.config.SailConfigException;
 import org.eclipse.rdf4j.sail.config.SailFactory;
 import org.eclipse.rdf4j.sail.config.SailImplConfig;
 import org.eclipse.rdf4j.sail.config.SailRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 
 /**
  * RepositoryFactory creating a normal graphdb:FreeSailRepository, while also allowing to deactivate some unwanted
@@ -84,7 +90,25 @@ public class ConfigurableFreeSailRepositoryFactory extends MonitorRepositoryFact
 		IRI disablePluginsIri = SimpleValueFactory.getInstance()
 				.createIRI("http://www.ontotext.com/trree/owlim#disable-plugins");
 		((OWLIMSailConfig) sailImplConfig).getConfigParams()
-				.put(disablePluginsIri, "mongodb,notifications,notifications-logger,rdfrank,expose-entity");
+				.put(disablePluginsIri, "mongodb,notifications,notifications-logger,rdfrank,expose-entity,utils");
+
+		// The plugin "utils" uses the outdated javascript nashorn plugin, no longer present after Java 14.
+		// We can deactivate it, but there still are several ugly exceptions in the log... we add a logging filter to
+		// skip those messages, since they are irrelevant.
+		Logger logger = LoggerFactory.getLogger(this.getClass());
+		if (logger instanceof ch.qos.logback.classic.Logger) {
+			LoggerContext context = ((ch.qos.logback.classic.Logger) logger).getLoggerContext();
+			context.addTurboFilter(new TurboFilter() {
+				@Override
+				public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger, Level level, String text, Object[] objects, Throwable throwable) {
+					if (level != Level.ERROR) return FilterReply.NEUTRAL;
+					if (text.equals("Plugin 'utils' failed to initialize: jdk/nashorn/api/scripting/ClassFilter")) {
+						return FilterReply.DENY;
+					}
+					return FilterReply.NEUTRAL;
+				}
+			});
+		}
 	}
 
 	private Sail createSail(SailImplConfig config) throws RepositoryConfigException, SailConfigException {
@@ -96,5 +120,4 @@ public class ConfigurableFreeSailRepositoryFactory extends MonitorRepositoryFact
 			throw new RepositoryConfigException("Unsupported Sail type: " + config.getType());
 		}
 	}
-
 }
