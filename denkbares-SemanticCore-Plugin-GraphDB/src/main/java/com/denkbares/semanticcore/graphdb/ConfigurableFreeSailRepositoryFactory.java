@@ -102,7 +102,7 @@ public class ConfigurableFreeSailRepositoryFactory extends MonitorRepositoryFact
 				@Override
 				public FilterReply decide(Marker marker, ch.qos.logback.classic.Logger logger, Level level, String text, Object[] objects, Throwable throwable) {
 					if (level != Level.ERROR) return FilterReply.NEUTRAL;
-					if (text.equals("Plugin 'utils' failed to initialize: jdk/nashorn/api/scripting/ClassFilter")) {
+					if ("Plugin 'utils' failed to initialize: jdk/nashorn/api/scripting/ClassFilter".equals(text)) {
 						return FilterReply.DENY;
 					}
 					return FilterReply.NEUTRAL;
