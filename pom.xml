@@ -29,7 +29,7 @@
 
 	<properties>
 		<denkbares.version>${project.version}</denkbares.version>
-		<graphdb.version>9.8.0</graphdb.version>
+		<graphdb.version>9.7.0</graphdb.version>
 		<rdf4j.version>3.6.3</rdf4j.version>
 		<rdf4j-rio-turtle.version>3.1.1</rdf4j-rio-turtle.version>
 		<d3web.version>${project.version}</d3web.version>
