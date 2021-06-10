@@ -22,6 +22,7 @@ package com.denkbares.semanticcore.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.vocabulary.XSD;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
@@ -215,12 +217,38 @@ public class Sparqls {
 		if (value instanceof Literal) {
 			final String valueString = ((Literal) value).getLabel();
 			final IRI datatype = ((Literal) value).getDatatype();
-			if ("http://www.w3.org/2001/XMLSchema#dateTime".equals(datatype.toString())) {
+			if (XSD.DATE.toString().equals(datatype.toString())) {
+				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+			} else {
+					// we still try to parse...
 				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
 			}
-			else {
-				// we still try to parse...
-				return LocalDate.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE);
+		}
+		return null;
+	}
+
+	/**
+	 * Reads a value from a binding set of a sparql result row and returns it as a Date if it is a date literal.
+	 *
+	 * @param binding the value binding
+	 * @return the LocalDate or null
+	 */
+	public static LocalDateTime asDateTime(Binding binding) {
+		if (binding == null) {
+			return null;
+		}
+		Value value = binding.getValue();
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Literal) {
+			final String valueString = ((Literal) value).getLabel();
+			final IRI datatype = ((Literal) value).getDatatype();
+			if (XSD.DATETIME.toString().equals(datatype.toString())) {
+				return LocalDateTime.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			} else {
+					// we still try to parse...
+				return LocalDateTime.parse(valueString, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 			}
 		}
 		return null;
