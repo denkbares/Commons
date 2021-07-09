@@ -139,16 +139,16 @@ public final class JPFPluginManager extends PluginManager {
 	 * @throws IllegalArgumentException the directory could not be used for initialization
 	 */
 	public static void init(String directory, String... pluginFilterPattern) {
+		if (instance != null) {
+			Log.warning("PluginManager already initialised.");
+			return;
+		}
 		String[] patterns;
 		if (pluginFilterPattern == null || pluginFilterPattern.length == 0) {
 			patterns = new String[] { "^d3web-Plugin.*", "^KnowWE-Plugin.*", "^denkbares-(.+-)?Plugin-.+", "^SemanticAnalytics.*" };
 		}
 		else {
 			patterns = pluginFilterPattern;
-		}
-		if (instance != null) {
-			Log.warning("PluginManager already initialised.");
-			return;
 		}
 		File pluginsDir = new File(directory);
 		Log.info("Initializing plugins from directory " + pluginsDir.getAbsolutePath());
