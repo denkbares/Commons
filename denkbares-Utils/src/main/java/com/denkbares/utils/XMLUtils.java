@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2021 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -451,9 +451,9 @@ public class XMLUtils {
 	 * @throws IOException if the specified file does not exist
 	 */
 	public static void prettyFormat(File input) throws IOException {
-		Source xmlInput = new StreamSource(new FileReader(input));
+		Source xmlInput = new StreamSource(new FileReader(input, StandardCharsets.UTF_8));
 		File temp = File.createTempFile(Files.stripExtension(input.getName()), "xml");
-		try (FileWriter xmlOutput = new FileWriter(temp)) {
+		try (FileWriter xmlOutput = new FileWriter(temp, StandardCharsets.UTF_8)) {
 			Transformer transformer = newTransformer();
 			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
