@@ -119,7 +119,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, File tmpPath) throws IOException {
-		return getOrCreateInstance(key, reasoning, tmpPath.getPath());
+		return getOrCreateInstance(key, reasoning, tmpPath == null ? null : tmpPath.getPath());
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, String tmpPath) throws IOException {
@@ -282,8 +282,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	/**
-	 * Shuts down this semantic core, independently from any allocation / release state. It destroys this instance so
-	 * that is should not be used any longer. It is also removed from the internal SemanticCore caches.
+	 * Shuts down this semantic core, independently of any allocation / release state. It destroys this instance so
+	 * that it can not be used any longer. It is also removed from the internal SemanticCore caches.
 	 *
 	 * @see #allocate()
 	 * @see #release()
@@ -394,11 +394,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public void addData(InputStream is, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
-		try {
+		try (is) {
 			addData(connection -> connection.add(is, DEFAULT_NAMESPACE, format));
-		}
-		finally {
-			is.close();
 		}
 	}
 
