@@ -48,6 +48,28 @@
 		<module>denkbares-PythonConnector</module>
 	</modules>
 
+	<profiles>
+		<profile>
+			<id>dependency-check</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.owasp</groupId>
+						<artifactId>dependency-check-maven</artifactId>
+						<version>6.2.2</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>aggregate</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<licenses>
 		<license>
 			<name>The GNU Lesser General Public License, Version 3.0</name>
