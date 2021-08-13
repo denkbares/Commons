@@ -18,10 +18,13 @@
  */
 package com.denkbares.progress;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+
+import com.denkbares.utils.Pair;
 
 /**
  * Class that decorates a progress and allows to split it into a set of multiple progresses. Each of that multiple
@@ -105,7 +108,9 @@ public class ParallelProgress implements ReadableProgressListener {
 		else if (activeListeners.size() > 1) {
 			// must be multiple, concat them
 			Iterator<String> messages = activeListeners.keySet().stream()
-					.sorted().map(PartListener::getMessage).distinct().iterator();
+					.map(l -> new Pair<>(l.getProgress(), l.getMessage()))
+					.sorted(Comparator.comparing(Pair::getA))
+					.map(Pair::getB).distinct().iterator();
 			StringBuilder messageBuilder = new StringBuilder();
 			while (messages.hasNext()) {
 				messageBuilder.append(messages.next());
@@ -153,7 +158,7 @@ public class ParallelProgress implements ReadableProgressListener {
 		return lastMessage;
 	}
 
-	class PartListener implements ReadableProgressListener, Comparable<PartListener> {
+	class PartListener implements ReadableProgressListener {
 
 		private final float fraction;
 		private float current = 0f;
@@ -191,11 +196,6 @@ public class ParallelProgress implements ReadableProgressListener {
 		@Override
 		public String getMessage() {
 			return currentMessage;
-		}
-
-		@Override
-		public int compareTo(PartListener o) {
-			return Float.compare(partCurrent, o.partCurrent);
 		}
 	}
 }
