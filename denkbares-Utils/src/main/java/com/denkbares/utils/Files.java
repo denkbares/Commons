@@ -484,7 +484,7 @@ public class Files {
 	}
 
 	/**
-	 * Reads and rewrites the a properties file, adding the specified entries, overwriting all existing entries that
+	 * Reads and rewrites a properties file, adding the specified entries, overwriting all existing entries that
 	 * have one of the specified keys. It preserves all other lines, including comments and the order of the lines. Only
 	 * the lines with the specified key will be modified (preserving their order), where the first one is overwritten,
 	 * and succeeding ones (if there are any) will be deleted. If there are no such lines contained for some of the
