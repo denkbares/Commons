@@ -36,6 +36,7 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.AbstractDelegateEndpoint;
@@ -59,7 +60,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, File tempFolder) throws IOException {
+	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning,  @Nullable File tempFolder) throws IOException {
 		this(sourceFile, reasoning, createOntologyName(sourceFile.getPath()), tempFolder);
 	}
 
@@ -73,7 +74,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, String ontologyName, @Nullable File tempFolder) throws IOException {
 		this(Collections.singleton(new InputStreamReader(sourceFile.openStream(), StandardCharsets.UTF_8)),
 				reasoning, true, ontologyName, tempFolder);
 	}
@@ -87,7 +88,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning,  @Nullable File tempFolder) throws IOException {
 		this(source, reasoning, createOntologyName(source.toRealPath().toString()), tempFolder);
 	}
 
@@ -101,7 +102,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
 		this(Collections.singleton(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8))),
 				reasoning, true, ontologyName, tempFolder);
 	}
@@ -116,7 +117,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Reader source, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Reader source, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
 		this(Collections.singleton(source), reasoning, false, ontologyName, tempFolder);
 	}
 
@@ -131,7 +132,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	private TurtleFileEndpoint(Collection<Reader> sources, RepositoryConfig reasoning, boolean autoClose, String ontologyName, File tempFolder) throws IOException {
+	private TurtleFileEndpoint(Collection<Reader> sources, RepositoryConfig reasoning, boolean autoClose, String ontologyName,  @Nullable File tempFolder) throws IOException {
 		Stopwatch stopwatch = new Stopwatch();
 		this.ontologyName = ontologyName;
 		this.sc = SemanticCore.getOrCreateInstance(ontologyName, reasoning, tempFolder);
@@ -165,7 +166,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public static TurtleFileEndpoint fromPaths(Collection<Path> sources, RepositoryConfig reasoning, String ontologyName, File tempFolder) throws IOException {
+	public static TurtleFileEndpoint fromPaths(Collection<Path> sources, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
 		Collection<Reader> streams = new ArrayList<>(sources.size());
 		for (Path source : sources) {
 			streams.add(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8)));
