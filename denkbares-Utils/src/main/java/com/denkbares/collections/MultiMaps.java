@@ -1023,7 +1023,7 @@ public class MultiMaps {
 		@Override
 		public Set<Entry<K, V>> entrySet() {
 			return values.stream().map(value -> new AbstractMap.SimpleImmutableEntry<>(key, value))
-					.collect(Collectors.toSet());
+					.collect(Collectors.toCollection(LinkedHashSet::new));
 		}
 
 		@NotNull
