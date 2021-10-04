@@ -24,7 +24,7 @@
 	<parent>
 		<artifactId>denkbares-Commons</artifactId>
 		<groupId>com.denkbares</groupId>
-		<version>12.6-SNAPSHOT</version>
+		<version>12.7-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>denkbares-PluginManager</artifactId>
