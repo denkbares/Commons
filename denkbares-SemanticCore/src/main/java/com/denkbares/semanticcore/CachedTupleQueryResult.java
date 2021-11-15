@@ -21,6 +21,7 @@ package com.denkbares.semanticcore;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -43,10 +44,25 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 	private final List<String> bindingNames;
 	// the CachedTupleQueryResult could be used by different threads, so use thread local iterator
 	private final ThreadLocal<Iterator<BindingSet>> cachedIterator = new ThreadLocal<>();
+	private final Date creationDate;
+	private boolean outdated;
 
-	public CachedTupleQueryResult(List<String> bindingNames, List<BindingSet> bindingSets) {
+	public CachedTupleQueryResult(List<String> bindingNames, List<BindingSet> bindingSets, Date creationDate) {
 		this.bindingNames = new ArrayList<>(bindingNames);
 		this.cache = new ArrayList<>(bindingSets);
+		this.creationDate = creationDate;
+	}
+
+	@Override
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	/**
+	 * Check whether the result is from a previous database state and therefore possibly outdated
+	 */
+	public boolean isOutdated() {
+		return outdated;
 	}
 
 	@Override
@@ -84,6 +100,11 @@ public class CachedTupleQueryResult extends TupleQueryResult {
 
 	@Override
 	public com.denkbares.semanticcore.CachedTupleQueryResult cachedAndClosed() {
+		return this;
+	}
+
+	public com.denkbares.semanticcore.CachedTupleQueryResult markAsOutdated() {
+		this.outdated = true;
 		return this;
 	}
 

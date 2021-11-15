@@ -20,6 +20,7 @@
 package com.denkbares.semanticcore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -45,6 +46,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 
 	private final org.eclipse.rdf4j.query.TupleQueryResult delegate;
 	private final List<Consumer<TupleQueryResult>> closeHandlers = new ArrayList<>(0);
+	private final Date creationDate;
 
 	private CachedTupleQueryResult cache = null;
 	private boolean calledNext = false;
@@ -52,11 +54,17 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 
 	public TupleQueryResult(org.eclipse.rdf4j.query.TupleQueryResult delegate) {
 		this.delegate = delegate;
+		this.creationDate = new Date();
 	}
 
 	TupleQueryResult() {
 		// only to be used by CachedTupleQueryResult
 		this.delegate = null;
+		this.creationDate = new Date();
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
 	}
 
 	public TupleQueryResult onClose(Runnable closeHandler) {
@@ -92,7 +100,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 			finally {
 				close();
 			}
-			cache = new CachedTupleQueryResult(bindingNames, bindingSets);
+			cache = new CachedTupleQueryResult(bindingNames, bindingSets, getCreationDate());
 		}
 
 		return cache;
@@ -171,8 +179,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		if (cache != null) {
 			return cache.iterator();
 		}
-		//noinspection IteratorNextCanNotThrowNoSuchElementException
-		return new Iterator<BindingSet>() {
+		return new Iterator<>() {
 
 			@Override
 			public boolean hasNext() {
@@ -186,6 +193,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 		};
 	}
 
+	@Override
 	public Stream<BindingSet> stream() {
 		return StreamSupport.stream(spliterator(), false);
 	}
