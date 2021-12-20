@@ -52,7 +52,7 @@ public class SimpleTableReaderUtils {
 				index++;
 				continue;
 			}
-			data.add(factory.createTableLine(line));
+			data.add(factory.createTableLine(line, index));
 			index++;
 		}
 	}

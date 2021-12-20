@@ -44,7 +44,7 @@ public class DefaultTableLineFactory implements TableLineFactory{
 	}
 
 	@Override
-	public TableLine createTableLine(String lineText) {
+	public TableLine createTableLine(String lineText, int index) {
 		return new TableLine(lineText, splitter, unquote);
 	}
 }

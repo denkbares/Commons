@@ -39,9 +39,17 @@ public class TableLine {
 
 	private final String[] cells;
 
+	private int lineNumber;
+
 	private TableLine(String text, String[] cells) {
 		this.text = text;
 		this.cells = cells;
+	}
+
+	private TableLine(String text, String[] cells, int index) {
+		this.text = text;
+		this.cells = cells;
+		this.lineNumber = index;
 	}
 
 	/**
@@ -55,6 +63,14 @@ public class TableLine {
 
 	public static TableLine createLine(String text, String[] cells) {
 		return new TableLine(text, cells);
+	}
+
+	public static TableLine createLine(String text, String[] cells,int index ) {
+		return new TableLine(text, cells, index);
+	}
+
+	public int getLineNumber() {
+		return lineNumber;
 	}
 
 	public TableLine(String text, String splitSign) {

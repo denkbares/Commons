@@ -34,5 +34,6 @@ public interface TableLineFactory {
 	 * @param lineText the text sequence for this table line
 	 * @return a TableLine object containing the cells for the given text sequence.
 	 */
-	TableLine createTableLine(String lineText);
+	TableLine createTableLine(String lineText, int index);
+
 }
