@@ -60,7 +60,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning,  @Nullable File tempFolder) throws IOException {
+	public TurtleFileEndpoint(URL sourceFile, RepositoryConfig reasoning, @Nullable File tempFolder) throws IOException {
 		this(sourceFile, reasoning, createOntologyName(sourceFile.getPath()), tempFolder);
 	}
 
@@ -88,7 +88,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning,  @Nullable File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, @Nullable File tempFolder) throws IOException {
 		this(source, reasoning, createOntologyName(source.toRealPath().toString()), tempFolder);
 	}
 
@@ -102,7 +102,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Path source, RepositoryConfig reasoning, String ontologyName, @Nullable File tempFolder) throws IOException {
 		this(Collections.singleton(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8))),
 				reasoning, true, ontologyName, tempFolder);
 	}
@@ -117,7 +117,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public TurtleFileEndpoint(Reader source, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
+	public TurtleFileEndpoint(Reader source, RepositoryConfig reasoning, String ontologyName, @Nullable File tempFolder) throws IOException {
 		this(Collections.singleton(source), reasoning, false, ontologyName, tempFolder);
 	}
 
@@ -132,7 +132,7 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	private TurtleFileEndpoint(Collection<Reader> sources, RepositoryConfig reasoning, boolean autoClose, String ontologyName,  @Nullable File tempFolder) throws IOException {
+	private TurtleFileEndpoint(Collection<Reader> sources, RepositoryConfig reasoning, boolean autoClose, String ontologyName, @Nullable File tempFolder) throws IOException {
 		Stopwatch stopwatch = new Stopwatch();
 		this.ontologyName = ontologyName;
 		this.sc = SemanticCore.getOrCreateInstance(ontologyName, reasoning, tempFolder);
@@ -166,12 +166,22 @@ public class TurtleFileEndpoint extends AbstractDelegateEndpoint {
 	 * @param tempFolder   the folder to eventually create the repository in
 	 * @throws IOException if the turtle could not be loaded or the repository could not be created
 	 */
-	public static TurtleFileEndpoint fromPaths(Collection<Path> sources, RepositoryConfig reasoning, String ontologyName,  @Nullable File tempFolder) throws IOException {
+	public static TurtleFileEndpoint fromPaths(Collection<Path> sources, RepositoryConfig reasoning, String ontologyName, @Nullable File tempFolder) throws IOException {
 		Collection<Reader> streams = new ArrayList<>(sources.size());
 		for (Path source : sources) {
 			streams.add(new BufferedReader(new InputStreamReader(new FileInputStream(source.toFile()), StandardCharsets.UTF_8)));
 		}
 		return new TurtleFileEndpoint(streams, reasoning, true, ontologyName, tempFolder);
+	}
+
+	/**
+	 * Utility method to create an ontology name based on a given source file
+	 *
+	 * @param source the source file to create the name for
+	 * @return the created ontology name
+	 */
+	public static String createOntologyName(Path source) throws IOException {
+		return createOntologyName(source.toRealPath().toString());
 	}
 
 	private static String createOntologyName(String sourcePath) {
