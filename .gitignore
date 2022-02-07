@@ -20,3 +20,4 @@ buildNumber.properties
 
 # Java
 *.class
+rebel.xml
