@@ -38,7 +38,7 @@ public class OSTest {
 		for (OS os : OS.values()) {
 			if (os.isCurrentOS()) count++;
 		}
-		Assert.assertEquals("must have exaclty one (1) current os", 1, count);
+		Assert.assertEquals("must have exactly one (1) current os", 1, count);
 	}
 
 	@Test
