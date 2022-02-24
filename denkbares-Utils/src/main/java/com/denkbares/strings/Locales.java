@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Spliterator.*;
@@ -71,6 +73,7 @@ public class Locales {
 	 * @param text the locale's text representation to be parsed
 	 * @return the parsed locale
 	 */
+	@Contract("null -> null; !null -> !null")
 	public static Locale parseLocale(String text) {
 		return Strings.parseLocale(text);
 	}
@@ -86,6 +89,7 @@ public class Locales {
 	 * @param available the available locales
 	 * @return the best matching locale
 	 */
+	@Nullable
 	public static Locale findBestLocale(Locale preferred, Locale... available) {
 		return findBestLocale(preferred, Arrays.asList(available));
 	}
@@ -102,6 +106,7 @@ public class Locales {
 	 * @param available the available locales
 	 * @return the best matching locale
 	 */
+	@Nullable
 	public static Locale findBestLocale(Locale preferred, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
@@ -124,6 +129,7 @@ public class Locales {
 	 * @param available the available locales
 	 * @return the best matching locale, granted to have at least the same language, or the root locale
 	 */
+	@Nullable
 	public static Locale findBestLocaleOfLanguage(Locale preferred, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
@@ -211,6 +217,7 @@ public class Locales {
 	 * @param available      the available locales
 	 * @return the best matching locale
 	 */
+	@Nullable
 	public static Locale findBestLocale(Collection<Locale> preferenceList, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
@@ -223,7 +230,7 @@ public class Locales {
 			if (match != null) return match;
 		}
 
-		// otherwise try normal selection of the first preferred locale
+		// otherwise, try normal selection of the first preferred locale
 		Locale first = preferenceList.isEmpty() ? Locale.ROOT : preferenceList.iterator().next();
 		return findBestLocale(first, available);
 	}
@@ -241,7 +248,7 @@ public class Locales {
 	public static Iterator<Locale> iterateByPreference(Collection<Locale> preferenceList, Collection<Locale> available) {
 		if (available == null) return Collections.emptyIterator();
 		Set<Locale> remaining = new LinkedHashSet<>(available);
-		return new Iterator<Locale>() {
+		return new Iterator<>() {
 			@Override
 			public boolean hasNext() {
 				return !remaining.isEmpty();
@@ -325,6 +332,7 @@ public class Locales {
 	 * @param locale if the specified languages shall be sorted
 	 * @return the parsable string
 	 */
+	@NotNull
 	public static String toParsableLocale(Locale locale) {
 		String name = (locale == null) ? "null" : String.valueOf(locale);
 		return Strings.isBlank(name) ? "ROOT" : name;
@@ -339,6 +347,7 @@ public class Locales {
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
+	@NotNull
 	public static String toParsableList(Locale... languages) {
 		return toParsableList(Arrays.asList(languages));
 	}
@@ -352,6 +361,7 @@ public class Locales {
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
+	@NotNull
 	public static String toParsableList(Collection<Locale> languages) {
 		if (languages == null) return "";
 		StringBuilder result = new StringBuilder();
@@ -372,6 +382,7 @@ public class Locales {
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
+	@NotNull
 	public static String toParsableList(boolean sorted, Collection<Locale> languages) {
 		if (languages == null) return "";
 		if (sorted) {
@@ -390,6 +401,7 @@ public class Locales {
 	 * @param languages the languages to represent as a parsable string
 	 * @return the parsable string
 	 */
+	@NotNull
 	public static String toParsableList(boolean sorted, Locale... languages) {
 		return toParsableList(sorted, Arrays.asList(languages));
 	}
@@ -401,6 +413,7 @@ public class Locales {
 	 * @param languages the string representation ot be read
 	 * @return the languages read from the string representation
 	 */
+	@NotNull
 	public static Set<Locale> parseList(String languages) {
 		if (Strings.isBlank(languages)) return Collections.emptySet();
 		LinkedHashSet<Locale> result = new LinkedHashSet<>();
@@ -430,6 +443,7 @@ public class Locales {
 	 * @param language the preferred language(s) to get the value for
 	 * @return the value of the best matching language
 	 */
+	@Nullable
 	public static <E> E getBestValue(Map<Locale, ? extends E> map, Locale... language) {
 		if (map == null) return null;
 		return map.get(findBestLocale(Arrays.asList(language), map.keySet()));
@@ -445,6 +459,7 @@ public class Locales {
 	 * @param defaultValue the default value to be returned if no item could be detected
 	 * @return the value of the best matching language
 	 */
+	@NotNull
 	public static <E> E getBestValue(Map<Locale, E> map, Locale language, E defaultValue) {
 		if (map == null) return defaultValue;
 		return map.getOrDefault(findBestLocale(language, map.keySet()), defaultValue);
