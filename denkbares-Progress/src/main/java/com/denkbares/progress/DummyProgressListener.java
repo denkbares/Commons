@@ -20,10 +20,19 @@ package com.denkbares.progress;
 
 /**
  * A simple implementation of a ProgressLister which does absolutely nothing
- * 
+ *
  * @author Markus Friedrich (denkbares GmbH)
  */
 public class DummyProgressListener implements ProgressListener {
+
+	public static final DummyProgressListener instance = new DummyProgressListener();
+
+	public DummyProgressListener() {
+	}
+
+	public static DummyProgressListener getInstance() {
+		return instance;
+	}
 
 	@Override
 	public void updateProgress(float percent, String message) {
