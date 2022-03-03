@@ -26,13 +26,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.collections.SoftValueHashMap;
-import com.denkbares.utils.Log;
 
 import static org.junit.Assert.*;
 
 public class SoftValueHashMapTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SoftValueHashMapTest.class);
 
 	@Test
 	public void basic() {
@@ -185,7 +187,7 @@ public class SoftValueHashMapTest {
 			}
 			catch (OutOfMemoryError e) {
 				// Ignore, we are fine now
-				Log.info("memory cleared");
+				LOGGER.info("memory cleared");
 				System.gc();
 			}
 			if (map.size() <= expectedSize) break;

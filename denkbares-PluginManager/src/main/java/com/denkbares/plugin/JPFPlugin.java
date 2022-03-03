@@ -38,9 +38,11 @@ import org.java.plugin.registry.Library;
 import org.java.plugin.registry.PluginAttribute;
 import org.java.plugin.registry.PluginDescriptor;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JPFPlugin implements Plugin {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JPFPlugin.class);
 
 	private static final class ResourceFilter {
 
@@ -193,7 +195,7 @@ public class JPFPlugin implements Plugin {
 			}
 		}
 		catch (IOException e) {
-			Log.warning("cannot read resources from plugin '" + pluginUrl + "': " + e);
+			LOGGER.warn("cannot read resources from plugin '" + pluginUrl + "': " + e);
 		}
 		return result;
 	}

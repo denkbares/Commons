@@ -20,14 +20,11 @@
 package com.denkbares.semanticcore.graphdb;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.qos.logback.classic.Level;
 import com.ontotext.trree.config.OWLIMSailSchema;
 import com.ontotext.trree.statistics.StatisticsSettings;
 import org.eclipse.rdf4j.model.IRI;
@@ -56,9 +53,6 @@ import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.RepositoryConfigCreatedEvent;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.strings.Strings;
-import com.denkbares.utils.Files;
-import com.denkbares.utils.Log;
-import com.denkbares.utils.Streams;
 
 import static com.denkbares.semanticcore.SemanticCore.DEFAULT_NAMESPACE;
 
@@ -69,6 +63,7 @@ import static com.denkbares.semanticcore.SemanticCore.DEFAULT_NAMESPACE;
  * @created 17.05.16
  */
 public abstract class GraphDBConfig implements RepositoryConfig {
+	private static final Logger LOGGER = LoggerFactory.getLogger(GraphDBConfig.class);
 
 	private static final String GRAPHDB_GLOBAL_PAGE_CACHE = "graphdb.global.page.cache";
 	private static final String DEFAULT_MIN_DISTINCT_THRESHOLD = "default.min.distinct.threshold";
@@ -130,7 +125,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 			}
 		}
 		catch (IOException e) {
-			Log.warning("Exception while trying to cache rule set file for usage", e);
+			LOGGER.warn("Exception while trying to cache rule set file for usage", e);
 		}
 		return ruleSet;
 	}
@@ -139,7 +134,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		// Configure logging
 		Logger rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
 		if (rootLogger instanceof ch.qos.logback.classic.Logger) {
-			((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
+			//((ch.qos.logback.classic.Logger) rootLogger).setLevel(Level.ERROR);
 		}
 		else {
 			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()

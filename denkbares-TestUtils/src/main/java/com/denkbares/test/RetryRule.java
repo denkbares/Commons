@@ -23,7 +23,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.denkbares.utils.Stopwatch;
 
 /**
@@ -33,6 +34,7 @@ import com.denkbares.utils.Stopwatch;
  * @created 03.07.15
  */
 public class RetryRule implements TestRule {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RetryRule.class);
 
 	private final int retryCount;
 
@@ -56,18 +58,18 @@ public class RetryRule implements TestRule {
 					timer.start();
 					try {
 						base.evaluate();
-						Log.info("Retry number " + i + 1 + ": " + timer.getDisplay());
+						LOGGER.info("Retry number " + i + 1 + ": " + timer.getDisplay());
 						timer.reset();
 						return;
 					}
 					catch (Throwable t) {
 						timer.reset();
 						caughtThrowable = t;
-						Log.severe("Run " + (i + 1) + "/" + retryCount + " of '" + description.getDisplayName() + "' failed", t);
+						LOGGER.error("Run " + (i + 1) + "/" + retryCount + " of '" + description.getDisplayName() + "' failed", t);
 					}
 
 				}
-				Log.severe("Giving up after " + retryCount + " failures of '" + description.getDisplayName() + "'");
+				LOGGER.error("Giving up after " + retryCount + " failures of '" + description.getDisplayName() + "'");
 				if (caughtThrowable != null) {
 					throw caughtThrowable;
 				}

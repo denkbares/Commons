@@ -22,7 +22,8 @@ package com.denkbares.reader.table;
 import java.util.function.Function;
 
 import com.denkbares.strings.Strings;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple TableLine holding the text/cells of a textual table line.
@@ -34,6 +35,7 @@ import com.denkbares.utils.Log;
  * @created 30.03.15.
  */
 public class TableLine {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TableLine.class);
 
 	private final String text;
 
@@ -114,7 +116,7 @@ public class TableLine {
 			result = (int) Double.parseDouble(numberDeliveredString);
 		}
 		catch (NumberFormatException e) {
-			Log.warning("Not a valid integer value: "+numberDeliveredString+ " "+e.getMessage());
+			LOGGER.warn("Not a valid integer value: "+numberDeliveredString+ " "+e.getMessage());
 		}
 		return result;
 	}
@@ -137,7 +139,7 @@ public class TableLine {
 			result = Double.parseDouble(cleanDoubleString);
 		}
 		catch (NumberFormatException e) {
-			Log.warning("Could not parse value to Double: " + numberDeliveredString+ " "+e.getMessage());
+			LOGGER.warn("Could not parse value to Double: " + numberDeliveredString+ " "+e.getMessage());
 		}
 		return result;
 	}

@@ -23,7 +23,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Rule allowing for tests to run a defined number of times. Prints failures along the way.
@@ -32,6 +33,7 @@ import com.denkbares.utils.Log;
  * @created 03.07.15
  */
 public class RerunRule implements TestRule {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RerunRule.class);
 
 	private final int rerunCount;
 	private int successes;
@@ -56,14 +58,14 @@ public class RerunRule implements TestRule {
 					try {
 						base.evaluate();
 						successes++;
-						Log.severe("Run " + (i + 1) + "/" + rerunCount + " of '" + description.getDisplayName() + "' successful");
+						LOGGER.error("Run " + (i + 1) + "/" + rerunCount + " of '" + description.getDisplayName() + "' successful");
 					}
 					catch (Throwable throwable) {
 						caughtThrowable = throwable;
-						Log.severe("Run " + (i + 1) + "/" + rerunCount + " of '" + description.getDisplayName() + "' failed", throwable);
+						LOGGER.error("Run " + (i + 1) + "/" + rerunCount + " of '" + description.getDisplayName() + "' failed", throwable);
 					}
 				}
-				Log.severe("Final statistic for " + description.getDisplayName() + ": " + successes + "/" + rerunCount + " successes");
+				LOGGER.error("Final statistic for " + description.getDisplayName() + ": " + successes + "/" + rerunCount + " successes");
 				if (caughtThrowable != null) throw caughtThrowable;
 			}
 		};

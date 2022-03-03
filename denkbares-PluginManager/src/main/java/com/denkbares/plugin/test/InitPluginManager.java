@@ -28,7 +28,8 @@ import java.util.List;
 
 import com.denkbares.plugin.JPFPluginManager;
 import com.denkbares.strings.Strings;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a static method to initialize the JPF PluginManager automatically by using
@@ -37,6 +38,7 @@ import com.denkbares.utils.Log;
  * @author Markus Friedrich (denkbares GmbH)
  */
 public final class InitPluginManager {
+	private static final Logger LOGGER = LoggerFactory.getLogger(InitPluginManager.class);
 	/**
 	 * The filter patterns applied by default if none are specified
 	 */
@@ -100,9 +102,9 @@ public final class InitPluginManager {
 	 */
 	public static void init(File classpathFile, String... pluginFilterPattern) throws IOException {
 		if (!Files.exists(classpathFile.toPath())) {
-			Log.severe("Dependency information file does not exist: " + classpathFile.getAbsolutePath());
+			LOGGER.error("Dependency information file does not exist: " + classpathFile.getAbsolutePath());
 		}
-		Log.info("Initializing plugins specified in " + classpathFile);
+		LOGGER.info("Initializing plugins specified in " + classpathFile);
 		init(Strings.readFile(classpathFile).split(";"), pluginFilterPattern);
 	}
 

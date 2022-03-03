@@ -32,7 +32,8 @@ import com.denkbares.events.EventListener;
 import com.denkbares.events.EventManager;
 import com.denkbares.plugin.Extension;
 import com.denkbares.plugin.PluginManager;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util class for repository configs.
@@ -41,6 +42,7 @@ import com.denkbares.utils.Log;
  * @created 17.05.16
  */
 public class RepositoryConfigs {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryConfigs.class);
 
 	private static final Map<Class<? extends RepositoryConfig>, RepositoryConfig> cache = new LinkedHashMap<>();
 	public static final String PLUGIN_ID = "denkbares-SemanticCore-Plugin-ExtensionPoints";
@@ -120,7 +122,7 @@ public class RepositoryConfigs {
 				cache.put(singleton.getClass(), singleton);
 			}
 			catch (NoClassDefFoundError e) {
-				Log.severe("Extension " + reasoningExtension.getID() + " was listed as a dependency, but not available in the class path. Skipping.");
+				LOGGER.error("Extension " + reasoningExtension.getID() + " was listed as a dependency, but not available in the class path. Skipping.");
 			}
 		}
 	}

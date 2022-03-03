@@ -26,6 +26,8 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Introducing a utility class for more simplified logging. This class allows to log by a class
  * instance or an instance of any object without accessing the class's name. It also allows to log
@@ -37,6 +39,7 @@ import java.util.logging.Logger;
  * @author Volker Belli (denkbares GmbH)
  * @created 19.01.2014
  */
+@Deprecated
 public class Log {
 
 	static {
@@ -624,25 +627,46 @@ public class Log {
 	private static void log(int stackLevel, Level level, String message) {
 		StackFrame source = getSource(stackLevel + 1);
 		String className = source.getClassName(stackLevel + 1);
-		Logger logger = Logger.getLogger(className);
-		if (contextName != null) {
-			className = "[" + contextName + "] " + className;
+
+		final var logger = LoggerFactory.getLogger(className);
+
+		if (Level.SEVERE.equals(level)) {
+			logger.error(message);
 		}
-		if (logger.isLoggable(level)) {
-			logger.logp(level, className, source.getMethodName(stackLevel + 1), message);
+		else if (Level.WARNING.equals(level)) {
+			logger.warn(message);
+		}
+		else if (Level.INFO.equals(level)) {
+			logger.info(message);
+		}
+		else if (Level.FINE.equals(level)) {
+			logger.debug(message);
+		}
+		else if (Level.FINER.equals(level) || Level.FINEST.equals(level)) {
+			logger.trace(message);
 		}
 	}
 
 	private static void log(int stackLevel, Level level, String message, Throwable e) {
 		StackFrame source = getSource(stackLevel + 1);
 		String className = source.getClassName(stackLevel + 1);
-		Logger logger = Logger.getLogger(className);
-		String contextName = getContextName();
-		if (contextName != null) {
-			className = "[" + contextName + "] " + className;
+
+		final var logger = LoggerFactory.getLogger(className);
+
+		if (Level.SEVERE.equals(level)) {
+			logger.error(message, e);
 		}
-		if (logger.isLoggable(level)) {
-			logger.logp(level, className, source.getMethodName(stackLevel + 1), message, e);
+		else if (Level.WARNING.equals(level)) {
+			logger.warn(message, e);
+		}
+		else if (Level.INFO.equals(level)) {
+			logger.info(message, e);
+		}
+		else if (Level.FINE.equals(level)) {
+			logger.debug(message, e);
+		}
+		else if (Level.FINER.equals(level) || Level.FINEST.equals(level)) {
+			logger.trace(message, e);
 		}
 	}
 }

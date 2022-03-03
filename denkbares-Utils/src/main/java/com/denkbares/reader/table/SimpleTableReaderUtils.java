@@ -27,13 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.denkbares.strings.Strings;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)
  * @created 30.03.15.
  */
 public class SimpleTableReaderUtils {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleTableReaderUtils.class);
 
 	public static List<TableLine> getData(InputStream inputStream, String encoding, TableLineFactory factory, boolean skipFirstLine) {
 		List<TableLine> data;
@@ -76,7 +78,7 @@ public class SimpleTableReaderUtils {
 			readLines(factory, skipFirstLine, data, lines);
 		}
 		catch (IOException e) {
-			Log.severe("Could not read table file", e);
+			LOGGER.error("Could not read table file", e);
 		}
 
 		return data;
@@ -84,7 +86,7 @@ public class SimpleTableReaderUtils {
 
 	private static String[] getLines(File txt, String encoding, String lineSplitter) throws IOException {
 		if (!txt.canRead()) {
-			Log.severe("ERROR: file not found: " + txt.getAbsolutePath());
+			LOGGER.error("ERROR: file not found: " + txt.getAbsolutePath());
 		}
 		String content = new String(Files.readAllBytes(txt.toPath()), encoding);
 		return content.split(lineSplitter);

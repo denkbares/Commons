@@ -28,13 +28,15 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.UnsupportedRDFormatException;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Sebastian Furth (denkbares GmbH)
  * @since 23.07.2014
  */
 public class RDFTransformator implements Transformator {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RDFTransformator.class);
 
 	@Override
 	public void transform(String targetFile, SemanticCore core) {
@@ -43,7 +45,7 @@ public class RDFTransformator implements Transformator {
 			core.getConnection().export(rdfWriter);
 		}
 		catch (UnsupportedRDFormatException | RDFHandlerException | RepositoryException | IOException e) {
-			Log.severe("Exporting RDF failed.", e);
+			LOGGER.error("Exporting RDF failed.", e);
 		}
 	}
 

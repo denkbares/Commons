@@ -32,7 +32,8 @@ import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.jetbrains.annotations.NotNull;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a delegate for the ordinary {@link org.eclipse.rdf4j.query.TupleQueryResult}. Tries to close delegate query
@@ -43,6 +44,7 @@ import com.denkbares.utils.Log;
  * @created 26.01.16
  */
 public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<BindingSet> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TupleQueryResult.class);
 
 	private final org.eclipse.rdf4j.query.TupleQueryResult delegate;
 	private final List<Consumer<TupleQueryResult>> closeHandlers = new ArrayList<>(0);
@@ -94,7 +96,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 					bindingSets.add(new CachedBindingSet(next()));
 				}
 				if (Thread.currentThread().isInterrupted()) {
-					Log.info("SPARQL query caching interrupted, closing...");
+					LOGGER.info("SPARQL query caching interrupted, closing...");
 				}
 			}
 			finally {

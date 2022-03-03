@@ -18,7 +18,8 @@
  */
 package com.denkbares.collections;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -45,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
  * @created 12.04.2013
  */
 public class PartialHierarchyTree<T> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(PartialHierarchyTree.class);
 
 	private final Node<T> root;
 	private final Comparator<T> comparator;
@@ -314,7 +316,7 @@ public class PartialHierarchyTree<T> {
 			return insert(t);
 		}
 		catch (PartialHierarchyException e) {
-			Log.severe("Unable to insert node", e);
+			LOGGER.error("Unable to insert node", e);
 			return false;
 		}
 	}
@@ -423,6 +425,7 @@ public class PartialHierarchyTree<T> {
 	}
 
 	public static class Node<T> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
 		final T data;
 		private final transient Collection<Node<T>> parents = new MinimizedHashSet<>();

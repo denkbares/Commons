@@ -50,13 +50,15 @@ import com.denkbares.semanticcore.CachedTupleQueryResult;
 import com.denkbares.semanticcore.ClosableTupleQueryResult;
 import com.denkbares.strings.Strings;
 import com.denkbares.strings.Text;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Volker Belli (denkbares GmbH)
  * @created 02.04.2015
  */
 public class Sparqls {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Sparqls.class);
 
 	/**
 	 * Reads a value from a binding set of a sparql result row and returns it as a language-tagged text. If no language
@@ -167,7 +169,7 @@ public class Sparqls {
 			return Float.parseFloat(value.stringValue());
 		}
 		catch (NumberFormatException e) {
-			Log.warning("cannot parse binding of '" + value + "' as float");
+			LOGGER.warn("cannot parse binding of '" + value + "' as float");
 			return null;
 		}
 	}
@@ -305,7 +307,7 @@ public class Sparqls {
 			return Integer.parseInt(value.stringValue());
 		}
 		catch (NumberFormatException e) {
-			Log.warning("cannot parse binding of '" + value + "' as float");
+			LOGGER.warn("cannot parse binding of '" + value + "' as float");
 			return null;
 		}
 	}
@@ -388,7 +390,7 @@ public class Sparqls {
 			return Boolean.parseBoolean(value.stringValue());
 		}
 		catch (NumberFormatException e) {
-			Log.warning("cannot parse binding of '" + value + "' as float");
+			LOGGER.warn("cannot parse binding of '" + value + "' as float");
 			return null;
 		}
 	}

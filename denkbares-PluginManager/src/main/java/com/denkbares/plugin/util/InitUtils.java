@@ -38,7 +38,8 @@ import com.denkbares.plugin.Plugin;
 import com.denkbares.plugin.PluginManager;
 import com.denkbares.plugin.Resource;
 import com.denkbares.plugin.test.InitPluginManager;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.denkbares.utils.Streams;
 
 /**
@@ -48,6 +49,7 @@ import com.denkbares.utils.Streams;
  * @created 28.08.2015
  */
 public class InitUtils {
+	private static final Logger LOGGER = LoggerFactory.getLogger(InitUtils.class);
 
 	/**
 	 * Initialize the plugin manager, the resources and external viewers. Handles both, started
@@ -97,7 +99,7 @@ public class InitUtils {
 
 			// check max osx app
 			if (appFile.exists()) {
-				Log.info("Mac OSX app detected at: " + appFile.getAbsolutePath());
+				LOGGER.info("Mac OSX app detected at: " + appFile.getAbsolutePath());
 				// started as MacOS bundle,
 				// check both d3webMobile and ServiceMate
 				String dirMate = appFile + "/Contents/Resources/ServiceMate/WEB-INF/lib/";
@@ -128,7 +130,7 @@ public class InitUtils {
 				classpathFile = new File("WEB-INF/dependencies/output.txt");
 			}
 			if (classpathFile.exists()) {
-				Log.info("start from debugger detected: dependencies file used");
+				LOGGER.info("start from debugger detected: dependencies file used");
 				InitPluginManager.init(classpathFile, pluginFilterPatterns);
 				rootDirectory = new File(".");
 			}
@@ -143,13 +145,13 @@ public class InitUtils {
 				rootDirectory = libDir.getParentFile().getParentFile();
 			}
 			else {
-				Log.info("Unable to find lib dir based on code source of: " + classFile);
+				LOGGER.info("Unable to find lib dir based on code source of: " + classFile);
 			}
 		}
 
 		// if still not initialized: use "target" folder, running in IDE debugger
 		if (rootDirectory == null && new File("target").exists()) {
-			Log.info("start from debugger detected: target folder used");
+			LOGGER.info("start from debugger detected: target folder used");
 			InitPluginManager.init(pluginFilterPatterns);
 			rootDirectory = new File("target/webapp/");
 			// copy files from src/main/resources to
@@ -183,7 +185,7 @@ public class InitUtils {
 			thisClassPath = InitUtils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 		}
 		catch (URISyntaxException e) {
-			Log.info("Cannot get source location from protection domain.");
+			LOGGER.info("Cannot get source location from protection domain.");
 		}
 		if (thisClassPath == null) {
 			String absolutePath = new File(InitUtils.class.getProtectionDomain()

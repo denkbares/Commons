@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A very simple EventManager. Events are represented by Classes.
@@ -34,6 +35,7 @@ import com.denkbares.utils.Log;
  * @author Jochen Reutelshöfer
  */
 public final class EventManager {
+	private static final Logger LOGGER = LoggerFactory.getLogger(EventManager.class);
 
 	private static EventManager instance;
 
@@ -153,7 +155,7 @@ public final class EventManager {
 				eventListener.notify(event);
 			}
 			catch (Exception e) {
-				Log.severe("Catched exception in EventListener", e);
+				LOGGER.error("Catched exception in EventListener", e);
 			}
 		}
 

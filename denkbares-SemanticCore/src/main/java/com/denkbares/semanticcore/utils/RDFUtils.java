@@ -38,13 +38,15 @@ import com.denkbares.semanticcore.TupleQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.strings.Strings;
 import com.denkbares.strings.Text;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jochen Reutelshoefer (denkbares GmbH)
  * @created 19.01.16.
  */
 public class RDFUtils {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RDFUtils.class);
 
 	public static Text create(String string, Locale language) {
 		return new Text(string, language);
@@ -80,7 +82,7 @@ public class RDFUtils {
 			}
 		}
 		catch (QueryEvaluationException e) {
-			Log.severe("Exception while getting classes.", e);
+			LOGGER.error("Exception while getting classes.", e);
 		}
 		return resultCollection;
 	}

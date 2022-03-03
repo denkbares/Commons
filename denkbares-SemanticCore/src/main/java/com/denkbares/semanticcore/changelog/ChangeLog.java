@@ -40,11 +40,13 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.semanticcore.SemanticCore;
-import com.denkbares.utils.Log;
 
 public class ChangeLog {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLog.class);
 
 	private static Queue<Change> committedChanges;
 	private static PrintWriter logWriter;
@@ -86,7 +88,7 @@ public class ChangeLog {
 			logWriter = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)));
 		}
 		catch (IOException | ParseException e) {
-			Log.severe("Exception while loading file " + rdfFile, e);
+			LOGGER.error("Exception while loading file " + rdfFile, e);
 		}
 		return changes;
 	}
@@ -107,7 +109,7 @@ public class ChangeLog {
 			connection.commit();
 		}
 		catch (RepositoryException e) {
-			Log.severe("Exception while committing changes", e);
+			LOGGER.error("Exception while committing changes", e);
 		}
 	}
 

@@ -25,9 +25,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.utils.Exec;
-import com.denkbares.utils.Log;
 import com.denkbares.utils.OS;
 
 import static org.junit.Assert.*;
@@ -37,6 +38,7 @@ import static org.junit.Assert.*;
  * @created 15.11.2019
  */
 public class ExecTest {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExecTest.class);
 	@Test
 	public void parseEmpty() {
 		assertEquals("", Exec.parse(null).getCommand());
@@ -83,7 +85,7 @@ public class ExecTest {
 //				cmdLine = xxx; // TODO how to do a 'cat' in windows shell?
 //				break;
 			default:
-				Log.warning("unknown operating system, skip test: " + OS.getCurrentOriginalName());
+				LOGGER.warn("unknown operating system, skip test: " + OS.getCurrentOriginalName());
 				return;
 		}
 
@@ -108,7 +110,7 @@ public class ExecTest {
 				cmdLine = "ls -al";
 				break;
 			default:
-				Log.warning("unknown operating system, skip test: " + OS.getCurrentOriginalName());
+				LOGGER.warn("unknown operating system, skip test: " + OS.getCurrentOriginalName());
 				return;
 		}
 

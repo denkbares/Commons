@@ -57,11 +57,13 @@ import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Java;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.denkbares.utils.Pair;
 import com.denkbares.utils.Streams;
 
 public class Strings {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Strings.class);
 
 	private static final Pattern PATTERN_BLANK = Pattern.compile("[\\s\\xA0]*");
 	public static final char QUOTE_DOUBLE = '"';
@@ -1925,7 +1927,7 @@ public class Strings {
 			return URLDecoder.decode(text, encoding.encoding());
 		}
 		catch (UnsupportedEncodingException | IllegalArgumentException e) {
-			Log.warning(e.getMessage());
+			LOGGER.warn(e.getMessage());
 			return text;
 		}
 	}
@@ -2218,7 +2220,7 @@ public class Strings {
 		}
 
 		// otherwise use default value
-		Log.warning("cannot parse value '" + name + "' of enumeration " + enumType);
+		LOGGER.warn("cannot parse value '" + name + "' of enumeration " + enumType);
 		return defaultValue;
 	}
 
@@ -2393,6 +2395,7 @@ public class Strings {
 	}
 
 	private static class Group {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Group.class);
 		final int start;
 		final int end;
 

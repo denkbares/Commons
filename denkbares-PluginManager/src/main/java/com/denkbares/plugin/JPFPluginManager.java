@@ -42,7 +42,8 @@ import org.java.plugin.standard.StandardPluginLocation;
 
 import com.denkbares.plugin.util.PluginCollectionComparatorByPriority;
 import com.denkbares.utils.EqualsUtils;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of the PluginManager for the Java Plugin Framework (JPF)
@@ -50,6 +51,7 @@ import com.denkbares.utils.Log;
  * @author Markus Friedrich (denkbares GmbH)
  */
 public final class JPFPluginManager extends PluginManager {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JPFPluginManager.class);
 
 	private final org.java.plugin.PluginManager manager;
 
@@ -72,11 +74,11 @@ public final class JPFPluginManager extends PluginManager {
 					locations.add(location);
 				}
 				else {
-					Log.warning("File '" + pluginFile + "' is not a plugin. It will be ignored.");
+					LOGGER.warn("File '" + pluginFile + "' is not a plugin. It will be ignored.");
 				}
 			}
 			catch (MalformedURLException e) {
-				Log.severe("Error initializing plugin '" + pluginFile + "'", e);
+				LOGGER.error("Error initializing plugin '" + pluginFile + "'", e);
 			}
 		}
 		Map<String, Identity> map = manager.publishPlugins(locations.toArray(new PluginLocation[locations.size()]));
@@ -84,7 +86,7 @@ public final class JPFPluginManager extends PluginManager {
 		for (Identity i : map.values()) {
 			String id = i.getId();
 			manager.activatePlugin(id);
-			Log.info("Plugin '" + id + "' installed and activated.");
+			LOGGER.info("Plugin '" + id + "' installed and activated.");
 		}
 		// check duplicate ids
 		Map<String, org.java.plugin.registry.Extension> extensions = new HashMap<>();
@@ -96,7 +98,7 @@ public final class JPFPluginManager extends PluginManager {
 					String currentName = current.getParameter("name").rawValue();
 					String previousName = previous.getParameter("name").rawValue();
 					if (EqualsUtils.equals(previousName, currentName)) {
-						Log.severe("Tried to load two extensions with the same ID and name. " +
+						LOGGER.error("Tried to load two extensions with the same ID and name. " +
 								"Extensions can have the same ID (to allow to override a extension), but they then need to have different names.\n" +
 								"This is a plugin configuration error and only one will be active. " +
 								"Duplicate id: " + current.getId() + ", duplicate name: " + currentName);
@@ -140,7 +142,7 @@ public final class JPFPluginManager extends PluginManager {
 	 */
 	public static void init(String directory, String... pluginFilterPattern) {
 		if (instance != null) {
-			Log.warning("PluginManager already initialised.");
+			LOGGER.warn("PluginManager already initialised.");
 			return;
 		}
 		String[] patterns;
@@ -151,7 +153,7 @@ public final class JPFPluginManager extends PluginManager {
 			patterns = pluginFilterPattern;
 		}
 		File pluginsDir = new File(directory);
-		Log.info("Initializing plugins from directory " + pluginsDir.getAbsolutePath());
+		LOGGER.info("Initializing plugins from directory " + pluginsDir.getAbsolutePath());
 		File[] pluginFiles = pluginsDir.listFiles();
 		if (pluginFiles != null) {
 			pluginFiles = Arrays.stream(pluginFiles)
@@ -174,19 +176,19 @@ public final class JPFPluginManager extends PluginManager {
 	 */
 	public static void init(File[] pluginFiles) { // NOSONAR false-positive
 		if (instance != null) {
-			Log.warning("PluginManager already initialised.");
+			LOGGER.warn("PluginManager already initialised.");
 			return;
 		}
 		// warning
 		if (pluginFiles == null) {
-			Log.severe("No files found in plugin directory.");
+			LOGGER.error("No files found in plugin directory.");
 			return;
 		}
 		try {
 			instance = new JPFPluginManager(pluginFiles);
 		}
 		catch (JpfException e) {
-			Log.severe("Internal error while initializing plugin manager: " + e);
+			LOGGER.error("Internal error while initializing plugin manager: " + e);
 			throw new IllegalArgumentException(
 					"Internal error while initializing plugin manager", e);
 		}

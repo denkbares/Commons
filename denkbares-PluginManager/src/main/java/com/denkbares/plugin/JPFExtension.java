@@ -30,7 +30,8 @@ import org.java.plugin.registry.PluginDescriptor;
 
 import com.denkbares.utils.Instantiation;
 import com.denkbares.utils.InstantiationContext;
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Implementation of the Extension-Interface for the java plugin framework (jpf)
@@ -38,6 +39,7 @@ import com.denkbares.utils.Log;
  * @author Markus Friedrich (denkbares GmbH)
  */
 public class JPFExtension implements com.denkbares.plugin.Extension {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JPFExtension.class);
 
 	private Class instanceClass;
 	private Object singleton;
@@ -83,21 +85,21 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 			return instance;
 		}
 		catch (ClassNotFoundException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"The class specified in the plugin was not found.  " +
 							"This is a strong evidence for an incorrect plugin.",
 					e);
 			throw new NoClassDefFoundError(e.getMessage());
 		}
 		catch (InstantiationException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"It was not possible to instantiate an object. " +
 							"This is a strong evidence for an incorrect plugin.",
 					e);
 			throw new InstantiationError(e.getMessage());
 		}
 		catch (NoSuchMethodException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"It was not possible to instantiate an object with constructor '" +
 							constructorCall + "'. " +
 							"This is a strong evidence for an incorrect plugin.",
@@ -105,7 +107,7 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 			throw new NoSuchMethodError(e.getMessage());
 		}
 		catch (InvocationTargetException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"It was not possible to instantiate an object with constructor '" +
 							constructorCall + "'. " +
 							"This is a strong evidence for an incorrect plugin.",
@@ -113,14 +115,14 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 			throw new InstantiationError(e.getMessage());
 		}
 		catch (IllegalAccessException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"The constructor or the class could not be accessed. " +
 							"This is a strong evidence for an incorrect plugin.",
 					e);
 			throw new IllegalAccessError(e.getMessage());
 		}
 		catch (LinkageError e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"The plugin uses code that cannot be found or linked. " +
 							"This is a strong evidence for out-dated plugin code.",
 					e);
@@ -162,21 +164,21 @@ public class JPFExtension implements com.denkbares.plugin.Extension {
 			return instanceClass = instantiation.findClass(getParameter("class"));
 		}
 		catch (ClassNotFoundException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"The class specified in the plugin was not found.  " +
 							"This is a strong evidence for an incorrect plugin.",
 					e);
 			throw new NoClassDefFoundError(e.getMessage());
 		}
 		catch (Instantiation.FormatException e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"It was not possible to parse the specified class as a valid class name or constructor call. " +
 							"This is a strong evidence for an incorrect plugin.",
 					e);
 			throw new InstantiationError(e.getMessage());
 		}
 		catch (LinkageError e) {
-			Log.severe("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
+			LOGGER.error("Error in plugin '" + getPluginID() + "', extension '" + getID() + "'. " +
 							"The plugin uses code that cannot be found or linked. " +
 							"This is a strong evidence for out-dated plugin code.",
 					e);

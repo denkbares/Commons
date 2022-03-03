@@ -59,7 +59,8 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.jetbrains.annotations.NotNull;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a delegate for the ordinary {@link org.eclipse.rdf4j.repository.RepositoryException}. Tries to close delegate
@@ -71,6 +72,7 @@ import com.denkbares.utils.Log;
  */
 @SuppressWarnings("deprecation")
 public class RepositoryConnection implements org.eclipse.rdf4j.repository.RepositoryConnection {
+	private static final Logger LOGGER = LoggerFactory.getLogger(RepositoryConnection.class);
 
 	private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
 
@@ -388,7 +390,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 				catch (NullPointerException e) {
 					// this is a hotfix for a bug in GraphDB 8.7
 					// remove this anonymous class when fixed
-					Log.severe("Exception while checking 'hasNext' for namespace query");
+					LOGGER.error("Exception while checking 'hasNext' for namespace query");
 					return false;
 				}
 			}
@@ -420,7 +422,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 			connection.close();
 		}
 		catch (Exception e) {
-			Log.severe("Exception during close()", e);
+			LOGGER.error("Exception during close()", e);
 		}
 	}
 
@@ -562,7 +564,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 			catch (NullPointerException e) {
 				// this is a hotfix for a bug in GraphDB 8.7
 				// remove this try/catch when fixed
-				Log.severe("Exception while checking 'hasNext' for tuple query");
+				LOGGER.error("Exception while checking 'hasNext' for tuple query");
 				return false;
 			}
 		}

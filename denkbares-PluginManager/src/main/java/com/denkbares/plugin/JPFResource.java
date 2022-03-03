@@ -24,9 +24,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.denkbares.utils.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JPFResource implements Resource {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JPFResource.class);
 
 	private final URL url;
 	private final String relativePath;
@@ -54,7 +56,7 @@ public class JPFResource implements Resource {
 			size = connection.getContentLength();
 		}
 		catch (IOException e) {
-			Log.warning("cannot open resource to determine content size", e);
+			LOGGER.warn("cannot open resource to determine content size", e);
 		}
 		return size;
 	}

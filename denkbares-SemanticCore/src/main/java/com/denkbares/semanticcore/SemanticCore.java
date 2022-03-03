@@ -70,6 +70,8 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
@@ -77,11 +79,11 @@ import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
-import com.denkbares.utils.Log;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
 
 public final class SemanticCore implements SPARQLEndpoint {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCore.class);
 
 	public enum State {
 		active, shutdown
@@ -144,7 +146,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 			createInstance(reference, key, reasoning, tmpFolder);
 		}
 		SemanticCore instance = reference.get();
-		Log.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
+		LOGGER.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
 		return instance;
 	}
 
@@ -295,10 +297,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 		try {
 			Stopwatch stopwatch = new Stopwatch();
 			repository.shutDown();
-			Log.info("SemanticCore " + repositoryId + " shut down successfully in " + stopwatch.getDisplay());
+			LOGGER.info("SemanticCore " + repositoryId + " shut down successfully in " + stopwatch.getDisplay());
 		}
 		catch (Exception e) {
-			Log.severe("Exception while shutting down repository " + repositoryId + ", removing repository anyway", e);
+			LOGGER.error("Exception while shutting down repository " + repositoryId + ", removing repository anyway", e);
 		}
 		finally {
 			instances.remove(repositoryId);
@@ -306,7 +308,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 				repositoryManager.removeRepository(repositoryId);
 			}
 			catch (RepositoryException | RepositoryConfigException e) {
-				Log.info("Unable to remove repository from manager", e);
+				LOGGER.info("Unable to remove repository from manager", e);
 			}
 		}
 	}
@@ -333,7 +335,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 		File tempFolder = new File(repositoryPath);
 		repositoryManager = new SyncedLocalRepositoryManager(tempFolder);
-		Log.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
+		LOGGER.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
 		try {
 			repositoryManager.init();
 		}
@@ -343,21 +345,21 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static void shutDownRepositoryManager() {
-		Log.info("Shutting down repository manager.");
+		LOGGER.info("Shutting down repository manager.");
 		// shut down any remaining repositories
 		try {
 			repositoryManager.getRepositoryIDs().forEach(id -> {
 				try {
 					repositoryManager.getRepository(id).shutDown();
-					Log.info("Repository " + id + " shut down successful.");
+					LOGGER.info("Repository " + id + " shut down successful.");
 				}
 				catch (RepositoryException | RepositoryConfigException e) {
-					Log.severe("Unable to shut down repository " + id, e);
+					LOGGER.error("Unable to shut down repository " + id, e);
 				}
 			});
 		}
 		catch (RepositoryException e) {
-			Log.severe("Unable to retrieve repositories during manager close", e);
+			LOGGER.error("Unable to retrieve repositories during manager close", e);
 		}
 		repositoryManager.shutDown();
 		lazyInitializationDone = false;
@@ -412,7 +414,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	public void addData(File file) throws RDFParseException, RepositoryException, IOException {
 		if (!file.exists()) {
 			String message = "ontology file not found: " + file.getAbsolutePath();
-			Log.severe(message);
+			LOGGER.error(message);
 		}
 
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase();
@@ -690,6 +692,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	 * repositories asynchronously.
 	 */
 	private static class SyncedLocalRepositoryManager extends LocalRepositoryManager {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SyncedLocalRepositoryManager.class);
 
 		public SyncedLocalRepositoryManager(File baseDir) {
 			super(baseDir);
