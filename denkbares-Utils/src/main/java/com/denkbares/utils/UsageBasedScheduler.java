@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2022 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -29,6 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static java.util.Calendar.HOUR_OF_DAY;
 import static java.util.concurrent.TimeUnit.*;
 
@@ -39,6 +42,7 @@ import static java.util.concurrent.TimeUnit.*;
  * Created by Albrecht on 15.06.2017.
  */
 public class UsageBasedScheduler {
+	private static final Logger LOGGER = LoggerFactory.getLogger(UsageBasedScheduler.class);
 
 	private final ScheduledExecutorService scheduler;
 	private String name;
@@ -101,17 +105,17 @@ public class UsageBasedScheduler {
 			runnables.add(runnable);
 			Date date = new Date(System.currentTimeMillis() + delay);
 			if (lastUsage == Long.MIN_VALUE) {
-				Log.info(name + " was not yet used, scheduling to run " + date);
+				LOGGER.info(name + " was not yet used, scheduling to run " + date);
 			}
 			else {
-				Log.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
-						+ " ago, scheduling to run task " +  date);
+				LOGGER.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
+						+ " ago, scheduling to run task " + date);
 			}
 		}
 		// or just wait for the next usage
 		else {
 			runnables.add(runnable);
-			Log.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
+			LOGGER.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
 					+ " ago, waiting for next usage do run task.");
 		}
 	}

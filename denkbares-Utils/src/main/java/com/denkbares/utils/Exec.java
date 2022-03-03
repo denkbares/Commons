@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2022 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.denkbares.strings.QuoteSet;
 import com.denkbares.strings.StringFragment;
@@ -47,6 +49,7 @@ import com.denkbares.utils.ConsoleWriter.LineConsumer;
  * @created 08.02.2014
  */
 public class Exec {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Exec.class);
 
 	private static final Pattern EXE_SPLIT_PATTERN = Pattern.compile("[\\h\\s\\v]+");
 
@@ -274,7 +277,7 @@ public class Exec {
 				waitProcess();
 			}
 			catch (InterruptedException e) {
-				Log.warning("interrupted waiting for external process", e);
+				LOGGER.warn("interrupted waiting for external process", e);
 			}
 		}, "Exec-AsyncRunner: " + getCommand()).start();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2022 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for stream handling
@@ -36,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
  * @created 09.09.2013
  */
 public class Streams {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Streams.class);
 
 	/**
 	 * Streams the specified inputStream to the specified outputStream and returns after the stream has completely been
@@ -67,7 +70,7 @@ public class Streams {
 			closeable.close();
 		}
 		catch (Exception e) {
-			Log.severe("Exception during close()", e);
+			LOGGER.error("Exception during close()", e);
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 denkbares GmbH, Germany
+ * Copyright (C) 2022 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,9 @@
 
 package com.denkbares.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Java related util methods
  *
@@ -26,6 +29,7 @@ package com.denkbares.utils;
  * @created 19.05.2020
  */
 public class Java {
+	private static final Logger LOGGER = LoggerFactory.getLogger(Java.class);
 
 	private static final int VERSION = initVersion();
 
@@ -44,7 +48,7 @@ public class Java {
 			return Integer.parseInt(version); // this works at least til Java version 14
 		}
 		catch (NumberFormatException e) { // just to be safe, return an integer
-			Log.severe("Unable to parse Java version from version string " + version);
+			LOGGER.error("Unable to parse Java version from version string " + version);
 			return Integer.MAX_VALUE;
 		}
 	}
