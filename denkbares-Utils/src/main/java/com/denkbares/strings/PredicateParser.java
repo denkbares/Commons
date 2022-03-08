@@ -360,7 +360,7 @@ public class PredicateParser {
 		Collection<String> get(@NotNull String variable);
 
 		/**
-		 * Returns the boolean value of teh specified variable. The boolean value is true, if the variable is bound to
+		 * Returns the boolean value of the specified variable. The boolean value is true, if the variable is bound to
 		 * at least one non-false value. A bound value is assumed to be false it it is null, or "false" (case
 		 * insensitive).
 		 *

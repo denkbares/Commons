@@ -193,7 +193,7 @@ public class GeneralizedSuffixTree<E> extends DefaultMultiMap<String, E> {
 			for (int i = 1; i < unionsWithEstimatedSize.size(); i++) {
 				List<Set<E>> union = unionsWithEstimatedSize.get(i).getA();
 				if (union.stream().noneMatch(part -> part.contains(item))) {
-					// item is in no part of the union, so not in the union, so fail for teh item
+					// item is in no part of the union, so not in the union, so fail for the item
 					return false;
 				}
 			}
