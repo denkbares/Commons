@@ -24,9 +24,9 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 /**
- * Concatenates the items of multiple {@link Iterator}s into one Iterator. Please use the factory
- * methods {@link #flatMap(Iterator)}, {@link #flatMap(Iterator, Function)} and {@link
- * #concat(Iterator[])} instead of the constructor.
+ * Concatenates the items of multiple {@link Iterator}s into one Iterator. Please use the factory methods {@link
+ * #flatMap(Iterator)}, {@link #flatMap(Iterator, Function)} and {@link #concat(Iterator[])} instead of the
+ * constructor.
  *
  * @author Volker Belli (denkbares GmbH)
  * @created 14.01.2013
@@ -50,7 +50,7 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	 * Concatenates the specified iterators into one iterator.
 	 *
 	 * @param iterators the iterators to be concatenated
-	 * @param <T> the element type
+	 * @param <T>       the element type
 	 * @return the concatenated iterator
 	 */
 	@SafeVarargs
@@ -62,21 +62,20 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	 * Concatenates the specified iterators into one iterator.
 	 *
 	 * @param iterables the iterables to be concatenated
-	 * @param <T> the element type
+	 * @param <T>       the element type
 	 * @return the concatenated iterator
 	 */
 	@SafeVarargs
 	public static <T> Iterator<T> concat(Iterable<? extends T>... iterables) {
-		return new ConcatenateIterator<T>(Arrays.asList(iterables)
-				.stream().map(Iterable::iterator).iterator());
+		return new ConcatenateIterator<>(Arrays.stream(iterables).map(Iterable::iterator).iterator());
 	}
 
 	/**
-	 * Concatenates flattens the specified iterator of iterators into an plaint iterator. The first
-	 * iterator will be completely processed, before the next iterator is consumed.
+	 * Concatenates flattens the specified iterator of iterators into an plaint iterator. The first iterator will be
+	 * completely processed, before the next iterator is consumed.
 	 *
 	 * @param iterators the iterators to be flatten
-	 * @param <T> the element type
+	 * @param <T>       the element type
 	 * @return the flat iterator for all elements
 	 */
 	public static <T> Iterator<T> flatMap(Iterator<? extends Iterator<? extends T>> iterators) {
@@ -84,17 +83,29 @@ public class ConcatenateIterator<T> implements Iterator<T> {
 	}
 
 	/**
-	 * Concatenates flattens the specified iterator of iterators into an plaint iterator. The first
-	 * iterator will be completely processed, before the next iterator is consumed.
+	 * Concatenates flattens the specified iterator of iterators into a plain iterator. The first iterator will be
+	 * completely processed, before the next iterator is consumed.
 	 *
 	 * @param sources the iterator over the source objects
-	 * @param mapper the mapping function, creating the to-be-flatten-iterators from the source
-	 * items
-	 * @param <T> the element type
+	 * @param mapper  the mapping function, creating the to-be-flatten-iterators from the source items
+	 * @param <T>     the element type
 	 * @return the flat iterator for all elements
 	 */
 	public static <T, S> Iterator<T> flatMap(Iterator<S> sources, Function<S, ? extends Iterator<T>> mapper) {
 		return flatMap(new MappingIterator<S, Iterator<T>>(sources, mapper));
+	}
+
+	/**
+	 * Concatenates flattens the specified iterator of iterators into a plain iterator. The first iterator will be
+	 * completely processed, before the next iterator is consumed.
+	 *
+	 * @param sources the source objects
+	 * @param mapper  the mapping function, creating the to-be-flatten-iterators from the source items
+	 * @param <T>     the element type
+	 * @return the flat iterator for all elements
+	 */
+	public static <T, S> Iterator<T> flatMap(Iterable<S> sources, Function<S, ? extends Iterator<T>> mapper) {
+		return flatMap(sources.iterator(), mapper);
 	}
 
 	@Override
