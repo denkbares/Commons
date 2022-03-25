@@ -83,13 +83,13 @@ public class Locales {
 	 * locales matches the available locales, but the root locales is included. It returns the first locale of the
 	 * specified available locales if neither any locale matches the preferred locale, not the ROOT locale is included.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned.
+	 * If the available locales are null or empty, null is returned.  Otherwise, the method is guaranteed to return a
+	 * locale instance out of the available ones.
 	 *
 	 * @param preferred the preferred locale to be used
 	 * @param available the available locales
 	 * @return the best matching locale
 	 */
-	@Nullable
 	public static Locale findBestLocale(Locale preferred, Locale... available) {
 		return findBestLocale(preferred, Arrays.asList(available));
 	}
@@ -99,14 +99,13 @@ public class Locales {
 	 * locales matches the available locales, but the root locales is included. It returns the first locale of the
 	 * specified available locales if neither any locale matches the preferred locale, nor the ROOT locale is included.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to return a
+	 * If the available locales are null or empty, null is returned. Otherwise, the method is guaranteed to return a
 	 * locale instance out of the available ones.
 	 *
 	 * @param preferred the preferred locale to be used
 	 * @param available the available locales
 	 * @return the best matching locale
 	 */
-	@Nullable
 	public static Locale findBestLocale(Locale preferred, Collection<Locale> available) {
 		// if no locales contained, return null (we cannot select one)
 		if (available == null || available.isEmpty()) return null;
@@ -121,7 +120,7 @@ public class Locales {
 	 * Returns the best matching locale of the same language out of a collection of available locales. It returns the
 	 * ROOT locale if no locales matches the available locales with at least the same language.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise the method is guaranteed to either return
+	 * If the available locales are null or empty, null is returned. Otherwise, the method is guaranteed to either return
 	 * a locale instance out of the available ones with the same language, or return the root locale (even if it is not
 	 * in the available locales).
 	 *
