@@ -69,6 +69,19 @@ public class Files {
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 
 	/**
+	 * Cleans the specified filename from special caharacters, to that the returned filename can be used without
+	 * conflicting to an operating system's special file system characters. It also shortens the filename if it becomes
+	 * too long. Note that tho different input names may result in the same cleaned filename.
+	 *
+	 * @param unsecureFileName the filename to be cleaned
+	 * @return a operating-system-secure filename to be used as a path element
+	 */
+	@NotNull
+	public static String cleanFileName(@Nullable String unsecureFileName) {
+		return String.valueOf(unsecureFileName).replaceAll("[:\\s_\\\\/'\"?$&%#+*;]+", "_");
+	}
+
+	/**
 	 * Create a new temporary directory in the systems temp directory. Use {@link #recursiveDelete(File)} to clean this
 	 * directory up since it isn't deleted automatically
 	 *
@@ -484,10 +497,10 @@ public class Files {
 	}
 
 	/**
-	 * Reads and rewrites a properties file, adding the specified entries, overwriting all existing entries that
-	 * have one of the specified keys. It preserves all other lines, including comments and the order of the lines. Only
-	 * the lines with the specified key will be modified (preserving their order), where the first one is overwritten,
-	 * and succeeding ones (if there are any) will be deleted. If there are no such lines contained for some of the
+	 * Reads and rewrites a properties file, adding the specified entries, overwriting all existing entries that have
+	 * one of the specified keys. It preserves all other lines, including comments and the order of the lines. Only the
+	 * lines with the specified key will be modified (preserving their order), where the first one is overwritten, and
+	 * succeeding ones (if there are any) will be deleted. If there are no such lines contained for some of the
 	 * specified entries, the remaining entries will be appended to the end of the file.
 	 * <p>
 	 * The method is also capable to delete entries, if the key occurs in the specified entries with value null.
