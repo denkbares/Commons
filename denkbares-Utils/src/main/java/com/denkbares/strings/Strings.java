@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
@@ -2528,7 +2529,7 @@ public class Strings {
 	}
 
 	@NotNull
-	public static String getBundleStringAsUTF8(ResourceBundle bundle, String key) {
+	public static String getBundleStringAsUTF8(ResourceBundle bundle, String key) throws MissingResourceException {
 		String text = bundle.getString(key);
 		if (Java.getVersion() < 9) {
 			// before Java 9, property files are read with ISO-8859-1, after they are read with UTF-8
