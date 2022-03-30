@@ -111,6 +111,16 @@ public class Exec {
 	}
 
 	/**
+	 * Returns the working directory that will be used to execute the command. The method returns null, if no explicit
+	 * working directory is set; then the current working directory of the enclosing java virtual machine us used.
+	 *
+	 * @return the working directory to execute in, or null
+	 */
+	public File getDirectory() {
+		return directory;
+	}
+
+	/**
 	 * Modifies this instance to use the specified working directory. By default, or if null is specified, the main
 	 * process's directory is used. The method returns this (modified) instance, to chain method calls.
 	 *
