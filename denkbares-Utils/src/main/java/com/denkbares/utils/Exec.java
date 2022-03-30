@@ -116,6 +116,7 @@ public class Exec {
 	 *
 	 * @return the working directory to execute in, or null
 	 */
+	@Nullable
 	public File getDirectory() {
 		return directory;
 	}
