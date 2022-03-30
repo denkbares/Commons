@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -69,6 +70,14 @@ public class Exec {
 	private Process process = null;
 	private Thread errorReader = null;
 	private Thread outputReader = null;
+
+	public Exec(List<String> arguments) {
+		this(arguments.toArray(new String[0]));
+	}
+
+	public Exec(String command, List<String> arguments) {
+		this(command, arguments.toArray(new String[0]));
+	}
 
 	public Exec(String command, String... arguments) {
 		this.commandLine = new String[arguments.length + 1];
