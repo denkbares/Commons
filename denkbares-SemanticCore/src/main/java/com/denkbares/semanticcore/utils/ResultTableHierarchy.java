@@ -34,6 +34,7 @@ import org.eclipse.rdf4j.model.Value;
 
 import com.denkbares.collections.DefaultMultiMap;
 import com.denkbares.collections.MultiMap;
+import com.denkbares.strings.Strings;
 
 public class ResultTableHierarchy {
 
@@ -99,8 +100,8 @@ public class ResultTableHierarchy {
 			Value sortValue2 = o2.getValue(sortColumn);
 
 			// TODO : is there a better way to sort integer literals?
-			final String sortString1 = sortValue1.toString();
-			final String sortString2 = sortValue2.toString();
+			String sortString1 = sortValue1.toString();
+			String sortString2 = sortValue2.toString();
 			final String xmlInt = "<http://www.w3.org/2001/XMLSchema#integer>";
 			final String numRegex = "\"(\\d+)\".*$";
 			if (sortString1.endsWith(xmlInt) && sortString2.endsWith(xmlInt)) {
@@ -113,7 +114,19 @@ public class ResultTableHierarchy {
 				final String intValueString2 = matcher2.group(1);
 				return Integer.valueOf(intValueString1).compareTo(Integer.valueOf(intValueString2));
 			}
-			return sortString1.compareTo(sortString2);
+			sortString1 = Strings.unquote(sortString1);
+			sortString2 = Strings.unquote(sortString2);
+
+			try {
+				Integer.parseInt(sortString1);
+				Integer.parseInt(sortString2);
+				return Integer.valueOf(sortString1).compareTo(Integer.valueOf(sortString2));
+			} catch (NumberFormatException e) {
+				// cannot be parsed as Integer, hence to String sorting
+				return sortString1.compareTo(sortString2);
+			}
+
+
 		};
 	}
 }
