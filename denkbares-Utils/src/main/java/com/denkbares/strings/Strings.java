@@ -1316,7 +1316,7 @@ public class Strings {
 	 */
 	public static String encodeFileName(String text) {
 		if (text == null) return null;
-		return trim(text.replaceAll("[\u0000-\001F]+", " ").replaceAll("[^\\u0000-\\uFFFF]+", ""))
+		return trim(text.replaceAll("[\u0000-\u001F]+", " ").replaceAll("[^\u0000-\uFFFF]+", ""))
 				.replaceAll("[\\\\/|;:<>?*]+", "_")
 				.replaceAll("^(CON|PRN|AUX|NUL|(COM\\d)|(LPT\\d))$", "$1_")
 				.replaceAll("\\.$", "_")
