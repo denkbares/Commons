@@ -109,6 +109,17 @@ public class Stopwatch {
 	}
 
 	/**
+	 * Shows the currently measured time with some message in the default log with log level info.
+	 * The method returns this stopwatch afterwards to allow cascading calls.
+	 *
+	 * @param message the message to be printed before the time
+	 */
+	public Stopwatch log(org.slf4j.Logger logger, String message) {
+		logger.info(message + ": " + getDisplay());
+		return this;
+	}
+
+	/**
 	 * Returns the currently measured time in milliseconds
 	 *
 	 * @return the measure time
@@ -154,27 +165,19 @@ public class Stopwatch {
 	}
 
 	public static String getDisplay(long time, TimeUnit unit) {
-		switch (unit) {
-			case NANOSECONDS:
-			case MICROSECONDS:
-			case MILLISECONDS:
-				return time + "ms";
-			case SECONDS:
-				return String.format("%d.%03ds", time / 1000, time % 1000);
-			case MINUTES:
-				return String.format("%d:%02d min",
-						TimeUnit.MINUTES.convert(time, TimeUnit.MILLISECONDS),
-						getRemainingSeconds(time));
-			case HOURS:
-				return String.format("%d:%02d:%02d hours",
-						TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS),
-						getRemainingMinutes(time), getRemainingSeconds(time));
-			case DAYS:
-				return String.format("%d days %d:%02d:%02d hours",
-						TimeUnit.DAYS.convert(time, TimeUnit.MILLISECONDS),
-						getRemainingHours(time), getRemainingMinutes(time), getRemainingSeconds(time));
-		}
-		throw new IllegalArgumentException("unexpected time unit: " + unit);
+		return switch (unit) {
+			case NANOSECONDS, MICROSECONDS, MILLISECONDS -> time + "ms";
+			case SECONDS -> String.format("%d.%03ds", time / 1000, time % 1000);
+			case MINUTES -> String.format("%d:%02d min",
+					TimeUnit.MINUTES.convert(time, TimeUnit.MILLISECONDS),
+					getRemainingSeconds(time));
+			case HOURS -> String.format("%d:%02d:%02d hours",
+					TimeUnit.HOURS.convert(time, TimeUnit.MILLISECONDS),
+					getRemainingMinutes(time), getRemainingSeconds(time));
+			case DAYS -> String.format("%d days %d:%02d:%02d hours",
+					TimeUnit.DAYS.convert(time, TimeUnit.MILLISECONDS),
+					getRemainingHours(time), getRemainingMinutes(time), getRemainingSeconds(time));
+		};
 	}
 
 	private static long getRemainingHours(long time) {
