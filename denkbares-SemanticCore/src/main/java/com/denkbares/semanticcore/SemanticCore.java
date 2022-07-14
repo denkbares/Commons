@@ -296,6 +296,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		state = State.shutdown;
 		try {
 			Stopwatch stopwatch = new Stopwatch();
+			LOGGER.info("Beginning to shut down SemanticCore " + repositoryId);
 			repository.shutDown();
 			LOGGER.info("SemanticCore " + repositoryId + " shut down successfully in " + stopwatch.getDisplay());
 		}
