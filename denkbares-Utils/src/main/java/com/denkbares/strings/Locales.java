@@ -235,6 +235,28 @@ public class Locales {
 	}
 
 	/**
+	 * Returns true if the string represents a valid language for a Locale.
+	 *
+	 * @param lang the language string to be checked
+	 * @return true if the string is a valid language of a Locale
+	 */
+	public static boolean isValidLanguage(String lang) {
+		try {
+			Locale langLocale = new Locale.Builder().setLanguage(lang).build();
+			Locale[] locales = Locale.getAvailableLocales();
+			for (Locale locale : locales) {
+				if (langLocale.toString().equals(locale.toString())) {
+					return true;
+				}
+			}
+		}
+		catch (Exception e) {
+			return false;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns a iterator of the available locales, ordered by their preference as specified in the preference list. If
 	 * the available locales are empty or null, the stream will be empty. For the order of the languages in the stream
 	 * refer to {@link #findBestLocale(Collection, Collection)}, where the next stream element is always the best one,
