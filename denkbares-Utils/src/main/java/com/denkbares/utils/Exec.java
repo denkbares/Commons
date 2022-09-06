@@ -105,8 +105,7 @@ public class Exec {
 	 */
 	@NotNull
 	public String getCommand() {
-		if (commandLine.length == 0) return "";
-		return OS.WINDOWS.isCurrentOS() ? commandLine[0].replaceAll("([;,])", "\"$1\"") : commandLine[0];
+		return (commandLine.length == 0) ? "" : commandLine[0];
 	}
 
 	/**
