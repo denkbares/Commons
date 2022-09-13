@@ -882,6 +882,13 @@ public class Files {
 		zip(sourceFolder, zipFile, false);
 	}
 
+	public static void zip(File sourceFolder, OutputStream outputStream) throws IOException {
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
+		zipDir(sourceFolder, sourceFolder, zos, false);
+		zos.flush();
+		zos.close();
+	}
+
 	public static void zip(File sourceFolder, File zipFile, boolean includeHiddenFiles) throws IOException {
 		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile));
 		zipDir(sourceFolder, sourceFolder, zos, includeHiddenFiles);
