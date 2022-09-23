@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,11 +57,12 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import com.denkbares.utils.Files;
-import com.denkbares.utils.Java;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.denkbares.collections.MinimizedHashSet;
+import com.denkbares.utils.Files;
+import com.denkbares.utils.Java;
 import com.denkbares.utils.Pair;
 import com.denkbares.utils.Streams;
 
@@ -91,6 +94,23 @@ public class Strings {
 	public static final SimpleDateFormat DATE_FORMAT_COMPATIBILITY = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
 	public static final SimpleDateFormat DATE_FORMAT_NO_SECONDS = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	public static final SimpleDateFormat DATE_FORMAT_NO_TIME = new SimpleDateFormat("yyyy-MM-dd");
+
+	private static final Map<Locale, Map<String, Set<Locale>>> DISPLAY_NAME_TO_LOCALE = new ConcurrentHashMap<>();
+	private static final List<Locale> AVAILABLE_LOCALES = Arrays.asList(Locale.getAvailableLocales());
+	private static final List<Locale> DEFAULT_LOCALES = new ArrayList<>();
+
+	static {
+		DEFAULT_LOCALES.add(Locale.GERMAN);
+		DEFAULT_LOCALES.add(Locale.ENGLISH);
+		DEFAULT_LOCALES.add(Locale.FRENCH);
+		DEFAULT_LOCALES.add(Locale.ITALIAN);
+		DEFAULT_LOCALES.add(Locale.CHINESE);
+		DEFAULT_LOCALES.add(Locale.JAPANESE);
+		DEFAULT_LOCALES.add(Locale.KOREAN);
+		// make sure the default locale is first
+		DEFAULT_LOCALES.remove(Locale.getDefault());
+		DEFAULT_LOCALES.add(0, Locale.getDefault());
+	}
 
 	/**
 	 * A Comparator that orders <code>String</code> objects as by <code>compareToIgnoreCase</code>. The comparator
@@ -673,14 +693,14 @@ public class Strings {
 	 * Splits the specified text by any contained colon or semicolon. Each split item is individually trimmed, so
 	 * leading or trailing whitespaces between the split character and the items will be removed. Blank/empty items are
 	 * skipped. If the specified text is null or blank, or only contains blank split items, an empty array is returned.
-	 *
+	 * <p>
 	 * Note that the list will not contain any empty item, e.g. <code>" , a, , b" --&gt; ["a", "b"]</code>
 	 *
 	 * @param text the textual list to be split
 	 * @return the array of individual trimmed and non-empty items
 	 */
 	@NotNull
-	public static String[] splitColonList(@Nullable String text){
+	public static String[] splitColonList(@Nullable String text) {
 		if (isBlank(text)) return new String[0];
 		return streamColonList(text).toArray(String[]::new);
 	}
@@ -689,18 +709,17 @@ public class Strings {
 	 * Splits the specified text by any contained colon or semicolon. Each split item is individually trimmed, so
 	 * leading or trailing whitespaces between the split character and the items will be removed. Blank/empty items are
 	 * skipped. If the specified text is null or blank, or only contains blank split items, an empty array is returned.
-	 *
+	 * <p>
 	 * Note that the list will not contain any empty item, e.g. <code>" , a, , b" --&gt; ["a", "b"]</code>
 	 *
 	 * @param text the textual list to be split
 	 * @return the array of individual trimmed and non-empty items
 	 */
 	@NotNull
-	public static Stream<String> streamColonList(@Nullable String text){
+	public static Stream<String> streamColonList(@Nullable String text) {
 		if (isBlank(text)) return Stream.empty();
 		return Arrays.stream(trim(text).split("[\\s\\xA0]*[,;][\\s\\xA0]*")).filter(Strings::nonBlank);
 	}
-
 
 	public static String[] splitUnquotedToArray(String text, String splitSymbol) {
 
@@ -944,7 +963,10 @@ public class Strings {
 		if (text1 == text2) return true;
 		// otherwise (at least one is != null)
 		// check null against empty string
-		if (text1 == null) return text2.isEmpty();
+		if (text1 == null) {
+			//noinspection ConstantConditions
+			return text2.isEmpty();
+		}
 		if (text2 == null) return text1.isEmpty();
 		// otherwise we check the strings
 		return text1.equalsIgnoreCase(text2);
@@ -966,7 +988,10 @@ public class Strings {
 		if (text1 == text2) return true;
 		// otherwise (at least one is != null)
 		// check null against empty string
-		if (text1 == null) return text2.isEmpty();
+		if (text1 == null) {
+			//noinspection ConstantConditions
+			return text2.isEmpty();
+		}
 		if (text2 == null) return text1.isEmpty();
 		// otherwise we check the strings
 		return text1.equals(text2);
@@ -2017,7 +2042,7 @@ public class Strings {
 		// init quote state for each quote
 		int[] quoteStates = new int[quotes.length];
 
-		StringBuffer actualPart = new StringBuffer();
+		StringBuilder actualPart = new StringBuilder();
 
 		Matcher matcher = splitPattern.matcher(text);
 		List<Group> candidates = new ArrayList<>();
@@ -2108,7 +2133,7 @@ public class Strings {
 				if (includeBlankFragments || !isBlank(actualPartString)) {
 					parts.add(new StringFragment(actualPartString, startOfNewPart, text));
 				}
-				actualPart = new StringBuffer();
+				actualPart = new StringBuilder();
 				i = nextCandidate.end - 1;
 				startOfNewPart = nextCandidate.end;
 				continue;
@@ -2150,6 +2175,46 @@ public class Strings {
 					variant == null ? "" : variant);
 		}
 		return null;
+	}
+
+	/**
+	 * Do best effort to parse the display name of a locale. Optionally, give languages the display name might possibly
+	 * be written in. If not given, the default locale and some other common locales are checked (german, english,
+	 * french, italian, chinese, japanese, korean), so no need to specify displayNameLanguagesToCheck, if you expect the
+	 * display language in one of these locales.<br>
+	 * Be aware that for some rare languages, some rare locales might have the same display name. In these cases, we
+	 * return a random locale of all matching locales.
+	 *
+	 * @param displayName                 the display name to be parsed
+	 * @param displayNameLanguagesToCheck the languages the display name might be written in
+	 * @return the locale for the given locale display name or null, if no matching locale can be found
+	 */
+	@Nullable
+	public static Locale parseLocalesByDisplayName(String displayName, Locale... displayNameLanguagesToCheck) {
+		List<Locale> localesToCheck = displayNameLanguagesToCheck.length == 0
+				? DEFAULT_LOCALES
+				: Arrays.asList(displayNameLanguagesToCheck);
+		for (Locale localeToCheck : localesToCheck) {
+			Set<Locale> mappedLocale = DISPLAY_NAME_TO_LOCALE
+					.computeIfAbsent(localeToCheck, Strings::getDisplayNameMappingForLocale)
+					.get(displayName.toLowerCase(localeToCheck));
+			if (mappedLocale != null) {
+				return mappedLocale.iterator().next();
+			}
+		}
+
+		// fallback
+		return parseLocale(displayName);
+	}
+
+	@NotNull
+	private static Map<String, Set<Locale>> getDisplayNameMappingForLocale(Locale localeToCheck) {
+		Map<String, Set<Locale>> map = new HashMap<>();
+		for (Locale locale : AVAILABLE_LOCALES) {
+			map.computeIfAbsent(locale.getDisplayName(localeToCheck)
+					.toLowerCase(localeToCheck), k2 -> new MinimizedHashSet<>()).add(locale);
+		}
+		return map;
 	}
 
 	/**
@@ -2294,7 +2359,8 @@ public class Strings {
 	/**
 	 * Finds the ordinal or nth index of the given string in the given text. Note that the first occurrence is found by
 	 * <p>
-	 * Implementation from user <i>aioobe</i> from <a href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
+	 * Implementation from user <i>aioobe</i> from <a
+	 * href="http://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string/3976656#3976656">stackoverflow.com</a>
 	 *
 	 * @param text   the text in which to find the index of the given string
 	 * @param string the string to find in the given text
@@ -2381,7 +2447,7 @@ public class Strings {
 			catch (ParseException ignore) {
 			}
 		}
-		throw new ParseException("no date format can used to parse: "+dateString, 0);
+		throw new ParseException("no date format can used to parse: " + dateString, 0);
 	}
 
 	/**
@@ -2396,7 +2462,7 @@ public class Strings {
 	}
 
 	private static class Group {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Group.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(Group.class);
 		final int start;
 		final int end;
 

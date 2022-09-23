@@ -27,9 +27,13 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import com.denkbares.strings.QuoteSet;
@@ -90,15 +94,15 @@ public class StringsTest {
 		assertArrayEquals(new String[0],
 				Strings.splitColonList("\u00a0 ,\u00a0 ,\u00a0, \u00a0,\u00a0"));
 
-		assertArrayEquals(new String[]{"a", "b"},
+		assertArrayEquals(new String[] { "a", "b" },
 				Strings.splitColonList("a,b"));
-		assertArrayEquals(new String[]{"a", "b"},
+		assertArrayEquals(new String[] { "a", "b" },
 				Strings.splitColonList(" a , b "));
-		assertArrayEquals(new String[]{"a", "b"},
+		assertArrayEquals(new String[] { "a", "b" },
 				Strings.splitColonList("a, ,b"));
-		assertArrayEquals(new String[]{"a", "b"},
+		assertArrayEquals(new String[] { "a", "b" },
 				Strings.splitColonList(" ,a, ,b, "));
-		assertArrayEquals(new String[]{"a", "b"},
+		assertArrayEquals(new String[] { "a", "b" },
 				Strings.splitColonList(" ,; a ,;, ,; b ;, "));
 	}
 
@@ -237,6 +241,32 @@ public class StringsTest {
 			if (locale.toString().contains("#")) continue;
 			assertEquals(locale, Strings.parseLocale(locale.toString()));
 		}
+	}
+
+	@Test
+	public void parseLocaleByDisplayName() {
+		Map<Locale, Locale> displayNameConflicts = new HashMap<>();
+		displayNameConflicts.put(Locale.forLanguageTag("de-CH"), Locale.forLanguageTag("gsw"));
+		displayNameConflicts.put(Locale.forLanguageTag("gsw"), Locale.forLanguageTag("de-CH"));
+		displayNameConflicts.put(Locale.forLanguageTag("tzm-MA"), Locale.forLanguageTag("zgh"));
+		displayNameConflicts.put(Locale.forLanguageTag("zgh"), Locale.forLanguageTag("tzm-MA"));
+
+		Locale[] locales = Locale.getAvailableLocales();
+		for (Locale locale1 : locales) {
+			assertEquals(locale1, Strings.parseLocalesByDisplayName(locale1.getDisplayName()));
+			for (Locale locale2 : locales) {
+				assertEquals(locale1, getActual(locale1, locale2, displayNameConflicts));
+			}
+		}
+		assertEquals(Locale.GERMAN, Strings.parseLocalesByDisplayName("Deutsch"));
+	}
+
+	@Nullable
+	private static Locale getActual(Locale localeToTest, Locale displayNameLanguage, Map<Locale, Locale> displayNameConflicts) {
+		Locale parsedLocale = Strings.parseLocalesByDisplayName(localeToTest.getDisplayName(displayNameLanguage), displayNameLanguage);
+		if (Objects.equals(parsedLocale, localeToTest)) return parsedLocale;
+		Locale displayNameConflictLocale = displayNameConflicts.get(parsedLocale);
+		return displayNameConflictLocale == null ? parsedLocale : displayNameConflictLocale;
 	}
 
 	@Test
