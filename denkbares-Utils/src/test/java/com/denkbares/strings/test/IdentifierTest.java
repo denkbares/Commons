@@ -117,8 +117,25 @@ public class IdentifierTest {
 	}
 
 	private void concatParse(String... pathElements) {
+		concatParseDefault(pathElements);
+		concatParseOptimized(pathElements);
+	}
+
+	private void concatParseDefault(String... pathElements) {
 		String concat = Strings.concatParsable(", ", pathElements);
 		String[] strings = Strings.parseConcat(", ", concat);
+
+		String listOutput = Arrays.asList(pathElements).toString();
+		String listOutPutFromExternalForm = Arrays.asList(strings).toString();
+
+		boolean equals = listOutput.equals(listOutPutFromExternalForm);
+		System.out.println("equals: " + equals + " " + listOutput + " ==> " + concat + " ==> " + listOutPutFromExternalForm);
+		assertTrue("Concat and parse again failed:\n" + listOutput + " ==> " + concat + " ==> " + listOutPutFromExternalForm, equals);
+	}
+
+	private void concatParseOptimized(String... pathElements) {
+		String concat = Strings.concatParsable(',', pathElements);
+		String[] strings = Strings.parseConcat(",", concat);
 
 		String listOutput = Arrays.asList(pathElements).toString();
 		String listOutPutFromExternalForm = Arrays.asList(strings).toString();

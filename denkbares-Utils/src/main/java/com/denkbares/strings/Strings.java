@@ -1878,6 +1878,19 @@ public class Strings {
 	 * separator being present in the concatenated Strings, using the method #parseConcat. If necessary, path elements
 	 * are set in quotes and quotes inside the strings are escaped properly.
 	 *
+	 * @param separator the separator used to concatenate
+	 * @param strings   the strings to be concatenated
+	 * @return a concatenated, properly escaped and again parsable string
+	 */
+	public static String concatParsable(char separator, String[] strings) {
+		return concatParsable(separator, new char[] {separator, '\\', '"'}, strings);
+	}
+
+	/**
+	 * Concatenates an array of Strings in a way, that it can be parsed again without having to worry about the
+	 * separator being present in the concatenated Strings, using the method #parseConcat. If necessary, path elements
+	 * are set in quotes and quotes inside the strings are escaped properly.
+	 *
 	 * @param separator    the separator used to concatenate
 	 * @param quotePattern optional pattern which will be used to decide, whether quotes should be added for the
 	 *                     different concatenated strings. It should at least contain the separator, quote, and back
@@ -1899,6 +1912,50 @@ public class Strings {
 			}
 		}
 		return concat.toString();
+	}
+
+	/**
+	 * Optimized version of concatParseable, also see {@link Strings#concatParsable(String, Pattern, String[])}.
+	 * <b>Important: </b> The char array has to contain the separator, the quote and the backslash and may not contain a
+	 * letter or digit, for this method to work correctly. We do not check these requirements for performance reasons.
+	 *
+	 * @param separator             the separator used to concatenate
+	 * @param charsRequiringQuoting the array with all chars that require the elements to be quoted...
+	 * @param strings               the strings to be concatenated
+	 * @return a concatenated, properly escaped and again parsable string
+	 */
+	public static String concatParsable(char separator, char[] charsRequiringQuoting, String[] strings) {
+		StringBuilder concat = new StringBuilder();
+		for (int i = 0; i < strings.length; i++) {
+			String element = strings[i];
+			if (i > 0) concat.append(separator);
+			if (containsAny(element, charsRequiringQuoting)) {
+				concat.append(Strings.quote(element));
+			}
+			else {
+				concat.append(element);
+			}
+		}
+		return concat.toString();
+	}
+
+	/**
+	 * Checks whether any of the given chars in the given char array is contained in the given string. <b>Important:
+	 * </b> The char array may not contain chars that are letters or digits.
+	 *
+	 * @param text                   the text to check if it contains any of the given chars
+	 * @param notLetterOrDigitsChars the chars to check
+	 * @return true if any of the letters is contained in the given string, false otherwise
+	 */
+	public static boolean containsAny(String text, char[] notLetterOrDigitsChars) {
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			if (Character.isLetterOrDigit(c)) continue;
+			for (char c2 : notLetterOrDigitsChars) {
+				if (c == c2) return true;
+			}
+		}
+		return false;
 	}
 
 	/**
