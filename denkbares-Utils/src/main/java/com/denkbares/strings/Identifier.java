@@ -126,17 +126,10 @@ public class Identifier implements Comparable<Identifier> {
 		Identifier other = (Identifier) obj;
 		if (isCaseSensitive() && other.isCaseSensitive()
 				|| isCaseSensitive() != other.isCaseSensitive()) {
-			return Arrays.equals(this.pathElements, other.pathElements);
+			return getParsableString(this.pathElements).equals(getParsableString(other.pathElements));
 		}
 		else {
-			if (this.pathElements.length != other.pathElements.length) return false;
-			for (int i = 0; i < this.pathElements.length; i++) {
-				if (!this.pathElements[i].equalsIgnoreCase(other.pathElements[i])) {
-					return false;
-				}
-
-			}
-			return true;
+			return getParsableString(this.pathElements).equalsIgnoreCase(getParsableString(other.pathElements));
 		}
 	}
 
