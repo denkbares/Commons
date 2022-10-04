@@ -20,6 +20,7 @@ package com.denkbares.strings;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -31,15 +32,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Identifier implements Comparable<Identifier> {
 
-	private static final char SEPARATOR = '#';
-	private static final String SEPARATOR_STRING = String.valueOf(SEPARATOR);
+	private static final String SEPARATOR = "#";
+	private static final String CONTROL_CHARS = " " + SEPARATOR + "()[]{}<>\"'#=&|\\*+-,.\t";
+	private static final Pattern CONTROL_PATTERN = Pattern.compile("[" + Pattern.quote(CONTROL_CHARS) + "]");
 
-	private static final String CONTROL_CHARS_STRING = " ()[]{}<>\"'=&|\\*+-,.\t" + SEPARATOR;
-	private static final char[] CONTROL_CHARS = CONTROL_CHARS_STRING.toCharArray();
-
-	private static final char PRETTY_PRINT_SEPARATOR = '.';
-	private static final String PRETTY_PRINT_CHARS_STRING = " .\"";
-	private static final char[] PRETTY_PRINT_CHARS = PRETTY_PRINT_CHARS_STRING.toCharArray();
+	private static final String PRETTY_PRINT_SEPARATOR = ".";
+	private static final Pattern PRETTY_PRINT_CONTROL_PATTERN = Pattern.compile("[" + Pattern.quote(" .\"") + "]");
 
 	private final String[] pathElements;
 
@@ -91,7 +89,7 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	public static boolean needsQuotes(String text) {
-		return Strings.containsAny(text, CONTROL_CHARS);
+		return CONTROL_PATTERN.matcher(text).find();
 	}
 
 	/**
@@ -99,6 +97,13 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	public static String concatParsable(String separator, String[] strings) {
 		return Strings.concatParsable(separator, strings);
+	}
+
+	/**
+	 * @see Strings#concatParsable(String, Pattern, String[])
+	 */
+	public static String concatParsable(String separator, Pattern quotePattern, String[] strings) {
+		return Strings.concatParsable(separator, quotePattern, strings);
 	}
 
 	/**
@@ -136,7 +141,7 @@ public class Identifier implements Comparable<Identifier> {
 	}
 
 	private static String getParsableString(String[] pathElements) {
-		return Strings.concatParsable(SEPARATOR, CONTROL_CHARS, pathElements);
+		return Strings.concatParsable(SEPARATOR, CONTROL_PATTERN, pathElements);
 	}
 
 	/**
@@ -313,7 +318,7 @@ public class Identifier implements Comparable<Identifier> {
 	 */
 	public String toPrettyPrint() {
 		if (this.prettyPrint == null) {
-			this.prettyPrint = Strings.concatParsable(PRETTY_PRINT_SEPARATOR, PRETTY_PRINT_CHARS, pathElements);
+			this.prettyPrint = Strings.concatParsable(PRETTY_PRINT_SEPARATOR, PRETTY_PRINT_CONTROL_PATTERN, pathElements);
 		}
 		return this.prettyPrint;
 	}
@@ -389,7 +394,7 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 07.05.2012
 	 */
 	public static Identifier fromExternalForm(String externalForm) {
-		String[] pathElements = Strings.parseConcat(SEPARATOR_STRING, externalForm);
+		String[] pathElements = Strings.parseConcat(SEPARATOR, externalForm);
 		boolean isCaseSensitive = false;
 		String[] elements = pathElements;
 		if (pathElements.length > 1 && pathElements[0].matches("[Cc]")) {
