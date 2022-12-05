@@ -120,7 +120,8 @@ public class Locales {
 	 * Returns the best matching locale of the same language out of a collection of available locales. It returns the
 	 * ROOT locale if no locales matches the available locales with at least the same language.
 	 * <p/>
-	 * If the available locales are null or empty, null is returned. Otherwise, the method is guaranteed to either return
+	 * If the available locales are null or empty, null is returned. Otherwise, the method is guaranteed to either
+	 * return
 	 * a locale instance out of the available ones with the same language, or return the root locale (even if it is not
 	 * in the available locales).
 	 *
@@ -148,6 +149,22 @@ public class Locales {
 	public static boolean hasSameLanguage(Locale locale1, Locale locale2) {
 		return locale1 == locale2 ||
 				(locale1 != null && locale2 != null && Objects.equals(locale1.getLanguage(), locale2.getLanguage()));
+	}
+
+	/**
+	 * Returns true if the collection of locales contains the language
+	 *
+	 * @param locale  the locale to compare the language
+	 * @param locales the collection of locales to check
+	 * @return if the languages is contained in the collection of locales
+	 */
+	public static boolean hasSameLanguage(Locale locale, Collection<Locale> locales) {
+		for (Locale l : locales) {
+			if (hasSameLanguage(locale, l)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
