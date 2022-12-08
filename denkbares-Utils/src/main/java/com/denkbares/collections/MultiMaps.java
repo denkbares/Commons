@@ -296,7 +296,7 @@ public class MultiMaps {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> CollectionFactory<T> concurrentFactory() {
-		return (CollectionFactory<T>) HASH;
+		return (CollectionFactory<T>) CONCURRENT;
 	}
 
 	public static <K, V> MultiMap<K, V> synchronizedMultiMap(MultiMap<K, V> map) {
