@@ -142,7 +142,6 @@ public final class EventManager {
 		synchronized (this) {
 			Class<?> eventClass = event.getClass();
 			while (Event.class.isAssignableFrom(eventClass)) {
-				@SuppressWarnings("SuspiciousMethodCalls")
 				WeakHashMap<EventListener, Object> listeners = this.listeners.get(eventClass);
 				if (listeners != null) {
 					allListeners.addAll(listeners.keySet());
