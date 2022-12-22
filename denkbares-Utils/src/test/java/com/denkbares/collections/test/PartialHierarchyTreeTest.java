@@ -19,14 +19,18 @@
 
 package com.denkbares.collections.test;
 
-import com.denkbares.collections.PartialHierarchy;
-import com.denkbares.collections.PartialHierarchyException;
-import com.denkbares.collections.PartialHierarchyTree;
-import com.denkbares.collections.PartialHierarchyTree.Node;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 import org.junit.Test;
 
-import java.util.*;
+import com.denkbares.collections.PartialHierarchyException;
+import com.denkbares.collections.PartialHierarchyTree;
+import com.denkbares.collections.PartialHierarchyTree.Node;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
@@ -123,11 +127,13 @@ public class PartialHierarchyTreeTest {
 		tree.insertNode("ABA");
 
 		String dashTree =
-				"A\n" +
-				"- ABA\n" +
-				"B\n" +
-				"- ABA\n" +
-				"C\n";
+				"""
+						A
+						- ABA
+						B
+						- ABA
+						C
+						""";
 		assertEquals(dashTree, tree.toDashTree());
 		assertEquals(4, tree.getNodeCount());
 		assertEquals(2, tree.find("ABA").getParents().size());
@@ -202,6 +208,71 @@ public class PartialHierarchyTreeTest {
 		assertEquals(1, leafNodes.size());
 		assertTrue(leafNodes.contains(bac));
 
+	}
+
+	@Test
+	public void testHierarchyCopy() {
+		PartialHierarchyTree<String> tree = new PartialHierarchyTree<>(
+				new StringPrefixHierarchy());
+
+		String a = "A";
+		String ab = "AB";
+		String b = "B";
+		String ba = "BA";
+		String bac = "BAC";
+		String bad = "BAD";
+		String baf = "BAF";
+
+		tree.insertNode(a);
+		tree.insertNode(ab);
+		tree.insertNode(ba);
+		tree.insertNode(bad);
+		tree.insertNode(baf);
+		tree.insertNode(bac);
+		tree.insertNode(b);
+
+		PartialHierarchyTree<String> copy = tree.createCopy();
+
+		assertCopyEquals(tree, copy);
+
+	}
+
+	private boolean assertCopyEquals(PartialHierarchyTree<String> tree, PartialHierarchyTree<String> copy) {
+		return checkDeepEquals(tree.getRoot(), copy.getRoot());
+	}
+
+	private boolean checkDeepEquals(Node<String> node1, Node<String> node2) {
+		// check data
+		if(! Objects.equals(node1.getData(),node2.getData())) {
+			return false;
+		}
+
+		// check children (recursively)
+		if(node1.getChildren().size() != node2.getChildren().size()) {
+			return false;
+		}
+		List<Node<String>> children1 = node1.getChildren();
+		List<Node<String>> children2 = node2.getChildren();
+		for(int i =  0; i < children1.size(); i++) {
+			if(! checkDeepEquals(children1.get(i), children2.get(i))) {
+				return false;
+			}
+		}
+
+		// check parents
+		if(node1.getParents().size() != node2.getParents().size()) {
+			return false;
+		}
+		List<Node<String>> parents1 = new ArrayList<>(node1.getParents());
+		List<Node<String>> parents2 = new ArrayList<>(node2.getParents());
+		for(int i =  0; i < parents1.size(); i++) {
+			if(! parents1.get(i).equals(parents2.get(i))) {
+				return false;
+			}
+		}
+
+		// check that comparators behave equally
+		return node1.getChildrenSortedDefault().equals(node2.getChildrenSortedDefault());
 	}
 
 	@Test

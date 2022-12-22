@@ -53,11 +53,11 @@ public class PartialHierarchyTree<T> {
 	private final PartialHierarchy<T> hierarchy;
 
 	public PartialHierarchyTree(PartialHierarchy<T> h) {
-		this(h, null, null);
+		this(h, (T) null, null);
 	}
 
 	public PartialHierarchyTree(PartialHierarchy<T> h, Comparator<T> comparator) {
-		this(h, null, comparator);
+		this(h, (T) null, comparator);
 	}
 
 	public PartialHierarchyTree(PartialHierarchy<T> h, T rootData) {
@@ -68,7 +68,23 @@ public class PartialHierarchyTree<T> {
 		this.hierarchy = h;
 		this.comparator = comparator;
 		root = new Node<>(rootData, comparator);
-		root.children = new ArrayList<>();
+	}
+
+	private PartialHierarchyTree(PartialHierarchy<T> h, @NotNull Node<T> root, Comparator<T> comparator) {
+		this.hierarchy = h;
+		this.comparator = comparator;
+		this.root = root;
+	}
+
+	/**
+	 * Creates a deep copy of this tree
+	 * (this is, new node objects are created, but same data objects are used)
+	 *
+	 * @return tree copy
+	 */
+	public PartialHierarchyTree<T> createCopy() {
+		Node<T> copyRoot = root.copyWithSubTree();
+		return new PartialHierarchyTree<>(this.hierarchy, copyRoot, comparator);
 	}
 
 	/**
@@ -369,7 +385,6 @@ public class PartialHierarchyTree<T> {
 				successorSibling.addParent(newNode);
 			}
 		}
-
 	}
 
 	private boolean remove(T term, Node<T> node) throws PartialHierarchyException {
@@ -413,9 +428,7 @@ public class PartialHierarchyTree<T> {
 	}
 
 	private void toDashTree(Node<T> currentNode, int currentDepth, StringBuilder builder) {
-		for (int i = 0; i < currentDepth; i++) {
-			builder.append("-");
-		}
+		builder.append("-".repeat(Math.max(0, currentDepth)));
 		if (currentDepth > 0) builder.append(" ");
 		builder.append(currentNode.data).append("\n");
 
@@ -425,11 +438,12 @@ public class PartialHierarchyTree<T> {
 	}
 
 	public static class Node<T> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
 		final T data;
 		private final transient Collection<Node<T>> parents = new MinimizedHashSet<>();
-		private List<Node<T>> children = new ArrayList<>();
+		private final List<Node<T>> children = new ArrayList<>();
+
 		private Comparator<T> comparator;
 
 		@Override
@@ -447,6 +461,17 @@ public class PartialHierarchyTree<T> {
 
 		public Node(T data) {
 			this.data = data;
+		}
+
+		/**
+		 * Creates a copy of the subtree of this node.
+		 *
+		 * @return root node of the subtree copy
+		 */
+		public Node<T> copyWithSubTree() {
+			Node<T> copyRoot = new Node<>(this.data, this.comparator);
+			this.children.forEach(child -> copyRoot.addChild(child.copyWithSubTree()));
+			return copyRoot;
 		}
 
 		/**
@@ -543,6 +568,5 @@ public class PartialHierarchyTree<T> {
 						"DefaultComparator can not be used. Object are no Comparables!");
 			}
 		}
-
 	}
 }
