@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (C) 2022 denkbares GmbH, Germany
+  ~ Copyright (C) 2023 denkbares GmbH, Germany
   ~
   ~ This is free software; you can redistribute it and/or modify it under the
   ~ terms of the GNU Lesser General Public License as published by the Free
@@ -23,7 +23,7 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>12.11-SNAPSHOT</version>
+	<version>2023.1</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
