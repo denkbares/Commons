@@ -23,7 +23,7 @@
 	<parent>
 		<artifactId>denkbares-Commons</artifactId>
 		<groupId>com.denkbares</groupId>
-		<version>2023.1</version>
+		<version>2023.1-demo</version>
 	</parent>
 
 	<artifactId>denkbares-SemanticCore-Plugin-GraphDB</artifactId>
