@@ -59,6 +59,7 @@ import java.util.zip.ZipOutputStream;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import com.denkbares.collections.Matrix;
 import com.denkbares.strings.StringFragment;
@@ -295,6 +296,45 @@ public class Files {
 		}
 		else {
 			copy(source, target);
+		}
+	}
+
+	/**
+	 * Recursively copy a file or directory and tries again if it fails.
+	 *
+	 * @param source the source file or directory to read from
+	 * @param target the target file or directory
+	 */
+	public static void recursiveCopyWithRetry(File source, File target, int numOfTrys, int timeBetweenTrysInMillis, Logger logger) throws IOException {
+		if (source.isDirectory()) {
+			// recursively copy contents
+			// noinspection ConstantConditions
+			for (File innerSource : source.listFiles()) {
+				File innerTarget = new File(target, innerSource.getName());
+				recursiveCopyWithRetry(innerSource, innerTarget, numOfTrys, timeBetweenTrysInMillis, logger);
+			}
+		}
+		else {
+			for (int i = 0; i < numOfTrys; i++) {
+				try {
+					copy(source, target);
+					// if no exception was thrown and the file was correctly copied break for loop
+					break;
+				}
+				catch (Exception e) {
+					try {
+						logger.warn("Something went wrong copying file " + source.getName());
+						if (i == numOfTrys - 1) { // there is no try left -> no need to wait
+							break;
+						}
+						logger.warn("Trying again in " + (timeBetweenTrysInMillis / 1000) + " seconds");
+						Thread.sleep(timeBetweenTrysInMillis);
+					}
+					catch (InterruptedException ex) {
+						// Do nothing in that case. But try again if there is a try left.
+					}
+				}
+			}
 		}
 	}
 
