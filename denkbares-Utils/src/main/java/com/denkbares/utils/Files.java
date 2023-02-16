@@ -302,8 +302,11 @@ public class Files {
 	/**
 	 * Recursively copy a file or directory and tries again if it fails.
 	 *
-	 * @param source the source file or directory to read from
-	 * @param target the target file or directory
+	 * @param source                  the source file or directory to read from
+	 * @param target                  the target file or directory
+	 * @param numOfTrys               number of trys when failing to copy
+	 * @param timeBetweenTrysInMillis time in milliseconds that the thread waits before retrying
+	 * @param logger                  logger where error messages should be written to
 	 */
 	public static void recursiveCopyWithRetry(File source, File target, int numOfTrys, int timeBetweenTrysInMillis, Logger logger) throws IOException {
 		if (source.isDirectory()) {
