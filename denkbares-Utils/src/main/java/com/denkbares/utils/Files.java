@@ -302,36 +302,36 @@ public class Files {
 	/**
 	 * Recursively copy a file or directory and tries again if it fails.
 	 *
-	 * @param source                  the source file or directory to read from
-	 * @param target                  the target file or directory
-	 * @param numOfTrys               number of trys when failing to copy
-	 * @param timeBetweenTrysInMillis time in milliseconds that the thread waits before retrying
-	 * @param logger                  logger where error messages should be written to
+	 * @param source      the source file or directory to read from
+	 * @param target      the target file or directory
+	 * @param maxAttempts maximum number of attempts when failing to copy file
+	 * @param timeout     timeout in milliseconds to wait before retry
+	 * @param logger      logger where info messages should be written to
 	 */
-	public static void recursiveCopyWithRetry(File source, File target, int numOfTrys, int timeBetweenTrysInMillis, Logger logger) throws IOException {
+	public static void recursiveCopyWithRetry(File source, File target, int maxAttempts, int timeout, Logger logger) throws IOException {
 		if (source.isDirectory()) {
 			// recursively copy contents
 			// noinspection ConstantConditions
 			for (File innerSource : source.listFiles()) {
 				File innerTarget = new File(target, innerSource.getName());
-				recursiveCopyWithRetry(innerSource, innerTarget, numOfTrys, timeBetweenTrysInMillis, logger);
+				recursiveCopyWithRetry(innerSource, innerTarget, maxAttempts, timeout, logger);
 			}
 		}
 		else {
-			for (int i = 0; i < numOfTrys; i++) {
+			for (int i = 0; i < maxAttempts; i++) {
 				try {
 					copy(source, target);
 					// if no exception was thrown and the file was correctly copied break for loop
 					break;
 				}
-				catch (Exception e) {
+				catch (IOException e) {
 					try {
-						logger.warn("Something went wrong copying file " + source.getName());
-						if (i == numOfTrys - 1) { // there is no try left -> no need to wait
-							break;
+						logger.warn("Something went wrong copying the file " + source.getName());
+						if (i == maxAttempts - 1) { // there is no try left -> no need to wait
+							throw new IOException("Max attempts exceeded without success");
 						}
-						logger.warn("Trying again in " + (timeBetweenTrysInMillis / 1000) + " seconds");
-						Thread.sleep(timeBetweenTrysInMillis);
+						logger.warn("Trying again in " + (timeout / 1000) + " seconds");
+						Thread.sleep(timeout);
 					}
 					catch (InterruptedException ex) {
 						// Do nothing in that case. But try again if there is a try left.
