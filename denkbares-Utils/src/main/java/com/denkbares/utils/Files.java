@@ -50,6 +50,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -59,7 +61,6 @@ import java.util.zip.ZipOutputStream;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import com.denkbares.collections.Matrix;
 import com.denkbares.strings.StringFragment;
@@ -306,35 +307,36 @@ public class Files {
 	 * @param target      the target file or directory
 	 * @param maxAttempts maximum number of attempts when failing to copy file
 	 * @param timeout     timeout in milliseconds to wait before retry
-	 * @param logger      logger where info messages should be written to
+	 * @param info        logger where infos should be written to
+	 * @param warning     logger where warnings should be written to
 	 */
-	public static void recursiveCopyWithRetry(File source, File target, int maxAttempts, int timeout, Logger logger) throws IOException {
+	public static void recursiveCopyWithRetry(File source, File target, int maxAttempts, int timeout, Consumer<String> info, BiConsumer<String, Exception> warning) {
 		if (source.isDirectory()) {
 			// recursively copy contents
 			// noinspection ConstantConditions
 			for (File innerSource : source.listFiles()) {
 				File innerTarget = new File(target, innerSource.getName());
-				recursiveCopyWithRetry(innerSource, innerTarget, maxAttempts, timeout, logger);
+				recursiveCopyWithRetry(innerSource, innerTarget, maxAttempts, timeout, info, warning);
 			}
 		}
 		else {
 			for (int i = 0; i < maxAttempts; i++) {
 				try {
 					copy(source, target);
-					// if no exception was thrown and the file was correctly copied break for loop
-					break;
+					return;
 				}
 				catch (IOException e) {
 					try {
-						logger.warn("Something went wrong copying the file " + source.getName());
-						if (i == maxAttempts - 1) { // there is no try left -> no need to wait
-							throw new IOException("Max attempts exceeded without success");
+						if (i == maxAttempts - 1) {
+							warning.accept("Max attempts exceeded without success", e);
+							return;
 						}
-						logger.warn("Trying again in " + (timeout / 1000) + " seconds");
+						warning.accept("Something went wrong copying the file " + source.getName(), null);
+						info.accept("Trying again in " + (timeout / 1000) + "s");
 						Thread.sleep(timeout);
 					}
 					catch (InterruptedException ex) {
-						// Do nothing in that case. But try again if there is a try left.
+						// ignore
 					}
 				}
 			}
