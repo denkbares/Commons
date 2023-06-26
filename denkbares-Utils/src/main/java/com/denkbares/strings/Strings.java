@@ -2214,7 +2214,21 @@ public class Strings {
 	 * @return the bytes as long, or -1 if the string is empty or invalid
 	 */
 	public static long parseBytes(@Nullable String bytes) {
-		if (isBlank(bytes)) return -1;
+		return parseBytes(bytes, -1);
+	}
+
+	/**
+	 * Parses the specified string (case-insensitive) into bytes represented as long. The value can be any positive
+	 * number followed by the size unit (KB, MB, GB). If no unit is given, the value is assumed as total bytes.
+	 * <br><br>
+	 * Regular expression: <code>^[0-9]+[kmg]b?$</code>
+	 *
+	 * @param bytes        the string to parse as bytes
+	 * @param defaultValue the default value to use if the string is empty or invalid
+	 * @return the bytes as long, or the given default if the string is empty or invalid
+	 */
+	public static long parseBytes(@Nullable String bytes, long defaultValue) {
+		if (isBlank(bytes)) return defaultValue;
 		String bytesLowerCase = bytes.toLowerCase(Locale.ROOT);
 		if (bytesLowerCase.matches("^[0-9]+kb?$")) {
 			return Long.parseLong(bytesLowerCase.replaceAll("kb?$", "")) * 1024;
@@ -2230,7 +2244,7 @@ public class Strings {
 		}
 		else {
 			LOGGER.error("Invalid format error: {}", bytes);
-			return -1;
+			return defaultValue;
 		}
 	}
 
