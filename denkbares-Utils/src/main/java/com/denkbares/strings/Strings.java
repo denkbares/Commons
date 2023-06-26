@@ -2217,13 +2217,13 @@ public class Strings {
 		if (isBlank(bytes)) return -1;
 		String bytesLowerCase = bytes.toLowerCase(Locale.ROOT);
 		if (bytesLowerCase.matches("^[0-9]+kb?$")) {
-			return Long.parseLong(bytesLowerCase.replaceAll("kb?$", "")) * 1000;
+			return Long.parseLong(bytesLowerCase.replaceAll("kb?$", "")) * 1024;
 		}
 		else if (bytesLowerCase.matches("^[0-9]+mb?$")) {
-			return Long.parseLong(bytesLowerCase.replaceAll("mb?$", "")) * 1000000;
+			return Long.parseLong(bytesLowerCase.replaceAll("mb?$", "")) * 1024 * 1024;
 		}
 		else if (bytesLowerCase.matches("^[0-9]+gb?$")) {
-			return Long.parseLong(bytesLowerCase.replaceAll("gb?$", "")) * 1000000000;
+			return Long.parseLong(bytesLowerCase.replaceAll("gb?$", "")) * 1024 * 1024 * 1024;
 		}
 		else if (bytesLowerCase.matches("^[0-9]+$")) {
 			return Long.parseLong(bytesLowerCase);
