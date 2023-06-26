@@ -2205,6 +2205,36 @@ public class Strings {
 	}
 
 	/**
+	 * Parses the specified string (case-insensitive) into bytes represented as long. The value can be any positive
+	 * number followed by the size unit (KB, MB, GB). If no unit is given, the value is assumed as total bytes.
+	 * <br><br>
+	 * Regular expression: <code>^[0-9]+[kmg]b?$</code>
+	 *
+	 * @param bytes the string to parse as bytes
+	 * @return the bytes as long, or -1 if the string is empty or invalid
+	 */
+	public static long parseBytes(@Nullable String bytes) {
+		if (isBlank(bytes)) return -1;
+		String bytesLowerCase = bytes.toLowerCase(Locale.ROOT);
+		if (bytesLowerCase.matches("^[0-9]+kb?$")) {
+			return Long.parseLong(bytesLowerCase.replaceAll("kb?$", "")) * 1000;
+		}
+		else if (bytesLowerCase.matches("^[0-9]+mb?$")) {
+			return Long.parseLong(bytesLowerCase.replaceAll("mb?$", "")) * 1000000;
+		}
+		else if (bytesLowerCase.matches("^[0-9]+gb?$")) {
+			return Long.parseLong(bytesLowerCase.replaceAll("gb?$", "")) * 1000000000;
+		}
+		else if (bytesLowerCase.matches("^[0-9]+$")) {
+			return Long.parseLong(bytesLowerCase);
+		}
+		else {
+			LOGGER.error("Invalid format error: {}", bytes);
+			return -1;
+		}
+	}
+
+	/**
 	 * Parses a locale from a locale string representation. This is the inverse method to {@link
 	 * java.util.Locale#toString()}. If the specified text is null or "null" or cannot be parsed, null is returned. If
 	 * the specified text is empty or "ROOT", the root locale is returned. Leading or trailing whitespaces will be
