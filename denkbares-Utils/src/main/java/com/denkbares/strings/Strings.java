@@ -1883,7 +1883,7 @@ public class Strings {
 	 * @return a concatenated, properly escaped and again parsable string
 	 */
 	public static String concatParsable(char separator, String[] strings) {
-		return concatParsable(separator, new char[] {separator, '\\', '"'}, strings);
+		return concatParsable(separator, new char[] { separator, '\\', '"' }, strings);
 	}
 
 	/**
