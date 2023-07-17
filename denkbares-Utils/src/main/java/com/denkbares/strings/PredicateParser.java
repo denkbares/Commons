@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 denkbares GmbH, Germany
+ * Copyright (C) 2023 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,7 @@ import java.util.regex.PatternSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.denkbares.parser.Normalizer;
 import com.denkbares.utils.Predicates;
 
 /**
@@ -130,7 +131,8 @@ public class PredicateParser {
 
 	/**
 	 * This method restricts the allowed variable names to the ones, accepted by the specified predicate. After this
-	 * call, the parser will report a {@link ParseException} for any condition that contains a variable, not accepted by
+	 * call, the parser will report a {@link ParseException} for any condition that contains a variable, not
+	 * accepted by
 	 * the specified predicate.
 	 *
 	 * @param isAllowedVariable the predicate to accept variable names
@@ -142,7 +144,8 @@ public class PredicateParser {
 	}
 
 	/**
-	 * This method restricts the allowed variable names to the specified ones. After this call, the parser will report a
+	 * This method restricts the allowed variable names to the specified ones. After this call, the parser will
+	 * report a
 	 * {@link ParseException} for any condition that contains a variable, not listed here. The variable names are
 	 * expected to be case sensitive.
 	 *
@@ -172,7 +175,8 @@ public class PredicateParser {
 	/**
 	 * This method marks the specified variables to be used as boolean terminals (instead of condition expressions),
 	 * without any compare operator. The variable names are expected to be case sensitive. The boolean terminal
-	 * variables are evaluated to true if they have at least one value, and if at least one of the values is not "false"
+	 * variables are evaluated to true if they have at least one value, and if at least one of the values is not
+	 * "false"
 	 * (case insensitive).
 	 * <p>
 	 * Note: the method does not restrict the parser to these variable names, other variables are still allowed until
@@ -210,8 +214,7 @@ public class PredicateParser {
 		while (lexer.consumeIf(TokenType.or)) {
 			nodes.add(parseAnd(lexer));
 		}
-		return (nodes.size() <= 1) ? nodes.get(0)
-				: equipment -> nodes.stream().anyMatch(node -> node.test(equipment));
+		return (nodes.size() <= 1) ? nodes.get(0) : new OrPredicate(nodes);
 	}
 
 	private Predicate<ValueProvider> parseAnd(Lexer lexer) throws ParseException {
@@ -220,14 +223,13 @@ public class PredicateParser {
 		while (lexer.consumeIf(TokenType.and)) {
 			nodes.add(parseNot(lexer));
 		}
-		return (nodes.size() == 1) ? nodes.get(0)
-				: equipment -> nodes.stream().allMatch(node -> node.test(equipment));
+		return (nodes.size() == 1) ? nodes.get(0) : new AndPredicate(nodes);
 	}
 
 	private Predicate<ValueProvider> parseNot(Lexer lexer) throws ParseException {
 		if (lexer.consumeIf(TokenType.not)) {
 			Predicate<ValueProvider> node = parseBrackets(lexer);
-			return equipment -> !node.test(equipment);
+			return new NotPredicate(Collections.singletonList(node));
 		}
 		else {
 			return parseBrackets(lexer);
@@ -281,6 +283,65 @@ public class PredicateParser {
 		}
 	}
 
+	public abstract static class BooleanPredicate implements Predicate<ValueProvider> {
+		private final List<Predicate<ValueProvider>> nodes;
+
+		protected BooleanPredicate(List<Predicate<ValueProvider>> nodes) {
+			this.nodes = nodes;
+		}
+
+		public List<Predicate<ValueProvider>> getNodes() {
+			return nodes;
+		}
+	}
+
+	public static class OrPredicate extends BooleanPredicate {
+		public OrPredicate(List<Predicate<ValueProvider>> nodes) {
+			super(nodes);
+		}
+
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return getNodes().stream().anyMatch(node -> node.test(valueProvider));
+		}
+	}
+
+	public static class AndPredicate extends BooleanPredicate {
+		public AndPredicate(List<Predicate<ValueProvider>> nodes) {
+			super(nodes);
+		}
+
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return getNodes().stream().allMatch(node -> node.test(valueProvider));
+		}
+	}
+
+	public static class NotPredicate extends BooleanPredicate {
+		public NotPredicate(List<Predicate<ValueProvider>> nodes) {
+			super(nodes);
+		}
+
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return !getNodes().get(0).test(valueProvider);
+		}
+	}
+
+	public static class TruePredicate implements Predicate<ValueProvider> {
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return true;
+		}
+	}
+
+	public static class FalsePredicate implements Predicate<ValueProvider> {
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return false;
+		}
+	}
+
 	/**
 	 * Class that represents a parsed logical expression, that is capable to evaluate itself to true or false, based on
 	 * a given binding of the variables.
@@ -291,10 +352,29 @@ public class PredicateParser {
 		private final Predicate<ValueProvider> root;
 		private final Set<String> variables;
 
-		public ParsedPredicate(@NotNull String expression, @NotNull Predicate<ValueProvider> root, @NotNull Set<String> variables) {
+		public ParsedPredicate(@NotNull String expression, @NotNull Predicate<ValueProvider> root,
+							   @NotNull Set<String> variables) {
 			this.condition = expression;
 			this.root = root;
 			this.variables = variables;
+		}
+
+		/**
+		 * Builds the disjunctive normal form of the current root node. See: {@link Normalizer#toDNF(Predicate)}
+		 *
+		 * @return the clause for of the disjunctive normal form of the condition
+		 */
+		public Set<Set<Predicate<ValueProvider>>> toDNF() throws ParseException {
+			return Normalizer.toDNF(this.root);
+		}
+
+		/**
+		 * Return the conjunctive normal form of the condition. See: {@link Normalizer#toCNF(Predicate)}
+		 *
+		 * @return the clause for of the conjunctive normal form of the condition
+		 */
+		public Set<Set<Predicate<ValueProvider>>> toCNF() throws ParseException {
+			return Normalizer.toCNF(this.root);
 		}
 
 		@Override
@@ -303,8 +383,8 @@ public class PredicateParser {
 		}
 
 		/**
-		 * The original parsed source string, as it has been consumed by this parser. When using a custom stop token, it
-		 * is the original source string up to the stop token, including the stop token.
+		 * The original parsed source string, as it has been consumed by this parser. When using a custom stop
+		 * token, it is the original source string up to the stop token, including the stop token.
 		 *
 		 * @return the original parsed and consumed condition expression
 		 */
@@ -344,9 +424,9 @@ public class PredicateParser {
 	 * variable is unbound (aka 'null' or 'nil'), the method should return an empty collection (or null). Otherwise it
 	 * returns the value(s) the variable is bound to.
 	 * <p>
-	 * In most cases, the returned collection contains a single value, representing the bound value of the variable, but
-	 * the logical evaluator allows multiple values for each element, using an implicit 'or', so that the expression
-	 * becomes true it it matches to at least one value.
+	 * In most cases, the returned collection contains a single value, representing the bound value of the variable,
+	 * but the logical evaluator allows multiple values for each element, using an implicit 'or', so that the
+	 * expression becomes true it matches to at least one value.
 	 */
 	@FunctionalInterface
 	public interface ValueProvider {
@@ -385,7 +465,8 @@ public class PredicateParser {
 
 		/**
 		 * Creates a value provider for single bounded variables. The specified single value provider may returns a
-		 * single string value for the variable, or null, if the variable is not bound. This method creates a compatible
+		 * single string value for the variable, or null, if the variable is not bound. This method creates a
+		 * compatible
 		 * ValueProvider to evaluate the parsed predicates for that.
 		 *
 		 * @param singleValueProvider a function that returns the bound value, or null, for each variable
@@ -623,7 +704,8 @@ public class PredicateParser {
 
 		/**
 		 * Consumes the next token as a variable, throwing an parse exception if the token is not a valid variable. If
-		 * the parser has configured a variable checker, the method also throws a parse exception i the variable name is
+		 * the parser has configured a variable checker, the method also throws a parse exception i the variable
+		 * name is
 		 * not allowed to be used.
 		 *
 		 * @return the unquoted variable name
@@ -649,7 +731,7 @@ public class PredicateParser {
 		}
 	}
 
-	private static class Token {
+	public static class Token {
 		private final TokenType tokenType;
 		private final String text;
 		private final int start;
@@ -661,16 +743,27 @@ public class PredicateParser {
 			this.start = start;
 			this.end = end;
 		}
+
+		public String getText() {
+			return text;
+		}
+
+		public TokenType getTokenType() {
+			return tokenType;
+		}
 	}
 
-	private static class CompareNode implements Predicate<ValueProvider> {
+	public static class CompareNode implements Predicate<ValueProvider> {
 		private final String variable;
 		private final String textValue;
 		private final Number numValue;
 		private final boolean acceptLess, acceptEqual, acceptGreater;
+		private final Token token;
 
-		private CompareNode(String variable, Token value, boolean acceptLess, boolean acceptEqual, boolean acceptGreater) throws ParseException {
+		public CompareNode(String variable, Token value, boolean acceptLess, boolean acceptEqual,
+						   boolean acceptGreater) throws ParseException {
 			this.variable = variable;
+			this.token = value;
 			this.textValue = (value.tokenType == TokenType.nil) ? null : Strings.unquote(value.text, '"', '\'');
 			this.numValue = (value.tokenType == TokenType.number) ? Double.parseDouble(value.text) : null;
 			this.acceptLess = acceptLess;
@@ -684,6 +777,26 @@ public class PredicateParser {
 			else if (value.tokenType != TokenType.number && value.tokenType != TokenType.string) {
 				throw new ParseException("string or  number expected, but not a " + value.tokenType, value.start);
 			}
+		}
+
+		public String getVariable() {
+			return variable;
+		}
+
+		public Token getToken() {
+			return token;
+		}
+
+		public boolean isAcceptLess() {
+			return acceptLess;
+		}
+
+		public boolean isAcceptEqual() {
+			return acceptEqual;
+		}
+
+		public boolean isAcceptGreater() {
+			return acceptGreater;
 		}
 
 		@Override
