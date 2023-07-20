@@ -305,12 +305,14 @@ public class Files {
 	 *
 	 * @param source      the source file or directory to read from
 	 * @param target      the target file or directory
-	 * @param maxAttempts maximum number of attempts when failing to copy file
-	 * @param timeout     timeout in milliseconds to wait before retry
-	 * @param info        logger where infos should be written to
-	 * @param warning     logger where warnings should be written to
+	 * @param maxAttempts the maximum number of attempts to retry on fail
+	 * @param timeout     the timeout in milliseconds to wait before retry
+	 * @param info        the logger where infos should be written to
+	 * @param warning     the logger where warnings should be written to
 	 */
+	@SuppressWarnings("MethodWithTooManyParameters")
 	public static void recursiveCopyWithRetry(File source, File target, int maxAttempts, int timeout, Consumer<String> info, BiConsumer<String, Exception> warning) {
+		if (maxAttempts < 1) return;
 		if (source.isDirectory()) {
 			// recursively copy contents
 			// noinspection ConstantConditions
@@ -327,12 +329,17 @@ public class Files {
 				}
 				catch (IOException e) {
 					try {
-						if (i == maxAttempts - 1) {
+						if (i == 0 && maxAttempts != 1) {
+							warning.accept("Something went wrong copying the file " + source.getName() + ". "
+									+ "Trying again with max limit of " + (maxAttempts - 1) + "...", null);
+						}
+						else if (i == maxAttempts - 1) {
 							warning.accept("Max attempts exceeded without success", e);
 							return;
 						}
-						warning.accept("Something went wrong copying the file " + source.getName(), null);
-						info.accept("Trying again in " + (timeout / 1000) + "s");
+						else {
+							info.accept("Trying again in " + (timeout / 1000) + "s...");
+						}
 						Thread.sleep(timeout);
 					}
 					catch (InterruptedException ex) {
