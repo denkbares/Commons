@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
@@ -451,20 +452,20 @@ public class StringsTest {
 	@Test
 	public void htmlToPlain() {
 		String source = "<!DOCTYPE html>\n" +
-				"<html>\n" +
-				"<head>\n" +
-				"</head>\n" +
-				"<body>\n" +
-				"\n" +
-				"<p>This is a paragraph.</p>\n" +
-				"\n" +
-				"<ul>\n" +
-				"<li>item1<li>item2\n" +
-				"</ul>\n" +
-				"  And some text after." +
-				"\n" +
-				"</body>\n" +
-				"</html>\n";
+						"<html>\n" +
+						"<head>\n" +
+						"</head>\n" +
+						"<body>\n" +
+						"\n" +
+						"<p>This is a paragraph.</p>\n" +
+						"\n" +
+						"<ul>\n" +
+						"<li>item1<li>item2\n" +
+						"</ul>\n" +
+						"  And some text after." +
+						"\n" +
+						"</body>\n" +
+						"</html>\n";
 		assertEquals("This is a paragraph.\n* item1\n* item2\n\nAnd some text after.",
 				Strings.htmlToPlain(source));
 	}
@@ -479,19 +480,19 @@ public class StringsTest {
 	@Test
 	public void trimBlankLines() {
 		String source = "  \n" +
-				"  What is up?\n" +
-				"\n" +
-				"   \n" +
-				"All is fine!\n" +
-				"  \r\n  ";
+						"  What is up?\n" +
+						"\n" +
+						"   \n" +
+						"All is fine!\n" +
+						"  \r\n  ";
 		assertEquals("  What is up?\n" +
-				"\n" +
-				"   \n" +
-				"All is fine!\n", Strings.trimBlankLines(source));
+					 "\n" +
+					 "   \n" +
+					 "All is fine!\n", Strings.trimBlankLines(source));
 		assertEquals("  What is up?\n" +
-				"\n" +
-				"   \n" +
-				"All is fine!", Strings.trimBlankLinesAndTrailingLineBreak(source));
+					 "\n" +
+					 "   \n" +
+					 "All is fine!", Strings.trimBlankLinesAndTrailingLineBreak(source));
 	}
 
 	@Test
@@ -538,5 +539,14 @@ public class StringsTest {
 
 		String s4 = Strings.cleanNumeral("101,212");
 		assertEquals("101212", s4);
+	}
+
+	@Test
+	public void trimSharedPreAndSuffixTest() {
+		assertEquals(List.of("Hello", "World", "Java"), Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix")));
+		assertEquals(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME"), Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME")));
+		assertEquals(List.of("Hello", "World", "Java", "DONT_TOUCH_ME"), Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME"), Pattern.compile("DONT_TOUCH_ME\\d*")));
+		assertEquals(List.of("Hello", "World", "Java", "DONT_TOUCH_ME1", "DONT_TOUCH_ME2323"),
+				Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME1", "DONT_TOUCH_ME2323"), Pattern.compile("DONT_TOUCH_ME\\d*")));
 	}
 }
