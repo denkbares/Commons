@@ -71,12 +71,12 @@ public class Files {
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 
 	/**
-	 * Cleans the specified filename from special caharacters, to that the returned filename can be used without
+	 * Cleans the specified filename from special characters, to that the returned filename can be used without
 	 * conflicting to an operating system's special file system characters. It also shortens the filename if it becomes
 	 * too long. Note that tho different input names may result in the same cleaned filename.
 	 *
 	 * @param unsecureFileName the filename to be cleaned
-	 * @return a operating-system-secure filename to be used as a path element
+	 * @return an operating-system-secure filename to be used as a path element
 	 */
 	@NotNull
 	public static String cleanFileName(@Nullable String unsecureFileName) {
