@@ -229,7 +229,7 @@ public class PredicateParser {
 	private Predicate<ValueProvider> parseNot(Lexer lexer) throws ParseException {
 		if (lexer.consumeIf(TokenType.not)) {
 			Predicate<ValueProvider> node = parseBrackets(lexer);
-			return new NotPredicate(Collections.singletonList(node));
+			return new NotPredicate(node);
 		}
 		else {
 			return parseBrackets(lexer);
@@ -318,8 +318,8 @@ public class PredicateParser {
 	}
 
 	public static class NotPredicate extends BooleanPredicate {
-		public NotPredicate(List<Predicate<ValueProvider>> nodes) {
-			super(nodes);
+		public NotPredicate(Predicate<ValueProvider> node) {
+			super(Collections.singletonList(node));
 		}
 
 		@Override
