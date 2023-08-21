@@ -188,7 +188,9 @@ public class Normalizer {
 
 		// if condition is negated, push the negation to the atoms, and proceed with pushed one
 		if (condition instanceof PredicateParser.NotPredicate) {
-			condition = pushNegationsToAtoms(((PredicateParser.NotPredicate) condition).getNodes().get(0), true);
+			condition = pushNegationsToAtoms(((PredicateParser.NotPredicate) condition).getNodes()
+					.iterator()
+					.next(), true);
 		}
 
 		if (condition instanceof PredicateParser.AndPredicate) {
@@ -200,7 +202,12 @@ public class Normalizer {
 					appendCNFDisjunction(cnf, disjunction);
 				}
 			}
-			return cnf.toSet();
+			final boolean falseDisjunctionContained = cnf.toSet().stream()
+					.anyMatch(sets -> sets.stream()
+							.anyMatch(disjunction -> disjunction instanceof PredicateParser.FalsePredicate));
+
+			return falseDisjunctionContained ?
+					Collections.singleton(Collections.singleton(new PredicateParser.FalsePredicate())) : cnf.toSet();
 		}
 
 		if (condition instanceof PredicateParser.OrPredicate) {
@@ -234,7 +241,8 @@ public class Normalizer {
 			}
 
 			// prev is the original pref-cnf, or the merged cnf if there is more than one operand
-			return prev;
+			return prev.isEmpty() ? Collections.singleton(Collections.singleton(new PredicateParser.TruePredicate()))
+					: prev;
 		}
 
 		// atom conditions can directly be represented in clause form
@@ -307,11 +315,10 @@ public class Normalizer {
 //			return negated ? condition.negate() : condition;
 //		}
 
-//		if (condition instanceof Values.BoolOption) {
-//			if (!negated) return condition;
-//			return ((Values.BoolOption) condition).isTrue() ? new PredicateParser.FalsePredicate() : new
-//			PredicateParser.TruePredicate();
-//		}
+		if (condition instanceof PredicateParser.BoolPredicate) {
+			if (!negated) return condition;
+			return new PredicateParser.BoolPredicate(condition.negate(), true);
+		}
 
 		if (condition instanceof PredicateParser.AndPredicate) {
 			// push negations further into sub-conditions

@@ -42,7 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.parser.Normalizer;
-import com.denkbares.utils.Predicates;
 
 /**
  * Class that implements a simple recursive descent parser for logical expressions (condition) that evaluate a set of
@@ -249,14 +248,14 @@ public class PredicateParser {
 
 	private Predicate<ValueProvider> parseCompare(Lexer lexer) throws ParseException {
 		// check for boolean literals
-		if (lexer.consumeIf(TokenType.lit_true)) return Predicates.TRUE();
-		if (lexer.consumeIf(TokenType.lit_false)) return Predicates.FALSE();
+		if (lexer.consumeIf(TokenType.lit_true)) return new TruePredicate();
+		if (lexer.consumeIf(TokenType.lit_false)) return new FalsePredicate();
 
 		// consume the variable and check if the variable is a boolean variable
 		String variable = lexer.consumeVariable();
 		if (isBooleanVariable != null && isBooleanVariable.test(variable) && !lexer.peek(TokenType.compare)) {
 			// if it is a defined boolean variable, and no operator follows, we create a virtual compare to != false
-			return vars -> vars.isTrue(variable);
+			return new BoolPredicate(vars -> vars.isTrue(variable), false);
 		}
 
 		// otherwise consume normal compare operator and terminal, and create compare node from that
@@ -292,6 +291,24 @@ public class PredicateParser {
 
 		public List<Predicate<ValueProvider>> getNodes() {
 			return nodes;
+		}
+	}
+
+	public static class BoolPredicate extends BooleanPredicate {
+		private final boolean negated;
+
+		public BoolPredicate(Predicate<ValueProvider> nodes, boolean negated) {
+			super(Collections.singletonList(nodes));
+			this.negated = negated;
+		}
+
+		public boolean isNegated() {
+			return negated;
+		}
+
+		@Override
+		public boolean test(ValueProvider valueProvider) {
+			return getNodes().get(0).test(valueProvider);
 		}
 	}
 
