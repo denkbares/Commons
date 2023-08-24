@@ -19,17 +19,18 @@
 
 package com.denkbares.utils.test;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
+import com.denkbares.utils.Exec;
+import com.denkbares.utils.OS;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.denkbares.utils.Exec;
-import com.denkbares.utils.OS;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -123,5 +124,20 @@ public class ExecTest {
 				.runAndWait();
 		assertTrue(errors.isEmpty());
 		assertTrue(files.stream().anyMatch(file -> file.contains("pom.xml")));
+	}
+
+	@Test
+	public void waitTimeout() throws IOException, InterruptedException {
+		OS currentOS = OS.getCurrentOS();
+		if (!(currentOS == OS.UNIX || currentOS == OS.MAC_OS)) {
+			LOGGER.warn("invalid operating system, skip test: " + OS.getCurrentOriginalName());
+			return;
+		}
+
+		int result = Exec.parse("sleep 2").runAndWait(1, TimeUnit.SECONDS);
+		Assert.assertNotEquals(0, result);
+
+		result = Exec.parse("sleep 1").runAndWait(2, TimeUnit.SECONDS);
+		Assert.assertEquals(0, result);
 	}
 }

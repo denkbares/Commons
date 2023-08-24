@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -286,6 +287,21 @@ public class Exec {
 	}
 
 	/**
+	 * Starts the process and waits for the process for the specified time. If the process doesn't finish within this
+	 * time, it's killed (see {@link #destroy()}).
+	 *
+	 * @return the exit value of the subprocess represented by this {@code Exec} object.  By convention, the value
+	 * {@code 0} indicates normal termination.
+	 * @throws IOException          if the process could not been started properly
+	 * @throws InterruptedException if the current thread is {@linkplain Thread#interrupt() interrupted} by another
+	 *                              thread while it is waiting
+	 */
+	public int runAndWait(long timeout, TimeUnit unit) throws IOException, InterruptedException {
+		startProcess();
+		return waitProcess(timeout, unit);
+	}
+
+	/**
 	 * Starts the process asynchronously. The method returns after the process has started.
 	 *
 	 * @throws IOException if the process could not been started properly
@@ -396,6 +412,33 @@ public class Exec {
 		}
 	}
 
+	private int waitProcess(long timeout, TimeUnit unit) throws InterruptedException {
+		try {
+			// wait for process and wait for readers to complete
+			boolean exited = process.waitFor(timeout, unit);
+			int exitValue;
+            if (exited) {
+                exitValue = exitValue();
+            } else {
+                destroy();
+                exitValue = waitFor();
+            }
+
+			// inform exit handler
+			if (exitHandler != null) {
+				exitHandler.accept(exitValue);
+			}
+			return exitValue;
+		}
+		finally {
+			// we must close all by exec(..) opened streams:
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4784692
+			Streams.closeQuietly(process.getInputStream());
+			Streams.closeQuietly(process.getOutputStream());
+			Streams.closeQuietly(process.getErrorStream());
+		}
+	}
+
 	private Thread connectStream(InputStream in, PrintStream delegate, LineConsumer handler) {
 		// even if there is no handler, we have to read the stream contents,
 		// otherwise the process may block its execution if the buffer is full
@@ -446,7 +489,7 @@ public class Exec {
 				.output(line -> output.append(line).append("\n"))
 				.runAndWait();
 
-		if (exitValue > 0 || error.length() > 0) {
+		if (exitValue > 0 || !error.isEmpty()) {
 			throw new IOException("Command failed with exit code: " + exitValue + error);
 		}
 		return output.toString();
@@ -467,7 +510,7 @@ public class Exec {
 		@Override
 		public void accept(int lineNo, CharSequence line) {
 			// special case: if the same line is touched (and not empty), reprint the line
-			if (lineNo == completedLineNo && line.length() > 0) consumer.accept(line.toString());
+			if (lineNo == completedLineNo && !line.isEmpty()) consumer.accept(line.toString());
 
 			// if we are remaining in the recently completed line (or before), there is nothing we can do
 			if (lineNo <= completedLineNo) return;
