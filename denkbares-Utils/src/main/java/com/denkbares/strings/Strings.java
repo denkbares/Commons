@@ -128,8 +128,8 @@ public class Strings {
 
 	/**
 	 * This method appends the strings or objects and separates them with the specified separation string in between
-	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
-	 * String#valueOf(Object)} would do. Empty or null values are ignored.
+	 * (but not at the end). You can specify all types of objects, they will be printed as
+	 * {@link String#valueOf(Object)} would do. Empty or null values are ignored.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -142,8 +142,8 @@ public class Strings {
 
 	/**
 	 * This method appends the strings or objects and separates them with the specified separation string in between
-	 * (but not at the end). You can specify all types of objects, they will be printed as {@link
-	 * String#valueOf(Object)} would do. Empty or null values are ignored.
+	 * (but not at the end). You can specify all types of objects, they will be printed as
+	 * {@link String#valueOf(Object)} would do. Empty or null values are ignored.
 	 *
 	 * @param separator the separating text in between the concatenated strings
 	 * @param strings   the strings to be concatenated
@@ -626,7 +626,7 @@ public class Strings {
 	public static boolean isQuoted(String text, int index) {
 		if (index < 0 || index > text.length() - 1) {
 			throw new IllegalArgumentException(index + " is not an index in the string '" + text
-											   + "'");
+					+ "'");
 		}
 		boolean quoted = false;
 		// scanning the text
@@ -690,7 +690,7 @@ public class Strings {
 
 	public static boolean isUnEscapedQuote(String text, int i, char quoteChar) {
 		return text.length() > i && text.charAt(i) == quoteChar
-			   && getNumberOfDirectlyPrecedingBackSlashes(text, i) % 2 == 0;
+				&& getNumberOfDirectlyPrecedingBackSlashes(text, i) % 2 == 0;
 	}
 
 	public static boolean isUnEscapedQuote(String text, int i, char... quoteChars) {
@@ -930,8 +930,8 @@ public class Strings {
 			if (skipComments) {
 				// check comment status
 				if (i + 2 <= text.length()
-					&& text.charAt(i) == '/'
-					&& text.charAt(i + 1) == '/') {
+						&& text.charAt(i) == '/'
+						&& text.charAt(i + 1) == '/') {
 					comment = true;
 				}
 				// ignore comment
@@ -1127,7 +1127,22 @@ public class Strings {
 
 	/**
 	 * Returns the beginning of specified text. If the text does not exceed the specified maxLength, the original text
-	 * is returned unmodified. Otherwise the text is truncated, and an ellipsis "..." is appended, so that the total
+	 * is returned unmodified. Otherwise, the text is truncated, so that the total length is maxLength.
+	 * <p>
+	 * If null is specified as text, null is returned.
+	 *
+	 * @param text      the text to be truncated
+	 * @param maxLength the maximum character of the returned text
+	 * @return the text, or truncated text
+	 * @throws IllegalArgumentException if maxLength is negative and the text is non-null
+	 */
+	public static String truncate(String text, int maxLength) {
+		return ellipsis(text, maxLength, "");
+	}
+
+	/**
+	 * Returns the beginning of specified text. If the text does not exceed the specified maxLength, the original text
+	 * is returned unmodified. Otherwise, the text is truncated, and an ellipsis "..." is appended, so that the total
 	 * length is maxLength. The returned string never contains more characters as the specified maxLength.
 	 * <p>
 	 * If null is specified as text, null is returned.
@@ -1138,11 +1153,30 @@ public class Strings {
 	 * @throws IllegalArgumentException if maxLength is below 3 and the text exceeds the maxLength
 	 */
 	public static String ellipsis(String text, int maxLength) {
+		return ellipsis(text, maxLength, "...");
+	}
+
+	/**
+	 * Returns the beginning of specified text. If the text does not exceed the specified maxLength, the original text
+	 * is returned unmodified. Otherwise, the text is truncated, and the specified ellipsis is appended, so that the
+	 * total length is maxLength. The returned string never contains more characters as the specified maxLength.
+	 * <p>
+	 * If null is specified as text, null is returned.
+	 *
+	 * @param text      the text to be truncated
+	 * @param maxLength the maximum character of the returned text
+	 * @param ellipsis  the text to be used as the ellipsis
+	 * @return the text, or truncated text with ellipsis
+	 * @throws IllegalArgumentException if maxLength is below the length of the ellipsis and the text exceeds the
+	 *                                  maxLength
+	 */
+	public static String ellipsis(String text, int maxLength, String ellipsis) {
 		if (text == null) return null;
 		if (text.length() <= maxLength) return text;
 
-		if (maxLength < 3) throw new IllegalArgumentException("maxLength must be at least 3: " + maxLength);
-		return text.substring(0, maxLength - 3) + "...";
+		var len = ellipsis.length();
+		if (maxLength < len) throw new IllegalArgumentException("maxLength must be at least " + len + ": " + maxLength);
+		return text.substring(0, maxLength - len) + ellipsis;
 	}
 
 	/**
@@ -1259,8 +1293,8 @@ public class Strings {
 	public static int trimRight(String text, int start, int end) {
 		if (end > text.length()) return end;
 		while (end > 0
-			   && end > start
-			   && isWhitespace(text.charAt(end - 1))) {
+				&& end > start
+				&& isWhitespace(text.charAt(end - 1))) {
 			end--;
 		}
 		return end;
@@ -1273,9 +1307,9 @@ public class Strings {
 	 */
 	public static int trimLeft(String text, int start, int end) {
 		while (start >= 0
-			   && start < end
-			   && start < text.length()
-			   && isWhitespace(text.charAt(start))) {
+				&& start < end
+				&& start < text.length()
+				&& isWhitespace(text.charAt(start))) {
 			start++;
 		}
 		return start;
@@ -1364,7 +1398,7 @@ public class Strings {
 
 		int end = text.length() - 1;
 		if (isUnEscapedQuote(text, 0, quoteChar)
-			&& isUnEscapedQuote(text, end, quoteChar)) {
+				&& isUnEscapedQuote(text, end, quoteChar)) {
 
 			StringBuilder builder = new StringBuilder(text.length() - 2);
 			boolean escape = false;
@@ -1407,8 +1441,8 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-encode strings without dealing with {@link UnsupportedEncodingException} of {@link
-	 * URLEncoder#encode(String, String)}. If the specified text is null, null is returned.
+	 * Safe way to url-encode strings without dealing with {@link UnsupportedEncodingException} of
+	 * {@link URLEncoder#encode(String, String)}. If the specified text is null, null is returned.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
@@ -1939,8 +1973,8 @@ public class Strings {
 	}
 
 	/**
-	 * Capitalizes the given string, meaning the first character will be upper case, all following unchanged. If
-	 * there are multiple words, still only the first character of the string will be capitalized!
+	 * Capitalizes the given string, meaning the first character will be upper case, all following unchanged. If there
+	 * are multiple words, still only the first character of the string will be capitalized!
 	 *
 	 * @param text the text to capitalize (make the first char upper case, rest unchanged)
 	 * @return the capitalized version of the text
@@ -1996,7 +2030,7 @@ public class Strings {
 			String element = strings[i];
 			if (i > 0) concat.append(separator);
 			if ((quotePattern != null && quotePattern.matcher(element).find())
-				|| element.contains(separator) || element.contains("\\") || element.contains("\"")) {
+					|| element.contains(separator) || element.contains("\\") || element.contains("\"")) {
 				concat.append(quote(element));
 			}
 			else {
@@ -2008,8 +2042,9 @@ public class Strings {
 
 	/**
 	 * Optimized version of concatParseable, also see {@link Strings#concatParsable(String, Pattern, String[])}.
-	 * <b>Important: </b> The char array has to contain the separator, the quote and the backslash and may not contain a
-	 * letter or digit, for this method to work correctly. We do not check these requirements for performance reasons.
+	 * <b>Important: </b> The char array has to contain the separator, the quote and the backslash and may not contain
+	 * a letter or digit, for this method to work correctly. We do not check these requirements for performance
+	 * reasons.
 	 *
 	 * @param separator             the separator used to concatenate
 	 * @param charsRequiringQuoting the array with all chars that require the elements to be quoted...
@@ -2051,8 +2086,9 @@ public class Strings {
 	}
 
 	/**
-	 * Parsed a String, that was previously concatenated using the method {@link #concatParsable(String, Pattern,
-	 * String[])}. The returned string elements are unescaped and unqouted properly.
+	 * Parsed a String, that was previously concatenated using the method
+	 * {@link #concatParsable(String, Pattern, String[])}. The returned string elements are unescaped and unqouted
+	 * properly.
 	 *
 	 * @param separator          the separator used to concat the string
 	 * @param concatenatedString the string to parse the elements from
@@ -2087,9 +2123,10 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
-	 * URLEncoder#encode(String, String)}. The encoding can be specified by this function. In most cases UTF-8 encoding
-	 * works best, see method {@link #decodeURL(String)} for this. If the specified text is null, null is returned.
+	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of
+	 * {@link URLEncoder#encode(String, String)}. The encoding can be specified by this function. In most cases UTF-8
+	 * encoding works best, see method {@link #decodeURL(String)} for this. If the specified text is null, null is
+	 * returned.
 	 *
 	 * @param text     the text to be encoded
 	 * @param encoding the encoding to be used for decode
@@ -2108,10 +2145,10 @@ public class Strings {
 	}
 
 	/**
-	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of {@link
-	 * URLEncoder#encode(String, String)}. It used UTF-8 encoding for decode. If this does not work well, try {@link
-	 * #decodeURL(String, Encoding)} where you can specify a particular encoding. If the specified text is null, null is
-	 * returned.
+	 * Safe way to url-decode strings without dealing with {@link UnsupportedEncodingException} of
+	 * {@link URLEncoder#encode(String, String)}. It used UTF-8 encoding for decode. If this does not work well, try
+	 * {@link #decodeURL(String, Encoding)} where you can specify a particular encoding. If the specified text is null,
+	 * null is returned.
 	 *
 	 * @param text the text to be encoded
 	 * @return the encoded string
@@ -2237,12 +2274,12 @@ public class Strings {
 					if (quoteSet.isUnary()) {
 						// handle special case for triple quotes (""")
 						if (quoteSet == QuoteSet.TRIPLE_QUOTES
-							// triple quotes cannot be escaped, so just try a match
-							&& text.length() >= i + 3
-							&& text.startsWith(TRIPLE_QUOTES, i)
-							// don't match closing triple quotes at the start, but at the end of
-							// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
-							&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
+								// triple quotes cannot be escaped, so just try a match
+								&& text.length() >= i + 3
+								&& text.startsWith(TRIPLE_QUOTES, i)
+								// don't match closing triple quotes at the start, but at the end of
+								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
+								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
 								.charAt(0))) {
 
 							toggleQuoteState(quoteStates, q);
@@ -2341,10 +2378,10 @@ public class Strings {
 	}
 
 	/**
-	 * Parses a locale from a locale string representation. This is the inverse method to {@link
-	 * java.util.Locale#toString()}. If the specified text is null or "null" or cannot be parsed, null is returned. If
-	 * the specified text is empty or "ROOT", the root locale is returned. Leading or trailing whitespaces will be
-	 * ignored by this method.
+	 * Parses a locale from a locale string representation. This is the inverse method to
+	 * {@link java.util.Locale#toString()}. If the specified text is null or "null" or cannot be parsed, null is
+	 * returned. If the specified text is empty or "ROOT", the root locale is returned. Leading or trailing whitespaces
+	 * will be ignored by this method.
 	 *
 	 * @param text the locale's text representation to be parsed
 	 * @return the parsed locale
@@ -2374,9 +2411,8 @@ public class Strings {
 	 * Do best effort to parse the display name of a locale. Optionally, give languages the display name might possibly
 	 * be written in. If not given, the default locale and some other common locales are checked (german, english,
 	 * french, italian, chinese, japanese, korean), so no need to specify displayNameLanguagesToCheck, if you expect the
-	 * display language in one of these locales.<br>
-	 * Be aware that for some rare languages, some rare locales might have the same display name. In these cases, we
-	 * return a random locale of all matching locales.
+	 * display language in one of these locales.<br> Be aware that for some rare languages, some rare locales might have
+	 * the same display name. In these cases, we return a random locale of all matching locales.
 	 *
 	 * @param displayName                 the display name to be parsed
 	 * @param displayNameLanguagesToCheck the languages the display name might be written in
@@ -2450,8 +2486,8 @@ public class Strings {
 	 * used every time the specified name cannot be matched to a enum constant of the specified enum type. Therefore
 	 * this method always returns a valid enum constant, even if the name is null.
 	 * <p>
-	 * Please not that null as a default value is not allowed. In this case use the method {@link #parseEnum(String,
-	 * Class)}, because this method is not capable to handle null.
+	 * Please not that null as a default value is not allowed. In this case use the method
+	 * {@link #parseEnum(String, Class)}, because this method is not capable to handle null.
 	 *
 	 * @param name         the name of the enum constant
 	 * @param defaultValue the default enum constant to be used if the name does not match a specific enum constant
@@ -2509,8 +2545,8 @@ public class Strings {
 	 */
 	public static boolean endsWithUnescaped(String text, char end) {
 		return text.length() >= 2
-			   && text.charAt(text.length() - 1) == end
-			   && text.charAt(text.length() - 2) != '\\';
+				&& text.charAt(text.length() - 1) == end
+				&& text.charAt(text.length() - 2) != '\\';
 	}
 
 	/**
@@ -2595,8 +2631,8 @@ public class Strings {
 	}
 
 	/**
-	 * Serializes a date object into a string using a standardized format. Can be un-serialized using {@link
-	 * #readDate(String)}.
+	 * Serializes a date object into a string using a standardized format. Can be un-serialized using
+	 * {@link #readDate(String)}.
 	 * <p>
 	 * This should be used to write dates for persistence.
 	 *
