@@ -53,6 +53,7 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 	private CachedTupleQueryResult cache = null;
 	private boolean calledNext = false;
 	private boolean closed = false;
+	private long evalTime = -1;
 
 	public TupleQueryResult(org.eclipse.rdf4j.query.TupleQueryResult delegate) {
 		this.delegate = delegate;
@@ -202,5 +203,13 @@ public class TupleQueryResult implements ClosableTupleQueryResult, Iterable<Bind
 
 	public List<BindingSet> getBindingSets() {
 		return cachedAndClosed().getBindingSets();
+	}
+
+	public void setEvaluationTime(long evalTime) {
+		this.evalTime = evalTime;
+	}
+
+	public long getEvaluationTime() {
+		return this.evalTime;
 	}
 }
