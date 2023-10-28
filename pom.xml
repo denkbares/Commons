@@ -32,6 +32,7 @@
 		<graphdb.version>9.8.0</graphdb.version>
 		<rdf4j.version>3.6.3</rdf4j.version>
 		<rdf4j-rio-turtle.version>3.1.1</rdf4j-rio-turtle.version>
+		<kotlin.version>1.9.10</kotlin.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -349,7 +350,7 @@
 			<dependency>
 				<groupId>org.jetbrains.kotlin</groupId>
 				<artifactId>kotlin-stdlib</artifactId>
-				<version>1.5.0</version>
+				<version>${kotlin.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
