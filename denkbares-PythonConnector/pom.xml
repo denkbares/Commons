@@ -13,7 +13,7 @@
         <parent>
         <artifactId>denkbares-Commons</artifactId>
         <groupId>com.denkbares</groupId>
-        <version>2023.4-SNAPSHOT</version>
+        <version>2023.4</version>
     </parent>
 
     <artifactId>denkbares-PythonConnector</artifactId>
