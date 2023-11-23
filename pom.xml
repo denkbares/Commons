@@ -23,7 +23,7 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>2023.3-SNAPSHOT</version>
+	<version>2023_2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
@@ -32,7 +32,7 @@
 		<graphdb.version>9.8.0</graphdb.version>
 		<rdf4j.version>3.6.3</rdf4j.version>
 		<rdf4j-rio-turtle.version>3.1.1</rdf4j-rio-turtle.version>
-		<d3web.version>${project.version}</d3web.version>
+		<d3web.version>2023.3-SNAPSHOT</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
