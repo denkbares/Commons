@@ -43,17 +43,3 @@ class InstructorTransformer(val model: ZooModel<InstructorInput, FloatArray>) {
 }
 
 
-fun main(args: Array<String>) {
-
-
-    val modelFile = Paths.get("/Users/mkrug/git/denkbares/troi-llm/INSTRUCTOR-XL/outnnx.onnx")
-
-    val instructor = InstructorTransformer.fromPath(modelFile) ?: return
-
-    val input = InstructorInput(
-        "Create an embedding of this description for retrieval",
-        "The quick brown fox jumps over the lazy dog"
-    )
-
-    val prediction: FloatArray = instructor.embed(input.text, input.instruction)
-}
