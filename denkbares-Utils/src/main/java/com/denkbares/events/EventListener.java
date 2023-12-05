@@ -41,5 +41,4 @@ public interface EventListener {
 	 * that this listener is registered for
 	 */
 	void notify(Event event);
-
 }
