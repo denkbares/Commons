@@ -48,7 +48,6 @@
 		<module>denkbares-SemanticCore-Plugin-GraphDB</module>
 		<module>denkbares-TestUtils</module>
 		<module>denkbares-PythonConnector</module>
-		<module>denkbares-LLM-Utils</module>
 	</modules>
 
 	<profiles>
