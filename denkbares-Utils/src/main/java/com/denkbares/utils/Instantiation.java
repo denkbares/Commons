@@ -55,8 +55,15 @@ import com.denkbares.strings.Strings;
 public class Instantiation {
 
 	private final ClassLoader classLoader;
+	private final Map<String, Class<?>> knownClasses = new HashMap<>();
 	private InstantiationContext context = () -> "--unknown--";
 
+	/**
+	 * Creates a new instantiation class that loads the classes to be instantiated (or resolve the arguments for
+	 * instantiation) by the specified class loader.
+	 *
+	 * @param classLoader the class loader to resolve the classes
+	 */
 	public Instantiation(ClassLoader classLoader) {
 		this.classLoader = Objects.requireNonNull(classLoader);
 	}
@@ -67,6 +74,26 @@ public class Instantiation {
 
 	public void setContext(InstantiationContext context) {
 		this.context = Objects.requireNonNull(context);
+	}
+
+	/**
+	 * Registers a particular class to be instantiated, that is then no longer resolved through the class loader.
+	 *
+	 * @param clazz the class to be registered
+	 */
+	public void registerKnownClass(@NotNull Class<?> clazz) {
+		registerKnownClass(clazz.getName(), clazz);
+	}
+
+	/**
+	 * Registers a particular class to be instantiated, under a given class name (that may differ from the actual
+	 * class name). If the specified class name is used afterward, the class is not resolved through the class loader.
+	 *
+	 * @param name  the name to register the class for
+	 * @param clazz the class to be registered
+	 */
+	public void registerKnownClass(@NotNull String name, @NotNull Class<?> clazz) {
+		knownClasses.put(name, clazz);
 	}
 
 	private static final String IDENTIFIER = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
@@ -105,7 +132,7 @@ public class Instantiation {
 		}
 
 		String className = matcher.group(1);
-		Class<?> clazz = classLoader.loadClass(className);
+		Class<?> clazz = loadClass(className);
 		List<String> parameters = splitParameterList(matcher.group(2));
 
 		try {
@@ -141,7 +168,16 @@ public class Instantiation {
 		}
 
 		String className = matcher.group(1);
-		return classLoader.loadClass(className);
+		return loadClass(className);
+	}
+
+	/**
+	 * Returns the specified class, loads the class if required, either by using the registered known classes,
+	 * or by delegate it to the stored class loader.
+	 */
+	private Class<?> loadClass(String className) throws ClassNotFoundException {
+		Class<?> knownClass = knownClasses.get(className);
+		return (knownClass != null) ? knownClass : classLoader.loadClass(className);
 	}
 
 	private static List<String> splitParameterList(String parameters) throws FormatException {
@@ -456,7 +492,7 @@ public class Instantiation {
 		private Object evalConstant(Class<?> expectedType, String className, String constantName) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 			// full qualified enums or public static fields
 			if (!Strings.isBlank(className)) {
-				Class<?> enclosingClass = classLoader.loadClass(className);
+				Class<?> enclosingClass = loadClass(className);
 				if ("class".equals(constantName)) {
 					return enclosingClass;
 				}
@@ -496,7 +532,7 @@ public class Instantiation {
 		private Object evalStaticMethod(String className, String methodName, List<String> methodParameters) throws ClassNotFoundException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException, InstantiationException, IllegalAccessException {
 			// carefully load class, because if no such class exists,
 			// we can still use it as a constructor call later on
-			Class<?> enclosingClass = classLoader.loadClass(className);
+			Class<?> enclosingClass = loadClass(className);
 			Stream<Method> methods = Arrays.stream(enclosingClass.getMethods())
 					.filter(m -> Strings.equals(methodName, m.getName()))
 					.filter(m -> Modifier.isStatic(m.getModifiers()));

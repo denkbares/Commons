@@ -26,8 +26,7 @@ import org.junit.Test;
 
 import com.denkbares.utils.Instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Volker Belli (denkbares GmbH)
@@ -149,6 +148,20 @@ public class InstantiationTest {
 	private MyClass newMyClass(String constructorCall) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		return (MyClass) new Instantiation(getClass().getClassLoader()).newInstance(
 				"com.denkbares.utils.test.InstantiationTest$" + constructorCall);
+	}
+
+	@Test
+	public void registeredClassName() throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+		var instantiation = new Instantiation(getClass().getClassLoader());
+		instantiation.registerKnownClass("ShortMyClass", MyClass.class);
+		instantiation.registerKnownClass("ShortMyEnum", MyEnum.class);
+		var myClassInt = (MyClass) instantiation.newInstance("ShortMyClass(\"\", 17, 19)");
+		assertEquals(2, myClassInt.myIntVarArgs.length);
+		assertEquals(17, myClassInt.myIntVarArgs[0]);
+		assertEquals(19, myClassInt.myIntVarArgs[1]);
+
+		var myClassEnum = (MyClass) instantiation.newInstance("ShortMyClass(ShortMyEnum.value)");
+		assertEquals(MyEnum.value, myClassEnum.myValue);
 	}
 
 	public static class MyClass {
