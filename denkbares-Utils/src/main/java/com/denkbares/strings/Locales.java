@@ -96,7 +96,7 @@ public class Locales {
 
 	/**
 	 * Returns the best matching locale out of a collection of available locales. It returns the ROOT locale if no
-	 * locales matches the available locales, but the root locales is included. It returns the first locale of the
+	 * locales matches the available locales, but the root locale is included. It returns the first locale of the
 	 * specified available locales if neither any locale matches the preferred locale, nor the ROOT locale is included.
 	 * <p/>
 	 * If the available locales are null or empty, null is returned. Otherwise, the method is guaranteed to return a
