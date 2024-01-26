@@ -28,7 +28,7 @@ import java.util.Iterator;
  */
 public class ConcatenateIterable<T> implements Iterable<T> {
 
-	private final Iterable<? extends T> iterables[];
+	private final Iterable<? extends T>[] iterables;
 
 	public ConcatenateIterable(Iterable<? extends T> iterable1, Iterable<? extends T> iterable2) {
 		//noinspection unchecked
