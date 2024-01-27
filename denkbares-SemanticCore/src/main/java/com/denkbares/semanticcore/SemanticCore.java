@@ -84,6 +84,7 @@ import com.denkbares.utils.Streams;
 
 public final class SemanticCore implements SPARQLEndpoint {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCore.class);
+	public static final String KNOWWE_SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX = "knowwe.semanticCore.repository.path.suffix";
 
 	public enum State {
 		active, shutdown
@@ -164,6 +165,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static String createRepositoryPath(String suffix) throws IOException {
+		suffix = System.getProperty(KNOWWE_SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX, suffix);
 		@NotNull File systemTempDir = Files.getSystemTempDir();
 		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-" + suffix + "-";
 		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
