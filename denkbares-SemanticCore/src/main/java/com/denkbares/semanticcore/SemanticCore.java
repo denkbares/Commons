@@ -302,18 +302,18 @@ public final class SemanticCore implements SPARQLEndpoint {
 				.filter(Objects::nonNull).forEach(SemanticCore::close);
 	}
 
-	public static void initializeRepositoryManager(@NotNull File repositoryFile) throws IOException {
+	public static void initializeRepositoryManager(@NotNull File repositoryManagerDir) throws IOException {
 		if (repositoryManager != null) {
 			throw new IllegalStateException("Repository manager already exists at location: " + repositoryManager.getBaseDir().getAbsolutePath());
 		}
-		File repositoryFolder = new File(repositoryFile, "repositories");
+		File repositoriesSubFolder = new File(repositoryManagerDir, "repositories");
 		// clean repository folder...
-		if (repositoryFolder.exists() && repositoryFolder.isDirectory()) {
-			FileUtils.deleteDirectory(repositoryFolder);
+		if (repositoriesSubFolder.exists() && repositoriesSubFolder.isDirectory()) {
+			FileUtils.deleteDirectory(repositoriesSubFolder);
 		}
-		repositoryFile.deleteOnExit();
-		repositoryManager = new SyncedLocalRepositoryManager(repositoryFile);
-		LOGGER.info("Created new repository manager at: " + repositoryFile.getCanonicalPath());
+		repositoryManagerDir.deleteOnExit();
+		repositoryManager = new SyncedLocalRepositoryManager(repositoryManagerDir);
+		LOGGER.info("Created new repository manager at: " + repositoryManagerDir.getCanonicalPath());
 		try {
 			repositoryManager.init();
 		}
