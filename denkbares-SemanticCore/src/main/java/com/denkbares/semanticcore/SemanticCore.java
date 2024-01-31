@@ -25,12 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +50,6 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
-import org.eclipse.rdf4j.model.impl.SimpleIRI;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.MalformedQueryException;
 import org.eclipse.rdf4j.query.QueryLanguage;
@@ -70,6 +66,7 @@ import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +81,7 @@ import com.denkbares.utils.Streams;
 
 public final class SemanticCore implements SPARQLEndpoint {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCore.class);
-	public static final String KNOWWE_SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX = "knowwe.semanticCore.repository.path.suffix";
+	public static final String SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX = "semanticCore.repository.path.suffix";
 
 	public enum State {
 		active, shutdown
@@ -97,11 +94,9 @@ public final class SemanticCore implements SPARQLEndpoint {
 	private static final Map<String, AtomicReference<SemanticCore>> instances = new ConcurrentHashMap<>();
 
 	private static final Object lazyInitializationMutex = new Object();
-	private static volatile boolean lazyInitializationDone = false;
-	private static LocalRepositoryManager repositoryManager = null;
+	private volatile static LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
 	public static final String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
-	private static final int TEMP_DIR_ATTEMPTS = 1000;
 	private final String repositoryId;
 	private final Repository repository;
 	private final AtomicLong allocationCounter = new AtomicLong(0);
@@ -111,7 +106,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 		if (reference == null) {
 			return null;
 		}
-		//noinspection SynchronizationOnLocalVariableOrMethodParameter
 		synchronized (reference) {
 			return reference.get();
 		}
@@ -122,23 +116,34 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, File tmpPath) throws IOException {
-		return getOrCreateInstance(key, reasoning, tmpPath == null ? null : tmpPath.getPath());
-	}
-
-	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, String tmpPath) throws IOException {
 		AtomicReference<SemanticCore> reference = instances.computeIfAbsent(key, k -> new AtomicReference<>());
-		//noinspection SynchronizationOnLocalVariableOrMethodParameter
 		synchronized (reference) {
 			createInstance(reference, key, reasoning, tmpPath);
 		}
 		return reference.get();
 	}
 
-	public static SemanticCore createInstance(String key, RepositoryConfig reasoning) throws IOException {
-		return createInstance(key, reasoning, null);
+	/**
+	 * @deprecated use getOrCreateInstance(String key, RepositoryConfig reasoning, File tmpFolder) instead
+	 */
+	@Deprecated
+	public static SemanticCore getOrCreateInstance(String key, RepositoryConfig reasoning, String tmpPath) throws IOException {
+		return getOrCreateInstance(key, reasoning, tmpPath == null ? null : new File(tmpPath));
 	}
 
+	public static SemanticCore createInstance(String key, RepositoryConfig reasoning) throws IOException {
+		return createInstance(key, reasoning, (File) null);
+	}
+
+	/**
+	 * @deprecated use createInstance(String key, RepositoryConfig reasoning, File tmpFolder) instead
+	 */
+	@Deprecated
 	public static SemanticCore createInstance(String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
+		return createInstance(key, reasoning, tmpFolder == null ? null : new File(tmpFolder));
+	}
+
+	public static SemanticCore createInstance(String key, RepositoryConfig reasoning, File tmpFolder) throws IOException {
 		Objects.requireNonNull(reasoning);
 		AtomicReference<SemanticCore> reference = new AtomicReference<>();
 		//noinspection SynchronizationOnLocalVariableOrMethodParameter
@@ -151,7 +156,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		return instance;
 	}
 
-	private static void createInstance(AtomicReference<SemanticCore> reference, String key, RepositoryConfig reasoning, String tmpFolder) throws IOException {
+	private static void createInstance(AtomicReference<SemanticCore> reference, String key, RepositoryConfig reasoning, File tmpFolder) throws IOException {
 		if (reference.get() != null) return;
 		try {
 			SemanticCore instance = new SemanticCore(key, null, reasoning, tmpFolder, null);
@@ -164,45 +169,18 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
-	public static String createRepositoryPath(String suffix) throws IOException {
-		suffix = System.getProperty(KNOWWE_SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX, suffix);
+	public static File createRepositoryManagerDir(String suffix) throws IOException {
+		suffix = System.getProperty(SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX, suffix);
 		@NotNull File systemTempDir = Files.getSystemTempDir();
-		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-" + suffix + "-";
-		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-			File tempDirCandidate = new File(systemTempDir, baseName + counter);
-			if (tempDirCandidate.mkdir()) {
-				tempDirCandidate.deleteOnExit();
-				tryToLock(tempDirCandidate); // lock dir so other JVMs can't use it
-				return tempDirCandidate.getAbsolutePath();
-			}
-			else {
-				// if the dir already exists, try to reuse it
-				// we reuse it, if we can get a lock on it
-				// (meaning no other SemanticCore from another JVM is currently locking it)
-				try {
-					tryToLock(tempDirCandidate);
-					return tempDirCandidate.getAbsolutePath();
-				}
-				catch (Exception ignore) {
-					// ignore and try next one
-				}
-			}
-		}
-		throw new IOException("Failed to create temp directory");
+		String baseName = SemanticCore.class.getName().replaceAll("\\W", "-") + "-" + suffix;
+		File tempDirCandidate = new File(systemTempDir, baseName);
+		tempDirCandidate.mkdir();
+		tempDirCandidate.deleteOnExit();
+		return tempDirCandidate;
 	}
 
-	private static FileLock tryToLock(File tempDirCandidate) throws IOException {
-		FileChannel channel = new RandomAccessFile(
-				new File(tempDirCandidate, "lock"), "rw").getChannel();
-		FileLock fileLock = channel.tryLock();
-		if (fileLock == null) {
-			throw new IOException("Unable to lock file " + tempDirCandidate);
-		}
-		return fileLock;
-	}
-
-	private SemanticCore(String repositoryId, String repositoryLabel, RepositoryConfig repositoryConfig, String tmpFolder, Map<String, String> overrides) throws IOException {
-		initializeLazy(tmpFolder == null ? createRepositoryPath(repositoryId) : tmpFolder);
+	private SemanticCore(@NotNull String repositoryId, @Nullable String repositoryLabel, @NotNull RepositoryConfig repositoryConfig, @Nullable File tmpFolder, @Nullable Map<String, String> overrides) throws IOException {
+		initializeRepositoryManagerLazy(tmpFolder, repositoryId);
 		this.repositoryId = repositoryId;
 		try {
 			if (repositoryManager.hasRepositoryConfig(repositoryId)) {
@@ -226,12 +204,14 @@ public final class SemanticCore implements SPARQLEndpoint {
 		this.state = State.active;
 	}
 
-	private void initializeLazy(String tmpFolder) throws IOException {
-		if (!lazyInitializationDone) {
+	private void initializeRepositoryManagerLazy(@Nullable File tmpFolder, String repositoryId) throws IOException {
+		if (repositoryManager == null) {
 			synchronized (lazyInitializationMutex) {
-				if (!lazyInitializationDone) {
-					initializeRepositoryManagerLazy(tmpFolder);
-					lazyInitializationDone = true;
+				if (repositoryManager == null) {
+					if (tmpFolder == null) {
+						tmpFolder = createRepositoryManagerDir(repositoryId);
+					}
+					initializeRepositoryManager(tmpFolder);
 				}
 			}
 		}
@@ -322,23 +302,18 @@ public final class SemanticCore implements SPARQLEndpoint {
 				.filter(Objects::nonNull).forEach(SemanticCore::close);
 	}
 
-	private synchronized static void initializeRepositoryManagerLazy(String repositoryPath) throws IOException {
-		if (repositoryManager != null) return; // could already be initialized externally
-		if (repositoryPath == null) {
-			repositoryPath = createRepositoryPath("Default");
+	public static void initializeRepositoryManager(@NotNull File repositoryFile) throws IOException {
+		if (repositoryManager != null) {
+			throw new IllegalStateException("Repository manager already exists at location: " + repositoryManager.getBaseDir().getAbsolutePath());
 		}
-		initializeRepositoryManager(repositoryPath);
-	}
-
-	public static void initializeRepositoryManager(String repositoryPath) throws IOException {
-		File repositoryFolder = new File(repositoryPath, "repositories");
+		File repositoryFolder = new File(repositoryFile, "repositories");
 		// clean repository folder...
 		if (repositoryFolder.exists() && repositoryFolder.isDirectory()) {
 			FileUtils.deleteDirectory(repositoryFolder);
 		}
-		File tempFolder = new File(repositoryPath);
-		repositoryManager = new SyncedLocalRepositoryManager(tempFolder);
-		LOGGER.info("Created new repository manager at: " + tempFolder.getCanonicalPath());
+		repositoryFile.deleteOnExit();
+		repositoryManager = new SyncedLocalRepositoryManager(repositoryFile);
+		LOGGER.info("Created new repository manager at: " + repositoryFile.getCanonicalPath());
 		try {
 			repositoryManager.init();
 		}
@@ -365,7 +340,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 			LOGGER.error("Unable to retrieve repositories during manager close", e);
 		}
 		repositoryManager.shutDown();
-		lazyInitializationDone = false;
 	}
 
 	@Override
@@ -408,7 +382,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		addData(connection -> connection.add(reader, DEFAULT_NAMESPACE, format));
 	}
 
-	public void addData(DataAdder adder) throws RepositoryException, RDFParseException, IOException {
+	private void addData(DataAdder adder) throws RepositoryException, RDFParseException, IOException {
 		try (org.eclipse.rdf4j.repository.RepositoryConnection connection = this.getConnection()) {
 			adder.run(connection);
 		}
@@ -616,6 +590,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	public void dump(String query) {
 		Matrix<String> matrix = new Matrix<>();
 		Stopwatch stopwatch = new Stopwatch();
+		//noinspection resource
 		try (TupleQueryResult result = sparqlSelect(query).cachedAndClosed()) {
 			// prepare headings and column length
 			List<String> names = result.getBindingNames();
@@ -676,9 +651,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 			int partLength = partURI.length();
 			if (partLength > length && uriText.length() > partLength && uriText.startsWith(partURI)) {
 				String shortText = namespace.getPrefix() + ":" + uriText.substring(partLength);
-				shortURI = new SimpleIRI(shortText) {
-					private static final long serialVersionUID = 8831976782866898688L;
-				};
+				shortURI = getValueFactory().createIRI(shortText);
 				length = partLength;
 			}
 		}
@@ -695,7 +668,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	 * repositories asynchronously.
 	 */
 	private static class SyncedLocalRepositoryManager extends LocalRepositoryManager {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SyncedLocalRepositoryManager.class);
+		private static final Logger LOGGER = LoggerFactory.getLogger(SyncedLocalRepositoryManager.class);
 
 		public SyncedLocalRepositoryManager(File baseDir) {
 			super(baseDir);

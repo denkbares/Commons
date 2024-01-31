@@ -19,6 +19,7 @@
 
 package com.denkbares.semanticcore.test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -56,8 +57,7 @@ public class SemanticCoreTest {
 	 */
 	@Test
 	public void basic() throws IOException, RDFParseException, RepositoryException, QueryEvaluationException, MalformedQueryException {
-		String tmpFolderPath = "target/basic";
-		SemanticCore instance = SemanticCore.createInstance("Just a test", RepositoryConfigs.get(RdfConfig.class), tmpFolderPath);
+		SemanticCore instance = SemanticCore.createInstance("Just a test", RepositoryConfigs.get(RdfConfig.class), new File("target/SemanticCoreTest"));
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
 		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z} ");
 

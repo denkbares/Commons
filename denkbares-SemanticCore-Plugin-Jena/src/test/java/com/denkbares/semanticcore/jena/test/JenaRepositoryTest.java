@@ -19,6 +19,7 @@
 
 package com.denkbares.semanticcore.jena.test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -52,7 +53,7 @@ public class JenaRepositoryTest {
 	//	@Test implementation not complete
 	public void testSail() throws IOException, RDFParseException, RepositoryException, QueryEvaluationException, MalformedQueryException {
 		SemanticCore instance = SemanticCore.createInstance("SailTest",
-				RepositoryConfigs.get(com.denkbares.semanticcore.jena.sail.RdfConfig.class), "target/testSail");
+				RepositoryConfigs.get(com.denkbares.semanticcore.jena.sail.RdfConfig.class), new File("target/JenaSailTest"));
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
 
 		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z}");
@@ -61,7 +62,7 @@ public class JenaRepositoryTest {
 
 	@Test
 	public void testBasic() throws IOException, RDFParseException, RepositoryException, QueryEvaluationException, MalformedQueryException {
-		SemanticCore instance = SemanticCore.createInstance("BasicTest", RepositoryConfigs.get(RdfConfig.class), "target/testBasic");
+		SemanticCore instance = SemanticCore.createInstance("BasicTest", RepositoryConfigs.get(RdfConfig.class), new File("target/JenaBasicTest"));
 		instance.addData(new FileInputStream("src/test/resources/rdf-schema.xml"), RDFFormat.RDFXML);
 
 		TupleQueryResult query = instance.sparqlSelect("SELECT * WHERE { ?x ?y ?z}");
