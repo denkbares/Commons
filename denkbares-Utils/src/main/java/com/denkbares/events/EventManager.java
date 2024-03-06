@@ -154,7 +154,7 @@ public final class EventManager {
 				eventListener.notify(event);
 			}
 			catch (Exception e) {
-				LOGGER.error("Catched exception in EventListener", e);
+				LOGGER.error("Caught exception in EventListener", e);
 			}
 		}
 
