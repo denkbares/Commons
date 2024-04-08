@@ -1116,7 +1116,7 @@ public class Strings {
 			}
 
 			@Override
-			public CharSequence subSequence(int s, int e) {
+			public @NotNull CharSequence subSequence(int s, int e) {
 				if (s < 0 || e > length()) {
 					throw new StringIndexOutOfBoundsException();
 				}
@@ -1491,7 +1491,8 @@ public class Strings {
 				replace("|", "&#124;").
 				replace("[", "&#91;").
 				replace("]", "&#93;").
-				replace("\\", "&#92;");
+				replace("\\", "&#92;").
+				replace("\n", "&#xa;");
 	}
 
 	private static Pattern ENTITY_PATTERN = null;
