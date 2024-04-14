@@ -26,7 +26,8 @@ import org.junit.Test;
 
 import com.denkbares.utils.Instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Volker Belli (denkbares GmbH)
@@ -61,6 +62,7 @@ public class InstantiationTest {
 		assertEquals(Boolean.TRUE, newMyClass("MyClass('c', true)").o);
 		assertEquals(Boolean.FALSE, newMyClass("MyClass('c', false)").o);
 		assertEquals(null, newMyClass("MyClass('c', null)").o);
+		assertEquals("t{est", newMyClass("MyClass('c', \"t{est\")").o);
 	}
 
 	@Test

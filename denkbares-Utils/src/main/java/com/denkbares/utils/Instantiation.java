@@ -214,7 +214,7 @@ public class Instantiation {
 					open.pop();
 				}
 				// otherwise, we are not inside any type of quote, open quote
-				else if (isQuote(context)) {
+				else {
 					open.push(c);
 				}
 				continue;
