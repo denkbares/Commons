@@ -63,6 +63,7 @@ public class InstantiationTest {
 		assertEquals(Boolean.FALSE, newMyClass("MyClass('c', false)").o);
 		assertEquals(null, newMyClass("MyClass('c', null)").o);
 		assertEquals("t{est", newMyClass("MyClass('c', \"t{est\")").o);
+		assertEquals('\"', newMyClass("MyClass('c', '\"')").o);
 	}
 
 	@Test

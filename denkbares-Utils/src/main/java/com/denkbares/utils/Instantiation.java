@@ -214,7 +214,7 @@ public class Instantiation {
 					open.pop();
 				}
 				// otherwise, we are not inside any type of quote, open quote
-				else {
+				else if (open.isEmpty()) {
 					open.push(c);
 				}
 				continue;
