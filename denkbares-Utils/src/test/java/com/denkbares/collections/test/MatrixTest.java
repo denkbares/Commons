@@ -25,6 +25,7 @@ import java.util.Collections;
 import org.junit.Test;
 
 import com.denkbares.collections.Matrix;
+import com.denkbares.utils.Consoles;
 
 import static org.junit.Assert.assertEquals;
 
@@ -59,12 +60,26 @@ public class MatrixTest {
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void exception1() {
-		new Matrix().get(0, -5);
+		new Matrix<>().get(0, -5);
 	}
 
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void exception2() {
-		new Matrix().get(-1, 0);
+		new Matrix<>().get(-1, 0);
 	}
 
+	@Test
+	public void dump() {
+		Matrix<String> matrix = new Matrix<>();
+
+		matrix.set(0, 0, "Hi");
+		matrix.set(0, 1, "there");
+		matrix.set(0, 2, "folks");
+
+		matrix.set(0, 0, "Nothing");
+		matrix.set(0, 1, "to");
+		matrix.set(0, 2, Consoles.formatText("see here", Consoles.Decoration.REVERSED));
+
+		matrix.dumpTable("Col 0","Header", Consoles.formatText("Formatted Header", Consoles.Color.CYAN));
+	}
 }

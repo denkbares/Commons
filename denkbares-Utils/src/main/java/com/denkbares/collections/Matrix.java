@@ -36,6 +36,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.denkbares.strings.Strings;
@@ -230,7 +231,7 @@ public class Matrix<E> {
 		out.println();
 		for (int row = firstRow; row < lastRow; row++) {
 			for (int col = 0; col < cols; col++) {
-				if (col > 0) out.print(" | ");
+				if (col > 0) out.print(" │ ");
 				String value = textFun.apply(row, col);
 				String pad = Strings.nTimes(' ', lengths[col] - Consoles.toPlainText(value).length());
 				if (!lefts[col]) out.print(pad);
@@ -239,8 +240,8 @@ public class Matrix<E> {
 			}
 			out.println();
 			if (row == firstRow) {
-				int len = IntStream.of(lengths).map(x -> x + 3).sum() - 3;
-				out.println(Strings.nTimes('=', len));
+				out.println(IntStream.of(lengths).mapToObj(len ->
+						Strings.nTimes('─', len)).collect(Collectors.joining("─┼─")));
 			}
 		}
 		if (lastRow < rows) {
