@@ -52,7 +52,7 @@ public class Consoles {
 	 * @return the unformatted plain text
 	 */
 	public static String toPlainText(String formattedText) {
-		return formattedText.replaceAll("\\u001b\\[\\d+(?:;\\d+)?[a-zA-Z]", "");
+		return formattedText.replaceAll("\\u001b\\[\\d+(?:;\\d+)*[a-zA-Z]", "");
 	}
 
 	@FunctionalInterface
