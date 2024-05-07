@@ -24,7 +24,7 @@
 	<parent>
 		<artifactId>denkbares-Commons</artifactId>
 		<groupId>com.denkbares</groupId>
-		<version>2024.2-SNAPSHOT</version>
+		<version>2024.2</version>
 	</parent>
 
 	<artifactId>denkbares-SemanticCore-Plugin-Jena</artifactId>
