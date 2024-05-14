@@ -431,6 +431,10 @@
 			<name>Denkbares Public Repository</name>
 			<url>https://repo.denkbares.com/repo-public/</url>
 		</repository>
+		<repository>
+			<id>ontotext-public</id>
+			<url>https://maven.ontotext.com/repository/owlim-releases</url>
+		</repository>
 	</repositories>
 
 	<distributionManagement>
