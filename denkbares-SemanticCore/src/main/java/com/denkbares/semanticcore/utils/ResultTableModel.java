@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -194,6 +195,28 @@ public class ResultTableModel implements Iterable<TableRow> {
 			filteredRows.add(row);
 		}
 		return createResultTableModel(filteredRows, this.variables);
+	}
+
+	/**
+	 * Filters the table model. The returned table model will contain all rows, but only the columns/cells that are not hidden.
+	 *
+	 * @param hiddenColumns a set
+	 * @return a filtered tabled
+	 */
+	public ResultTableModel hideColumns(Set<String> hiddenColumns) {
+		if (hiddenColumns.isEmpty()) return this; // shortcut
+
+		List<TableRow> filteredRows = new ArrayList<>();
+		ArrayList<String> variables = new ArrayList<>(this.getVariables());
+		variables.removeIf(hiddenColumns::contains);
+		for (TableRow row : this.rows) {
+			LinkedHashMap<String, Value> values = new LinkedHashMap<>();
+			for (String variable : variables) {
+				values.put(variable, row.getValue(variable));
+			}
+			filteredRows.add(new TableRow(values, variables));
+		}
+		return createResultTableModel(filteredRows, variables);
 	}
 
 	protected ResultTableModel createResultTableModel(List<TableRow> rows, List<String> variables) {
