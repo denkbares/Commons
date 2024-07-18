@@ -323,6 +323,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static void shutDownRepositoryManager() {
+		if(repositoryManager == null) return; // noting to shut down
 		LOGGER.info("Shutting down repository manager.");
 		// shut down any remaining repositories
 		try {
@@ -340,6 +341,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 			LOGGER.error("Unable to retrieve repositories during manager close", e);
 		}
 		repositoryManager.shutDown();
+		repositoryManager = null;
 	}
 
 	@Override
