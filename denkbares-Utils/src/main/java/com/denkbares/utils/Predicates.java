@@ -78,7 +78,7 @@ public class Predicates {
 	 * @return the predicate that accepts the specified number of tested items
 	 */
 	public static <T> Predicate<T> limit(int limit) {
-		// if no linit is specified, accept all items
+		// if no limit is specified, accept all items
 		if (limit < 0) return TRUE();
 		if (limit == 0) return FALSE();
 
