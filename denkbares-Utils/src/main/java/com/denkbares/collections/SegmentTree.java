@@ -57,9 +57,9 @@ public class SegmentTree<T> {
 	 * @param item  the item to insert
 	 * @throws IllegalArgumentException has no is-subset-of relation within the tree
 	 */
-	public void insert(int start, int end, T item) {
+	public Node insert(int start, int end, T item) {
 		if (root.contains(start, end)) {
-			root.addItem(start, end, item);
+			return root.addItem(start, end, item);
 		}
 		else {
 			throw new IllegalArgumentException("Segment to insert is not a sub-set of this tree");
@@ -94,12 +94,11 @@ public class SegmentTree<T> {
 			this.item = item;
 		}
 
-		void addItem(int start, int end, T item) {
+		Node addItem(int start, int end, T item) {
 			// check if the new node should be a child of the current one
 			for (Node child : children) {
 				if (child.contains(start, end)) {
-					child.addItem(start, end, item);
-					return;
+					return child.addItem(start, end, item);
 				}
 			}
 
@@ -115,6 +114,8 @@ public class SegmentTree<T> {
 			newNode.children.addAll(newChildren);
 			children.add(newNode);
 			children.sort(Comparator.comparingInt((Node a) -> a.start));
+
+			return newNode;
 		}
 
 		public int getStart() {
