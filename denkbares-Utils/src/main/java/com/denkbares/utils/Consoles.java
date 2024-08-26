@@ -60,6 +60,7 @@ public class Consoles {
 		String getCode();
 	}
 
+	public static final Style NOP = () -> "";
 	public static final Style RESET = () -> "\u001b[0m";
 
 	public enum Cursor implements Style {
@@ -186,6 +187,69 @@ public class Consoles {
 		@Override
 		public String getCode() {
 			return code;
+		}
+	}
+
+	public static class RGBColor implements Style {
+
+		private final int red;
+		private final int green;
+		private final int blue;
+		private final String code;
+
+		private RGBColor(int red, int green, int blue, boolean back) {
+			this.red = red;
+			this.green = green;
+			this.blue = blue;
+			this.code = String.format("\u001B[%d;2;%d;%d;%dm", back ? 48 : 38, red, green, blue);
+		}
+
+		/**
+		 * Creates a new console color, based in the channels, each from 0.0 to 1.0.
+		 *
+		 * @param red   the red channel from 0.0 to 1.0.
+		 * @param green the green channel from 0.0 to 1.0.
+		 * @param blue  the blue channel from 0.0 to 1.0.
+		 */
+		public RGBColor(float red, float green, float blue) {
+			this(Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255));
+		}
+
+		/**
+		 * Creates a new console color, based in the channels, each from 0 to 255.
+		 *
+		 * @param red   the red channel from 0 to 255.
+		 * @param green the green channel from 0 to 255.
+		 * @param blue  the blue channel from 0 to 255.
+		 */
+		public RGBColor(int red, int green, int blue) {
+			this(red, green, blue, false);
+		}
+
+		/**
+		 * Returns this color as a background color.
+		 *
+		 * @return the background color defined by this color.
+		 */
+		public RGBColor toBackColor() {
+			return new RGBColor(red, green, blue, true);
+		}
+
+		@Override
+		public String getCode() {
+			return code;
+		}
+
+		public int red() {
+			return red;
+		}
+
+		public int green() {
+			return green;
+		}
+
+		public int blue() {
+			return blue;
 		}
 	}
 }
