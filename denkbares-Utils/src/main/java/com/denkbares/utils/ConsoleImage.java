@@ -90,6 +90,7 @@ public class ConsoleImage {
 	 * It supports all file formats according to {@link ImageIO}.
 	 *
 	 * @param bytes the image data to be loaded and displayed
+	 * @throws IOException if the data does not provide valid (supported) image information
 	 */
 	public void println(byte[] bytes) throws IOException {
 		println(new ByteArrayInputStream(bytes));
@@ -100,9 +101,12 @@ public class ConsoleImage {
 	 * It supports all file formats according to {@link ImageIO}.
 	 *
 	 * @param imageData the image data to be loaded and displayed
+	 * @throws IOException if the stream could not be read or does not provide valid (supported) image information
 	 */
 	public void println(InputStream imageData) throws IOException {
-		println(ImageIO.read(imageData));
+		var image = ImageIO.read(imageData);
+		if (image == null) throw new IOException("unsupported image format");
+		println(image);
 	}
 
 	/**
@@ -110,9 +114,12 @@ public class ConsoleImage {
 	 * It supports all file formats according to {@link ImageIO}.
 	 *
 	 * @param imageFile the image data to be loaded and displayed
+	 * @throws IOException if the file could not be read or does not provide valid (supported) image information
 	 */
 	public void println(File imageFile) throws IOException {
-		println(ImageIO.read(imageFile));
+		var image = ImageIO.read(imageFile);
+		if (image == null) throw new IOException("unsupported image format: " + imageFile);
+		println(image);
 	}
 
 	/**
@@ -120,9 +127,12 @@ public class ConsoleImage {
 	 * It supports all file formats according to {@link ImageIO}.
 	 *
 	 * @param imageURL the image data to be loaded and displayed
+	 * @throws IOException if the URL could not be read or does not provide valid (supported) image information
 	 */
 	public void println(URL imageURL) throws IOException {
-		println(ImageIO.read(imageURL));
+		var image = ImageIO.read(imageURL);
+		if (image == null) throw new IOException("unsupported image format: " + imageURL);
+		println(image);
 	}
 
 	/**
