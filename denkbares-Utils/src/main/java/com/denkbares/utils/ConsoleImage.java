@@ -105,7 +105,7 @@ public class ConsoleImage {
 	 */
 	public void println(InputStream imageData) throws IOException {
 		var image = ImageIO.read(imageData);
-		if (image == null) throw new IOException("unsupported image format");
+		if (image == null) throw new UnsupportedImageFormatException("unsupported image format");
 		println(image);
 	}
 
@@ -118,7 +118,7 @@ public class ConsoleImage {
 	 */
 	public void println(File imageFile) throws IOException {
 		var image = ImageIO.read(imageFile);
-		if (image == null) throw new IOException("unsupported image format: " + imageFile);
+		if (image == null) throw new UnsupportedImageFormatException("unsupported image format: " + imageFile);
 		println(image);
 	}
 
@@ -131,7 +131,7 @@ public class ConsoleImage {
 	 */
 	public void println(URL imageURL) throws IOException {
 		var image = ImageIO.read(imageURL);
-		if (image == null) throw new IOException("unsupported image format: " + imageURL);
+		if (image == null) throw new UnsupportedImageFormatException("unsupported image format: " + imageURL);
 		println(image);
 	}
 
@@ -341,5 +341,14 @@ public class ConsoleImage {
 	private static @Nullable Color color(BufferedImage img, int x, int y) {
 		if (y < 0 || y >= img.getHeight() || x < 0 || x >= img.getWidth()) return null;
 		return new Color(img.getRGB(x, y));
+	}
+
+	/**
+	 * Exception to be thrown if the image data to be displayed could not been decoded into a valid image.
+	 */
+	public static class UnsupportedImageFormatException extends IOException {
+		public UnsupportedImageFormatException(String msg) {
+			super(msg);
+		}
 	}
 }
