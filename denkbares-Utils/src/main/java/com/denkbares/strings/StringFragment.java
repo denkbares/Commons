@@ -52,7 +52,7 @@ public class StringFragment {
 	}
 
 	public int getStartTrimmed() {
-		return offset + (content.indexOf(Strings.trim(content)));
+		return offset + (content.indexOf(content.trim()));
 	}
 
 	public int getEndTrimmed() {
@@ -60,7 +60,7 @@ public class StringFragment {
 	}
 
 	public int lengthTrimmed() {
-		return Strings.trim(content).length();
+		return content.trim().length();
 	}
 
 	public String getFatherString() {
