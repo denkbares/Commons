@@ -23,7 +23,7 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>2024.3-SNAPSHOT</version>
+	<version>2024.3-KONAP</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
@@ -269,7 +269,6 @@
 				<artifactId>graphdb-free-runtime</artifactId>
 				<version>${graphdb.version}</version>
 				<exclusions>
-					<!-- Exclude RDF4J and include later manually, to have more control over RDF4J version-->
 					<exclusion>
 						<groupId>org.eclipse.rdf4j</groupId>
 						<artifactId>*</artifactId>
