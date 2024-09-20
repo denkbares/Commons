@@ -36,6 +36,7 @@
 		<onnx.version>0.20.0</onnx.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<logback.version>1.5.8</logback.version>
 	</properties>
 
 	<modules>
@@ -186,12 +187,12 @@
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-core</artifactId>
-				<version>1.4.14</version>
+				<version>${logback.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
-				<version>1.4.14</version>
+				<version>${logback.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.jpf</groupId>
