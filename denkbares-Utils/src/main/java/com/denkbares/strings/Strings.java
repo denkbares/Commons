@@ -1142,7 +1142,7 @@ public class Strings {
 
 	/**
 	 * Returns the beginning of specified text. If the text does not exceed the specified maxLength, the original text
-	 * is returned unmodified. Otherwise, the text is truncated, and an ellipsis "..." is appended, so that the total
+	 * is returned unmodified. Otherwise, the text is truncated, and an ellipsis "…" is appended, so that the total
 	 * length is maxLength. The returned string never contains more characters as the specified maxLength.
 	 * <p>
 	 * If null is specified as text, null is returned.
@@ -1153,7 +1153,7 @@ public class Strings {
 	 * @throws IllegalArgumentException if maxLength is below 3 and the text exceeds the maxLength
 	 */
 	public static String ellipsis(String text, int maxLength) {
-		return ellipsis(text, maxLength, "...");
+		return ellipsis(text, maxLength, "…");
 	}
 
 	/**
