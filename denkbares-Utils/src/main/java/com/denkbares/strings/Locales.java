@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -38,6 +39,9 @@ import java.util.stream.StreamSupport;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import com.denkbares.collections.DefaultMultiMap;
+import com.denkbares.collections.MultiMap;
 
 import static java.util.Spliterator.*;
 
@@ -148,7 +152,7 @@ public class Locales {
 	 */
 	public static boolean hasSameLanguage(Locale locale1, Locale locale2) {
 		return locale1 == locale2 ||
-				(locale1 != null && locale2 != null && Objects.equals(locale1.getLanguage(), locale2.getLanguage()));
+			   (locale1 != null && locale2 != null && Objects.equals(locale1.getLanguage(), locale2.getLanguage()));
 	}
 
 	/**
@@ -501,5 +505,49 @@ public class Locales {
 	public static <E> E getBestValue(Map<Locale, E> map, Locale language, E defaultValue) {
 		if (map == null) return defaultValue;
 		return map.getOrDefault(findBestLocale(language, map.keySet()), defaultValue);
+	}
+
+	/**
+	 * Fill up the languages given in languagesToFill with the ROOT locale label, if present and ROOT
+	 * isn't the only available locale.
+	 *
+	 * @param languagesToFill the languages to fill in the map
+	 * @param labelsByLocale  the labels map to fill up
+	 * @return the given unchanged map, if no labels have to be filled. If labels are filled, a copy with also the
+	 * filled labels is returned.
+	 */
+	public static Map<Locale, String> fillLanguages(Collection<Locale> languagesToFill, Map<Locale, String> labelsByLocale) {
+		String rootLabel = labelsByLocale.get(Locale.ROOT);
+		if (languagesToFill.isEmpty() || rootLabel == null || labelsByLocale.keySet().size() == 1) {
+			return labelsByLocale;
+		}
+		Map<Locale, String> fillCopy = new HashMap<>(labelsByLocale);
+		for (Locale fillLanguage : languagesToFill) {
+			fillCopy.put(fillLanguage, rootLabel);
+		}
+		return fillCopy;
+	}
+
+	/**
+	 * Fill up the languages given in languagesToFill with the ROOT locale label, if present and ROOT
+	 * isn't the only available locale.
+	 *
+	 * @param languagesToFill the languages to fill in the map
+	 * @param valuesByLocale  the labels map to fill up
+	 * @return the given unchanged map, if no labels have to be filled. If labels are filled, a copy with also the
+	 * filled labels is returned.
+	 */
+	public static MultiMap<Locale, String> fillLanguages(Collection<Locale> languagesToFill, MultiMap<Locale, String> valuesByLocale) {
+		@NotNull Set<String> rootValues = valuesByLocale.getValues(Locale.ROOT);
+		if (languagesToFill.isEmpty() || rootValues.isEmpty() || valuesByLocale.keySet().size() == 1 || valuesByLocale.keySet().containsAll(languagesToFill)) {
+			return valuesByLocale;
+		}
+		MultiMap<Locale, String> fillCopy = new DefaultMultiMap<>();
+		fillCopy.putAll(valuesByLocale);
+		for (Locale fillLanguage : languagesToFill) {
+			if (valuesByLocale.keySet().contains(fillLanguage)) continue;
+			fillCopy.putAll(fillLanguage, rootValues);
+		}
+		return fillCopy;
 	}
 }
