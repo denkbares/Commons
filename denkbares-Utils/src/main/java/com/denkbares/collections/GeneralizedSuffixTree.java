@@ -148,7 +148,7 @@ public class GeneralizedSuffixTree<E> extends DefaultMultiMap<String, E> {
 		// use the first infix to search for the items
 		// and all other ones to filter the found matches
 		final Iterable<String> keys = findKeys(infixes[0]);
-		return () -> new FilterDuplicateIterator<>(new FlattingIterator<>(keys, key -> {
+		return () -> new FilterDuplicateIterator<>(new FlattingIterator<E>(keys, key -> {
 			// filter all keys that are not matching all other infixes
 			for (int i = 1; i < infixes.length; i++) {
 				if (!Strings.containsIgnoreCase(key, infixes[i])) {
