@@ -120,6 +120,10 @@ public class UsageBasedScheduler {
 		}
 	}
 
+	public void unSchedule(Runnable runnable) {
+		this.runnables.remove(runnable);
+	}
+
 	/**
 	 * Notifies the scheduler, that a new access/usage occurred.
 	 */
