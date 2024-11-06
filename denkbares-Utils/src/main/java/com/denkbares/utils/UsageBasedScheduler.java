@@ -39,6 +39,10 @@ import static java.util.concurrent.TimeUnit.*;
  * Scheduler that can be used if a task should only be run if something happened recently. To indicate, that this
  * "thing" happened, {@link #notifyUsage()} can be called.
  * <p>
+ * <b>Attention: Memory-Leak-Potential!</b><br> Since the task will be stored for a while, don't use tasks/runnables that have
+ * references to objects with a large memory footprint or that have a very specific live cycle! If you must, at least wrap
+ * them into a WeakReference, so they can be cleaned up!
+ * </p>
  * Created by Albrecht on 15.06.2017.
  */
 public class UsageBasedScheduler {
@@ -92,7 +96,7 @@ public class UsageBasedScheduler {
 		else if (runAtNightAnyway) {
 			int currentHour = Calendar.getInstance().get(HOUR_OF_DAY);
 			long delay = HOURS.toMillis(24 - currentHour)  // till after midnight
-					+ MINUTES.toMillis((long) (Math.random() * 300)); // another 0 - 5 hours
+						 + MINUTES.toMillis((long) (Math.random() * 300)); // another 0 - 5 hours
 
 			scheduler.schedule(() -> {
 						// check if the runnable was already executed in #notifyUsage
@@ -109,26 +113,22 @@ public class UsageBasedScheduler {
 			}
 			else {
 				LOGGER.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
-						+ " ago, scheduling to run task " + date);
+							+ " ago, scheduling to run task " + date);
 			}
 		}
 		// or just wait for the next usage
 		else {
 			runnables.add(runnable);
 			LOGGER.info("Last notification for " + name + " was " + Stopwatch.getDisplay(durationSinceLastUsage)
-					+ " ago, waiting for next usage do run task.");
+						+ " ago, waiting for next usage do run task.");
 		}
-	}
-
-	public void unSchedule(Runnable runnable) {
-		this.runnables.remove(runnable);
 	}
 
 	/**
 	 * Notifies the scheduler, that a new access/usage occurred.
 	 */
 	public void notifyUsage() throws ExecutionException, InterruptedException {
-		this.lastUsage = System.currentTimeMillis();
+		//this.lastUsage = System.currentTimeMillis();
 		synchronized (runnables) {
 			for (Runnable runnable : runnables) {
 				executorService.execute(runnable);
@@ -136,5 +136,4 @@ public class UsageBasedScheduler {
 			runnables.clear();
 		}
 	}
-
 }
