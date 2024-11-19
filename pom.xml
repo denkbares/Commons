@@ -23,7 +23,7 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>2024.3-SNAPSHOT</version>
+	<version>2024.3</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
