@@ -45,7 +45,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
-import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
@@ -349,7 +348,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	@Override
 	public Collection<Namespace> getNamespaces() throws RepositoryException {
 		try (RepositoryConnection connection = getConnection()) {
-			return Iterations.asList(connection.getNamespaces());
+			return connection.getNamespaces().stream().toList();
 		}
 	}
 
