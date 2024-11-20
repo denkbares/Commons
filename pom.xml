@@ -29,9 +29,9 @@
 
 	<properties>
 		<denkbares.version>${project.version}</denkbares.version>
-		<graphdb.version>9.8.0</graphdb.version>
-		<rdf4j.version>3.6.3</rdf4j.version>
-		<rdf4j-rio-turtle.version>3.1.1</rdf4j-rio-turtle.version>
+		<graphdb.version>10.7.6</graphdb.version>
+		<rdf4j.version>4.3.13</rdf4j.version>
+		<rdf4j-rio-turtle.version>4.3.13</rdf4j-rio-turtle.version>
 		<kotlin.version>1.9.10</kotlin.version>
 		<onnx.version>0.20.0</onnx.version>
 		<d3web.version>${project.version}</d3web.version>
@@ -45,7 +45,7 @@
 		<module>denkbares-Progress</module>
 		<module>denkbares-SemanticCore</module>
 		<module>denkbares-SemanticCore-Plugin-ExtensionPoints</module>
-		<module>denkbares-SemanticCore-Plugin-Jena</module>
+<!--		<module>denkbares-SemanticCore-Plugin-Jena</module>-->
 		<module>denkbares-SemanticCore-Plugin-GraphDB</module>
 		<module>denkbares-TestUtils</module>
 		<module>denkbares-PythonConnector</module>
@@ -246,11 +246,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
-				<artifactId>rdf4j-sail-spin</artifactId>
-				<version>${rdf4j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-shacl</artifactId>
 				<version>${rdf4j.version}</version>
 			</dependency>
@@ -261,19 +256,19 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
+				<artifactId>rdf4j-sail-inferencer</artifactId>
+				<version>${rdf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.rdf4j</groupId>
 				<artifactId>rdf4j-rio-turtle</artifactId>
 				<version>${rdf4j-rio-turtle.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ontotext.graphdb</groupId>
-				<artifactId>graphdb-free-runtime</artifactId>
+				<artifactId>graphdb-runtime</artifactId>
 				<version>${graphdb.version}</version>
 				<exclusions>
-					<!-- Exclude RDF4J and include later manually, to have more control over RDF4J version-->
-					<exclusion>
-						<groupId>org.eclipse.rdf4j</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
 					<!-- We want a new logback for swagger compatibility -->
 					<exclusion>
 						<groupId>ch.qos.logback</groupId>
@@ -340,6 +335,27 @@
 					<exclusion>
 						<groupId>commons-codec</groupId>
 						<artifactId>commons-codec</artifactId>
+					</exclusion>
+					<!-- we don't need the lucene part... -->
+					<exclusion>
+						<artifactId>lucene-analysis-common</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>lucene-core</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>lucene-queries</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>lucene-queryparser</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>lucene-sandbox</artifactId>
+						<groupId>org.apache.lucene</groupId>
 					</exclusion>
 				</exclusions>
 			</dependency>

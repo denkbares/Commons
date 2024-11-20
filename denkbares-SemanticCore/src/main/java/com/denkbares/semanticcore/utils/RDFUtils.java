@@ -20,7 +20,9 @@
 package com.denkbares.semanticcore.utils;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -28,9 +30,12 @@ import java.util.Locale;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryEvaluationException;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriterRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import com.denkbares.semanticcore.RepositoryConnection;
@@ -38,6 +43,7 @@ import com.denkbares.semanticcore.TupleQuery;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.strings.Strings;
 import com.denkbares.strings.Text;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +53,10 @@ import org.slf4j.LoggerFactory;
  */
 public class RDFUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RDFUtils.class);
+
+	public static final RDFFormat TURTLE_PRETTY = new RDFFormat("Turtle (Pretty)", Arrays.asList("text/turtle-pretty", "application/x-turtle"),
+			StandardCharsets.UTF_8, List.of("ttl"),
+			SimpleValueFactory.getInstance().createIRI("http://www.w3.org/ns/formats/Turtle"), true, false, false);
 
 	public static Text create(String string, Locale language) {
 		return new Text(string, language);
@@ -111,7 +121,7 @@ public class RDFUtils {
 	@NotNull
 	public static String createQueryForGetInstances(List<URI> uris) {
 		String query = "SELECT ?instance WHERE { " +
-				"{?instance rdf:type <" + uris.get(0) + "> .}";
+					   "{?instance rdf:type <" + uris.get(0) + "> .}";
 		for (int i = 1; i < uris.size(); i++) {
 			query += "UNION ";
 			query += "{?instance rdf:type <" + uris.get(i) + "> .}";

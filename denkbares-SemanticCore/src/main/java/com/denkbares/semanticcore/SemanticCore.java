@@ -44,7 +44,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.rdf4j.RDF4JException;
+import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -74,6 +74,7 @@ import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
+import com.denkbares.semanticcore.utils.RDFUtils;
 import com.denkbares.strings.Strings;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Stopwatch;
@@ -304,7 +305,8 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	public static void initializeRepositoryManager(@NotNull File repositoryManagerDir) throws IOException {
 		if (repositoryManager != null) {
-			throw new IllegalStateException("Repository manager already exists at location: " + repositoryManager.getBaseDir().getAbsolutePath());
+			throw new IllegalStateException("Repository manager already exists at location: " + repositoryManager.getBaseDir()
+					.getAbsolutePath());
 		}
 		File repositoriesSubFolder = new File(repositoryManagerDir, "repositories");
 		// clean repository folder...
@@ -323,7 +325,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static void shutDownRepositoryManager() {
-		if(repositoryManager == null) return; // noting to shut down
+		if (repositoryManager == null) return; // noting to shut down
 		LOGGER.info("Shutting down repository manager.");
 		// shut down any remaining repositories
 		try {
@@ -558,21 +560,30 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public void export(Writer writer, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
-		RDFWriter rdfWriter = Rio.createWriter(format, writer);
+		RDFWriter rdfWriter = Rio.createWriter(getWriterFormat(format), writer);
 		makePrettyTurtle(rdfWriter, format);
 		export(rdfWriter);
 		writer.flush();
 	}
 
 	public void export(OutputStream out, RDFFormat format) throws RepositoryException, RDFHandlerException, IOException {
-		RDFWriter rdfWriter = Rio.createWriter(format, out);
-		makePrettyTurtle(rdfWriter, format);
+		RDFWriter rdfWriter = getWriter(out, format);
 		export(rdfWriter);
 		out.flush();
 	}
 
+	private RDFWriter getWriter(OutputStream out, RDFFormat format) {
+		RDFWriter writer = Rio.createWriter(getWriterFormat(format), out);
+		makePrettyTurtle(writer, format);
+		return writer;
+	}
+
+	private static RDFFormat getWriterFormat(RDFFormat format) {
+		return format == RDFUtils.TURTLE_PRETTY ? RDFFormat.TURTLE : format;
+	}
+
 	private void makePrettyTurtle(RDFWriter rdfWriter, RDFFormat format) {
-		if (format == RDFFormat.TURTLE) {
+		if (format == RDFUtils.TURTLE_PRETTY) {
 			// Somehow this is the settings that makes the difference between ugly one line turtle files and
 			// properly formatted turtle.
 			// The java doc warns of potentially high memory usage, but that couldn't be confirmed yet, so this will be

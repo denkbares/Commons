@@ -35,7 +35,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.URI;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -115,14 +115,14 @@ public class ChangeLog {
 
 	private static Statement toStatement(ValueFactory vf, Change change) {
 		Resource subject = toResource(vf, change.getSubject());
-		URI predicate = vf.createURI(change.getPredicate());
+		IRI predicate = vf.createIRI(change.getPredicate());
 		Value object = toValue(vf, change.getObject());
 		return vf.createStatement(subject, predicate, object);
 	}
 
 	private static Value toValue(ValueFactory vf, String object) {
 		if (object.startsWith("http://")) {
-			return vf.createURI(object);
+			return vf.createIRI(object);
 		}
 		else if (object.matches("node\\d+")) {
 			return vf.createBNode(object);
@@ -132,7 +132,7 @@ public class ChangeLog {
 
 	private static Resource toResource(ValueFactory vf, String subject) {
 		if (subject.startsWith("http://")) {
-			return vf.createURI(subject);
+			return vf.createIRI(subject);
 		}
 		return vf.createBNode(subject);
 	}

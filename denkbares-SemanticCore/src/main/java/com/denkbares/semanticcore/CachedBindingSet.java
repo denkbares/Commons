@@ -19,12 +19,14 @@
 
 package com.denkbares.semanticcore;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.rdf4j.common.iterator.ConvertingIterator;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -37,7 +39,6 @@ import org.eclipse.rdf4j.query.AbstractBindingSet;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.impl.SimpleBinding;
-import org.eclipse.rdf4j.util.iterators.ConvertingIterator;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,6 +49,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CachedBindingSet extends AbstractBindingSet {
 
+	@Serial
 	private static final long serialVersionUID = 6002089496337116648L;
 	private final Map<String, Value> bindings;
 
@@ -75,8 +77,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 		if (value instanceof IRI) {
 			return new CachedIRI(value.stringValue());
 		}
-		else if (value instanceof Literal) {
-			Literal literal = (Literal) value;
+		else if (value instanceof Literal literal) {
 			CachedLiteral cachedLiteral = new CachedLiteral();
 			cachedLiteral.setLabel(literal.getLabel());
 			cachedLiteral.setDatatype(literal.getDatatype());
@@ -119,7 +120,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	public Iterator<Binding> iterator() {
 		Iterator<Map.Entry<String, Value>> entries = bindings.entrySet().iterator();
 
-		return new ConvertingIterator<Map.Entry<String, Value>, Binding>(entries) {
+		return new ConvertingIterator<>(entries) {
 
 			@Override
 			protected Binding convert(Map.Entry<String, Value> entry) {
@@ -134,6 +135,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static final class CachedLiteral extends SimpleLiteral {
+		@Serial
 		private static final long serialVersionUID = 8135962119311429522L;
 
 		@Override
@@ -155,6 +157,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static class CachedBNode extends SimpleBNode {
+		@Serial
 		private static final long serialVersionUID = -2870840425921911510L;
 
 		public CachedBNode(String id) {
@@ -163,6 +166,7 @@ public class CachedBindingSet extends AbstractBindingSet {
 	}
 
 	private static class CachedIRI extends SimpleIRI {
+		@Serial
 		private static final long serialVersionUID = -2118422531535486044L;
 
 		public CachedIRI(String id) {

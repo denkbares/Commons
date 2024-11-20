@@ -51,7 +51,8 @@
 		id="RdfFSConfigSesame">
 		<parameter id="class" value="com.denkbares.semanticcore.config.RdfFSConfig" />
 		<parameter id="name" value="RdfFSConfigSesame" />
-		<parameter id="description" value="Repository config for rdf or empty reasoning based on the file system instead of memory" />
+		<parameter id="description"
+			value="Repository config for rdf or empty reasoning based on the file system instead of memory" />
 		<parameter id="version" value="1.0" />
 		<parameter id="priority" value="5" />
 	</extension>
@@ -65,13 +66,5 @@
 		<parameter id="priority" value="5" />
 	</extension>
 
-	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
-		id="SpinRdfConfigSesame">
-		<parameter id="class" value="com.denkbares.semanticcore.config.SpinRdfConfig" />
-		<parameter id="name" value="SpinRdfConfigSesame" />
-		<parameter id="description" value="Repository config for spin rdf reasoning with sesame" />
-		<parameter id="version" value="1.0" />
-		<parameter id="priority" value="5" />
-	</extension>
 
 </plugin>

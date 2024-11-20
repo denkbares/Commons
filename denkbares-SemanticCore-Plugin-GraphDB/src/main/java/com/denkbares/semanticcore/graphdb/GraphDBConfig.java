@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ontotext.trree.config.OWLIMSailSchema;
-import com.ontotext.trree.statistics.StatisticsSettings;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -86,7 +85,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		configureCache();
 
 		// we deactivate statistics, because it can cause memory leaks on web app redeploy.
-		StatisticsSettings.getInstance().setStatisticsEnabled(false);
+//		StatisticsSettings.getInstance().setStatisticsEnabled(false);
 
 		configureLogging();
 
@@ -138,9 +137,10 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		}
 		else {
 			throw new IllegalStateException("GraphDB requires " + ch.qos.logback.classic.Logger.class.getName()
-					+ ", but was " + rootLogger.getClass().getName() + ".\nTo fix this, remove (e.g. by excluding) "
-					+ "the dependency to the second logger from the class path, also see "
-					+ "https://www.slf4j.org/codes.html#multiple_bindings.");
+											+ ", but was " + rootLogger.getClass()
+													.getName() + ".\nTo fix this, remove (e.g. by excluding) "
+											+ "the dependency to the second logger from the class path, also see "
+											+ "https://www.slf4j.org/codes.html#multiple_bindings.");
 		}
 	}
 
@@ -180,6 +180,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 		}
 	}
 
+	@SuppressWarnings("removal")
 	@NotNull
 	private org.eclipse.rdf4j.repository.config.RepositoryConfig createGraphDBConfig(String repositoryId, String repositoryLabel, Map<String, String> overrides) throws RDFParseException, RDFHandlerException, IOException, RepositoryConfigException {
 		Model graph = parseConfigFile(getConfigFile(), RDFFormat.TURTLE, DEFAULT_NAMESPACE);

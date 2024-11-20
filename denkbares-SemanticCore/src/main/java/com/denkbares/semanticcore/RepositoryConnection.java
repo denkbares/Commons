@@ -26,13 +26,12 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.List;
 
-import org.eclipse.rdf4j.IsolationLevel;
 import org.eclipse.rdf4j.common.iteration.Iteration;
+import org.eclipse.rdf4j.common.transaction.IsolationLevel;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.URI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -184,11 +183,6 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	@Override
-	public RepositoryResult<Statement> getStatements(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws RepositoryException {
-		return connection.getStatements(subj, pred, obj, includeInferred, contexts);
-	}
-
-	@Override
 	public RepositoryResult<Statement> getStatements(Resource resource, IRI iri, Value value, boolean b, Resource... resources) throws RepositoryException {
 		return connection.getStatements(resource, iri, value, b, resources);
 	}
@@ -196,11 +190,6 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	@Override
 	public boolean hasStatement(Resource resource, IRI iri, Value value, boolean b, Resource... resources) throws RepositoryException {
 		return connection.hasStatement(resource, iri, value, b, resources);
-	}
-
-	@Override
-	public boolean hasStatement(Resource subj, URI pred, Value obj, boolean includeInferred, Resource... contexts) throws RepositoryException {
-		return connection.hasStatement(subj, pred, obj, includeInferred, contexts);
 	}
 
 	@Override
@@ -311,13 +300,6 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	}
 
 	@Override
-	public void add(Resource subject, URI predicate, Value object, Resource... contexts) throws RepositoryException {
-		increaseQueryCounter();
-		connection.add(subject, predicate, object, contexts);
-		decreaseQueryCounter();
-	}
-
-	@Override
 	public void add(Statement st, Resource... contexts) throws RepositoryException {
 		increaseQueryCounter();
 		connection.add(st, contexts);
@@ -331,24 +313,16 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 		decreaseQueryCounter();
 	}
 
+	@SuppressWarnings("removal")
 	@Override
-	public <E extends Exception> void add(Iteration<? extends Statement, E> statements, Resource... contexts) throws RepositoryException, E {
-		increaseQueryCounter();
-		connection.add(statements, contexts);
-		decreaseQueryCounter();
+	public <E extends Exception> void add(Iteration<? extends Statement, E> iteration, Resource... resources) throws RepositoryException, E {
+		connection.add(iteration, resources);
 	}
 
 	@Override
 	public void remove(Resource resource, IRI iri, Value value, Resource... resources) throws RepositoryException {
 		increaseQueryCounter();
 		connection.remove(resource, iri, value, resources);
-		decreaseQueryCounter();
-	}
-
-	@Override
-	public void remove(Resource subject, URI predicate, Value object, Resource... contexts) throws RepositoryException {
-		increaseQueryCounter();
-		connection.remove(subject, predicate, object, contexts);
 		decreaseQueryCounter();
 	}
 
@@ -366,11 +340,10 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 		decreaseQueryCounter();
 	}
 
+	@SuppressWarnings("removal")
 	@Override
-	public <E extends Exception> void remove(Iteration<? extends Statement, E> statements, Resource... contexts) throws RepositoryException, E {
-		increaseQueryCounter();
-		connection.remove(statements, contexts);
-		decreaseQueryCounter();
+	public <E extends Exception> void remove(Iteration<? extends Statement, E> iteration, Resource... resources) throws RepositoryException, E {
+		connection.remove(iteration, resources);
 	}
 
 	@Override
@@ -574,6 +547,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 			return tupleQueryResult.next();
 		}
 
+		@SuppressWarnings("removal")
 		@Override
 		public void remove() throws QueryEvaluationException {
 			tupleQueryResult.remove();
