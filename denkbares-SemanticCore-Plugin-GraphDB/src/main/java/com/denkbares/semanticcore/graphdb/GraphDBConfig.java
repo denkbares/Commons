@@ -70,7 +70,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	private final String ruleSet;
 	private final Map<String, String> defaultOverrides = new HashMap<>();
 	private int supportedParallelConnections = 2;
-	public static final String NAMESPACE = "http://www.ontotext.com/trree/owlim#";
+	public static final String NAMESPACE = "http://www.ontotext.com/config/graphdb#";
 
 	public GraphDBConfig(String ruleSet) {
 		this(ruleSet, null);
