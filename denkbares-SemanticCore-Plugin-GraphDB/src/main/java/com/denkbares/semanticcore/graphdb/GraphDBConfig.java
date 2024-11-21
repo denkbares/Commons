@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ontotext.trree.config.OWLIMSailSchema;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -71,6 +70,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	private final String ruleSet;
 	private final Map<String, String> defaultOverrides = new HashMap<>();
 	private int supportedParallelConnections = 2;
+	public static final String NAMESPACE = "http://www.ontotext.com/trree/owlim#";
 
 	public GraphDBConfig(String ruleSet) {
 		this(ruleSet, null);
@@ -199,7 +199,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 			overrides = new HashMap<>();
 		}
 		overrides.putAll(defaultOverrides);
-		overrides.putIfAbsent(OWLIMSailSchema.NAMESPACE + "ruleset", getRuleSet());
+		overrides.putIfAbsent(NAMESPACE + "ruleset", getRuleSet());
 		String overriddenType = overrides.remove(RepositoryConfigSchema.REPOSITORYTYPE.toString());
 		if (overriddenType != null) {
 			Resource implNode = Models.object(graph.filter(repositoryNode, RepositoryConfigSchema.REPOSITORYIMPL, null))
