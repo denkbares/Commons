@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -255,6 +256,19 @@ public class XMLUtils {
 	 */
 	public static Document fileToDocument(File file) throws IOException {
 		try (InputStream in = new FileInputStream(file)) {
+			return streamToDocument(in);
+		}
+	}
+
+	/**
+	 * Creates an XML {@link Document} from the {@link java.nio.file.Path}.
+	 *
+	 * @param file the file to be read
+	 * @return Document the document created from the stream
+	 * @throws IOException when an error occurs
+	 */
+	public static Document fileToDocument(Path file) throws IOException {
+		try (InputStream in = java.nio.file.Files.newInputStream(file)) {
 			return streamToDocument(in);
 		}
 	}

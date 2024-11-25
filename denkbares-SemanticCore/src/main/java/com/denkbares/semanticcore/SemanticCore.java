@@ -29,6 +29,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,6 +76,7 @@ import com.denkbares.semanticcore.config.RepositoryConfig;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.utils.RDFUtils;
 import com.denkbares.strings.Strings;
+import com.denkbares.util.nio.Paths;
 import com.denkbares.utils.Files;
 import com.denkbares.utils.Stopwatch;
 import com.denkbares.utils.Streams;
@@ -399,6 +401,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 		String extension = FilenameUtils.getExtension(file.getAbsolutePath()).toLowerCase();
 
+		extractZipFile(file, extension);
+	}
+
+	private void extractZipFile(File file, String extension) throws IOException {
 		// Load all ontology files of a ZIP-File
 		if ("zip".equals(extension)) {
 			ZipFile zipFile = new ZipFile(file);
@@ -425,10 +431,26 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
+	public void addData(Path file) throws RDFParseException, RepositoryException, IOException {
+		if (!java.nio.file.Files.exists(file)) {
+			String message = "ontology file not found: " + file.toAbsolutePath();
+			LOGGER.error(message);
+		}
+
+		String extension = Paths.getExtension(file).toLowerCase();
+
+		extractZipFile(file.toFile(), extension);
+	}
+
 	private void addDataFromFile(File file, RDFFormat format) throws IOException, RDFParseException,
 			RepositoryException {
+		addDataFromFile(file.toPath(), format);
+	}
+
+	private void addDataFromFile(Path file, RDFFormat format) throws IOException, RDFParseException,
+			RepositoryException {
 		try (RepositoryConnection connection = this.getConnection()) {
-			connection.add(file, DEFAULT_NAMESPACE, format);
+			connection.add(file.toFile(), DEFAULT_NAMESPACE, format);
 			connection.commit();
 		}
 	}
