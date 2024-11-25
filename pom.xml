@@ -36,7 +36,7 @@
 		<onnx.version>0.20.0</onnx.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<logback.version>1.5.8</logback.version>
+		<logback.version>1.5.12</logback.version>
 	</properties>
 
 	<modules>
@@ -157,7 +157,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>2.0.9</version>
+			<version>2.0.15</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains</groupId>
@@ -455,10 +455,6 @@
 			<id>des-repo-public</id>
 			<name>Denkbares Public Repository</name>
 			<url>https://repo.denkbares.com/repo-public/</url>
-		</repository>
-		<repository>
-			<id>ontotext-public</id>
-			<url>https://maven.ontotext.com/repository/owlim-releases</url>
 		</repository>
 	</repositories>
 
