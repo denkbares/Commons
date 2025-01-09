@@ -21,6 +21,7 @@ package com.denkbares.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -31,6 +32,9 @@ import java.util.Spliterators;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Utility class with hany methods to dealt with iterators.
@@ -111,5 +115,16 @@ public class Iterators {
 		C result = factory.get();
 		source.forEachRemaining(result::add);
 		return result;
+	}
+
+	/**
+	 * Returns an iterator of a single optional value. If the value is null, the returned iterator is empty. Otherwise,
+	 * the returned iterator contains the specified value as the single iterated value.
+	 *
+	 * @param value the value to be returned as an iterator
+	 * @return the iterator of the specified non-null value, or empty iterator if value == null
+	 */
+	public static <E> Iterator<@NotNull E> optional(@Nullable E value) {
+		return (value == null) ? Collections.emptyIterator() : Collections.singletonList(value).iterator();
 	}
 }
