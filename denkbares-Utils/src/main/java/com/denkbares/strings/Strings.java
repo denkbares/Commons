@@ -1372,17 +1372,20 @@ public class Strings {
 	 */
 	public static String quote(String text, char quoteChar) {
 		if (text == null) return null;
-		StringBuilder builder = new StringBuilder((text.length()) + 5);
-		builder.append(quoteChar);
+		char[] chars = new char[text.length() * 2 + 2];
+		int index = 0;
+		chars[index++] = quoteChar;
+
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);
 			if (c == quoteChar || c == '\\') {
-				builder.append('\\');
+				chars[index++] = '\\';
 			}
-			builder.append(c);
+			chars[index++] = c;
 		}
-		builder.append(quoteChar);
-		return builder.toString();
+
+		chars[index++] = quoteChar;
+		return new String(chars, 0, index);
 	}
 
 	/**
