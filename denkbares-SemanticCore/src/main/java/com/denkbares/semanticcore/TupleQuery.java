@@ -41,12 +41,6 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 	private final org.eclipse.rdf4j.query.TupleQuery tupleQuery;
 	private final String queryString;
 
-	// fore prepared statements, we use a lock to avoid multiple parallel executions
-	// we require a semaphore, instead of a lock, because the lock/unlock may be executed by different threads
-	// we also store the thread currently holding the semaphore to avoid that inner loops will cause dead-locks
-//	private final Semaphore lock = new Semaphore(1, true);
-//	private Thread locker = null;
-
 	public TupleQuery(RepositoryConnection connection, org.eclipse.rdf4j.query.TupleQuery tupleQuery, String queryString) {
 		this.connection = connection;
 		this.tupleQuery = tupleQuery;
@@ -67,31 +61,6 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 		return queryString;
 	}
 
-//	/**
-//	 * Locks this query until {@link #unlock()} is called. If a lock is already held by an other thread, the method
-//	 * waits until the lock is released.
-//	 */
-//	private void lock() {
-//		// a prepared query is not reentrant, so if this is tried, we will fail
-//		if (locker == Thread.currentThread()) {
-//			throw new IllegalStateException("tried to lock the query twice.\n" +
-//					"This would indicate that the lock is not properly unlocked by a previous (completed) query, " +
-//					"or that the query is used inside the loop that currently iterates a query result.");
-//		}
-//		try {
-//			lock.acquire();
-//			locker = Thread.currentThread();
-//		}
-//		catch (InterruptedException e) {
-//			throw new QueryEvaluationException("interrupted while waiting to lock query", e);
-//		}
-//	}
-//
-//	private void unlock() {
-//		locker = null;
-//		lock.release();
-//	}
-
 	@Override
 	public void close() {
 		connection.close();
@@ -100,11 +69,6 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 	@Override
 	public synchronized TupleQueryResult evaluate() throws QueryEvaluationException {
 		return new TupleQueryResult(tupleQuery.evaluate());
-
-//		// we first evaluate, and only if successful acquire lock and unlock on close (otherwise no close will happen)
-//		TupleQueryResult result = new TupleQueryResult(tupleQuery.evaluate());
-//		lock();
-//		return result.onClose(this::unlock);
 	}
 
 	/**
@@ -121,38 +85,11 @@ public class TupleQuery implements org.eclipse.rdf4j.query.TupleQuery, AutoClose
 		finally {
 			bindings.keySet().forEach(this::removeBinding);
 		}
-
-//		bindings.forEach(this::setBinding);
-//		TupleQueryResult result = null;
-//		boolean success = false;
-//		try {
-//			// we first evaluate, and only if successful acquire lock and unlock on close (otherwise no close will happen)
-//			result = new TupleQueryResult(tupleQuery.evaluate());
-//			lock();
-//			success = true;
-//			return result.onClose(() -> {
-//				bindings.keySet().forEach(this::removeBinding);
-//				unlock();
-//			});
-//		}
-//		finally {
-//			// is result creation failed, we have to remove the bindings manually
-//			if (!success) {
-//				if (result != null) result.close();
-//				bindings.keySet().forEach(this::removeBinding);
-//			}
-//		}
 	}
 
 	@Override
 	public synchronized void evaluate(TupleQueryResultHandler handler) throws QueryEvaluationException, TupleQueryResultHandlerException {
-//		lock();
-//		try {
-			tupleQuery.evaluate(handler);
-//		}
-//		finally {
-//			unlock();
-//		}
+		tupleQuery.evaluate(handler);
 	}
 
 	@Override
