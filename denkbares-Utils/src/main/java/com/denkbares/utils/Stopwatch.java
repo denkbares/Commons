@@ -120,6 +120,17 @@ public class Stopwatch {
 	}
 
 	/**
+	 * Shows the currently measured time with some message in the default log with log level trace.
+	 * The method returns this stopwatch afterwards to allow cascading calls.
+	 *
+	 * @param message the message to be printed before the time
+	 */
+	public Stopwatch logTrace(org.slf4j.Logger logger, String message) {
+		logger.trace(message + ": " + getDisplay());
+		return this;
+	}
+
+	/**
 	 * Returns the currently measured time in milliseconds
 	 *
 	 * @return the measure time
