@@ -29,6 +29,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -2847,5 +2849,49 @@ public class Strings {
 			text = new String(text.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
 		}
 		return text;
+	}
+
+	/**
+	 * Changes the extension of a given file path or adds it if no extension exists.
+	 *
+	 * @param filePath     e.g. "C:/Temp/myFile.txt"
+	 * @param newExtension e.g. ".csv" (can be provided with or without the leading dot)
+	 * @return A new path string with the desired extension.
+	 */
+	public static String changeOrAddExtension(String filePath, String newExtension) {
+		// Ensure the new extension starts with a dot
+		if (!newExtension.startsWith(".")) {
+			newExtension = "." + newExtension;
+		}
+
+		// Convert the string to a Path object
+		Path path = Paths.get(filePath);
+
+		// Extract the original filename (with extension if it exists)
+		String fileName = path.getFileName().toString();
+
+		// Find the last dot in the filename (if any)
+		int lastDotIndex = fileName.lastIndexOf('.');
+		String baseName;
+		if (lastDotIndex == -1) {
+			// No dot found → no extension
+			baseName = fileName;
+		}
+		else {
+			// Take everything before the last dot
+			baseName = fileName.substring(0, lastDotIndex);
+		}
+
+		// Build the new filename with the specified extension
+		String newFileName = baseName + newExtension;
+
+		// Combine the parent path (if any) with the new filename
+		Path parent = path.getParent();
+		if (parent == null) {
+			return newFileName;
+		}
+		else {
+			return parent.resolve(newFileName).toString();
+		}
 	}
 }
