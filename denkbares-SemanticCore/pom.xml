@@ -50,10 +50,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.denkbares</groupId>
-			<artifactId>denkbares-nioUtils</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.denkbares</groupId>
 			<artifactId>denkbares-PluginManager</artifactId>
 		</dependency>
 		<dependency>

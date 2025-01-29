@@ -45,7 +45,7 @@
 		<module>denkbares-Progress</module>
 		<module>denkbares-SemanticCore</module>
 		<module>denkbares-SemanticCore-Plugin-ExtensionPoints</module>
-<!--		<module>denkbares-SemanticCore-Plugin-Jena</module>-->
+		<!--		<module>denkbares-SemanticCore-Plugin-Jena</module>-->
 		<module>denkbares-SemanticCore-Plugin-GraphDB</module>
 		<module>denkbares-TestUtils</module>
 		<module>denkbares-PythonConnector</module>
@@ -468,11 +468,6 @@
 			<dependency>
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-Utils</artifactId>
-				<version>${denkbares.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.denkbares</groupId>
-				<artifactId>denkbares-nioUtils</artifactId>
 				<version>${denkbares.version}</version>
 			</dependency>
 			<dependency>
