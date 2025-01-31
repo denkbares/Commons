@@ -66,6 +66,8 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	private static final String GRAPHDB_GLOBAL_PAGE_CACHE = "graphdb.global.page.cache";
 	private static final String DEFAULT_MIN_DISTINCT_THRESHOLD = "default.min.distinct.threshold";
 	private static final String GRAPHDB_PAGE_CACHE_SIZE = "graphdb.page.cache.size";
+	private static final String GRAPHDB_HEALTH_CHECK_ENABLED = "graphdb.health.minimal.free.storage.enabled";
+	private static final String GRAPHDB_HEALTH_CHECK_ASYNC = "graphdb.health.minimal.free.storage.asyncCheck";
 	private final String configFile;
 	private final String ruleSet;
 	private final Map<String, String> defaultOverrides = new HashMap<>();
@@ -83,6 +85,7 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 	public GraphDBConfig(String ruleSet, String configFile) {
 
 		configureCache();
+		configureHealthManagement();
 
 		// we deactivate statistics, because it can cause memory leaks on web app redeploy.
 //		StatisticsSettings.getInstance().setStatisticsEnabled(false);
@@ -141,6 +144,18 @@ public abstract class GraphDBConfig implements RepositoryConfig {
 													.getName() + ".\nTo fix this, remove (e.g. by excluding) "
 											+ "the dependency to the second logger from the class path, also see "
 											+ "https://www.slf4j.org/codes.html#multiple_bindings.");
+		}
+	}
+
+
+	private void configureHealthManagement() {
+		// deactivate low disk space warnings and checks
+		// they are spammy and might cause issues on slow FS
+		if (System.getProperty(GRAPHDB_HEALTH_CHECK_ENABLED) == null) {
+			System.setProperty(GRAPHDB_HEALTH_CHECK_ENABLED, "false");
+		}
+		if (System.getProperty(GRAPHDB_HEALTH_CHECK_ASYNC) == null) {
+			System.setProperty(GRAPHDB_HEALTH_CHECK_ASYNC, "false");
 		}
 	}
 
