@@ -33,6 +33,6 @@ public class RdfsConfig extends GraphDBConfig {
 
 	@Override
 	public String getName() {
-		return "RDFS_SESAME";
+		return "RDFS_GRAPHDB";
 	}
 }
