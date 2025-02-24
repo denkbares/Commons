@@ -98,4 +98,9 @@ public class PeekableIterator<E> implements Iterator<E> {
 	public void remove() {
 		throw new UnsupportedOperationException("remove");
 	}
+
+	@Override
+	public String toString() {
+		return iterator.toString();
+	}
 }

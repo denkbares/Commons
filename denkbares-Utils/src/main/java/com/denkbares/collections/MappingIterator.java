@@ -31,6 +31,7 @@ import java.util.function.Function;
  */
 public class MappingIterator<S, E> implements Iterator<E> {
 
+	private String name = null;
 	private final Iterator<S> source;
 	private final Function<? super S, ? extends E> mapper;
 
@@ -59,5 +60,17 @@ public class MappingIterator<S, E> implements Iterator<E> {
 	@Override
 	public void remove() {
 		source.remove();
+	}
+
+	public MappingIterator<S, E> setName(String name) {
+		this.name = name;
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return (name == null ? "MappingIterator" : name) + "{" +
+			   source +
+			   '}';
 	}
 }

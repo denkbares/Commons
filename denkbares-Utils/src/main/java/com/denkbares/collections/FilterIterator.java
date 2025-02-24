@@ -23,6 +23,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
+import com.denkbares.strings.Strings;
+
 /**
  * Class to filter the elements of an given iterator by some accept method.
  *
@@ -30,6 +32,8 @@ import java.util.function.Predicate;
  * @created 13.03.2014
  */
 public abstract class FilterIterator<E> implements Iterator<E> {
+
+	private String name = null;
 
 	/**
 	 * Functional interface to check a particular item to be included in the filtered iteration or not. For more details
@@ -92,6 +96,21 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	}
 
 	/**
+	 * Set a name, mainly for debug readability.
+	 */
+	public FilterIterator<E> setName(String name) {
+		if (Strings.isBlank(this.name)) {
+			this.name = name;
+		}
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return (name == null ? "FilterIterator" : name) + "{" + delegate + '}';
+	}
+
+	/**
 	 * Creates a new Iterable for the specified iterable for the specified filter functional interface. The returned
 	 * iterable contains only the elements that passes the accept function of the specified filter with "true".
 	 * <p/>
@@ -120,7 +139,7 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> FilterIterator<E> filter(Iterator<E> iterator, final EntryFilter<? super E> filter) {
-		return new FilterIterator<E>(iterator) {
+		return new FilterIterator<>(iterator) {
 			@Override
 			public boolean accept(E item) {
 				try {
@@ -147,7 +166,7 @@ public abstract class FilterIterator<E> implements Iterator<E> {
 	 * @return an iterator only containing the accepted entries
 	 */
 	public static <E> FilterIterator<E> filterByPredicate(Iterator<E> iterator, final Predicate<? super E> filter) {
-		return filter(iterator, filter::test);
+		return filter(iterator, filter::test).setName("filterByPredicate");
 	}
 
 	/**

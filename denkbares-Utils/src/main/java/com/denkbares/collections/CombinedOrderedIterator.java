@@ -157,7 +157,14 @@ public class CombinedOrderedIterator<E> implements Iterator<E> {
 		// and also remove iterator if it will become empty
 		assert bestIterator != null;
 		E next = bestIterator.next();
-		if (!bestIterator.hasNext()) iterators.remove(bestIterator);
+		if (!bestIterator.hasNext()) {
+			iterators.remove(bestIterator);
+		}
 		return next;
+	}
+
+	@Override
+	public String toString() {
+		return "CombinedOrderedIterator{" + iterators + '}';
 	}
 }

@@ -93,7 +93,7 @@ public class CachedIterable<E> implements Iterable<E> {
 	 * @return an Iterator.
 	 */
 	public Iterator<E> iterator(final int startIndex, final int endIndex) {
-		return new Iterator<E>() {
+		return new Iterator<>() {
 			private int index = Math.max(startIndex, 0);
 
 			@Override
@@ -113,6 +113,11 @@ public class CachedIterable<E> implements Iterable<E> {
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public String toString() {
+				return futures.toString();
 			}
 		};
 	}
