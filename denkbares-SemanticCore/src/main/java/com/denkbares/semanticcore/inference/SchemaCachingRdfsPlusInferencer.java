@@ -93,7 +93,7 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 	// Forward chained schema cache as lookup tables
 	private Map<Resource, Set<Resource>> calculatedTypes = new HashMap<>();
 
-	private Map<Resource, Set<Resource>> calculatedProperties = new HashMap<>();
+	Map<Resource, Set<Resource>> calculatedProperties = new HashMap<>();
 
 	private Map<Resource, Set<Resource>> calculatedRange = new HashMap<>();
 

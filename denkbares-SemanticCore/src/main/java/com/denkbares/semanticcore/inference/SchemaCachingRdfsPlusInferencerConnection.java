@@ -339,6 +339,12 @@ public class SchemaCachingRdfsPlusInferencerConnection extends InferencerConnect
 					if (inverse instanceof IRI) {
 						addInferredStatementInternal((Resource) object, (IRI) inverse, subject, inferredContext);
 					}
+					Set<Resource> inverseSubProperties = sail.calculatedProperties.getOrDefault(inverse, Collections.emptySet());
+					for (Resource inverseSubProperty : inverseSubProperties) {
+						if (inverseSubProperty instanceof IRI) {
+							addInferredStatementInternal((Resource) object, (IRI) inverseSubProperty, subject, inferredContext);
+						}
+					}
 				}
 			}
 
