@@ -17,11 +17,10 @@
  * site: http://www.fsf.org.
  */
 
-package org.eclipse.rdf4j.sail.inferencer.fc;
+package com.denkbares.semanticcore.inference;
 
 import org.eclipse.rdf4j.sail.config.AbstractDelegatingSailImplConfig;
 import org.eclipse.rdf4j.sail.config.SailImplConfig;
-import org.eclipse.rdf4j.sail.inferencer.fc.config.SchemaCachingRDFSInferencerFactory;
 
 /**
  * Config for SchemaCachingRdfsPlusInferencerConfig... same as RDFS inferencing, but extended with inversOf (and maybe

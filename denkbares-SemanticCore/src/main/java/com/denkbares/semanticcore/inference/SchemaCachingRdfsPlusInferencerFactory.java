@@ -17,7 +17,7 @@
  * site: http://www.fsf.org.
  */
 
-package org.eclipse.rdf4j.sail.inferencer.fc;
+package com.denkbares.semanticcore.inference;
 
 import org.eclipse.rdf4j.sail.Sail;
 import org.eclipse.rdf4j.sail.config.SailConfigException;

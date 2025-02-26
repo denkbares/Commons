@@ -26,7 +26,7 @@ import org.eclipse.rdf4j.repository.sail.config.SailRepositoryConfig;
 import org.eclipse.rdf4j.sail.inferencer.fc.config.DedupingInferencerConfig;
 import org.eclipse.rdf4j.sail.memory.config.MemoryStoreConfig;
 
-import org.eclipse.rdf4j.sail.inferencer.fc.SchemaCachingRdfsPlusInferencerConfig;
+import com.denkbares.semanticcore.inference.SchemaCachingRdfsPlusInferencerConfig;
 
 /**
  * Config sesame rdfs reasoning.

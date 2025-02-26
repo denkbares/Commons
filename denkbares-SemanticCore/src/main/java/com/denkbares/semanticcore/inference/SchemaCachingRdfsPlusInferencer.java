@@ -17,7 +17,7 @@
  * site: http://www.fsf.org.
  */
 
-package org.eclipse.rdf4j.sail.inferencer.fc;
+package com.denkbares.semanticcore.inference;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +47,7 @@ import org.eclipse.rdf4j.sail.NotifyingSail;
 import org.eclipse.rdf4j.sail.SailException;
 import org.eclipse.rdf4j.sail.helpers.NotifyingSailWrapper;
 import org.eclipse.rdf4j.sail.inferencer.InferencerConnection;
+import org.eclipse.rdf4j.sail.inferencer.fc.SchemaCachingRDFSInferencer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
