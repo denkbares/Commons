@@ -50,20 +50,11 @@ import org.eclipse.rdf4j.sail.inferencer.InferencerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.eclipse.rdf4j.model.vocabulary.OWL.INVERSEOF;
+
 /**
- * <p>
- * The SchemaCachingRDFSInferencer is an RDFS reasoner that caches all schema (TBox) statements and calculates an
- * inference map to quickly determine inferred statements. The reasoner can also be instantiated with a predefined
- * schema for improved performance.
- * </p>
- * <p>
- * This reasoner is not a rule based reasoner and will be up to 80x faster than the
- * {@link ForwardChainingRDFSInferencer}, as well as being more complete.
- * </p>
- * <p>
- * The sail puts no limitations on isolation level for read transactions, however all write/delete/update transactions
- * are serializable with exclusive locks. This limits write/delete/update transactions to one transaction at a time.
- * </p>
+ * This should actually extend {@link SchemaCachingRDFSInferencer}, but since that one isn't made for extending, we copy
+ * and adapt for now. We want to extend the reasoning a bit and for now, we add inverseOf statements.
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @created 26.02.2025
@@ -106,6 +97,10 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 	private Map<Resource, Set<Resource>> calculatedRange = new HashMap<>();
 
 	private Map<Resource, Set<Resource>> calculatedDomain = new HashMap<>();
+
+	private Collection<Statement> inverseOfStatements = new HashSet<>();
+
+	private Map<Resource, Set<Resource>> calculatedInverseOf = new HashMap<>();
 
 	// The inferencer has been instantiated from another inferencer and shares it's schema with that one
 	private boolean sharedSchema;
@@ -186,6 +181,9 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 		subPropertyOfStatements.clear();
 		rangeStatements.clear();
 		domainStatements.clear();
+
+		inverseOfStatements.clear();
+		calculatedInverseOf.clear();
 
 		calculatedTypes.clear();
 		calculatedProperties.clear();
@@ -346,6 +344,14 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 			}
 		}));
 
+		sailToInstantiateFrom.calculatedInverseOf.forEach((key, value) -> value.forEach(v -> {
+			if (!ret.calculatedInverseOf.containsKey(key)) {
+				ret.calculatedInverseOf.put(key, new HashSet<>(Set.of(v)));
+			} else {
+				ret.calculatedInverseOf.get(key).add(v);
+			}
+		}));
+
 		return ret;
 	}
 
@@ -434,6 +440,13 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 				else {
 					calculatedDomain = Map.copyOf(calculatedDomain);
 				}
+
+				calculatedInverseOf.replaceAll((k, v) -> Set.copyOf(v));
+				if (calculatedInverseOf.isEmpty()) {
+					calculatedInverseOf = Collections.emptyMap();
+				} else {
+					calculatedInverseOf = Map.copyOf(calculatedInverseOf);
+				}
 			}
 		}
 	}
@@ -468,6 +481,17 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 				sups.forEach(sup -> {
 					conn.addInferredStatementInternal(sub, RDFS.SUBPROPERTYOF, sup, DEFAULT_CONTEXT);
 				});
+			});
+
+			// New owl:inverseOf:
+			logger.debug("Add inferred owl:inverseOf statements");
+
+			calculatedInverseOf.forEach((p, inverses) -> {
+				for (Resource q : inverses) {
+					if (!p.equals(q)) { // Keine Selbstinversion
+						conn.addInferredStatementInternal(p, INVERSEOF, q, DEFAULT_CONTEXT);
+					}
+				}
 			});
 		}
 	}
@@ -507,6 +531,21 @@ public class SchemaCachingRdfsPlusInferencer extends NotifyingSailWrapper {
 		domainStatements.add(st);
 		properties.add(st.getSubject());
 		types.add((Resource) st.getObject());
+	}
+
+	void addInverseOfStatement(Statement st) {
+		if (!st.getObject().isResource()) {
+			throw new SailException("Object of owl:inverseOf should be a resource! " + st);
+		}
+		inverseOfStatements.add(st);
+		Resource p = st.getSubject();
+		Resource q = (Resource) st.getObject();
+		// Damit beide Properties als bekannt gelten:
+		properties.add(p);
+		properties.add(q);
+		// Inverse Beziehung einpflegen – beidseitig, da owl:inverseOf symmetrisch ist:
+		calculatedInverseOf.computeIfAbsent(p, k -> ConcurrentHashMap.newKeySet()).add(q);
+		calculatedInverseOf.computeIfAbsent(q, k -> ConcurrentHashMap.newKeySet()).add(p);
 	}
 
 	boolean hasType(Resource r) {

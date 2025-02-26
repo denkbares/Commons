@@ -66,5 +66,14 @@
 		<parameter id="priority" value="5" />
 	</extension>
 
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+			   id="RdfsPlusConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.config.RdfsPlusConfig" />
+		<parameter id="name" value="RdfsConfigSesame" />
+		<parameter id="description" value="Repository config for rdfs reasoning with sesame, extended with inverseOf and possibily more" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
 
 </plugin>

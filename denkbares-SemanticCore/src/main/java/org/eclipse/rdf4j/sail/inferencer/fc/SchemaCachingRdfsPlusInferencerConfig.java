@@ -33,10 +33,10 @@ import org.eclipse.rdf4j.sail.inferencer.fc.config.SchemaCachingRDFSInferencerFa
 public class SchemaCachingRdfsPlusInferencerConfig extends AbstractDelegatingSailImplConfig {
 
 	public SchemaCachingRdfsPlusInferencerConfig() {
-		super(SchemaCachingRDFSInferencerFactory.SAIL_TYPE);
+		super(SchemaCachingRdfsPlusInferencerFactory.SAIL_TYPE);
 	}
 
 	public SchemaCachingRdfsPlusInferencerConfig(SailImplConfig delegate) {
-		super(SchemaCachingRDFSInferencerFactory.SAIL_TYPE, delegate);
+		super(SchemaCachingRdfsPlusInferencerFactory.SAIL_TYPE, delegate);
 	}
 }

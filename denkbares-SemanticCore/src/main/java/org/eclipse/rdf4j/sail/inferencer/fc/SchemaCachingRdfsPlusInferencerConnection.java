@@ -30,6 +30,7 @@ import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.ValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.sail.NotifyingSailConnection;
@@ -52,7 +53,7 @@ public class SchemaCachingRdfsPlusInferencerConnection extends InferencerConnect
 	private static final Logger logger = LoggerFactory.getLogger(SchemaCachingRdfsPlusInferencerConnection.class);
 	private static final Resource[] DEFAULT_CONTEXT = { null };
 
-	private final SchemaCachingRDFSInferencer sail;
+	private final SchemaCachingRdfsPlusInferencer sail;
 
 	private final NotifyingSailConnection connection;
 
@@ -134,6 +135,10 @@ public class SchemaCachingRdfsPlusInferencerConnection extends InferencerConnect
 				sail.addType((Resource) object);
 				schemaChange = true;
 			}
+		}
+		else if (predicate.equals(OWL.INVERSEOF)) {
+			sail.addInverseOfStatement(statement);
+			schemaChange = true;
 		}
 
 		if (!sail.hasProperty(predicate)) {
