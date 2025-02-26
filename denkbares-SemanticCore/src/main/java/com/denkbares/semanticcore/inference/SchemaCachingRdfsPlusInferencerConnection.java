@@ -20,7 +20,9 @@
 package com.denkbares.semanticcore.inference;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.rdf4j.common.iteration.CloseableIteration;
 import org.eclipse.rdf4j.common.transaction.IsolationLevel;
@@ -137,8 +139,9 @@ public class SchemaCachingRdfsPlusInferencerConnection extends InferencerConnect
 			}
 		}
 		else if (predicate.equals(OWL.INVERSEOF)) {
-			sail.addInverseOfStatement(statement);
-			schemaChange = true;
+			if (sail.addInverseOfStatement(statement)) {
+				schemaChange = true;
+			}
 		}
 
 		if (!sail.hasProperty(predicate)) {
@@ -330,6 +333,13 @@ public class SchemaCachingRdfsPlusInferencerConnection extends InferencerConnect
 						})
 						.forEach(inferredType -> addInferredStatementInternal(((Resource) object), RDF.TYPE,
 								inferredType, inferredContext));
+
+				Set<Resource> inverses = sail.calculatedInverseOf.getOrDefault(predicate, Collections.emptySet());
+				for (Resource inverse : inverses) {
+					if (inverse instanceof IRI) {
+						addInferredStatementInternal((Resource) object, (IRI) inverse, subject, inferredContext);
+					}
+				}
 			}
 
 			sail.resolveDomainTypes(predicate)
