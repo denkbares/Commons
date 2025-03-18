@@ -23,7 +23,7 @@
 	<parent>
 		<groupId>com.denkbares</groupId>
 		<artifactId>denkbares-Commons</artifactId>
-		<version>2025.2-SNAPSHOT</version>
+		<version>2025.2</version>
 	</parent>
 
 	<artifactId>denkbares-SemanticCore</artifactId>
