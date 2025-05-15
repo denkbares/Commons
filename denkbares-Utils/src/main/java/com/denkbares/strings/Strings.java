@@ -54,7 +54,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -2893,5 +2892,68 @@ public class Strings {
 		else {
 			return parent.resolve(newFileName).toString();
 		}
+	}
+
+	/**
+	 * Adds line numbers to each line of the given input string (similar to most text-based editors like vim, less,
+	 * etc.), preserving the original line separators and formatting.
+	 * <p>
+	 * Each line is prefixed with a right-aligned line number starting from 1, followed by a single space, and then the
+	 * original line content. The width of the line number padding is determined based on the total number of lines,
+	 * so that all numbers align properly.
+	 *
+	 * @param text the input string to annotate with line numbers
+	 * @return a new string with line numbers prepended to each line
+	 */
+	@NotNull
+	public static String prefixLineNumbers(@NotNull String text) {
+		List<Integer> lineBreaks = new ArrayList<>();
+		List<String> lineSeparators = new ArrayList<>();
+
+		int i = 0;
+		int len = text.length();
+		while (i < len) {
+			char c = text.charAt(i);
+			if (c == '\r') {
+				if (i + 1 < len && text.charAt(i + 1) == '\n') {
+					lineBreaks.add(i);
+					lineSeparators.add("\r\n");
+					i += 2;
+				}
+				else {
+					lineBreaks.add(i);
+					lineSeparators.add("\r");
+					i++;
+				}
+			}
+			else if (c == '\n') {
+				lineBreaks.add(i);
+				lineSeparators.add("\n");
+				i++;
+			}
+			else {
+				i++;
+			}
+		}
+		lineBreaks.add(len);
+
+		StringBuilder result = new StringBuilder(text.length() + 32);
+
+		int totalLines = lineBreaks.size();
+		@SuppressWarnings("StringConcatenationMissingWhitespace")
+		String padFormat = "%" + String.valueOf(totalLines).length() + "d";
+		int start = 0;
+		for (int lineIndex = 0; lineIndex < totalLines; lineIndex++) {
+			int end = lineBreaks.get(lineIndex);
+			String lineNumber = String.format(padFormat, lineIndex + 1);
+			result.append(lineNumber).append(" ").append(text, start, end);
+
+			if (lineIndex < lineSeparators.size()) {
+				result.append(lineSeparators.get(lineIndex));
+				start = end + lineSeparators.get(lineIndex).length();
+			}
+		}
+
+		return result.toString();
 	}
 }
