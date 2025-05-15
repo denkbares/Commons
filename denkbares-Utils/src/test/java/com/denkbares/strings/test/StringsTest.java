@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
@@ -548,5 +547,37 @@ public class StringsTest {
 		assertEquals(List.of("Hello", "World", "Java", "DONT_TOUCH_ME"), Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME"), Pattern.compile("DONT_TOUCH_ME\\d*")));
 		assertEquals(List.of("Hello", "World", "Java", "DONT_TOUCH_ME1", "DONT_TOUCH_ME2323"),
 				Strings.trimSharedPreAndSuffix(List.of("prefixHelloSuffix", "prefixWorldSuffix", "prefixJavaSuffix", "DONT_TOUCH_ME1", "DONT_TOUCH_ME2323"), Pattern.compile("DONT_TOUCH_ME\\d*")));
+	}
+
+	@Test
+	@SuppressWarnings("TextBlockMigration")
+	public void testPrefixLineNumbers() {
+		String input = "Lorem ipsum dolor sit amet,\r\n" +
+					   "consetetur sadipscing elitr,\r" +
+					   "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,\n" +
+					   "sed diam voluptua.\n" +
+					   "At vero eos et accusam et justo duo dolores et ea rebum.\n" +
+					   "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n" +
+					   "Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n" +
+					   "sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,\n" +
+					   "sed diam voluptua.\n" +
+					   "At vero eos et accusam et justo duo dolores et ea rebum.\n" +
+					   "Stet clita kasd gubergren,\n" +
+					   "no sea takimata sanctus est Lorem ipsum dolor sit amet.\n";
+		String expected = " 1 Lorem ipsum dolor sit amet,\r\n" +
+						  " 2 consetetur sadipscing elitr,\r" +
+						  " 3 sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,\n" +
+						  " 4 sed diam voluptua.\n" +
+						  " 5 At vero eos et accusam et justo duo dolores et ea rebum.\n" +
+						  " 6 Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.\n" +
+						  " 7 Lorem ipsum dolor sit amet, consetetur sadipscing elitr,\n" +
+						  " 8 sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,\n" +
+						  " 9 sed diam voluptua.\n" +
+						  "10 At vero eos et accusam et justo duo dolores et ea rebum.\n" +
+						  "11 Stet clita kasd gubergren,\n" +
+						  "12 no sea takimata sanctus est Lorem ipsum dolor sit amet.\n" +
+						  "13 ";
+		String actual = Strings.prefixLineNumbers(input);
+		assertEquals(expected, actual);
 	}
 }
