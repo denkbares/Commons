@@ -39,8 +39,8 @@ public class DefaultValueComparator implements ValueComparator {
 	public int compare(Value v1, Value v2) {
 		// We could just use RDF4J ValueComparator for everything, but actually,
 		// NumberAwareComparator is a bit nicer, so we use that for strings and IRIs
-		if ((v1 instanceof IRI && v2 instanceof IRI) ||
-				(isStringLiteral(v1) && isStringLiteral(v2))) {
+		if ((v1 != null && v2 != null)
+			&& ((v1 instanceof IRI && v2 instanceof IRI) || (isStringLiteral(v1) && isStringLiteral(v2)))) {
 			return NumberAwareComparator.CASE_INSENSITIVE.compare(v1.stringValue(), v2.stringValue());
 		}
 		else {
