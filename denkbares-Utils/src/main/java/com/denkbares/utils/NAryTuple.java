@@ -60,4 +60,9 @@ public class NAryTuple implements Tuple {
 		if (hash == -1) hash = Tuple.hashCode(this);
 		return hash;
 	}
+
+	@Override
+	public String toString() {
+		return "NAryTuple" + Arrays.toString(items);
+	}
 }
