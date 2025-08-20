@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2025 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -22,34 +22,30 @@ package com.denkbares.collections;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * An iterable wrapping an existing iterable to get an indexed sub-span of its elements.
+ * Iterable which is closeable
  *
- * @author Volker Belli (denkbares GmbH)
- * @created 30.12.2014
+ * @author Friedrich Fell (Service Mate GmbH)
+ * @created 19.08.2025
  */
-public class SubSpanIterable<E> implements Iterable<E>, Closeable {
+public class CloseableIterable<E> implements Closeable, Iterable<E> {
+	private final Closeable closeable;
+	private final Iterable<E> iterable;
 
-	private final Iterable<E> delegate;
-	private final int start;
-	private final int end;
-
-	public SubSpanIterable(Iterable<E> delegate, int start, int end) {
-		this.delegate = delegate;
-		this.start = start;
-		this.end = end;
-	}
-
-	@Override
-	public Iterator<E> iterator() {
-		return new SubSpanIterator<>(delegate.iterator(), start, end);
+	public CloseableIterable(Iterable<E> iterable, Closeable closeable) {
+		this.closeable = closeable;
+		this.iterable = iterable;
 	}
 
 	@Override
 	public void close() throws IOException {
-		if (delegate instanceof Closeable closeable) {
-			closeable.close();
-		}
+		this.closeable.close();
+	}
+
+	@Override
+	public @NotNull Iterator<E> iterator() {
+		return this.iterable.iterator();
 	}
 }

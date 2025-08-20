@@ -19,6 +19,8 @@
 
 package com.denkbares.collections;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +33,7 @@ import java.util.NoSuchElementException;
  * @author Volker Belli (denkbares GmbH)
  * @created 30.12.2014
  */
-public class CachedIterable<E> implements Iterable<E> {
+public class CachedIterable<E> implements Iterable<E>, Closeable {
 	private final Iterator<E> futures;
 	private final List<E> cache = new ArrayList<>();
 
@@ -120,5 +122,12 @@ public class CachedIterable<E> implements Iterable<E> {
 				return futures.toString();
 			}
 		};
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (this.futures instanceof Closeable closeable) {
+			closeable.close();
+		}
 	}
 }

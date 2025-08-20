@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 denkbares GmbH, Germany
+ * Copyright (C) 2025 denkbares GmbH, Germany
  *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
@@ -20,36 +20,13 @@
 package com.denkbares.collections;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * An iterable wrapping an existing iterable to get an indexed sub-span of its elements.
+ * Iterator which has to be closed when iteration is finished.
  *
- * @author Volker Belli (denkbares GmbH)
- * @created 30.12.2014
+ * @author Friedrich Fell (Service Mate GmbH)
+ * @created 19.08.2025
  */
-public class SubSpanIterable<E> implements Iterable<E>, Closeable {
-
-	private final Iterable<E> delegate;
-	private final int start;
-	private final int end;
-
-	public SubSpanIterable(Iterable<E> delegate, int start, int end) {
-		this.delegate = delegate;
-		this.start = start;
-		this.end = end;
-	}
-
-	@Override
-	public Iterator<E> iterator() {
-		return new SubSpanIterator<>(delegate.iterator(), start, end);
-	}
-
-	@Override
-	public void close() throws IOException {
-		if (delegate instanceof Closeable closeable) {
-			closeable.close();
-		}
-	}
+public interface CloseableIterator<E> extends Iterator<E>, AutoCloseable, Closeable {
 }
