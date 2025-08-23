@@ -461,7 +461,23 @@ public class Paths {
 	 * @throws IOException if the tree could not been traversed correctly
 	 */
 	public static List<String> listTree(Path root) throws IOException {
+		return listTree(root, Predicates.TRUE());
+	}
+
+	/**
+	 * Creates a list of all files of a directory tree, starting with the specified root path. The listing is similar to
+	 * "ls -al", but does not contain the parent directory ("../") in the list. Each entry contains the relative path to
+	 * the specified root path. The returned list is sorted alphabetically to the relative path, so the tree is listed
+	 * depth first.
+	 *
+	 * @param root the root path to create the listing for
+	 * @param filter    a filter to filter for the entries to be displayed
+	 * @return the whole directory tree
+	 * @throws IOException if the tree could not been traversed correctly
+	 */
+	public static List<String> listTree(Path root, Predicate<Path> filter) throws IOException {
 		return Files.walk(root)
+				.filter(filter)
 				.sorted(Comparator.comparing(Path::toString))
 				.map(successor -> listSingleEntry(root, successor))
 				.collect(Collectors.toList());
