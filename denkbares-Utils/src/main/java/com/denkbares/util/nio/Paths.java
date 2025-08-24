@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -159,7 +160,7 @@ public class Paths {
 		CRC32 crc32 = new CRC32();
 		List<Path> files;
 		try (Stream<Path> fileStream = Files.list(folder)) {
-			files = fileStream.sorted().collect(Collectors.toList());
+			files = fileStream.sorted().toList();
 		}
 		for (Path file : files) {
 			// we skip all hidden files, so avoid having changes,
@@ -222,14 +223,16 @@ public class Paths {
 		}
 
 		// delete recursively
-		Files.walkFileTree(fileOrFolder, new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(fileOrFolder, new SimpleFileVisitor<>() {
 			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+			@NotNull
+			public FileVisitResult visitFile(Path file, @NotNull BasicFileAttributes attrs) throws IOException {
 				Files.delete(file);
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
+			@NotNull
 			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
@@ -386,17 +389,19 @@ public class Paths {
 	 * @throws IOException if any of the files cannot be copied or any directory could not been created
 	 */
 	public static void copyTree(Path sourcePath, Path targetPath) throws IOException {
-		Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
 			@Override
+			@NotNull
 			public FileVisitResult preVisitDirectory(final Path dir,
-													 final BasicFileAttributes attrs) throws IOException {
+													 final @NotNull BasicFileAttributes attrs) throws IOException {
 				Files.createDirectories(crossResolve(targetPath, sourcePath.relativize(dir)));
 				return FileVisitResult.CONTINUE;
 			}
 
 			@Override
+			@NotNull
 			public FileVisitResult visitFile(final Path file,
-											 final BasicFileAttributes attrs) throws IOException {
+											 final @NotNull BasicFileAttributes attrs) throws IOException {
 				Files.copy(file, crossResolve(targetPath, sourcePath.relativize(file)), REPLACE_EXISTING, COPY_ATTRIBUTES);
 				return FileVisitResult.CONTINUE;
 			}
@@ -476,11 +481,13 @@ public class Paths {
 	 * @throws IOException if the tree could not been traversed correctly
 	 */
 	public static List<String> listTree(Path root, Predicate<Path> filter) throws IOException {
-		return Files.walk(root)
-				.filter(filter)
-				.sorted(Comparator.comparing(Path::toString))
-				.map(successor -> listSingleEntry(root, successor))
-				.collect(Collectors.toList());
+		try (var walk = Files.walk(root)) {
+			return walk
+					.filter(filter)
+					.sorted(Comparator.comparing(Path::toString))
+					.map(successor -> listSingleEntry(root, successor))
+					.collect(Collectors.toList());
+		}
 	}
 
 	private static String listSingleEntry(Path root, Path entry) {
@@ -494,7 +501,7 @@ public class Paths {
 				sizeStr = String.format("% 10dB", Files.size(entry));
 			}
 			catch (IOException e) {
-				LOGGER.error("cannot access date/size of file: " + entry, e);
+				LOGGER.error("cannot access date/size of file: {}", entry, e);
 				dateStr = "????-??-?? ??:??:??";
 				sizeStr = "         ??";
 			}
