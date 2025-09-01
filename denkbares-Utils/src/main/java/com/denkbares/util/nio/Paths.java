@@ -34,10 +34,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -59,8 +59,7 @@ import com.denkbares.strings.Strings;
 import com.denkbares.utils.Predicates;
 import com.denkbares.utils.Streams;
 
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+import static java.nio.file.StandardCopyOption.*;
 
 /**
  * Class for common utils methods to deal with java non-blocking io.
@@ -560,14 +559,7 @@ public class Paths {
 	 * @throws IOException if the target file could not been opened
 	 */
 	public static OutputStream newAtomicOutputStream(Path file) throws IOException {
-		// check some common problems for writing that will cause the commit to fail (to fail early)
-		if (Files.isDirectory(file)) {
-			throw new FileAlreadyExistsException(
-					"Cannot create target file, there is already a directory of that path" + file.toAbsolutePath());
-		}
-		if (Files.exists(file) && !Files.isWritable(file)) {
-			throw new AccessDeniedException("cannot write target file" + file.toAbsolutePath());
-		}
+		checkWriteableFile(file);
 		// write the new file and commit on close
 		return new BufferedOutputStream(Files.newOutputStream(toNew(file))) {
 			@Override
@@ -582,6 +574,90 @@ public class Paths {
 				}
 			}
 		};
+	}
+
+	/**
+	 * Moves the specified source file to the specified target file. In contrast to normal file stream the actual
+	 * moving will be done to a temp file (which may include copying. Before this operation completes, the target
+	 * will be replaced in an almost atomic transaction. If the transaction fails, it will be possible to detect
+	 * this and fully recover a valid file state, either the old file or the written file, depending on when the
+	 * atomic write has failed.
+	 * <p>
+	 * Note that this operation is only valid on regular files, but NOT (!) directories.
+	 *
+	 * @param source the source file to move in an atomic transaction
+	 * @param target the target file to move the source file to in an atomic transaction
+	 * @throws IOException if the file could not been moved
+	 */
+	public static void moveAtomic(Path source, Path target) throws IOException {
+		checkReadableRegularFile(source);
+		checkWriteableFile(target);
+		try {
+			// try to perform a move on the source file
+			Files.move(source, toNew(target), REPLACE_EXISTING);
+			commit(target);
+		}
+		finally {
+			// also try to recover if something failed before
+			recover(target);
+		}
+	}
+
+	/**
+	 * Copies the specified source file to the specified target file. In contrast to normal file stream the actual
+	 * moving will be done to a temp file (which may include copying. Before this operation completes, the target
+	 * will be replaced in an almost atomic transaction. If the transaction fails, it will be possible to detect
+	 * this and fully recover a valid file state, either the old file or the written file, depending on when the
+	 * atomic write has failed.
+	 * <p>
+	 * Note that this operation is only valid on regular files, but NOT (!) directories.
+	 *
+	 * @param source the source file to copy in an atomic transaction
+	 * @param target the target file to copy the source file to in an atomic transaction
+	 * @throws IOException if the file could not been copied
+	 */
+	public static void copyAtomic(Path source, Path target) throws IOException {
+		checkReadableRegularFile(source);
+		checkWriteableFile(target);
+		try {
+			// try to perform a copy on the source file
+			Files.copy(source, toNew(target), REPLACE_EXISTING);
+			commit(target);
+		}
+		finally {
+			// also try to recover if something failed before
+			recover(target);
+		}
+	}
+
+	/**
+	 * Checks if the specified file can be overwritten by a regular file.
+	 */
+	private static void checkWriteableFile(Path file) throws FileAlreadyExistsException, AccessDeniedException {
+		// check some common problems for writing that will cause the commit to fail (to fail early)
+		if (Files.isDirectory(file)) {
+			throw new FileAlreadyExistsException(
+					"Cannot create target file, there is already a directory of that path: " + file.toAbsolutePath());
+		}
+		if (Files.exists(file) && !Files.isWritable(file)) {
+			throw new AccessDeniedException("cannot write target file: " + file.toAbsolutePath());
+		}
+	}
+
+	/**
+	 * Checks if the specified path is an existing and regular file, that can be read.
+	 */
+	private static void checkReadableRegularFile(Path file) throws NoSuchFileException, AccessDeniedException {
+		// check some common problems for writing that will cause the commit to fail (to fail early)
+		if (!Files.exists(file)) {
+			throw new NoSuchFileException("file does not exist: " + file.toAbsolutePath());
+		}
+		if (!Files.isRegularFile(file)) {
+			throw new AccessDeniedException("not a regular file: " + file.toAbsolutePath());
+		}
+		if (!Files.isReadable(file)) {
+			throw new AccessDeniedException("cannot read file: " + file.toAbsolutePath());
+		}
 	}
 
 	private static Path toNew(Path file) {
@@ -620,7 +696,7 @@ public class Paths {
 		// the write has been completed (because renaming the file to old is done afterwards)
 		// so we can complete the transaction
 		if (newExists /* && !exists (always true) */ && oldExists) {
-			Files.move(newFile, file, StandardCopyOption.ATOMIC_MOVE);
+			Files.move(newFile, file, ATOMIC_MOVE);
 			Files.delete(oldFile);
 		}
 	}
@@ -642,11 +718,11 @@ public class Paths {
 		// move original file if target is not newly created
 		boolean hasPreviousFile = Files.exists(file);
 		if (hasPreviousFile) {
-			Files.move(file, oldFile, StandardCopyOption.ATOMIC_MOVE);
+			Files.move(file, oldFile, ATOMIC_MOVE);
 		}
 
 		// move new file to target and delete old one afterwards (if existed)
-		Files.move(newFile, file, StandardCopyOption.ATOMIC_MOVE);
+		Files.move(newFile, file, ATOMIC_MOVE);
 		if (hasPreviousFile) {
 			Files.delete(oldFile);
 		}
