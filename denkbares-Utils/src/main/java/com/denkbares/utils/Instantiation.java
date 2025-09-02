@@ -582,7 +582,7 @@ public class Instantiation {
 					if (Strings.endsWithIgnoreCase(numString, "f")) return number.floatValue();
 					if (Strings.endsWithIgnoreCase(numString, "d")) return number.doubleValue();
 					if (Strings.endsWithIgnoreCase(numString, "l")) return number.longValue();
-					return (number instanceof Long) ? new Integer(number.intValue()) : number;
+					return (number instanceof Long) ? number.intValue() : number;
 				}
 			}
 			catch (NumberFormatException ignored) {
