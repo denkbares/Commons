@@ -562,8 +562,14 @@ public class Paths {
 		checkWriteableFile(file);
 		// write the new file and commit on close
 		return new BufferedOutputStream(Files.newOutputStream(toNew(file))) {
+			private boolean closed = false;
+
 			@Override
 			public void close() throws IOException {
+				// avoid multiple close calls
+				if (closed) return;
+				closed = true;
+				// commit or recover
 				try {
 					super.close();
 					commit(file);
