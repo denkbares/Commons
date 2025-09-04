@@ -37,6 +37,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
@@ -54,6 +55,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -1009,5 +1011,38 @@ public class Files {
 		String name = file.getName();
 		return name.endsWith("__MACOSX") || name.startsWith(".")
 				|| java.nio.file.Files.isHidden(file.toPath());
+	}
+
+	/**
+	 * Checks if the specified entry is an OS file and can be ignored for patching etc. or calculating a checksum.
+	 * <p>
+	 * Right now it only considers .DS_Store, ._MACOSX and parent containing __MACOSX to be system files.
+	 *
+	 * @param entry The entry to check.
+	 * @return true if the entry is an OS file.
+	 */
+	public static boolean isOSFile(ZipEntry entry) {
+		return entry.getName().endsWith(".DS_Store") || entry.getName().endsWith("._MACOSX") || entry.getName()
+				.contains("__MACOSX");
+	}
+
+	/**
+	 * Calculates the {@link ZipEntry}s CRC32 checksum based on its {@link ZipEntry#getCrc()} and
+	 * {@link ZipEntry#getName()}.
+	 *
+	 * @param entry The entry to calculate the CRC32 checksum for.
+	 * @return A checksum containing the name and crc of the zip entry.
+	 */
+	public static long getCrcWithName(ZipEntry entry) {
+		CRC32 crc = new CRC32();
+		// 1) name/path
+		String name = entry.getName();
+		crc.update(name.getBytes(StandardCharsets.UTF_8));
+		// 2) entry.crc (use 0 if unknown) this should never happen when reading
+		long dataCrc = entry.getCrc(); // -1 if not set
+		if (dataCrc < 0) dataCrc = 0L;
+		byte[] buf = ByteBuffer.allocate(8).putLong(dataCrc).array(); // big-endian
+		crc.update(buf);
+		return crc.getValue(); // 32-bit checksum as an unsigned long
 	}
 }
