@@ -44,6 +44,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -420,6 +421,47 @@ public class Paths {
 			self = self.resolve(name);
 		}
 		return self;
+	}
+
+	/**
+	 * Checks whether {@code candidate} lies within (or is equal to) the subtree defined by {@code root}.
+	 * This uses component-wise comparison (not string prefix comparison).
+	 *
+	 * @param candidate      the path to test (file or directory)
+	 * @param root           the root directory path
+	 * @param followSymlinks true to resolve symlinks to their real targets, false to only normalize
+	 *                       and make absolute (works even if the path does not exist)
+	 * @return true if {@code candidate} is within {@code root}, false otherwise
+	 */
+	public static boolean isInSubTree(Path candidate, Path root, boolean followSymlinks) {
+		Path normRoot = normalizeForCompare(root, followSymlinks);
+		Path normChild = normalizeForCompare(candidate, followSymlinks);
+
+		var sameRoot = Objects.equals(normRoot.getRoot(), normChild.getRoot());
+		return sameRoot && normChild.startsWith(normRoot);
+	}
+
+	/**
+	 * Convenience overload: checks whether {@code candidate} lies within {@code root},
+	 * without resolving symlinks.
+	 *
+	 * @param candidate the path to test
+	 * @param root      the root directory path
+	 * @return true if {@code candidate} is within {@code root}, false otherwise
+	 */
+	public static boolean isInSubTree(Path candidate, Path root) {
+		return isInSubTree(candidate, root, false);
+	}
+
+	private static Path normalizeForCompare(Path p, boolean followSymlinks) {
+		try {
+			// try to resolve to real path if links should be resolved
+			if (followSymlinks) return p.toRealPath();
+		}
+		catch (IOException ignore) {
+		}
+		// if not followLinks oder toRealPath fails
+		return p.toAbsolutePath().normalize();
 	}
 
 	/**
