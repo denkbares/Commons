@@ -24,8 +24,19 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -307,5 +318,92 @@ public class Streams {
 			// we've reached the end of the streams, both streams has been equal
 			if (count1 < bufferSize) return true;
 		}
+	}
+
+	/**
+	 * Returns a {@link Collector} that groups elements of type {@code T} by a key function and maps them into values,
+	 * collecting those values into unmodifiable {@link List}s.
+	 * <p>
+	 * The resulting {@link Map} is unmodifiable: both the map itself and the value-lists cannot be mutated after
+	 * collection. This makes it safe to expose directly to external callers without defensive copying.
+	 * <p>
+	 * Example usage:
+	 * <pre>{@code
+	 * record Person(String name, String city) {}
+	 *
+	 * List<Person> people = List.of(
+	 *   new Person("Ada", "London"),
+	 *   new Person("Grace", "New York"),
+	 *   new Person("Alan", "London")
+	 * );
+	 *
+	 * Map<String, List<String>> grouped =
+	 *   people.stream().collect(
+	 *     Streams.groupBy(Person::city, Person::name)
+	 *   );
+	 * // grouped is an unmodifiable Map<String, List<String>>
+	 * }</pre>
+	 *
+	 * @param keyMapper   function that extracts the grouping key
+	 * @param valueMapper function that maps input elements to values stored in lists
+	 * @param <T> the type of input elements
+	 * @param <K> the type of map keys
+	 * @param <V> the type of values stored in lists
+	 * @return a {@code Collector} that groups by keys into immutable map entries
+	 */
+	public static <T, K, V> Collector<T, Map<K, List<V>>, Map<K, List<V>>> groupBy(
+			Function<? super T, ? extends K> keyMapper,
+			Function<? super T, ? extends V> valueMapper
+	) {
+
+		return new Collector<>() {
+			@Override
+			public Supplier<Map<K, List<V>>> supplier() {
+				return HashMap::new;
+			}
+
+			@Override
+			public BiConsumer<Map<K, List<V>>, T> accumulator() {
+				return (map, t) -> {
+					K key = keyMapper.apply(t);
+					V val = valueMapper.apply(t);
+					List<V> bucket = map.computeIfAbsent(key, k -> new ArrayList<>());
+					bucket.add(val);
+				};
+			}
+
+			@Override
+			public BinaryOperator<Map<K, List<V>>> combiner() {
+				return (left, right) -> {
+					for (Map.Entry<K, List<V>> entry : right.entrySet()) {
+						left.merge(
+								entry.getKey(),
+								entry.getValue(),
+								(list1, list2) -> {
+									list1.addAll(list2);
+									return list1;
+								}
+						);
+					}
+					return left;
+				};
+			}
+
+			@Override
+			public Function<Map<K, List<V>>, Map<K, List<V>>> finisher() {
+				return m -> {
+					Map<K, List<V>> out = new HashMap<>(m.size());
+					for (Map.Entry<K, List<V>> e : m.entrySet()) {
+						out.put(e.getKey(), List.copyOf(e.getValue()));
+					}
+					return Collections.unmodifiableMap(out);
+				};
+			}
+
+			@Override
+			public Set<Characteristics> characteristics() {
+				return Set.of();
+			}
+		};
 	}
 }

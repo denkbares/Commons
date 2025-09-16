@@ -21,6 +21,9 @@ package com.denkbares.utils.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,5 +58,27 @@ public class StreamsTest {
 				"check file lenght of '" + file + "'",
 				file.length(),
 				Streams.getBytesAndClose(new FileInputStream(file)).length);
+	}
+
+	private record Person(String name, String city) {}
+
+	@Test
+	public void groupsByKeyAndMapsValues() {
+		List<Person> people = List.of(
+				new Person("Ada", "London"),
+				new Person("Grace", "New York"),
+				new Person("Alan", "London"),
+				new Person("Edsger", "Amsterdam"),
+				new Person("Barbara", "New York")
+		);
+
+		Map<String, List<String>> result = people.stream().collect(
+				Streams.groupBy(Person::city, Person::name)
+		);
+
+		Assert.assertEquals(Set.of("London", "New York", "Amsterdam"), result.keySet());
+		Assert.assertEquals(List.of("Ada", "Alan"), result.get("London"));
+		Assert.assertEquals(List.of("Grace", "Barbara"), result.get("New York"));
+		Assert.assertEquals(List.of("Edsger"), result.get("Amsterdam"));
 	}
 }
