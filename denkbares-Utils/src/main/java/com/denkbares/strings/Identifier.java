@@ -20,7 +20,6 @@ package com.denkbares.strings;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -120,7 +119,7 @@ public class Identifier implements Comparable<Identifier> {
 		if (getClass() != obj.getClass()) return false;
 		Identifier other = (Identifier) obj;
 		if (isCaseSensitive() && other.isCaseSensitive()
-				|| isCaseSensitive() != other.isCaseSensitive()) {
+			|| isCaseSensitive() != other.isCaseSensitive()) {
 			return Arrays.equals(this.pathElements, other.pathElements);
 		}
 		else {
@@ -129,14 +128,13 @@ public class Identifier implements Comparable<Identifier> {
 				if (!this.pathElements[i].equalsIgnoreCase(other.pathElements[i])) {
 					return false;
 				}
-
 			}
 			return true;
 		}
 	}
 
-	private static String getParsableString(String[] pathElements) {
-		return Strings.concatParsable(SEPARATOR, CONTROL_CHARS, pathElements);
+	private static String getParsableString(char[] controlChars, String[] pathElements) {
+		return controlChars == null || controlChars.length == 0 ? Strings.concatParsable(SEPARATOR, pathElements) : Strings.concatParsable(SEPARATOR, controlChars, pathElements);
 	}
 
 	/**
@@ -288,10 +286,36 @@ public class Identifier implements Comparable<Identifier> {
 	 * @created 07.05.2012
 	 */
 	public String toExternalForm() {
+		return toExternalForm(CONTROL_CHARS);
+	}
+
+	/**
+	 * Generates and returns the external representation or form of this {@link Identifier}. It is a String that can be
+	 * transformed back into an identical {@link Identifier} as the originating one by using {@link
+	 * Identifier#fromExternalForm(String)}.<br/> Basically the external form is the path elements connected with a
+	 * separator and proper quoting if the separator char is contained in one of the path elements. This method uses
+	 * quoting less often as the {@link #toExternalForm()} method
+	 *
+	 * @created 07.05.2012
+	 */
+	public String toPrettyExternalForm() {
+		return toExternalForm(null);
+	}
+
+	/**
+	 * Generates and returns the external representation or form of this {@link Identifier}. It is a String that can be
+	 * transformed back into an identical {@link Identifier} as the originating one by using {@link
+	 * Identifier#fromExternalForm(String)}.<br/> Basically the external form is the path elements connected with a
+	 * separator and proper quoting if the separator icon is contained in one of the path elements.
+	 *
+	 * @param controlChars optional chars causing identifier elements to be quoted
+	 * @created 07.05.2012
+	 */
+	private String toExternalForm(char[] controlChars) {
 		// use local variable to avoid NPEs when
 		String externalForm = this.externalForm;
 		if (externalForm == null) {
-			externalForm = (this.isCaseSensitive() ? "C" : "c") + SEPARATOR + getParsableString(pathElements);
+			externalForm = (this.isCaseSensitive() ? "C" : "c") + SEPARATOR + getParsableString(controlChars, pathElements);
 			this.externalForm = externalForm;
 		}
 		return externalForm;
