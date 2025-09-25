@@ -120,7 +120,7 @@ public class Identifier implements Comparable<Identifier> {
 		if (getClass() != obj.getClass()) return false;
 		Identifier other = (Identifier) obj;
 		if (isCaseSensitive() && other.isCaseSensitive()
-			|| isCaseSensitive() != other.isCaseSensitive()) {
+				|| isCaseSensitive() != other.isCaseSensitive()) {
 			return Arrays.equals(this.pathElements, other.pathElements);
 		}
 		else {
@@ -129,13 +129,14 @@ public class Identifier implements Comparable<Identifier> {
 				if (!this.pathElements[i].equalsIgnoreCase(other.pathElements[i])) {
 					return false;
 				}
+
 			}
 			return true;
 		}
 	}
 
-	private String getParsableString(String[] pathElements) {
-		return Strings.concatParsable(SEPARATOR, pathElements);
+	private static String getParsableString(String[] pathElements) {
+		return Strings.concatParsable(SEPARATOR, CONTROL_CHARS, pathElements);
 	}
 
 	/**
