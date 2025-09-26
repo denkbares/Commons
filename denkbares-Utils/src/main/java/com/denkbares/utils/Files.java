@@ -74,8 +74,8 @@ public class Files {
 
 	/**
 	 * Cleans the specified filename from special characters, to that the returned filename can be used without
-	 * conflicting to an operating system's special file system characters. It also shortens the filename if it becomes
-	 * too long. Note that tho different input names may result in the same cleaned filename.
+	 * conflicting so an operating system's special file system characters. It also shortens the filename if it becomes
+	 * too long. Note that two different input names may result in the same cleaned filename.
 	 *
 	 * @param unsecureFileName the filename to be cleaned
 	 * @return an operating-system-secure filename to be used as a path element
