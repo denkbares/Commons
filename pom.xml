@@ -36,7 +36,7 @@
 		<onnx.version>0.20.0</onnx.version>
 		<d3web.version>${project.version}</d3web.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<logback.version>1.5.12</logback.version>
+		<logback.version>1.5.19</logback.version>
 		<jackson.version>2.19.2</jackson.version>
 	</properties>
 
