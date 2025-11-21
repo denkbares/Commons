@@ -639,7 +639,7 @@ public class Strings {
 	public static boolean isQuoted(String text, int index) {
 		if (index < 0 || index > text.length() - 1) {
 			throw new IllegalArgumentException(index + " is not an index in the string '" + text
-											   + "'");
+					+ "'");
 		}
 		boolean quoted = false;
 		// scanning the text
@@ -703,7 +703,7 @@ public class Strings {
 
 	public static boolean isUnEscapedQuote(String text, int i, char quoteChar) {
 		return text.length() > i && text.charAt(i) == quoteChar
-			   && getNumberOfDirectlyPrecedingBackSlashes(text, i) % 2 == 0;
+				&& getNumberOfDirectlyPrecedingBackSlashes(text, i) % 2 == 0;
 	}
 
 	public static boolean isUnEscapedQuote(String text, int i, char... quoteChars) {
@@ -943,8 +943,8 @@ public class Strings {
 			if (skipComments) {
 				// check comment status
 				if (i + 2 <= text.length()
-					&& text.charAt(i) == '/'
-					&& text.charAt(i + 1) == '/') {
+						&& text.charAt(i) == '/'
+						&& text.charAt(i + 1) == '/') {
 					comment = true;
 				}
 				// ignore comment
@@ -1306,8 +1306,8 @@ public class Strings {
 	public static int trimRight(String text, int start, int end) {
 		if (end > text.length()) return end;
 		while (end > 0
-			   && end > start
-			   && isWhitespace(text.charAt(end - 1))) {
+				&& end > start
+				&& isWhitespace(text.charAt(end - 1))) {
 			end--;
 		}
 		return end;
@@ -1320,9 +1320,9 @@ public class Strings {
 	 */
 	public static int trimLeft(String text, int start, int end) {
 		while (start >= 0
-			   && start < end
-			   && start < text.length()
-			   && isWhitespace(text.charAt(start))) {
+				&& start < end
+				&& start < text.length()
+				&& isWhitespace(text.charAt(start))) {
 			start++;
 		}
 		return start;
@@ -1414,7 +1414,7 @@ public class Strings {
 
 		int end = text.length() - 1;
 		if (isUnEscapedQuote(text, 0, quoteChar)
-			&& isUnEscapedQuote(text, end, quoteChar)) {
+				&& isUnEscapedQuote(text, end, quoteChar)) {
 
 			StringBuilder builder = new StringBuilder(text.length() - 2);
 			boolean escape = false;
@@ -2047,7 +2047,7 @@ public class Strings {
 			String element = strings[i];
 			if (i > 0) concat.append(separator);
 			if ((quotePattern != null && quotePattern.matcher(element).find())
-				|| element.contains(separator) || element.contains("\\") || element.contains("\"")) {
+					|| element.contains(separator) || element.contains("\\") || element.contains("\"")) {
 				concat.append(quote(element));
 			}
 			else {
@@ -2291,12 +2291,12 @@ public class Strings {
 					if (quoteSet.isUnary()) {
 						// handle special case for triple quotes (""")
 						if (quoteSet == QuoteSet.TRIPLE_QUOTES
-							// triple quotes cannot be escaped, so just try a match
-							&& text.length() >= i + 3
-							&& text.startsWith(TRIPLE_QUOTES, i)
-							// don't match closing triple quotes at the start, but at the end of
-							// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
-							&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
+								// triple quotes cannot be escaped, so just try a match
+								&& text.length() >= i + 3
+								&& text.startsWith(TRIPLE_QUOTES, i)
+								// don't match closing triple quotes at the start, but at the end of
+								// a sequence of more than 3 quotes (e.g. """Hi there "stranger"""")
+								&& !(quoteStates[q] == 1 && text.length() > i + 3 && text.charAt(i + 3) == TRIPLE_QUOTES
 								.charAt(0))) {
 
 							toggleQuoteState(quoteStates, q);
@@ -2562,8 +2562,8 @@ public class Strings {
 	 */
 	public static boolean endsWithUnescaped(String text, char end) {
 		return text.length() >= 2
-			   && text.charAt(text.length() - 1) == end
-			   && text.charAt(text.length() - 2) != '\\';
+				&& text.charAt(text.length() - 1) == end
+				&& text.charAt(text.length() - 2) != '\\';
 	}
 
 	/**
@@ -2955,5 +2955,84 @@ public class Strings {
 		}
 
 		return result.toString();
+	}
+
+
+	/**
+	 * Truncates a given text to a specified maximum number of lines, optionally appending a postfix if truncation
+	 * occurs.
+	 *
+	 * @param text the input text to be truncated; must not be null
+	 * @param maxLines the maximum number of lines to retain; must be greater than 0
+	 * @param postfix whether to append a postfix indicating the number of truncated lines if truncation occurs
+	 * @return the truncated text, with a postfix if applicable, or the original text if no truncation is needed
+	 */
+	public static String truncateLines(@NotNull String text, int maxLines, boolean postfix) {
+		if (maxLines < 1) {
+			return text;
+		}
+
+		StringBuilder result = new StringBuilder();
+		int lineCount = 0;
+		int length = text.length();
+		int i = 0;
+
+		// Scan through characters and count lines
+		while (i < length && lineCount < maxLines) {
+			char c = text.charAt(i);
+			result.append(c);
+			if (c == '\n') {
+				lineCount++;
+			}
+			i++;
+		}
+
+		// If the last line doesn't end with \n, we still count it
+		if (lineCount < maxLines && i == length) {
+			return result.toString();  // No truncation necessary
+		}
+
+		// Count remaining lines
+		int remainingLines = 0;
+		while (i < length) {
+			if (text.charAt(i) == '\n') {
+				remainingLines++;
+			}
+			i++;
+		}
+
+		if (postfix) {
+			if (result.charAt(result.length() - 1) != '\n') {
+				result.append('\n');
+			}
+
+			result.append("---\n")
+					.append(remainingLines)
+					.append(" more line");
+			if (remainingLines > 1) result.append("s");
+		}
+
+		return result.toString();
+	}
+
+	/**
+	 * Counts the number of lines in the given string. A line is defined as a sequence of characters
+	 * terminated by a newline character ('\n'). If there are no newline characters, the method
+	 * considers the entire string as a single line.
+	 *
+	 * @param string the string in which to count the lines
+	 * @return the number of lines in the string
+	 */
+	public static int countLines(@NotNull String string) {
+		int len = string.length();
+		if (len == 0) return 0;
+
+		int lines = 1;
+		for (int i = 0; i < len; i++) {
+			if (string.charAt(i) == '\n') {
+				lines++;
+			}
+		}
+		return lines;
 	}
 }
