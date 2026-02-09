@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.eclipse.rdf4j.repository.config.AbstractRepositoryImplConfig;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
-import org.eclipse.rdf4j.repository.config.RepositoryImplConfigBase;
 
 import com.denkbares.semanticcore.config.RepositoryConfig;
 
