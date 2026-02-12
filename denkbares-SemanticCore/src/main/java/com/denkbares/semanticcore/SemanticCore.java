@@ -732,7 +732,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		LOGGER.info("Available query permits: {}", available < 0 ? "<unknown>" : available);
 	}
 
-	private static void setQueryPermits(int permits) {
+	public static void setQueryPermits(int permits) {
 		Semaphore queryPermitSemaphore = getQueryPermitSemaphore();
 		if (queryPermitSemaphore == null) return;
 		Method setLicensedCores;
