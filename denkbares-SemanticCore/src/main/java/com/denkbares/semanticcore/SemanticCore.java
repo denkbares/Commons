@@ -27,9 +27,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -41,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
@@ -77,6 +73,8 @@ import org.slf4j.LoggerFactory;
 import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
+import com.denkbares.semanticcore.events.SemanticCoreConnectionOpenedEvent;
+import com.denkbares.semanticcore.events.SemanticCoreCreatedEvent;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.utils.RDFUtils;
 import com.denkbares.strings.Strings;
@@ -88,11 +86,6 @@ import com.denkbares.utils.Streams;
 public final class SemanticCore implements SPARQLEndpoint {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCore.class);
 	public static final String SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX = "semanticCore.repository.path.suffix";
-
-	static {
-		setQueryPermits(100);
-		checkQueryPermits();
-	}
 
 	public enum State {
 		active, shutdown
@@ -164,6 +157,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 		SemanticCore instance = reference.get();
 		LOGGER.info("Created SemanticCore '" + instance.repositoryId + "' with config " + reasoning.getName());
+		EventManager.getInstance().fireEvent(new SemanticCoreCreatedEvent(instance));
 		return instance;
 	}
 
@@ -369,11 +363,12 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public RepositoryConnection getConnection() throws RepositoryException {
-		checkQueryPermits();
 		// check state also before synchronizing to avoid having to wait for connection shutdown
 		// just to learn that the core is already shut down
 		if (state == State.shutdown) throwShutdownException();
-		return new RepositoryConnection(repository.getConnection());
+		RepositoryConnection repositoryConnection = new RepositoryConnection(repository.getConnection());
+		EventManager.getInstance().fireEvent(new SemanticCoreConnectionOpenedEvent(this, repositoryConnection));
+		return repositoryConnection;
 	}
 
 	private void throwShutdownException() throws RepositoryException {
@@ -500,7 +495,6 @@ public final class SemanticCore implements SPARQLEndpoint {
 
 	@Override
 	public TupleQueryResult sparqlSelect(Collection<Namespace> namespaces, String queryString) throws QueryFailedException {
-		checkQueryPermits();
 		// we overwrite default implementation to avoid multiple connection creation
 		RepositoryConnection connection = getConnection();
 		try {
@@ -725,43 +719,4 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
-	private static void checkQueryPermits() {
-		Semaphore semaphore = getQueryPermitSemaphore();
-		int available = semaphore == null ? -1 : semaphore.availablePermits();
-		if (available >= 99) return;
-		LOGGER.info("Available query permits: {}", available < 0 ? "<unknown>" : available);
-	}
-
-	public static void setQueryPermits(int permits) {
-		Semaphore queryPermitSemaphore = getQueryPermitSemaphore();
-		if (queryPermitSemaphore == null) return;
-		Method setLicensedCores;
-		try {
-			setLicensedCores = queryPermitSemaphore.getClass().getDeclaredMethod("setLicensedCores", int.class);
-			setLicensedCores.setAccessible(true);
-			setLicensedCores.invoke(queryPermitSemaphore, permits);
-		}
-		catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-			LOGGER.error("Could not set query permits", e);
-		}
-	}
-
-	@Nullable
-	private static Semaphore getQueryPermitSemaphore() {
-		try {
-
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			Class<?> clazz = Class.forName("com.ontotext.trree.c", false, cl);
-			Field a = clazz.getDeclaredField("a");
-			a.setAccessible(true); // bypass non-public visibility
-			Object aObject = a.get(null);// static field → null as receiver
-			Field d = aObject.getClass().getDeclaredField("d");
-			d.setAccessible(true);
-			return (Semaphore) d.get(aObject);
-		}
-		catch (Exception e) {
-			LOGGER.error("Could not get Semaphore instance", e);
-			return null;
-		}
-	}
 }
