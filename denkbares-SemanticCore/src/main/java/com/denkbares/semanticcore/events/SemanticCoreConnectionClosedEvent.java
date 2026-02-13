@@ -23,16 +23,16 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import com.denkbares.events.Event;
 
 /**
- * Event fired when a new connection to a SemanticCore has been opened.
+ * Event fired when a new connection to a SemanticCore has been closed.
  *
  * @author Albrecht Striffler (denkbares GmbH)
  * @since 2026-02-13
  */
-public class SemanticCoreConnectionOpenedEvent implements Event {
+public class SemanticCoreConnectionClosedEvent implements Event {
 
 	private final RepositoryConnection connection;
 
-	public SemanticCoreConnectionOpenedEvent(RepositoryConnection connection) {
+	public SemanticCoreConnectionClosedEvent(RepositoryConnection connection) {
 		this.connection = connection;
 	}
 

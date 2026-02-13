@@ -57,9 +57,12 @@ import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.jetbrains.annotations.NotNull;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.denkbares.events.EventManager;
+import com.denkbares.semanticcore.events.SemanticCoreConnectionClosedEvent;
+import com.denkbares.semanticcore.events.SemanticCoreConnectionOpenedEvent;
 
 /**
  * This is a delegate for the ordinary {@link org.eclipse.rdf4j.repository.RepositoryException}. Tries to close delegate
@@ -75,10 +78,9 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 
 	private final org.eclipse.rdf4j.repository.RepositoryConnection connection;
 
-//	private static final ThreadLocal<Integer> queryCounter = ThreadLocal.withInitial(() -> 0);
-
 	public RepositoryConnection(org.eclipse.rdf4j.repository.RepositoryConnection connection) {
 		this.connection = connection;
+		EventManager.getInstance().fireEvent(new SemanticCoreConnectionOpenedEvent(connection));
 	}
 
 	@Override
@@ -109,6 +111,7 @@ public class RepositoryConnection implements org.eclipse.rdf4j.repository.Reposi
 	@Override
 	public void close() throws RepositoryException {
 		connection.close();
+		EventManager.getInstance().fireEvent(new SemanticCoreConnectionClosedEvent(connection));
 	}
 
 	@Override

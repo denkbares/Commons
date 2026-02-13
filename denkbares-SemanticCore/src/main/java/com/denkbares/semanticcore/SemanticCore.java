@@ -366,9 +366,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 		// check state also before synchronizing to avoid having to wait for connection shutdown
 		// just to learn that the core is already shut down
 		if (state == State.shutdown) throwShutdownException();
-		RepositoryConnection repositoryConnection = new RepositoryConnection(repository.getConnection());
-		EventManager.getInstance().fireEvent(new SemanticCoreConnectionOpenedEvent(this, repositoryConnection));
-		return repositoryConnection;
+		return new RepositoryConnection(repository.getConnection());
 	}
 
 	private void throwShutdownException() throws RepositoryException {
