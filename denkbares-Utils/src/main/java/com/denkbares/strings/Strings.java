@@ -159,6 +159,58 @@ public class Strings {
 				.collect(Collectors.joining(separator));
 	}
 
+	/**
+	 * Joins a list of strings into a single grammatically correct English phrase using commas and the conjunction
+	 * "and".
+	 *
+	 * <p>Examples:
+	 * <ul>
+	 *   <li><code>["Alice"] -> "Alice"</code></li>
+	 *   <li><code>["Alice", "Bob"] -> "Alice and Bob"</code></li>
+	 *   <li><code>["Alice", "Bob", "Charlie"] -> "Alice, Bob, and Charlie"</code></li>
+	 * </ul>
+	 *
+	 * This method uses the Oxford comma (i.e., a comma before "and" when joining three or more elements).
+	 */
+	public static String joinWithAnd(Collection<String> items) {
+		if (items == null || items.isEmpty()) {
+			return "";
+		}
+
+		int size = items.size();
+		Iterator<String> iterator = items.iterator();
+
+		if (size == 1) {
+			return iterator.next();
+		}
+
+		if (size == 2) {
+			String first = iterator.next();
+			String second = iterator.next();
+			return first + " and " + second;
+		}
+
+		StringBuilder result = new StringBuilder();
+		int index = 0;
+
+		while (iterator.hasNext()) {
+			String item = iterator.next();
+
+			if (index > 0) {
+				if (index == size - 1) {
+					result.append(", and ");
+				} else {
+					result.append(", ");
+				}
+			}
+
+			result.append(item);
+			index++;
+		}
+
+		return result.toString();
+	}
+
 	public static boolean containsUnquoted(String text, String symbol) {
 		return splitUnquoted(text + "1", symbol).size() > 1;
 	}
