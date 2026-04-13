@@ -9,7 +9,6 @@ import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
 @Named("banInternalDependencyVersions")
 public class BanInternalDependencyVersions implements EnforcerRule {
@@ -18,13 +17,7 @@ public class BanInternalDependencyVersions implements EnforcerRule {
 
 	@Override
 	public void execute(EnforcerRuleHelper helper) throws EnforcerRuleException {
-		MavenProject project;
-		try {
-			project = helper.getComponent(MavenProject.class);
-		}
-		catch (ComponentLookupException e) {
-			throw new EnforcerRuleException("Could not resolve MavenProject.", e);
-		}
+		MavenProject project = resolveProject(helper);
 
 		Model model = project.getOriginalModel();
 
@@ -48,6 +41,30 @@ public class BanInternalDependencyVersions implements EnforcerRule {
 							+ "Violations in " + project.getFile() + ":\n  "
 							+ String.join("\n  ", violations));
 		}
+	}
+
+	private MavenProject resolveProject(EnforcerRuleHelper helper) throws EnforcerRuleException {
+		// Try component lookup first (works in most Maven versions)
+		try {
+			MavenProject project = helper.getComponent(MavenProject.class);
+			if (project != null) {
+				return project;
+			}
+		}
+		catch (Exception ignored) {
+		}
+
+		// Fallback: evaluate the ${project} expression
+		try {
+			Object evaluated = helper.evaluate("${project}");
+			if (evaluated instanceof MavenProject) {
+				return (MavenProject) evaluated;
+			}
+		}
+		catch (Exception ignored) {
+		}
+
+		throw new EnforcerRuleException("MavenProject was not injected into the enforcer rule.");
 	}
 
 	public void setAllowPomPackaging(boolean allowPomPackaging) {
