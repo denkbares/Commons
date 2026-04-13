@@ -2,91 +2,78 @@ package com.denkbares.maven.enforcer;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.maven.enforcer.rule.api.AbstractEnforcerRule;
+import javax.inject.Named;
+import org.apache.maven.enforcer.rule.api.EnforcerRule;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
+import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 
-public class BanInternalDependencyVersions extends AbstractEnforcerRule {
+@Named("banInternalDependencyVersions")
+public class BanInternalDependencyVersions implements EnforcerRule {
 
-    private MavenProject project;
+	private boolean allowPomPackaging = true;
 
-    private List<String> groupIdPrefixes = List.of();
-    private boolean allowPomPackaging = true;
+	@Override
+	public void execute(EnforcerRuleHelper helper) throws EnforcerRuleException {
+		MavenProject project;
+		try {
+			project = helper.getComponent(MavenProject.class);
+		}
+		catch (ComponentLookupException e) {
+			throw new EnforcerRuleException("Could not resolve MavenProject.", e);
+		}
 
-    public BanInternalDependencyVersions() {
-    }
+		Model model = project.getOriginalModel();
 
-    @Override
-    public void execute() throws EnforcerRuleException {
-        try {
-            if (project == null) {
-                throw new EnforcerRuleException("MavenProject was not provided to BanInternalDependencyVersions.");
-            }
-            Model model = project.getOriginalModel();
+		if (isRootPom(model) || isAllowedPomPackaging(model)) {
+			return;
+		}
 
-            if (isRootPom(model) || isInactive() || isAllowedPomPackaging(model)) {
-                return;
-            }
+		List<String> violations = new ArrayList<>();
+		for (Dependency dependency : model.getDependencies()) {
+			String version = dependency.getVersion();
+			if (version == null || version.isBlank()) {
+				continue;
+			}
+			violations.add(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + version);
+		}
 
-            List<String> violations = new ArrayList<>();
-            for (Dependency dependency : model.getDependencies()) {
-                String groupId = dependency.getGroupId();
-                String version = dependency.getVersion();
-                if (groupId == null || version == null || version.isBlank()) {
-                    continue;
-                }
-                if (!matchesInternalGroup(groupId)) {
-                    continue;
-                }
-                violations.add(groupId + ":" + dependency.getArtifactId() + ":" + version);
-            }
+		if (!violations.isEmpty()) {
+			throw new EnforcerRuleException(
+					"Dependencies must not declare explicit <version> in child POMs. "
+							+ "Use <dependencyManagement> in the parent POM instead.\n"
+							+ "Violations in " + project.getFile() + ":\n  "
+							+ String.join("\n  ", violations));
+		}
+	}
 
-            if (!violations.isEmpty()) {
-                throw new EnforcerRuleException(
-                        "Internal dependencies must not declare explicit <version> in child POMs: "
-                                + String.join(", ", violations)
-                                + " in "
-                                + project.getFile());
-            }
-        } catch (EnforcerRuleException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw new EnforcerRuleException("Failed to evaluate internal dependency versions.", exception);
-        }
-    }
+	public void setAllowPomPackaging(boolean allowPomPackaging) {
+		this.allowPomPackaging = allowPomPackaging;
+	}
 
-    public void setGroupIdPrefixes(List<String> groupIdPrefixes) {
-        this.groupIdPrefixes = groupIdPrefixes == null ? List.of() : List.copyOf(groupIdPrefixes);
-    }
+	private boolean isRootPom(Model model) {
+		return model.getParent() == null;
+	}
 
-    public void setProject(MavenProject project) {
-        this.project = project;
-    }
+	private boolean isAllowedPomPackaging(Model model) {
+		return allowPomPackaging && "pom".equals(model.getPackaging());
+	}
 
-    public void setAllowPomPackaging(boolean allowPomPackaging) {
-        this.allowPomPackaging = allowPomPackaging;
-    }
+	@Override
+	public boolean isCacheable() {
+		return false;
+	}
 
-    private boolean isRootPom(Model model) {
-        return model.getParent() == null;
-    }
+	@Override
+	public boolean isResultValid(EnforcerRule enforcerRule) {
+		return false;
+	}
 
-    private boolean isInactive() {
-        return groupIdPrefixes.isEmpty();
-    }
-
-    private boolean isAllowedPomPackaging(Model model) {
-        return allowPomPackaging && "pom".equals(model.getPackaging());
-    }
-
-    private boolean matchesInternalGroup(String groupId) {
-        for (String prefix : groupIdPrefixes) {
-            if (groupId.startsWith(prefix)) {
-                return true;
-            }
-        }
-        return false;
-    }
+	@Override
+	public String getCacheId() {
+		return null;
+	}
 }
