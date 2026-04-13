@@ -38,9 +38,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<logback.version>1.5.19</logback.version>
 		<jackson.version>2.19.2</jackson.version>
+		<maven.version>3.9.11</maven.version>
+		<maven-enforcer.version>3.6.2</maven-enforcer.version>
 	</properties>
 
 	<modules>
+		<module>denkbares-MavenRules</module>
 		<module>denkbares-PluginManager</module>
 		<module>denkbares-Utils</module>
 		<module>denkbares-Progress</module>
@@ -106,6 +109,44 @@
 						<goals>
 							<goal>jar</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${maven-enforcer.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.denkbares.maven</groupId>
+						<artifactId>denkbares-MavenRules</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+						<id>enforce-managed-dependencies</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<banDuplicatePomDependencyVersions/>
+								<dependencyConvergence>
+									<excludes>
+										<exclude>com.denkbares:*:*</exclude>
+									</excludes>
+								</dependencyConvergence>
+								<banInternalDependencyVersions implementation="com.denkbares.maven.enforcer.BanInternalDependencyVersions">
+									<project>${project}</project>
+									<groupIdPrefixes>
+										<groupIdPrefix>com.denkbares</groupIdPrefix>
+									</groupIdPrefixes>
+									<allowPomPackaging>true</allowPomPackaging>
+								</banInternalDependencyVersions>
+							</rules>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -220,6 +261,21 @@
 				<groupId>ai.djl.onnxruntime</groupId>
 				<artifactId>onnxruntime-engine</artifactId>
 				<version>0.20.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.enforcer</groupId>
+				<artifactId>enforcer-api</artifactId>
+				<version>${maven-enforcer.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.enforcer</groupId>
+				<artifactId>enforcer-rules</artifactId>
+				<version>${maven-enforcer.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven</groupId>
+				<artifactId>maven-core</artifactId>
+				<version>${maven.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.rdf4j</groupId>
@@ -538,7 +594,46 @@
 			<name>Denkbares Public Repository</name>
 			<url>https://repo.denkbares.com/repo-public/</url>
 		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<id>des-snapshots-public</id>
+			<name>denkbares Public Snapshots Repository</name>
+			<url>https://repo.denkbares.com/snapshots-public/</url>
+		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<id>des-repo-public</id>
+			<name>Denkbares Public Repository</name>
+			<url>https://repo.denkbares.com/repo-public/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<id>des-snapshots-public</id>
+			<name>denkbares Public Snapshots Repository</name>
+			<url>https://repo.denkbares.com/snapshots-public/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<distributionManagement>
 		<snapshotRepository>
