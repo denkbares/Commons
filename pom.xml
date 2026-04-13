@@ -23,14 +23,13 @@
 
 	<groupId>com.denkbares</groupId>
 	<artifactId>denkbares-Commons</artifactId>
-	<version>2026.4-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<description>denkbares open source common utilities</description>
 
 	<properties>
-		<!-- project versions -->
-		<denkbares.version>${project.version}</denkbares.version>
-		<d3web.version>${project.version}</d3web.version>
+		<!-- project version -->
+		<revision>2026.4-SNAPSHOT</revision>
 
 		<!-- logging -->
 		<slf4j.version>2.0.16</slf4j.version>
@@ -140,6 +139,31 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.6.0</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>ossrh</flattenMode>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<version>${maven-enforcer.version}</version>
@@ -147,7 +171,7 @@
 					<dependency>
 						<groupId>com.denkbares.maven</groupId>
 						<artifactId>denkbares-MavenRules</artifactId>
-						<version>${project.version}</version>
+						<version>${revision}</version>
 					</dependency>
 				</dependencies>
 				<executions>
@@ -597,27 +621,22 @@
 			<dependency>
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-SemanticCore</artifactId>
-				<version>${denkbares.version}</version>
+				<version>${revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-Utils</artifactId>
-				<version>${denkbares.version}</version>
+				<version>${revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-PluginManager</artifactId>
-				<version>${denkbares.version}</version>
+				<version>${revision}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.denkbares</groupId>
 				<artifactId>denkbares-SemanticCore-Plugin-ExtensionPoints</artifactId>
-				<version>${denkbares.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniwue.d3web</groupId>
-				<artifactId>d3web-Plugin-TestingFramework</artifactId>
-				<version>${d3web.version}</version>
+				<version>${revision}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
