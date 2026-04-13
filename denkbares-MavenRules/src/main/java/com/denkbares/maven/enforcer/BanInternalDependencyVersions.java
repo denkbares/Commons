@@ -44,14 +44,19 @@ public class BanInternalDependencyVersions implements EnforcerRule {
 	}
 
 	private MavenProject resolveProject(EnforcerRuleHelper helper) throws EnforcerRuleException {
+		StringBuilder diagnostics = new StringBuilder();
+
 		// Try component lookup first (works in most Maven versions)
 		try {
 			MavenProject project = helper.getComponent(MavenProject.class);
 			if (project != null) {
 				return project;
 			}
+			diagnostics.append("getComponent(MavenProject.class) returned null. ");
 		}
-		catch (Exception ignored) {
+		catch (Exception e) {
+			diagnostics.append("getComponent(MavenProject.class) threw ").append(e.getClass().getSimpleName())
+					.append(": ").append(e.getMessage()).append(". ");
 		}
 
 		// Fallback: evaluate the ${project} expression
@@ -60,11 +65,18 @@ public class BanInternalDependencyVersions implements EnforcerRule {
 			if (evaluated instanceof MavenProject) {
 				return (MavenProject) evaluated;
 			}
+			diagnostics.append("evaluate(\"${project}\") returned ")
+					.append(evaluated == null ? "null" : evaluated.getClass().getName())
+					.append(". ");
 		}
-		catch (Exception ignored) {
+		catch (Exception e) {
+			diagnostics.append("evaluate(\"${project}\") threw ").append(e.getClass().getSimpleName())
+					.append(": ").append(e.getMessage()).append(". ");
 		}
 
-		throw new EnforcerRuleException("MavenProject was not injected into the enforcer rule.");
+		diagnostics.append("EnforcerRuleHelper type: ").append(helper.getClass().getName());
+		throw new EnforcerRuleException(
+				"Could not resolve MavenProject in enforcer rule. " + diagnostics);
 	}
 
 	public void setAllowPomPackaging(boolean allowPomPackaging) {
