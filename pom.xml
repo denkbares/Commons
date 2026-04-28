@@ -29,7 +29,8 @@
 
 	<properties>
 		<!-- project version -->
-		<revision>2026.4-SNAPSHOT</revision>
+		<revision>2026.5-SNAPSHOT</revision>
+		<denkbares-Maven-Plugins.version>${revision}</denkbares-Maven-Plugins.version>
 
 		<!-- logging -->
 		<slf4j.version>2.0.16</slf4j.version>
@@ -69,7 +70,6 @@
 	</properties>
 
 	<modules>
-		<module>denkbares-MavenRules</module>
 		<module>denkbares-PluginManager</module>
 		<module>denkbares-Utils</module>
 		<module>denkbares-Progress</module>
@@ -170,8 +170,8 @@
 				<dependencies>
 					<dependency>
 						<groupId>com.denkbares.maven</groupId>
-						<artifactId>denkbares-MavenRules</artifactId>
-						<version>${revision}</version>
+						<artifactId>denkbares-Maven-EnforcerRules</artifactId>
+						<version>${denkbares-Maven-Plugins.version}</version>
 					</dependency>
 				</dependencies>
 				<executions>
