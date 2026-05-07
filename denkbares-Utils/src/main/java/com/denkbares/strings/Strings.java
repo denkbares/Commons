@@ -478,6 +478,7 @@ public class Strings {
 	public static final int UNBRACED = 0x20;
 
 	private static final Pattern LOCALE_PATTERN = Pattern.compile("([\\w^_]{2,3})(?:[\\-_]([\\w^_]{2,3})(?:[\\-_]#([^\\-_]*))?(?:[\\-_](\\p{Graph}+))?)?");
+	// Java 21 provides locales whose Locale.toString() uses language__variant when the country is empty, e.g. be__TARASK.
 	private static final Pattern LOCALE_WITH_EMPTY_COUNTRY_PATTERN = Pattern.compile("([\\w^_]{2,3})[\\-_]{2}((?!#)\\p{Graph}+)");
 
 	private static boolean has(int flags, int flag) {
