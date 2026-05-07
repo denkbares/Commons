@@ -117,6 +117,8 @@ public class LocalesTest {
 
 	@Test
 	public void parseLocale() {
+		assertEquals(new Locale("be", "", "TARASK"), Locales.parseLocale("be__TARASK"));
+
 		Locale[] locales = Locale.getAvailableLocales();
 		for (Locale locale : locales) {
 			// TODO: java 6 does not support scripts, so Strings also does not. Remove this skip operation when migrate to java 7

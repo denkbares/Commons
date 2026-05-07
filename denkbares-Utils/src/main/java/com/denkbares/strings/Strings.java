@@ -478,6 +478,7 @@ public class Strings {
 	public static final int UNBRACED = 0x20;
 
 	private static final Pattern LOCALE_PATTERN = Pattern.compile("([\\w^_]{2,3})(?:[\\-_]([\\w^_]{2,3})(?:[\\-_]#([^\\-_]*))?(?:[\\-_](\\p{Graph}+))?)?");
+	private static final Pattern LOCALE_WITH_EMPTY_COUNTRY_PATTERN = Pattern.compile("([\\w^_]{2,3})[\\-_]{2}((?!#)\\p{Graph}+)");
 
 	private static boolean has(int flags, int flag) {
 		return (flags & flag) != 0;
@@ -2472,6 +2473,10 @@ public class Strings {
 					lang == null ? "" : lang,
 					country == null ? "" : country,
 					variant == null ? "" : variant);
+		}
+		matcher = LOCALE_WITH_EMPTY_COUNTRY_PATTERN.matcher(text);
+		if (matcher.matches()) {
+			return new Locale(matcher.group(1), "", matcher.group(2));
 		}
 		return null;
 	}
