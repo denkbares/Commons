@@ -91,6 +91,11 @@ public class Text {
 	}
 
 	@Override
+	public String toString() {
+		return "\"" + string + "\"@" + language.toLanguageTag();
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(string, language);
 	}
