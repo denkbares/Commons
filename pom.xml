@@ -531,6 +531,14 @@
 						<groupId>org.apache.lucene</groupId>
 					</exclusion>
 					<exclusion>
+						<artifactId>lucene-facet</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>lucene-backward-codecs</artifactId>
+						<groupId>org.apache.lucene</groupId>
+					</exclusion>
+					<exclusion>
 						<groupId>io.swagger.core.v3</groupId>
 						<artifactId>*</artifactId>
 					</exclusion>
