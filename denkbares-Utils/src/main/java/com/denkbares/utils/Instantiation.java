@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.denkbares.strings.Strings;
 
@@ -64,7 +65,7 @@ public class Instantiation {
 	 *
 	 * @param classLoader the class loader to resolve the classes
 	 */
-	public Instantiation(ClassLoader classLoader) {
+	public Instantiation(@NotNull ClassLoader classLoader) {
 		this.classLoader = Objects.requireNonNull(classLoader);
 	}
 
@@ -111,6 +112,33 @@ public class Instantiation {
 	private static final Pattern BOOLEAN = Pattern.compile("true|false");
 
 	/**
+	 * A parsed constructor call expression, consisting of the denoted (full qualified) class name and the raw
+	 * argument string. The argument string is the plain text between the outermost parentheses, not interpreted or
+	 * split in any way. It is null if the expression has no parentheses at all, and empty if the parentheses are
+	 * empty.
+	 */
+	public record ConstructorCall(@NotNull String className, @Nullable String arguments) {
+	}
+
+	/**
+	 * Parses the specified constructor call expression into the denoted class name and the raw argument string,
+	 * without loading any class and without creating any instance. The method returns null if the specified
+	 * expression is not a valid constructor call.
+	 * <p/>
+	 * Example constructor calls are: <ul> <li>java.util.ArrayList</li> <li>java.util.ArrayList(5)</li> </ul>
+	 *
+	 * @param constructorCall the constructor call expression to be parsed
+	 * @return the parsed constructor call, or null if the expression is not a valid constructor call
+	 */
+	@Nullable
+	public static ConstructorCall parseConstructorCall(@Nullable String constructorCall) {
+		if (constructorCall == null) return null;
+		Matcher matcher = CONSTRUCTOR_CALL.matcher(constructorCall);
+		if (!matcher.find()) return null;
+		return new ConstructorCall(matcher.group(1), matcher.group(2));
+	}
+
+	/**
 	 * Tries to invoke a constructor of the specified constructor call . The arguments are parsed from the constructor
 	 * call expression. If there is no such constructor or if the constructor cannot be accessed, null is returned. If
 	 * the constructor can be called, but fails with an exception, an InvocationTargetException is thrown.
@@ -123,17 +151,16 @@ public class Instantiation {
 	 * @throws IllegalArgumentException if the parameters of the constructor call does not match the expected arguments
 	 *                                  valid
 	 */
-	public Object newInstance(String constructorCall) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+	public Object newInstance(@NotNull String constructorCall) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
 
-		Matcher matcher = CONSTRUCTOR_CALL.matcher(constructorCall);
-		if (!matcher.find()) {
+		ConstructorCall call = parseConstructorCall(constructorCall);
+		if (call == null) {
 			throw new FormatException(context.getOrigin() +
 					": invalid constructor format: " + constructorCall);
 		}
 
-		String className = matcher.group(1);
-		Class<?> clazz = loadClass(className);
-		List<String> parameters = splitParameterList(matcher.group(2));
+		Class<?> clazz = loadClass(call.className());
+		List<String> parameters = splitParameterList(call.arguments());
 
 		try {
 			Stream<Constructor> constructors = Arrays.stream(clazz.getConstructors());
@@ -160,15 +187,14 @@ public class Instantiation {
 	 * @throws FormatException        if the constructor syntax of the specified constructorCall is not correct
 	 * @throws ClassNotFoundException if the class could not been found or loaded
 	 */
-	public Class findClass(String constructorCall) throws ClassNotFoundException, FormatException {
-		Matcher matcher = CONSTRUCTOR_CALL.matcher(constructorCall);
-		if (!matcher.find()) {
+	public Class findClass(@NotNull String constructorCall) throws ClassNotFoundException, FormatException {
+		ConstructorCall call = parseConstructorCall(constructorCall);
+		if (call == null) {
 			throw new FormatException(context.getOrigin() +
 					": invalid constructor format: " + constructorCall);
 		}
 
-		String className = matcher.group(1);
-		return loadClass(className);
+		return loadClass(call.className());
 	}
 
 	/**

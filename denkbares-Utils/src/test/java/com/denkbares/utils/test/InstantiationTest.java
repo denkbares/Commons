@@ -109,6 +109,30 @@ public class InstantiationTest {
 	}
 
 	@Test
+	public void parseConstructorCall() {
+		Instantiation.ConstructorCall call = Instantiation.parseConstructorCall(
+				"com.example.Connector(\"file1.properties;file2.properties\")");
+		assertNotNull(call);
+		assertEquals("com.example.Connector", call.className());
+		assertEquals("\"file1.properties;file2.properties\"", call.arguments());
+
+		// no parentheses -> null arguments; empty parentheses -> empty arguments
+		call = Instantiation.parseConstructorCall("java.util.ArrayList");
+		assertNotNull(call);
+		assertEquals("java.util.ArrayList", call.className());
+		Assert.assertNull(call.arguments());
+
+		call = Instantiation.parseConstructorCall("new java.util.ArrayList()");
+		assertNotNull(call);
+		assertEquals("java.util.ArrayList", call.className());
+		assertEquals("", call.arguments());
+
+		// invalid expressions -> null, no exception
+		Assert.assertNull(Instantiation.parseConstructorCall(null));
+		Assert.assertNull(Instantiation.parseConstructorCall("not a constructor call"));
+	}
+
+	@Test
 	public void nestedParameterParsing() throws Exception {
 		MyClass myClass = newMyClass("MyClass('c', new java.lang.Exception(\"outer\", new java.lang.IllegalArgumentException(\"inner\", null)))");
 
