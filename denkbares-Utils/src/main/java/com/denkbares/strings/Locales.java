@@ -408,7 +408,7 @@ public class Locales {
 		if (languages == null) return "";
 		StringBuilder result = new StringBuilder();
 		for (Locale language : languages) {
-			if (result.length() > 0) result.append(";");
+			if (!result.isEmpty()) result.append(";");
 			result.append(toParsableLocale(language));
 		}
 		return result.toString();
@@ -505,6 +505,28 @@ public class Locales {
 	public static <E> E getBestValue(Map<Locale, E> map, Locale language, E defaultValue) {
 		if (map == null) return defaultValue;
 		return map.getOrDefault(findBestLocale(language, map.keySet()), defaultValue);
+	}
+
+	/**
+	 * Strict counterpart to {@link #getBestValue(Map, Locale...)}: returns the value only for a genuine match of the
+	 * specified language - either an entry of the same language (a country/variant specialization counts) or the
+	 * language-neutral {@link Locale#ROOT} entry. In contrast to {@link #getBestValue}, it never falls back to an
+	 * unrelated language; if no such entry exists, {@code null} is returned. Use this whenever the result is treated,
+	 * persisted or exported as a value specifically for {@code language} (e.g. a translation), where returning another
+	 * language's value would be wrong.
+	 *
+	 * @param map      the map of possible values
+	 * @param language the required language (ROOT counts as a match for any language)
+	 * @return the value for the matching language, or {@code null} if none matches
+	 * @see #findBestLocaleOfLanguage(Locale, Collection)
+	 */
+	@Nullable
+	public static <E> E getBestValueOfLanguage(Map<Locale, ? extends E> map, Locale language) {
+		if (map == null || map.isEmpty()) return null;
+		// findBestLocaleOfLanguage only matches the same language and otherwise yields Locale.ROOT;
+		// if ROOT is not in the map, map.get(...) is null -> no unrelated-language fallback.
+		Locale match = findBestLocaleOfLanguage(language, map.keySet());
+		return (match == null) ? null : map.get(match);
 	}
 
 	/**
