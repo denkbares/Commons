@@ -631,4 +631,12 @@ public class StringsTest {
 		String input = "A\nB\n";
 		assertEquals(input, Strings.truncateLines(input, 0, true));
 	}
+
+	@Test
+	public void normalizeLineEndings() {
+		assertEquals("a\nb\nc", Strings.normalizeLineEndings("a\r\nb\rc"));
+		assertEquals("a\nb\n", Strings.normalizeLineEndings("a\nb\n"));
+		assertEquals("", Strings.normalizeLineEndings(""));
+		assertEquals("\n\n", Strings.normalizeLineEndings("\r\n\r"));
+	}
 }
