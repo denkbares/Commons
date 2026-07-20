@@ -29,7 +29,7 @@
 
 	<properties>
 		<!-- project version -->
-		<revision>2026.5</revision>
+		<revision>2026.6-SNAPSHOT</revision>
 		<denkbares-Maven-Plugins.version>${revision}</denkbares-Maven-Plugins.version>
 
 		<!-- logging -->
