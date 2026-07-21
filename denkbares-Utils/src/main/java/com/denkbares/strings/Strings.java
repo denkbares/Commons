@@ -3074,6 +3074,17 @@ public class Strings {
 	}
 
 	/**
+	 * Normalizes windows (CRLF) and legacy mac (lone CR) line endings to unix (LF) line endings.
+	 *
+	 * @param text the text to normalize
+	 * @return the text with all line endings normalized to LF
+	 */
+	@NotNull
+	public static String normalizeLineEndings(@NotNull String text) {
+		return text.replace("\r\n", "\n").replace("\r", "\n");
+	}
+
+	/**
 	 * Counts the number of lines in the given string. A line is defined as a sequence of characters
 	 * terminated by a newline character ('\n'). If there are no newline characters, the method
 	 * considers the entire string as a single line.
