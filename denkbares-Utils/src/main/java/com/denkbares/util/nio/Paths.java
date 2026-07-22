@@ -234,6 +234,8 @@ public class Paths {
 			@Override
 			@NotNull
 			public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+				// if iterating the directory failed, deleting it would only mask the original error
+				if (exc != null) throw exc;
 				Files.delete(dir);
 				return FileVisitResult.CONTINUE;
 			}
