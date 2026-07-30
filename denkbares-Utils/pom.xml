@@ -47,10 +47,9 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
 					<archive>
-						<manifestEntries>
-							<!-- stable module name for JPMS consumers, also picked up by IntelliJ for source modules -->
-							<Automatic-Module-Name>com.denkbares.utils</Automatic-Module-Name>
-						</manifestEntries>
+						<!-- carries Automatic-Module-Name, kept as a resource so the IntelliJ
+						     compiler also sees it when using target/classes as a module-path entry -->
+						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
 					</archive>
 				</configuration>
 			</plugin>
