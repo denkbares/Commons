@@ -1543,26 +1543,70 @@ public class Strings {
 				.replace('"', '\'');
 	}
 
+	// entity encodings indexed by character, covering html-relevant and wiki-markup-relevant characters
+	private static final String[] HTML_ENCODINGS = new String[128];
+
+	static {
+		HTML_ENCODINGS['&'] = "&amp;";
+		HTML_ENCODINGS['"'] = "&quot;";
+		HTML_ENCODINGS['\''] = "&apos;";
+		HTML_ENCODINGS['<'] = "&lt;";
+		HTML_ENCODINGS['>'] = "&gt;";
+		HTML_ENCODINGS['#'] = "&#35;";
+		HTML_ENCODINGS['%'] = "&#37;";
+		HTML_ENCODINGS['|'] = "&#124;";
+		HTML_ENCODINGS['['] = "&#91;";
+		HTML_ENCODINGS[']'] = "&#93;";
+		HTML_ENCODINGS['\\'] = "&#92;";
+		HTML_ENCODINGS['\n'] = "&#xa;";
+	}
+
 	/**
-	 * Escapes the given string for safely using user-input in web sites.
+	 * Escapes the given string for safely using user-input in web sites. If no character requires encoding, the given
+	 * string instance is returned unchanged.
 	 *
 	 * @param text Text to escape
 	 * @return sanitized text
 	 */
 	public static String encodeHtml(String text) {
 		if (text == null) return null;
-		return text.replace("&", "&amp;").
-				replace("\"", "&quot;").
-				replace("'", "&apos;").
-				replace("<", "&lt;").
-				replace(">", "&gt;").
-				replace("#", "&#35;").
-				replace("%", "&#37;").
-				replace("|", "&#124;").
-				replace("[", "&#91;").
-				replace("]", "&#93;").
-				replace("\\", "&#92;").
-				replace("\n", "&#xa;");
+		int length = text.length();
+		int first = 0;
+		while (first < length && encodingOf(text.charAt(first)) == null) first++;
+		if (first == length) return text;
+		StringBuilder result = new StringBuilder(length + 32);
+		result.append(text, 0, first);
+		encodeHtml(text, first, result);
+		return result.toString();
+	}
+
+	/**
+	 * Escapes the given string for safely using user-input in web sites, appending the encoded text to the given
+	 * string builder. Appends nothing if the given text is null.
+	 *
+	 * @param text   Text to escape
+	 * @param result the string builder to append the sanitized text to
+	 */
+	public static void encodeHtml(CharSequence text, StringBuilder result) {
+		if (text == null) return;
+		encodeHtml(text, 0, result);
+	}
+
+	private static void encodeHtml(CharSequence text, int from, StringBuilder result) {
+		int length = text.length();
+		int plainStart = from;
+		for (int i = from; i < length; i++) {
+			String encoding = encodingOf(text.charAt(i));
+			if (encoding != null) {
+				result.append(text, plainStart, i).append(encoding);
+				plainStart = i + 1;
+			}
+		}
+		result.append(text, plainStart, length);
+	}
+
+	private static String encodingOf(char c) {
+		return c < 128 ? HTML_ENCODINGS[c] : null;
 	}
 
 	private static Pattern ENTITY_PATTERN = null;

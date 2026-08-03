@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.Nullable;
@@ -300,6 +301,48 @@ public class StringsTest {
 	public void encodeHTML() {
 		assertNull(Strings.encodeHtml(null));
 		assertEquals("abc&amp;&quot;&lt;&gt;&#35;&#92;def", Strings.encodeHtml("abc&\"<>#\\def"));
+		assertEquals("&apos;&#37;&#124;&#91;&#93;&#xa;", Strings.encodeHtml("'%|[]\n"));
+		assertEquals("&lt;", Strings.encodeHtml("<"));
+		assertEquals("", Strings.encodeHtml(""));
+
+		// without special characters the same instance is returned, without any copy
+		String plain = "no special characters at all";
+		assertSame(plain, Strings.encodeHtml(plain));
+
+		// the streaming variant appends to the given builder, null appends nothing
+		StringBuilder result = new StringBuilder("prefix ");
+		Strings.encodeHtml("a<b", result);
+		Strings.encodeHtml(null, result);
+		assertEquals("prefix a&lt;b", result.toString());
+	}
+
+	@Test
+	public void encodeHTMLMatchesSequentialReplace() {
+		Random random = new Random(42);
+		char[] alphabet = "ab&\"'<>#%|[]\\\n".toCharArray();
+		for (int run = 0; run < 1000; run++) {
+			char[] chars = new char[random.nextInt(30)];
+			for (int i = 0; i < chars.length; i++) {
+				chars[i] = alphabet[random.nextInt(alphabet.length)];
+			}
+			String text = new String(chars);
+			assertEquals(encodeHtmlReference(text), Strings.encodeHtml(text));
+		}
+	}
+
+	private static String encodeHtmlReference(String text) {
+		return text.replace("&", "&amp;").
+				replace("\"", "&quot;").
+				replace("'", "&apos;").
+				replace("<", "&lt;").
+				replace(">", "&gt;").
+				replace("#", "&#35;").
+				replace("%", "&#37;").
+				replace("|", "&#124;").
+				replace("[", "&#91;").
+				replace("]", "&#93;").
+				replace("\\", "&#92;").
+				replace("\n", "&#xa;");
 	}
 
 	@Test
