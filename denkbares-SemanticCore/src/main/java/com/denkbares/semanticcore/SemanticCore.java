@@ -329,25 +329,31 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public static void shutDownRepositoryManager() {
-		if (repositoryManager == null) return; // noting to shut down
+		LocalRepositoryManager manager = repositoryManager;
+		if (manager == null) return; // nothing to shut down
 		LOGGER.info("Shutting down repository manager.");
-		// shut down any remaining repositories
 		try {
-			repositoryManager.getRepositoryIDs().forEach(id -> {
+			// shut down any remaining repositories; a repository may disappear in the meantime, because SemanticCores
+			// closing asynchronously (see Rdf2GoCore#close in KnowWE) remove their repositories concurrently
+			for (String id : new ArrayList<>(manager.getRepositoryIDs())) {
 				try {
-					repositoryManager.getRepository(id).shutDown();
+					Repository repository = manager.getRepository(id);
+					if (repository == null) continue; // already removed
+					repository.shutDown();
 					LOGGER.info("Repository " + id + " shut down successful.");
 				}
-				catch (RepositoryException | RepositoryConfigException e) {
+				catch (RuntimeException e) { // includes RepositoryException and RepositoryConfigException
 					LOGGER.error("Unable to shut down repository " + id, e);
 				}
-			});
+			}
 		}
 		catch (RepositoryException e) {
 			LOGGER.error("Unable to retrieve repositories during manager close", e);
 		}
-		repositoryManager.shutDown();
-		repositoryManager = null;
+		finally {
+			repositoryManager = null;
+			manager.shutDown();
+		}
 	}
 
 	@Override
