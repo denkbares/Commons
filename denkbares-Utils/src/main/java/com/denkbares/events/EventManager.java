@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Jochen Reutelshöfer
  */
-public final class EventManager {
+public final class EventManager implements AutoCloseable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventManager.class);
 
 	private static EventManager instance;
@@ -59,7 +59,11 @@ public final class EventManager {
 		PERSISTENT
 	}
 
-	public static EventManager getInstance() {
+	/**
+	 * Returns the global event manager of this JVM. Prefer the event manager of the owning object (e.g. an application
+	 * environment) where there is one, see {@link #EventManager()}.
+	 */
+	public static synchronized EventManager getInstance() {
 		if (instance == null) {
 			instance = new EventManager();
 		}
@@ -76,10 +80,19 @@ public final class EventManager {
 	private final Set<EventListener> persistentListeners = new HashSet<>();
 
 	/**
-	 * Creates the listener map by fetching all EventListener extensions from
-	 * the PluginManager
+	 * Creates an independent event manager, e.g. owned by an application environment. Events fired on it reach only the
+	 * listeners registered at it; there is no relation to the global manager of {@link #getInstance()}.
 	 */
-	private EventManager() {
+	public EventManager() {
+	}
+
+	/**
+	 * Drops all listeners of this event manager.
+	 */
+	@Override
+	public synchronized void close() {
+		listeners.clear();
+		persistentListeners.clear();
 	}
 
 	/**
@@ -125,7 +138,8 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// unregister the listener for the event's class
-			listeners.get(eventClass).remove(listener);
+			WeakHashMap<EventListener, Object> registered = listeners.get(eventClass);
+			if (registered != null) registered.remove(listener);
 		}
 		persistentListeners.remove(listener);
 	}
