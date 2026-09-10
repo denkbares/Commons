@@ -73,16 +73,26 @@ public class Files {
 	private static final int TEMP_DIR_ATTEMPTS = 1000;
 
 	/**
-	 * Cleans the specified filename from special characters, to that the returned filename can be used without
-	 * conflicting so an operating system's special file system characters. It also shortens the filename if it becomes
-	 * too long. Note that two different input names may result in the same cleaned filename.
+	 * Cleans the specified filename from special characters, so that the returned filename can be used without
+	 * conflicting with an operating system's special file system characters. In addition to {@link
+	 * Strings#encodeFileName(String)} it also collapses whitespace and shell-like characters, so the result is usable
+	 * as a path element of generated storage layouts, but no longer nicely readable. Note that two different input
+	 * names may result in the same cleaned filename.
+	 * <p>
+	 * Use {@link Strings#encodeFileName(String)} instead if the name is presented to a user (e.g. as the name of a
+	 * download), and {@link ContentDisposition} to render it into a <tt>Content-Disposition</tt> header.
 	 *
 	 * @param unsecureFileName the filename to be cleaned
 	 * @return an operating-system-secure filename to be used as a path element
 	 */
 	@NotNull
 	public static String cleanFileName(@Nullable String unsecureFileName) {
-		return String.valueOf(unsecureFileName).replaceAll("[:\\s_\\\\/'\"?$&%#+*;]+", "_");
+		String name = String.valueOf(unsecureFileName);
+		// encodeFileName additionally removes control characters and reserved windows file names
+		String cleaned = Strings.encodeFileName(name)
+				.replaceAll("[:\\s_\\\\/'\"?$&%#+*;]+", "_");
+		// a name consisting of unusable characters only must not collapse to an empty path element
+		return cleaned.isEmpty() && !name.isEmpty() ? "_" : cleaned;
 	}
 
 	/**
