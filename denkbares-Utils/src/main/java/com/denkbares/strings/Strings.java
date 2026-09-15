@@ -1529,6 +1529,11 @@ public class Strings {
 	 * <p>
 	 * Note: This method will potentially return the same string for multiple input strings, so uniqueness of the
 	 * filename is not (!) preserved.
+	 * <p>
+	 * The result is still readable (whitespace and most punctuation are preserved), so this is the method of choice
+	 * for names presented to a user. Use <tt>com.denkbares.utils.Files#cleanFileName(String)</tt> for a stricter
+	 * variant creating path elements of generated storage layouts, and
+	 * <tt>com.denkbares.utils.ContentDisposition</tt> to render a name into a <tt>Content-Disposition</tt> header.
 	 *
 	 * @param text the text to be as a file name
 	 * @return the encoded string, potentially clashing with other strings that will produce the same filename
