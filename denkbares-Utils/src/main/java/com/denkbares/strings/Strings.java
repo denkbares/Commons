@@ -1530,6 +1530,10 @@ public class Strings {
 	 * Note: This method will potentially return the same string for multiple input strings, so uniqueness of the
 	 * filename is not (!) preserved.
 	 * <p>
+	 * The device names Windows reserves (<tt>CON</tt>, <tt>NUL</tt>, <tt>COM1</tt>, ...) get an underscore appended,
+	 * regardless of case and also with an extension, as Windows refuses them that way too: <tt>con.txt</tt> becomes
+	 * <tt>con_.txt</tt>.
+	 * <p>
 	 * The result is still readable (whitespace and most punctuation are preserved), so this is the method of choice
 	 * for names presented to a user. Use <tt>com.denkbares.utils.Files#cleanFileName(String)</tt> for a stricter
 	 * variant creating path elements of generated storage layouts, and
@@ -1543,7 +1547,7 @@ public class Strings {
 		if (text == null) return null;
 		return trim(text.replaceAll("[\u0000-\u001F]+", " ").replaceAll("[^\u0000-\uFFFF]+", ""))
 				.replaceAll("[\\\\/|;:<>?*]+", "_")
-				.replaceAll("^(CON|PRN|AUX|NUL|(COM\\d)|(LPT\\d))$", "$1_")
+				.replaceAll("(?i)^(CON|PRN|AUX|NUL|COM\\d|LPT\\d)(?=\\s*(\\.|$))", "$1_")
 				.replaceAll("\\.$", "_")
 				.replace('"', '\'');
 	}
