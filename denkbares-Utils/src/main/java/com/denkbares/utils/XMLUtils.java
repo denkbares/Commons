@@ -43,6 +43,8 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -66,6 +68,8 @@ import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 /**
  * XML-related utilities
@@ -74,6 +78,17 @@ import org.xml.sax.SAXException;
  * @created 2016-05-31
  */
 public class XMLUtils {
+
+	/**
+	 * Entity size limits of the JDK's built-in XML parser, set back to their defaults before JDK 24. JDK 24 lowered
+	 * both to 100.000, and since JDK 25 every character reference and predefined entity (e.g. <code>&amp;#10;</code>
+	 * or <code>&amp;amp;</code>) of the document counts against them, so larger knowledge bases and wiki files can no
+	 * longer be read. The total limit still bounds entity amplification, while the default entity expansion limit
+	 * remains untouched. A limit explicitly set as system property is respected and not overridden.
+	 */
+	private static final Map<String, String> ENTITY_SIZE_LIMITS = Map.of(
+			"jdk.xml.maxGeneralEntitySizeLimit", "0",
+			"jdk.xml.totalEntitySizeLimit", "50000000");
 
 	/**
 	 * Creates a new {@link XPath} instance using the default {@link XPathFactory} and sets a matching {@link
@@ -235,7 +250,7 @@ public class XMLUtils {
 	 *                     be configured
 	 */
 	public static Document streamToDocument(InputStream stream, EntityResolver resolver) throws IOException {
-		DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory fac = newDocumentBuilderFactory();
 		DocumentBuilder parser;
 		try {
 			parser = fac.newDocumentBuilder();
@@ -245,6 +260,48 @@ public class XMLUtils {
 		catch (ParserConfigurationException | SAXException e) {
 			throw new IOException(e);
 		}
+	}
+
+	/**
+	 * Creates a new {@link DocumentBuilderFactory} with the entity size limits relaxed to the defaults before JDK 24,
+	 * see {@link #ENTITY_SIZE_LIMITS}. Use this instead of {@link DocumentBuilderFactory#newInstance()} to parse
+	 * documents of arbitrary size.
+	 *
+	 * @return a new document builder factory
+	 */
+	public static DocumentBuilderFactory newDocumentBuilderFactory() {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		ENTITY_SIZE_LIMITS.forEach((name, value) -> {
+			if (System.getProperty(name) != null) return;
+			try {
+				factory.setAttribute(name, value);
+			}
+			catch (IllegalArgumentException ignore) {
+				// other parser implementation (e.g. Apache Xerces) without these limits
+			}
+		});
+		return factory;
+	}
+
+	/**
+	 * Creates a new {@link SAXParser} with the entity size limits relaxed to the defaults before JDK 24, see {@link
+	 * #ENTITY_SIZE_LIMITS}. Use this instead of {@link SAXParserFactory#newSAXParser()} to parse documents of
+	 * arbitrary size.
+	 *
+	 * @return a new SAX parser
+	 */
+	public static SAXParser newSAXParser() throws ParserConfigurationException, SAXException {
+		SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+		for (Map.Entry<String, String> limit : ENTITY_SIZE_LIMITS.entrySet()) {
+			if (System.getProperty(limit.getKey()) != null) continue;
+			try {
+				parser.setProperty(limit.getKey(), limit.getValue());
+			}
+			catch (SAXNotRecognizedException | SAXNotSupportedException ignore) {
+				// other parser implementation (e.g. Apache Xerces) without these limits
+			}
+		}
+		return parser;
 	}
 
 	/**

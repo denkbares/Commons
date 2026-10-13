@@ -682,4 +682,28 @@ public class StringsTest {
 		assertEquals("", Strings.normalizeLineEndings(""));
 		assertEquals("\n\n", Strings.normalizeLineEndings("\r\n\r"));
 	}
+
+	/**
+	 * Windows refuses its device names regardless of case and also with an extension; the check used to know only
+	 * the upper case names without one, so {@code con} and {@code CON.txt} passed unchanged.
+	 */
+	@Test
+	public void encodeFileNameEscapesReservedWindowsNames() {
+		assertEquals("CON_", Strings.encodeFileName("CON"));
+		assertEquals("con_", Strings.encodeFileName("con"));
+		assertEquals("Nul_", Strings.encodeFileName("Nul"));
+		assertEquals("COM9_", Strings.encodeFileName("COM9"));
+		assertEquals("CON_.txt", Strings.encodeFileName("CON.txt"));
+		assertEquals("lpt1_.tar.gz", Strings.encodeFileName("lpt1.tar.gz"));
+		assertEquals("aux_ .txt", Strings.encodeFileName("aux .txt"));
+		assertEquals("CON__", Strings.encodeFileName("CON."));
+		// only the device names themselves
+		assertEquals("CONTROL", Strings.encodeFileName("CONTROL"));
+		assertEquals("Console.txt", Strings.encodeFileName("Console.txt"));
+		assertEquals("COM", Strings.encodeFileName("COM"));
+		assertEquals("COM10", Strings.encodeFileName("COM10"));
+		assertEquals("Bericht CON.txt", Strings.encodeFileName("Bericht CON.txt"));
+		// Files#cleanFileName builds on it
+		assertEquals("con_.txt", com.denkbares.utils.Files.cleanFileName("con.txt"));
+	}
 }
