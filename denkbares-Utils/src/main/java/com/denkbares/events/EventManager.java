@@ -31,10 +31,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A very simple EventManager. Events are represented by Classes.
+ * <p>
+ * Only the owner of an event manager closes it, i.e. the one that created it with {@link #EventManager()} (e.g. an
+ * application environment); the global manager of {@link #getInstance()} is never closed. Everybody else obtains a
+ * manager to fire events or register listeners. Deliberately not an {@link AutoCloseable} therefore: try-with-resources
+ * around an obtained manager would silently drop all listeners of its owner, and IDE inspections would demand exactly
+ * that for every getter.
  *
  * @author Jochen Reutelshöfer
  */
-public final class EventManager implements AutoCloseable {
+public final class EventManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EventManager.class);
 
 	private static EventManager instance;
@@ -87,9 +93,8 @@ public final class EventManager implements AutoCloseable {
 	}
 
 	/**
-	 * Drops all listeners of this event manager.
+	 * Drops all listeners of this event manager. Only the owner calls this method, see the class comment.
 	 */
-	@Override
 	public synchronized void close() {
 		listeners.clear();
 		persistentListeners.clear();
