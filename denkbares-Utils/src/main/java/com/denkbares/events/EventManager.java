@@ -31,6 +31,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A very simple EventManager. Events are represented by Classes.
+ * <p>
+ * Only the owner of an event manager closes it, i.e. the one that created it with {@link #EventManager()} (e.g. an
+ * application environment); the global manager of {@link #getInstance()} is never closed. Everybody else obtains a
+ * manager to fire events or register listeners. Deliberately not an {@link AutoCloseable} therefore: try-with-resources
+ * around an obtained manager would silently drop all listeners of its owner, and IDE inspections would demand exactly
+ * that for every getter.
  *
  * @author Jochen Reutelshöfer
  */
@@ -59,7 +65,11 @@ public final class EventManager {
 		PERSISTENT
 	}
 
-	public static EventManager getInstance() {
+	/**
+	 * Returns the global event manager of this JVM. Prefer the event manager of the owning object (e.g. an application
+	 * environment) where there is one, see {@link #EventManager()}.
+	 */
+	public static synchronized EventManager getInstance() {
 		if (instance == null) {
 			instance = new EventManager();
 		}
@@ -76,10 +86,18 @@ public final class EventManager {
 	private final Set<EventListener> persistentListeners = new HashSet<>();
 
 	/**
-	 * Creates the listener map by fetching all EventListener extensions from
-	 * the PluginManager
+	 * Creates an independent event manager, e.g. owned by an application environment. Events fired on it reach only the
+	 * listeners registered at it; there is no relation to the global manager of {@link #getInstance()}.
 	 */
-	private EventManager() {
+	public EventManager() {
+	}
+
+	/**
+	 * Drops all listeners of this event manager. Only the owner calls this method, see the class comment.
+	 */
+	public synchronized void close() {
+		listeners.clear();
+		persistentListeners.clear();
 	}
 
 	/**
@@ -125,7 +143,8 @@ public final class EventManager {
 
 		for (Class<? extends Event> eventClass : eventClasses) {
 			// unregister the listener for the event's class
-			listeners.get(eventClass).remove(listener);
+			WeakHashMap<EventListener, Object> registered = listeners.get(eventClass);
+			if (registered != null) registered.remove(listener);
 		}
 		persistentListeners.remove(listener);
 	}
