@@ -473,6 +473,16 @@
 						<groupId>org.apache.httpcomponents</groupId>
 						<artifactId>httpclient-osgi</artifactId>
 					</exclusion>
+					<!-- bundles its own (older) copies of httpcore and httpcore-nio, which are present anyway -->
+					<exclusion>
+						<groupId>org.apache.httpcomponents</groupId>
+						<artifactId>httpcore-osgi</artifactId>
+					</exclusion>
+					<!-- old name of org.lz4:lz4-java (same packages), which graphdb-runtime also pulls in -->
+					<exclusion>
+						<groupId>net.jpountz.lz4</groupId>
+						<artifactId>lz4</artifactId>
+					</exclusion>
 					<exclusion>
 						<groupId>org.springframework</groupId>
 						<artifactId>spring-jcl</artifactId>
@@ -553,6 +563,11 @@
 				<artifactId>mapdb</artifactId>
 				<version>${mapdb.version}</version>
 				<exclusions>
+					<!-- old name of org.lz4:lz4-java (same packages), which graphdb-runtime brings in a newer version -->
+					<exclusion>
+						<groupId>net.jpountz.lz4</groupId>
+						<artifactId>lz4</artifactId>
+					</exclusion>
 					<exclusion>
 						<groupId>org.jetbrains.kotlin</groupId>
 						<artifactId>kotlin-stdlib</artifactId>
