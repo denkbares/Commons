@@ -45,6 +45,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.eclipse.rdf4j.common.exception.RDF4JException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -393,7 +394,10 @@ public final class SemanticCore implements SPARQLEndpoint {
 	}
 
 	public void addData(Reader reader, RDFFormat format) throws RepositoryException, RDFParseException, IOException {
-		addData(connection -> connection.add(reader, DEFAULT_NAMESPACE, format));
+		// GraphDB sniffs the format of readers via mark/reset, which fails with commons-io 2.22 (BoundedReader no longer
+		// bounds read(char[]), so the whole content is read and the mark gets invalid), so we pass a stream instead
+		InputStream stream = ReaderInputStream.builder().setReader(reader).setCharset(StandardCharsets.UTF_8).get();
+		addData(connection -> connection.add(stream, DEFAULT_NAMESPACE, format));
 	}
 
 	private void addData(DataAdder adder) throws RepositoryException, RDFParseException, IOException {
