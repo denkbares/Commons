@@ -284,6 +284,18 @@ public class XMLUtils {
 	}
 
 	/**
+	 * Sets the entity size limits of {@link #ENTITY_SIZE_LIMITS} as system properties, unless they are already set.
+	 * Use this before parsing with libraries that create their parsers internally (e.g. Apache POI for XLSX files),
+	 * where the limits cannot be set on the factory or parser. The JDK reads the system properties whenever a parser
+	 * is created, so this affects all parsers created afterwards in this JVM.
+	 */
+	public static void relaxEntitySizeLimitsGlobally() {
+		ENTITY_SIZE_LIMITS.forEach((name, value) -> {
+			if (System.getProperty(name) == null) System.setProperty(name, value);
+		});
+	}
+
+	/**
 	 * Creates a new {@link SAXParser} with the entity size limits relaxed to the defaults before JDK 24, see {@link
 	 * #ENTITY_SIZE_LIMITS}. Use this instead of {@link SAXParserFactory#newSAXParser()} to parse documents of
 	 * arbitrary size.
