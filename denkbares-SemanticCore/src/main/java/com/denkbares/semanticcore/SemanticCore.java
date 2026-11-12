@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -101,6 +103,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 	private static final Object lazyInitializationMutex = new Object();
 	private volatile static LocalRepositoryManager repositoryManager = null;
 	private static final int THRESHOLD_TIME = 1000 * 60 * 2; // 2 min...
+	private static final int MAX_NAMESPACE_READ_ATTEMPTS = 10;
 	public static final String DEFAULT_NAMESPACE = "http://www.denkbares.com/ssc/ds#";
 	private final String repositoryId;
 	private final Repository repository;
@@ -357,10 +360,23 @@ public final class SemanticCore implements SPARQLEndpoint {
 		}
 	}
 
+	/**
+	 * Returns the namespaces of the repository. Some sails, e.g. the memory store, iterate their namespaces without any
+	 * synchronization against concurrent namespace changes, so reading them may fail with a {@link
+	 * ConcurrentModificationException}. As reading has no side effects, the namespaces are simply read again in that
+	 * case, after a short and increasing pause to let the concurrent changes finish.
+	 */
 	@Override
 	public Collection<Namespace> getNamespaces() throws RepositoryException {
-		try (RepositoryConnection connection = getConnection()) {
-			return connection.getNamespaces().stream().toList();
+		for (int attempt = 1; ; attempt++) {
+			try (RepositoryConnection connection = getConnection()) {
+				return connection.getNamespaces().stream().toList();
+			}
+			catch (ConcurrentModificationException e) {
+				if (attempt >= MAX_NAMESPACE_READ_ATTEMPTS) throw e;
+				LOGGER.debug("Namespaces of repository '{}' changed while reading them, reading again", repositoryId);
+				LockSupport.parkNanos(attempt * 100_000L);
+			}
 		}
 	}
 
