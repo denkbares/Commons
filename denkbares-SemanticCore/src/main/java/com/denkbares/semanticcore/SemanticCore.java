@@ -62,12 +62,16 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
 import org.eclipse.rdf4j.repository.manager.LocalRepositoryManager;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
+import org.eclipse.rdf4j.sail.Sail;
+import org.eclipse.rdf4j.sail.StackableSail;
+import org.eclipse.rdf4j.sail.helpers.AbstractSail;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -76,7 +80,6 @@ import org.slf4j.LoggerFactory;
 import com.denkbares.collections.Matrix;
 import com.denkbares.events.EventManager;
 import com.denkbares.semanticcore.config.RepositoryConfig;
-import com.denkbares.semanticcore.events.SemanticCoreConnectionOpenedEvent;
 import com.denkbares.semanticcore.events.SemanticCoreCreatedEvent;
 import com.denkbares.semanticcore.sparql.SPARQLEndpoint;
 import com.denkbares.semanticcore.utils.RDFUtils;
@@ -88,6 +91,8 @@ import com.denkbares.utils.Streams;
 
 public final class SemanticCore implements SPARQLEndpoint {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SemanticCore.class);
+	/** a timeout of 0 would wait forever */
+	private static final long SHUTDOWN_CONNECTION_TIMEOUT_MILLIS = 100;
 	public static final String SEMANTIC_CORE_REPOSITORY_PATH_SUFFIX = "semanticCore.repository.path.suffix";
 
 	public enum State {
@@ -343,6 +348,7 @@ public final class SemanticCore implements SPARQLEndpoint {
 				try {
 					Repository repository = manager.getRepository(id);
 					if (repository == null) continue; // already removed
+					skipConnectionGracePeriod(repository);
 					repository.shutDown();
 					LOGGER.info("Repository " + id + " shut down successful.");
 				}
@@ -355,8 +361,43 @@ public final class SemanticCore implements SPARQLEndpoint {
 			LOGGER.error("Unable to retrieve repositories during manager close", e);
 		}
 		finally {
+			retireInstances();
 			repositoryManager = null;
 			manager.shutDown();
+		}
+	}
+
+	/**
+	 * The repositories of all cores have been shut down together with their repository manager. These cores must not
+	 * be handed out any more, otherwise {@link #getOrCreateInstance(String, RepositoryConfig, File)} would reuse a
+	 * core without a repository instead of creating a new one.
+	 */
+	private static void retireInstances() {
+		for (AtomicReference<SemanticCore> reference : new ArrayList<>(instances.values())) {
+			SemanticCore core = reference.get();
+			if (core != null) core.state = State.shutdown;
+		}
+		instances.clear();
+	}
+
+	/**
+	 * A sail waits on shut down for its still open connections to be closed, by default 20 seconds, before it closes
+	 * them itself. When the whole repository manager is shut down, nobody is going to close these connections any
+	 * more, so we do not wait for them.
+	 */
+	private static void skipConnectionGracePeriod(Repository repository) {
+		if (!(repository instanceof SailRepository sailRepository)) return;
+		Sail sail = sailRepository.getSail();
+		while (true) {
+			if (sail instanceof AbstractSail abstractSail) {
+				abstractSail.setConnectionTimeOut(SHUTDOWN_CONNECTION_TIMEOUT_MILLIS);
+			}
+			if (sail instanceof StackableSail stackableSail && stackableSail.getBaseSail() != null) {
+				sail = stackableSail.getBaseSail();
+			}
+			else {
+				return;
+			}
 		}
 	}
 
