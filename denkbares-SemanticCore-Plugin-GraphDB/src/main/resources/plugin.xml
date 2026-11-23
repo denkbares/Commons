@@ -52,6 +52,15 @@
 		<parameter id="priority" value="5" />
 	</extension>
 
+	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig"
+		id="RdfsPlusOptimizedConfig">
+		<parameter id="class" value="com.denkbares.semanticcore.graphdb.RdfsPlusOptimizedConfig" />
+		<parameter id="name" value="RdfsPlusOptimized" />
+		<parameter id="description" value="Repository config for GraphDB's built-in rdfsplus-optimized rule-set" />
+		<parameter id="version" value="1.0" />
+		<parameter id="priority" value="5" />
+	</extension>
+
 	<extension plugin-id="denkbares-SemanticCore-Plugin-ExtensionPoints" point-id="RepositoryConfig" id="OwlMaxConfig">
 		<parameter id="class" value="com.denkbares.semanticcore.graphdb.OwlMaxConfig" />
 		<parameter id="name" value="OwlMax" />
