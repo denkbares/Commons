@@ -202,26 +202,30 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	 * @return the items of this list grouped by their priorities
 	 */
 	public Map<P, List<E>> getPriorityMap() {
-		if (cachedPriorityMap == null) {
+		Map<P, List<E>> priorityMap = cachedPriorityMap;
+		if (priorityMap == null) {
 			if (isEmpty()) {
-				cachedPriorityMap = Collections.emptyMap();
+				priorityMap = Collections.emptyMap();
 			}
 			else {
-				cachedPriorityMap = new LinkedHashMap<>();
+				Map<P, List<E>> map = new LinkedHashMap<>();
 				P currentPrio = null;
 				List<E> currentList = null;
 				for (Entry<P, E> item : this.items) {
-					if (currentPrio == null || !item.priority.equals(currentPrio)) {
+					if (!item.priority.equals(currentPrio)) {
 						currentPrio = item.priority;
 						currentList = new LinkedList<>();
-						cachedPriorityMap.put(currentPrio,
+						map.put(currentPrio,
 								Collections.unmodifiableList(currentList));
 					}
 					currentList.add(item.element);
 				}
+				// wrap only once: the map is requested very often, e.g. for each section to be compiled
+				priorityMap = Collections.unmodifiableMap(map);
 			}
+			cachedPriorityMap = priorityMap;
 		}
-		return Collections.unmodifiableMap(cachedPriorityMap);
+		return priorityMap;
 	}
 
 	/**
@@ -329,7 +333,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	 */
 	public P getLowestPriority() {
 		if (isEmpty()) return null;
-		return items.get(0).priority;
+		return items.getFirst().priority;
 	}
 
 	/**
@@ -343,7 +347,7 @@ public class PriorityList<P extends Comparable<P>, E> extends AbstractList<E> {
 	 */
 	public P getHighestPriority() {
 		if (isEmpty()) return null;
-		return items.get(items.size() - 1).priority;
+		return items.getLast().priority;
 	}
 
 	/**
