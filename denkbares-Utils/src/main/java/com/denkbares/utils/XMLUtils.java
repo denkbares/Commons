@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
@@ -167,10 +168,9 @@ public class XMLUtils {
 	 */
 	public static Element getFirstChild(Element element) {
 		if (element == null) return null;
-		NodeList list = element.getChildNodes();
-		for (int i = 0; i < list.getLength(); i++) {
-			if (list.item(i) instanceof Element) {
-				return (Element) list.item(i);
+		for (Node child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+			if (child instanceof Element childElement) {
+				return childElement;
 			}
 		}
 		return null;
@@ -183,10 +183,10 @@ public class XMLUtils {
 	 * @return a list containing all elements from nodeist, but not containing other nodes such as text nodes etc.
 	 */
 	public static List<Element> getElementList(NodeList list) {
-		List<Element> col = new ArrayList<>(list.getLength());
-		for (int i = 0; i < list.getLength(); i++) {
-			if (list.item(i) instanceof Element) {
-				col.add((Element) list.item(i));
+		List<Element> col = new ArrayList<>();
+		for (Node item : nodes(list)) {
+			if (item instanceof Element element) {
+				col.add(element);
 			}
 		}
 		return col;
@@ -202,8 +202,7 @@ public class XMLUtils {
 	 */
 	public static List<Element> getElementList(NodeList list, String... nodeNames) {
 		List<Element> col = new ArrayList<>();
-		for (int i = 0; i < list.getLength(); i++) {
-			Node item = list.item(i);
+		for (Node item : nodes(list)) {
 			if (item instanceof Element) {
 				for (String nodeName : nodeNames) {
 					if (item.getNodeName().equalsIgnoreCase(nodeName)) {
@@ -215,6 +214,66 @@ public class XMLUtils {
 		}
 
 		return col;
+	}
+
+	/**
+	 * Returns the nodes of the given list in their order. If the list is the child list of a DOM node (Xerces returns
+	 * the parent node itself from {@link Node#getChildNodes()}), the children are traversed via their sibling links
+	 * instead of {@link NodeList#item(int)}.
+	 * <p>
+	 * Why: indexed access to the JDK's Xerces DOM can slow down later traversals of the whole document.
+	 * <p>
+	 * <b>The cache:</b> children are a linked list, so <code>item(i)</code> remembers the last index and child to make
+	 * sequential access cheap. Such a cache is borrowed from a free list kept per document
+	 * (<code>CoreDocumentImpl.getNodeListCache</code>). Taking a cache from the free list also takes it away from its
+	 * previous owner, which then has to borrow a new one and starts counting again at its first child.
+	 * <p>
+	 * <b>The flaw:</b> when <code>item(i)</code> arrives at the first or the last child, it puts its cache back on the
+	 * free list, but the list keeps on using it ("until it is actually reused", <code>ParentNode.nodeListItem</code>).
+	 * If the same list arrives at the first or last child once more before anyone else has borrowed the cache, the cache
+	 * is put back a second time: the free list is <code>c -&gt; c</code>, i.e. the cache's <code>next</code> points to
+	 * itself. From then on, the document hands out this one cache to every child list that borrows one, taking it away
+	 * from the list that used it before.
+	 * <p>
+	 * <b>The trigger:</b> this class called <code>item(i)</code> twice for each index. For an element with two or more
+	 * children, the second <code>item(0)</code> is at the first child, so the cache is put back (1st time).
+	 * <code>item(1)</code> then counts from the first child again, still with the same cache, and at the latest the
+	 * second <code>item(last)</code> is at the last child, so the cache is put back again (2nd time): cycle.
+	 * <p>
+	 * <b>The effect:</b> a nested indexed traversal of such a document, as Saxon's DOMSender does when serializing it,
+	 * becomes quadratic: whenever it descends into a child with two or more children, that child takes the cache from
+	 * the parent, so the parent's next <code>item(i)</code> counts again from its first child. Saving the mminfo.xml of
+	 * a large knowledge base (some 10,000 children of the root element) took about 10 seconds instead of a few hundred
+	 * milliseconds.
+	 *
+	 * @param list the list to iterate
+	 * @return the nodes of the list
+	 */
+	private static Iterable<Node> nodes(NodeList list) {
+		if (list instanceof Node parent && parent.getChildNodes() == list) {
+			return () -> new Iterator<>() {
+				private Node next = parent.getFirstChild();
+
+				@Override
+				public boolean hasNext() {
+					return next != null;
+				}
+
+				@Override
+				public Node next() {
+					if (next == null) throw new NoSuchElementException();
+					Node current = next;
+					next = current.getNextSibling();
+					return current;
+				}
+			};
+		}
+		int length = list.getLength();
+		List<Node> nodes = new ArrayList<>(length);
+		for (int i = 0; i < length; i++) {
+			nodes.add(list.item(i));
+		}
+		return nodes;
 	}
 
 	/**
